@@ -1,0 +1,21 @@
+<Project>
+  <Import Project=".\Common.props" />
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Package versions used in this repository">
+    <!--
+      Please sort alphabetically.
+      Refer to https://docs.microsoft.com/nuget/concepts/package-versioning for semver syntax.
+    -->
+    <MicrosoftNETTestSdkPkgVer>[17.2.0]</MicrosoftNETTestSdkPkgVer>
+    <XUnitRunnerVisualStudioPkgVer>[2.4.3,3.0)</XUnitRunnerVisualStudioPkgVer>
+    <XUnitPkgVer>[2.4.1,3.0)</XUnitPkgVer>
+  </PropertyGroup>
+</Project>
