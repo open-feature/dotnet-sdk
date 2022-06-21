@@ -1,0 +1,3 @@
+<Project>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'OpenFeature.sln'))\build\Common.props" />
+</Project>
