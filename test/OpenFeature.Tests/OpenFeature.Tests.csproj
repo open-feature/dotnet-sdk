@@ -6,7 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoFixture" Version="$(AutoFixtureVer)" />
+    <PackageReference Include="FluentAssertions" Version="$(FluentAssertionsVer)" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNETTestSdkPkgVer)" />
+    <PackageReference Include="Moq" Version="$(MoqVer)" />
     <PackageReference Include="xunit" Version="$(XUnitPkgVer)" />
     <PackageReference Include="xunit.runner.visualstudio" Version="$(XUnitRunnerVisualStudioPkgVer)">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
