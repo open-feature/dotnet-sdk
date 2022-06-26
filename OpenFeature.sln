@@ -1,6 +1,6 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenFeature.Api", "src\OpenFeature.Api\OpenFeature.Api.csproj", "{07A6E6BD-FB7E-4B3B-9CBE-65AE9D0EB223}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenFeature", "src\OpenFeature\OpenFeature.csproj", "{07A6E6BD-FB7E-4B3B-9CBE-65AE9D0EB223}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{72005F60-C2E8-40BF-AE95-893635134D7D}"
 	ProjectSection(SolutionItems) = preProject
