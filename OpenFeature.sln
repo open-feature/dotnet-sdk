@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenFeature.Api", "src\OpenFeature.Api\OpenFeature.Api.csproj", "{07A6E6BD-FB7E-4B3B-9CBE-65AE9D0EB223}"
 EndProject
@@ -20,8 +20,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{65FBA159-2
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenFeature.Tests", "test\OpenFeature.Tests\OpenFeature.Tests.csproj", "{49BB42BA-10A6-4DA3-A7D5-38C968D57837}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenFeature.Client", "src\OpenFeature.Client\OpenFeature.Client.csproj", "{F0BF9B94-F743-48EE-9AA2-37C86D4DA8AB}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,14 +34,9 @@ Global
 		{49BB42BA-10A6-4DA3-A7D5-38C968D57837}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49BB42BA-10A6-4DA3-A7D5-38C968D57837}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49BB42BA-10A6-4DA3-A7D5-38C968D57837}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F0BF9B94-F743-48EE-9AA2-37C86D4DA8AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F0BF9B94-F743-48EE-9AA2-37C86D4DA8AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F0BF9B94-F743-48EE-9AA2-37C86D4DA8AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F0BF9B94-F743-48EE-9AA2-37C86D4DA8AB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{07A6E6BD-FB7E-4B3B-9CBE-65AE9D0EB223} = {C97E9975-E10A-4817-AE2C-4DD69C3C02D4}
 		{49BB42BA-10A6-4DA3-A7D5-38C968D57837} = {65FBA159-23E0-4CF9-881B-F78DBFF198E9}
-		{F0BF9B94-F743-48EE-9AA2-37C86D4DA8AB} = {C97E9975-E10A-4817-AE2C-4DD69C3C02D4}
 	EndGlobalSection
 EndGlobal
