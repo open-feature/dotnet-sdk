@@ -1,7 +1,5 @@
 ﻿namespace OpenFeature.Model
 {
-    public abstract class FlagEvaluationDetails { }
-
     public class FlagEvaluationDetails<T>
     {
         public T Value { get; }

@@ -1,4 +1,5 @@
-﻿using OpenFeature.Model;
+﻿using System.Threading.Tasks;
+using OpenFeature.Model;
 
 namespace OpenFeature
 {
@@ -12,9 +13,9 @@ namespace OpenFeature
     public interface IFeatureProvider
     {
         Metadata GetMetadata();
-        ResolutionDetails<bool> ResolveBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null);
-        ResolutionDetails<string> ResolveStringValue(string flagKey, string defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null);
-        ResolutionDetails<int> ResolveNumberValue(string flagKey, int defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null);
-        ResolutionDetails<T> ResolveStructureValue<T>(string flagKey, T defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null);
+        Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null);
+        Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null);
+        Task<ResolutionDetails<int>> ResolveNumberValue(string flagKey, int defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null);
+        Task<ResolutionDetails<T>> ResolveStructureValue<T>(string flagKey, T defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null);
     }
 }

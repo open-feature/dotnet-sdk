@@ -1,4 +1,5 @@
-﻿using OpenFeature.Constant;
+﻿using System.Threading.Tasks;
+using OpenFeature.Constant;
 using OpenFeature.Model;
 
 namespace OpenFeature
@@ -16,24 +17,24 @@ namespace OpenFeature
             return _metadata;
         }
 
-        public ResolutionDetails<bool> ResolveBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null)
+        public Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null)
         {
-            return NoOpResponse(flagKey, defaultValue);
+            return Task.FromResult(NoOpResponse(flagKey, defaultValue));
         }
 
-        public ResolutionDetails<string> ResolveStringValue(string flagKey, string defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null)
+        public Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null)
         {
-            return NoOpResponse(flagKey, defaultValue);
+            return Task.FromResult(NoOpResponse(flagKey, defaultValue));
         }
 
-        public ResolutionDetails<int> ResolveNumberValue(string flagKey, int defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null)
+        public Task<ResolutionDetails<int>> ResolveNumberValue(string flagKey, int defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null)
         {
-            return NoOpResponse(flagKey, defaultValue);
+            return Task.FromResult(NoOpResponse(flagKey, defaultValue));
         }
 
-        public ResolutionDetails<T> ResolveStructureValue<T>(string flagKey, T defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null)
+        public Task<ResolutionDetails<T>> ResolveStructureValue<T>(string flagKey, T defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null)
         {
-            return NoOpResponse(flagKey, defaultValue);
+            return Task.FromResult(NoOpResponse(flagKey, defaultValue));
         }
 
         private static ResolutionDetails<T> NoOpResponse<T>(string flagKey, T defaultValue)

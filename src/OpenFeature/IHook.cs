@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace OpenFeature.Model
 {
@@ -12,9 +13,9 @@ namespace OpenFeature.Model
     /// </summary>
     public interface IHook
     {
-        EvaluationContext Before<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null);
-        void After<T>(HookContext<T> context, FlagEvaluationDetails<T> details, IReadOnlyDictionary<string, object> hints = null);
-        void Error<T>(HookContext<T> context, Exception error, IReadOnlyDictionary<string, object> hints = null);
-        void Finally<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null);
+        Task<EvaluationContext> Before<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null);
+        Task After<T>(HookContext<T> context, FlagEvaluationDetails<T> details, IReadOnlyDictionary<string, object> hints = null);
+        Task Error<T>(HookContext<T> context, Exception error, IReadOnlyDictionary<string, object> hints = null);
+        Task Finally<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null);
     }
 }

@@ -1,129 +1,145 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using Moq;
 using OpenFeature.Model;
 using Xunit;
 
-namespace OpenFeature.Tests;
-
-public class OpenFeatureClientTests
+namespace OpenFeature.Tests
 {
-    [Fact]
-    public void ShouldResolveBooleanValue()
+    public class OpenFeatureClientTests
     {
-        var fixture = new Fixture();
-        var clientName = fixture.Create<string>();
-        var clientVersion = fixture.Create<string>();
-        var flagName = fixture.Create<string>();
-        var defaultValue = fixture.Create<bool>();
+        [Fact]
+        public async Task ShouldResolveBooleanValue()
+        {
+            var fixture = new Fixture();
+            var clientName = fixture.Create<string>();
+            var clientVersion = fixture.Create<string>();
+            var flagName = fixture.Create<string>();
+            var defaultValue = fixture.Create<bool>();
         
-        var featureProviderMock = new Mock<IFeatureProvider>();
-        featureProviderMock
-            .Setup(x => x.ResolveBooleanValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
-            .Returns(new ResolutionDetails<bool>(flagName, defaultValue));
+            var featureProviderMock = new Mock<IFeatureProvider>();
+            featureProviderMock
+                .Setup(x => x.ResolveBooleanValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
+                .ReturnsAsync(new ResolutionDetails<bool>(flagName, defaultValue));
 
-        OpenFeature.SetProvider(featureProviderMock.Object);
-        var client = OpenFeature.GetClient(clientName, clientVersion);
+            OpenFeature.SetProvider(featureProviderMock.Object);
+            var client = OpenFeature.GetClient(clientName, clientVersion);
 
-        client.GetBooleanValue(flagName, defaultValue).Should().Be(defaultValue);
+            (await client.GetBooleanValue(flagName, defaultValue)).Should().Be(defaultValue);
         
-        featureProviderMock.Verify(x => x.ResolveBooleanValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
-    }
+            featureProviderMock.Verify(x => x.ResolveBooleanValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
+        }
     
-    [Fact]
-    public void ShouldResolveStringValue()
-    {
-        var fixture = new Fixture();
-        var clientName = fixture.Create<string>();
-        var clientVersion = fixture.Create<string>();
-        var flagName = fixture.Create<string>();
-        var defaultValue = fixture.Create<string>();
+        [Fact]
+        public async Task ShouldResolveStringValue()
+        {
+            var fixture = new Fixture();
+            var clientName = fixture.Create<string>();
+            var clientVersion = fixture.Create<string>();
+            var flagName = fixture.Create<string>();
+            var defaultValue = fixture.Create<string>();
         
-        var featureProviderMock = new Mock<IFeatureProvider>();
-        featureProviderMock
-            .Setup(x => x.ResolveStringValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
-            .Returns(new ResolutionDetails<string>(flagName, defaultValue));
+            var featureProviderMock = new Mock<IFeatureProvider>();
+            featureProviderMock
+                .Setup(x => x.ResolveStringValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
+                .ReturnsAsync(new ResolutionDetails<string>(flagName, defaultValue));
 
-        OpenFeature.SetProvider(featureProviderMock.Object);
-        var client = OpenFeature.GetClient(clientName, clientVersion);
+            OpenFeature.SetProvider(featureProviderMock.Object);
+            var client = OpenFeature.GetClient(clientName, clientVersion);
 
-        client.GetStringValue(flagName, defaultValue).Should().Be(defaultValue);
+            (await client.GetStringValue(flagName, defaultValue)).Should().Be(defaultValue);
         
-        featureProviderMock.Verify(x => x.ResolveStringValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
-    }
+            featureProviderMock.Verify(x => x.ResolveStringValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
+        }
     
-    [Fact]
-    public void ShouldResolveNumberValue()
-    {
-        var fixture = new Fixture();
-        var clientName = fixture.Create<string>();
-        var clientVersion = fixture.Create<string>();
-        var flagName = fixture.Create<string>();
-        var defaultValue = fixture.Create<int>();
+        [Fact]
+        public async Task ShouldResolveNumberValue()
+        {
+            var fixture = new Fixture();
+            var clientName = fixture.Create<string>();
+            var clientVersion = fixture.Create<string>();
+            var flagName = fixture.Create<string>();
+            var defaultValue = fixture.Create<int>();
         
-        var featureProviderMock = new Mock<IFeatureProvider>();
-        featureProviderMock
-            .Setup(x => x.ResolveNumberValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
-            .Returns(new ResolutionDetails<int>(flagName, defaultValue));
+            var featureProviderMock = new Mock<IFeatureProvider>();
+            featureProviderMock
+                .Setup(x => x.ResolveNumberValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
+                .ReturnsAsync(new ResolutionDetails<int>(flagName, defaultValue));
 
-        OpenFeature.SetProvider(featureProviderMock.Object);
-        var client = OpenFeature.GetClient(clientName, clientVersion);
+            OpenFeature.SetProvider(featureProviderMock.Object);
+            var client = OpenFeature.GetClient(clientName, clientVersion);
 
-        client.GetNumberValue(flagName, defaultValue).Should().Be(defaultValue);
+            (await client.GetNumberValue(flagName, defaultValue)).Should().Be(defaultValue);
         
-        featureProviderMock.Verify(x => x.ResolveNumberValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
-    }
+            featureProviderMock.Verify(x => x.ResolveNumberValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
+        }
     
-    [Fact]
-    public void ShouldResolveStructureValue()
-    {
-        var fixture = new Fixture();
-        var clientName = fixture.Create<string>();
-        var clientVersion = fixture.Create<string>();
-        var flagName = fixture.Create<string>();
-        var defaultValue = fixture.Create<TestStructure>();
+        [Fact]
+        public async Task ShouldResolveStructureValue()
+        {
+            var fixture = new Fixture();
+            var clientName = fixture.Create<string>();
+            var clientVersion = fixture.Create<string>();
+            var flagName = fixture.Create<string>();
+            var defaultValue = fixture.Create<TestStructure>();
         
-        var featureProviderMock = new Mock<IFeatureProvider>();
-        featureProviderMock
-            .Setup(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
-            .Returns(new ResolutionDetails<TestStructure>(flagName, defaultValue));
+            var featureProviderMock = new Mock<IFeatureProvider>();
+            featureProviderMock
+                .Setup(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
+                .ReturnsAsync(new ResolutionDetails<TestStructure>(flagName, defaultValue));
 
-        OpenFeature.SetProvider(featureProviderMock.Object);
-        var client = OpenFeature.GetClient(clientName, clientVersion);
+            OpenFeature.SetProvider(featureProviderMock.Object);
+            var client = OpenFeature.GetClient(clientName, clientVersion);
 
-        client.GetObjectValue(flagName, defaultValue).Should().Be(defaultValue);
+            (await client.GetObjectValue(flagName, defaultValue)).Should().Be(defaultValue);
         
-        featureProviderMock.Verify(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
-    }
+            featureProviderMock.Verify(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
+        }
 
-    [Fact]
-    public void WhenExceptionOccursDuringEvaluationShouldReturnError()
-    {
-        var fixture = new Fixture();
-        var clientName = fixture.Create<string>();
-        var clientVersion = fixture.Create<string>();
-        var flagName = fixture.Create<string>();
-        var defaultValue = fixture.Create<TestStructure>();
-        var errorMessage = fixture.Create<string>();
+        [Fact]
+        public async Task WhenExceptionOccursDuringEvaluationShouldReturnError()
+        {
+            var fixture = new Fixture();
+            var clientName = fixture.Create<string>();
+            var clientVersion = fixture.Create<string>();
+            var flagName = fixture.Create<string>();
+            var defaultValue = fixture.Create<TestStructure>();
+            var errorMessage = fixture.Create<string>();
         
-        var featureProviderMock = new Mock<IFeatureProvider>();
-        featureProviderMock
-            .Setup(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
-            .Throws(new Exception(errorMessage));
+            var featureProviderMock = new Mock<IFeatureProvider>();
+            featureProviderMock
+                .Setup(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
+                .Throws(new Exception(errorMessage));
 
-        OpenFeature.SetProvider(featureProviderMock.Object);
-        var client = OpenFeature.GetClient(clientName, clientVersion);
-        var response = client.GetObjectDetails(flagName, defaultValue);
+            OpenFeature.SetProvider(featureProviderMock.Object);
+            var client = OpenFeature.GetClient(clientName, clientVersion);
+            var response = await client.GetObjectDetails(flagName, defaultValue);
 
-        response.ErrorCode.Should().Be(errorMessage);
-        response.Reason.Should().Be(Constant.Reason.Error);
-        featureProviderMock.Verify(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
-    }
+            response.ErrorCode.Should().Be(errorMessage);
+            response.Reason.Should().Be(Constant.Reason.Error);
+            featureProviderMock.Verify(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
+        }
+    
+        [Fact]
+        public void ShouldAddGivenHooks()
+        {
+            var fixture = new Fixture();
+            var hooks = fixture.Create<List<TestHook>>();
+            var clientName = fixture.Create<string>();
+            var clientVersion = fixture.Create<string>();
+        
+            var client = OpenFeature.GetClient(clientName, clientVersion);
+        
+            client.AddHooks(hooks);
 
-    private class TestStructure
-    {
-        public string Name { get; set; }
-        public int Age { get; set; }
+            client.GetHooks().Should().Contain(hooks);
+        
+            client.ClearHooks();
+
+            client.GetHooks().Should().BeEmpty();
+        }
     }
 }
