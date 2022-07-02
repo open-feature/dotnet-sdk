@@ -1,4 +1,4 @@
-﻿namespace OpenFeature.Constant
+namespace OpenFeature.Constant
 {
     // TODO Probably should make this a enum
     public static class Error

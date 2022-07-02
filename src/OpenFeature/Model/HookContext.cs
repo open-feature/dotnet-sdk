@@ -1,4 +1,4 @@
-﻿using OpenFeature.Constant;
+using OpenFeature.Constant;
 
 namespace OpenFeature.Model
 {
@@ -11,10 +11,10 @@ namespace OpenFeature.Model
         public ClientMetadata ClientMetadata { get; }
         public Metadata ProviderMetadata { get; }
 
-        public HookContext(string flagKey, 
-            T defaultValue, 
+        public HookContext(string flagKey,
+            T defaultValue,
             FlagValueType flagValueType,
-            ClientMetadata clientMetadata, 
+            ClientMetadata clientMetadata,
             Metadata providerMetadata,
             EvaluationContext evaluationContext)
         {

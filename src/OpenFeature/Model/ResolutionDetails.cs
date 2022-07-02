@@ -1,4 +1,4 @@
-﻿namespace OpenFeature.Model
+namespace OpenFeature.Model
 {
     public class ResolutionDetails<T>
     {
@@ -14,7 +14,7 @@
             FlagKey = flagKey;
             ErrorCode = errorCode;
             Reason = reason;
-            Variant = variant;    
+            Variant = variant;
         }
     }
 }

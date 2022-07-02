@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using OpenFeature.Model;
 
 namespace OpenFeature
@@ -8,7 +8,7 @@ namespace OpenFeature
     /// A provider acts as the translates layer between the generic feature flag structure to a target feature flag system.
     ///
     /// More information about the provider interface can be found here:
-    /// https://github.com/open-feature/spec/blob/main/specification/providers.md 
+    /// https://github.com/open-feature/spec/blob/main/specification/providers.md
     /// </summary>
     public interface IFeatureProvider
     {

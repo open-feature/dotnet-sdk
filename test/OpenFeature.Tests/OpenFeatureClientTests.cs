@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -19,7 +19,7 @@ namespace OpenFeature.Tests
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<bool>();
-        
+
             var featureProviderMock = new Mock<IFeatureProvider>();
             featureProviderMock
                 .Setup(x => x.ResolveBooleanValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
@@ -29,10 +29,10 @@ namespace OpenFeature.Tests
             var client = OpenFeature.GetClient(clientName, clientVersion);
 
             (await client.GetBooleanValue(flagName, defaultValue)).Should().Be(defaultValue);
-        
+
             featureProviderMock.Verify(x => x.ResolveBooleanValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
         }
-    
+
         [Fact]
         public async Task ShouldResolveStringValue()
         {
@@ -41,7 +41,7 @@ namespace OpenFeature.Tests
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<string>();
-        
+
             var featureProviderMock = new Mock<IFeatureProvider>();
             featureProviderMock
                 .Setup(x => x.ResolveStringValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
@@ -51,10 +51,10 @@ namespace OpenFeature.Tests
             var client = OpenFeature.GetClient(clientName, clientVersion);
 
             (await client.GetStringValue(flagName, defaultValue)).Should().Be(defaultValue);
-        
+
             featureProviderMock.Verify(x => x.ResolveStringValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
         }
-    
+
         [Fact]
         public async Task ShouldResolveNumberValue()
         {
@@ -63,7 +63,7 @@ namespace OpenFeature.Tests
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<int>();
-        
+
             var featureProviderMock = new Mock<IFeatureProvider>();
             featureProviderMock
                 .Setup(x => x.ResolveNumberValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
@@ -73,10 +73,10 @@ namespace OpenFeature.Tests
             var client = OpenFeature.GetClient(clientName, clientVersion);
 
             (await client.GetNumberValue(flagName, defaultValue)).Should().Be(defaultValue);
-        
+
             featureProviderMock.Verify(x => x.ResolveNumberValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
         }
-    
+
         [Fact]
         public async Task ShouldResolveStructureValue()
         {
@@ -85,7 +85,7 @@ namespace OpenFeature.Tests
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<TestStructure>();
-        
+
             var featureProviderMock = new Mock<IFeatureProvider>();
             featureProviderMock
                 .Setup(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
@@ -95,7 +95,7 @@ namespace OpenFeature.Tests
             var client = OpenFeature.GetClient(clientName, clientVersion);
 
             (await client.GetObjectValue(flagName, defaultValue)).Should().Be(defaultValue);
-        
+
             featureProviderMock.Verify(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
         }
 
@@ -108,7 +108,7 @@ namespace OpenFeature.Tests
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<TestStructure>();
             var errorMessage = fixture.Create<string>();
-        
+
             var featureProviderMock = new Mock<IFeatureProvider>();
             featureProviderMock
                 .Setup(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
@@ -122,7 +122,7 @@ namespace OpenFeature.Tests
             response.Reason.Should().Be(Constant.Reason.Error);
             featureProviderMock.Verify(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
         }
-    
+
         [Fact]
         public void ShouldAddGivenHooks()
         {
@@ -130,13 +130,13 @@ namespace OpenFeature.Tests
             var hooks = fixture.Create<List<TestHook>>();
             var clientName = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
-        
+
             var client = OpenFeature.GetClient(clientName, clientVersion);
-        
+
             client.AddHooks(hooks);
 
             client.GetHooks().Should().Contain(hooks);
-        
+
             client.ClearHooks();
 
             client.GetHooks().Should().BeEmpty();

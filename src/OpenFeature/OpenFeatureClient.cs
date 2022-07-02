@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,7 +20,7 @@ namespace OpenFeature
             _featureProvider = featureProvider ?? throw new ArgumentNullException(nameof(featureProvider));
             _metadata = new ClientMetadata(name, version);
         }
-        
+
         public ClientMetadata GetMetadata() => _metadata;
 
         public void AddHooks(Hook hook) => _hooks.Add(hook);
@@ -36,20 +36,20 @@ namespace OpenFeature
 
         public async Task<string> GetStringValue(string flagKey, string defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null) =>
             (await GetStringDetails(flagKey, defaultValue, context, config)).Value;
-        
+
         public async Task<FlagEvaluationDetails<string>> GetStringDetails(string flagKey, string defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await EvaluateFlag(_featureProvider.ResolveStringValue, FlagValueType.String, flagKey, defaultValue, context, config);
 
         public async Task<int> GetNumberValue(string flagKey, int defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null) =>
             (await GetNumberDetails(flagKey, defaultValue, context, config)).Value;
-        
+
         public async Task<FlagEvaluationDetails<int>> GetNumberDetails(string flagKey, int defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await EvaluateFlag(_featureProvider.ResolveNumberValue, FlagValueType.Number, flagKey, defaultValue, context, config);
 
-        public async Task<T> GetObjectValue<T>(string flagKey, T defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null)  =>
+        public async Task<T> GetObjectValue<T>(string flagKey, T defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null) =>
             (await GetObjectDetails(flagKey, defaultValue, context, config)).Value;
 
-        public async Task<FlagEvaluationDetails<T>> GetObjectDetails<T>(string flagKey, T defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null)  =>
+        public async Task<FlagEvaluationDetails<T>> GetObjectDetails<T>(string flagKey, T defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await EvaluateFlag(_featureProvider.ResolveStructureValue, FlagValueType.Object, flagKey, defaultValue, context, config);
 
         private async Task<FlagEvaluationDetails<T>> EvaluateFlag<T>(
@@ -57,7 +57,7 @@ namespace OpenFeature
             FlagValueType flagValueType, string flagKey, T defaultValue, EvaluationContext context = null, FlagEvaluationOptions options = null)
         {
             // New up a evaluation context if one was not provided.
-            if (context == null) 
+            if (context == null)
             {
                 context = new EvaluationContext();
             }
@@ -93,7 +93,7 @@ namespace OpenFeature
 
                 evaluation = (await resolveValueDelegate.Invoke(flagKey, defaultValue, hookContext.EvaluationContext, options))
                     .ToFlagEvaluationDetails();
-                
+
                 await TriggerAfterHooks(allHooksReversed, hookContext, evaluation, options);
             }
             catch (Exception e)
@@ -133,7 +133,7 @@ namespace OpenFeature
                 }
             }
         }
-        
+
         private static async Task TriggerAfterHooks<T>(IReadOnlyList<IHook> hooks, HookContext<T> context, FlagEvaluationDetails<T> evaluationDetails, FlagEvaluationOptions options)
         {
             foreach (var hook in hooks)
@@ -148,7 +148,7 @@ namespace OpenFeature
                 }
             }
         }
-        
+
         private static async Task TriggerErrorHooks<T>(IReadOnlyList<IHook> hooks, HookContext<T> context, Exception exception, FlagEvaluationOptions options)
         {
             foreach (var hook in hooks)
@@ -163,7 +163,7 @@ namespace OpenFeature
                 }
             }
         }
-        
+
         private static async Task TriggerFinallyHooks<T>(IReadOnlyList<IHook> hooks, HookContext<T> context, FlagEvaluationOptions options)
         {
             foreach (var hook in hooks)

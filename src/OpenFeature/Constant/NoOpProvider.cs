@@ -1,4 +1,4 @@
-﻿namespace OpenFeature.Constant
+namespace OpenFeature.Constant
 {
     public static class NoOpProvider
     {

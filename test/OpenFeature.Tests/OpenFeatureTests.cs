@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using AutoFixture;
 using FluentAssertions;
@@ -28,7 +28,7 @@ namespace OpenFeature.Tests
         {
             var fixture = new Fixture();
             var context = fixture.Create<EvaluationContext>();
-        
+
             OpenFeature.SetContext(context);
 
             OpenFeature.GetContext().Should().Equal(context);
@@ -39,11 +39,11 @@ namespace OpenFeature.Tests
         {
             var fixture = new Fixture();
             var hooks = fixture.Create<List<TestHook>>();
-        
+
             OpenFeature.AddHooks(hooks);
 
             OpenFeature.GetHooks().Should().Contain(hooks);
-        
+
             OpenFeature.ClearHooks();
 
             OpenFeature.GetHooks().Should().BeEmpty();

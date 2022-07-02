@@ -1,4 +1,4 @@
-﻿using OpenFeature.Model;
+using OpenFeature.Model;
 
 namespace OpenFeature.Extention
 {

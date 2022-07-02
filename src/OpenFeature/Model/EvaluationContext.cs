@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace OpenFeature.Model
@@ -11,17 +11,17 @@ namespace OpenFeature.Model
         {
             _internalContext.Add(key, value);
         }
-        
+
         public void Remove(string key)
         {
             _internalContext.Remove(key);
         }
-        
+
         public T Get<T>(string key)
         {
             return (T)_internalContext[key];
         }
-        
+
         public object this[string key]
         {
             get => _internalContext[key];
@@ -42,7 +42,7 @@ namespace OpenFeature.Model
                 }
             }
         }
-        
+
         public int Count => _internalContext.Count;
 
         public IEnumerator<object> GetEnumerator()
