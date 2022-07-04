@@ -86,21 +86,21 @@ namespace OpenFeature
                 evaluationContext
             );
 
-            FlagEvaluationDetails<T> response;
+            FlagEvaluationDetails<T> evaluation;
             try
             {
                 await TriggerBeforeHooks(allHooks, hookContext, options);
 
-                response = (await resolveValueDelegate.Invoke(flagKey, defaultValue, hookContext.EvaluationContext, options))
+                evaluation = (await resolveValueDelegate.Invoke(flagKey, defaultValue, hookContext.EvaluationContext, options))
                     .ToFlagEvaluationDetails();
                 
-                await TriggerAfterHooks(allHooksReversed, hookContext, response, options);
+                await TriggerAfterHooks(allHooksReversed, hookContext, evaluation, options);
             }
             catch (Exception e)
             {
                 OpenFeature.Logger.LogError(e, "Error while evaluating flag {FlagKey}", flagKey);
                 // TODO needs to handle error codes being thrown from provider that maps to Errors enums
-                response = new FlagEvaluationDetails<T>(flagKey, defaultValue, e.Message, Reason.Error, string.Empty);
+                evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, e.Message, Reason.Error, string.Empty);
                 await TriggerErrorHooks(allHooksReversed, hookContext, e, options);
             }
             finally
@@ -108,7 +108,7 @@ namespace OpenFeature
                 await TriggerFinallyHooks(allHooksReversed, hookContext, options);
             }
 
-            return response;
+            return evaluation;
         }
 
         private static async Task TriggerBeforeHooks<T>(IReadOnlyList<IHook> hooks, HookContext<T> context, FlagEvaluationOptions options)
