@@ -13,7 +13,7 @@ namespace OpenFeature
     {
         private readonly ClientMetadata _metadata;
         private readonly IFeatureProvider _featureProvider;
-        private readonly List<IHook> _hooks = new List<IHook>();
+        private readonly List<Hook> _hooks = new List<Hook>();
 
         public FeatureClient(IFeatureProvider featureProvider, string name, string version)
         {
@@ -23,9 +23,9 @@ namespace OpenFeature
         
         public ClientMetadata GetMetadata() => _metadata;
 
-        public void AddHooks(IHook hook) => _hooks.Add(hook);
-        public void AddHooks(IEnumerable<IHook> hooks) => _hooks.AddRange(hooks);
-        public IReadOnlyList<IHook> GetHooks() => _hooks.ToList();
+        public void AddHooks(Hook hook) => _hooks.Add(hook);
+        public void AddHooks(IEnumerable<Hook> hooks) => _hooks.AddRange(hooks);
+        public IReadOnlyList<Hook> GetHooks() => _hooks.ToList();
         public void ClearHooks() => _hooks.Clear();
 
         public async Task<bool> GetBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null) =>

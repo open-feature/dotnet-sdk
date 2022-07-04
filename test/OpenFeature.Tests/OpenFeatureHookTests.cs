@@ -46,7 +46,7 @@ namespace OpenFeature.Tests
                 .Setup(x => x.ResolveBooleanValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
                 .ReturnsAsync(new ResolutionDetails<bool>(flagName, defaultValue));
 
-            var hookMock = new Mock<IHook>();
+            var hookMock = new Mock<Hook>();
             hookMock
                 .Setup(x => x.Before(It.IsAny<HookContext<bool>>(), null))
                 .ThrowsAsync(new NotImplementedException());
@@ -84,7 +84,7 @@ namespace OpenFeature.Tests
                 .Setup(x => x.ResolveBooleanValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
                 .ThrowsAsync(new Exception());
 
-            var hookMock = new Mock<IHook>();
+            var hookMock = new Mock<Hook>();
             hookMock
                 .Setup(x => x.Before(It.IsAny<HookContext<bool>>(), null))
                 .ThrowsAsync(new NotImplementedException());

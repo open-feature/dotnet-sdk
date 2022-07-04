@@ -10,7 +10,7 @@ namespace OpenFeature
     {
         private EvaluationContext _evaluationContext = new EvaluationContext();
         private IFeatureProvider _featureProvider = new NoOpFeatureProvider();
-        private readonly List<IHook> _hooks = new List<IHook>();
+        private readonly List<Hook> _hooks = new List<Hook>();
         public static ILogger Logger { get; private set; } = new Logger<OpenFeature>(new NullLoggerFactory());
 
         // Thread-safe singleton instance
@@ -22,8 +22,8 @@ namespace OpenFeature
         public static Metadata GetProviderMetadata() => Instance._featureProvider.GetMetadata();
         public static FeatureClient GetClient(string name = null, string version = null) => new FeatureClient(Instance._featureProvider, name, version);
         
-        public static void AddHooks(IEnumerable<IHook> hooks) => Instance._hooks.AddRange(hooks);
-        public static IEnumerable<IHook> GetHooks() => Instance._hooks.AsReadOnly();
+        public static void AddHooks(IEnumerable<Hook> hooks) => Instance._hooks.AddRange(hooks);
+        public static IEnumerable<Hook> GetHooks() => Instance._hooks.AsReadOnly();
         public static void ClearHooks() => Instance._hooks.Clear();
 
         public static void SetContext(EvaluationContext context) => Instance._evaluationContext = context;

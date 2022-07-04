@@ -13,7 +13,7 @@ namespace OpenFeature
     /// </summary>
     public interface IFeatureClient
     {
-        void AddHooks(IEnumerable<IHook> hooks);
+        void AddHooks(IEnumerable<Hook> hooks);
         ClientMetadata GetMetadata();
         
         Task<bool> GetBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null);

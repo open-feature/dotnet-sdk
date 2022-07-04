@@ -11,25 +11,25 @@ namespace OpenFeature.Tests
         public string Value { get; set; }
     }
 
-    public class TestHook : IHook
+    public class TestHook : Hook
     {
-        public Task<EvaluationContext> Before<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null)
+        public override Task<EvaluationContext> Before<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null)
         {
             return Task.FromResult(new EvaluationContext());
         }
 
-        public Task After<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
+        public override Task After<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
             IReadOnlyDictionary<string, object> hints = null)
         {
             return Task.CompletedTask;
         }
 
-        public Task Error<T>(HookContext<T> context, Exception error, IReadOnlyDictionary<string, object> hints = null)
+        public override Task Error<T>(HookContext<T> context, Exception error, IReadOnlyDictionary<string, object> hints = null)
         {
             return Task.CompletedTask;
         }
 
-        public Task Finally<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null)
+        public override Task Finally<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null)
         {
             return Task.CompletedTask;
         }
