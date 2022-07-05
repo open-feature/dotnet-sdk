@@ -2,8 +2,7 @@
 
 namespace OpenFeature.Model
 {
-    public interface BasicHookContext {}
-    public class HookContext<T> : BasicHookContext
+    public class HookContext<T>
     {
         public string FlagKey { get; }
         public T DefaultValue { get; }

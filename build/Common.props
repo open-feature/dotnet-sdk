@@ -17,5 +17,6 @@
       Please sort alphabetically.
       Refer to https://docs.microsoft.com/nuget/concepts/package-versioning for semver syntax.
     -->
+    <MicrosoftExtensionsLoggerVer>[2.0,6.0)</MicrosoftExtensionsLoggerVer>
   </PropertyGroup>
 </Project>
