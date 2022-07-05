@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using OpenFeature.Constant;
@@ -17,7 +17,7 @@ namespace OpenFeature.Tests
             var clientName = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
             var client = new FeatureClient(new NoOpFeatureProvider(), clientName, clientVersion);
-        
+
             var result = await client.GetBooleanValue(flagKey, defaultValue);
             var resultDetails = await client.GetBooleanDetails(flagKey, defaultValue);
 
@@ -25,7 +25,7 @@ namespace OpenFeature.Tests
             resultDetails.Reason.Should().Be(NoOpProvider.ReasonNoOp);
             resultDetails.Value.Should().Be(defaultValue);
         }
-    
+
         [Fact]
         public async Task ShouldResolveNumberFlag()
         {
@@ -35,7 +35,7 @@ namespace OpenFeature.Tests
             var clientName = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
             var client = new FeatureClient(new NoOpFeatureProvider(), clientName, clientVersion);
-        
+
             var result = await client.GetNumberValue(flagKey, defaultValue);
             var resultDetails = await client.GetNumberDetails(flagKey, defaultValue);
 
@@ -43,7 +43,7 @@ namespace OpenFeature.Tests
             resultDetails.Reason.Should().Be(NoOpProvider.ReasonNoOp);
             resultDetails.Value.Should().Be(defaultValue);
         }
-    
+
         [Fact]
         public async Task ShouldResolveStringFlag()
         {
@@ -53,7 +53,7 @@ namespace OpenFeature.Tests
             var clientName = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
             var client = new FeatureClient(new NoOpFeatureProvider(), clientName, clientVersion);
-        
+
             var result = await client.GetStringValue(flagKey, defaultValue);
             var resultDetails = await client.GetStringDetails(flagKey, defaultValue);
 
@@ -61,7 +61,7 @@ namespace OpenFeature.Tests
             resultDetails.Reason.Should().Be(NoOpProvider.ReasonNoOp);
             resultDetails.Value.Should().Be(defaultValue);
         }
-    
+
         [Fact]
         public async Task ShouldResolveStructureFlag()
         {

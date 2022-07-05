@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using OpenFeature.Constant;
 using OpenFeature.Model;
 
@@ -11,7 +11,7 @@ namespace OpenFeature
     public class NoOpFeatureProvider : IFeatureProvider
     {
         private readonly Metadata _metadata = new Metadata(NoOpProvider.NoOpProviderName);
-        
+
         public Metadata GetMetadata()
         {
             return _metadata;

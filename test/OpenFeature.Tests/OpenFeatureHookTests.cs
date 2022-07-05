@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
@@ -18,7 +18,7 @@ namespace OpenFeature.Tests
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<bool>();
-        
+
             var featureProviderMock = new Mock<IFeatureProvider>();
             featureProviderMock
                 .Setup(x => x.ResolveBooleanValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
@@ -28,7 +28,7 @@ namespace OpenFeature.Tests
             client.AddHooks(new TestHook());
 
             (await client.GetBooleanValue(flagName, defaultValue)).Should().Be(defaultValue);
-        
+
             featureProviderMock.Verify(x => x.ResolveBooleanValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
         }
 
@@ -40,7 +40,7 @@ namespace OpenFeature.Tests
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<bool>();
-        
+
             var featureProviderMock = new Mock<IFeatureProvider>();
             featureProviderMock
                 .Setup(x => x.ResolveBooleanValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
@@ -50,7 +50,7 @@ namespace OpenFeature.Tests
             hookMock
                 .Setup(x => x.Before(It.IsAny<HookContext<bool>>(), null))
                 .ThrowsAsync(new NotImplementedException());
-        
+
             hookMock
                 .Setup(x => x.After(It.IsAny<HookContext<bool>>(), It.IsAny<FlagEvaluationDetails<bool>>(), null))
                 .ThrowsAsync(new NotImplementedException());
@@ -63,13 +63,13 @@ namespace OpenFeature.Tests
             client.AddHooks(hookMock.Object);
 
             (await client.GetBooleanValue(flagName, defaultValue)).Should().Be(defaultValue);
-        
+
             featureProviderMock.Verify(x => x.ResolveBooleanValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
             hookMock.Verify(x => x.Before(It.IsAny<HookContext<bool>>(), null), Times.Once);
             hookMock.Verify(x => x.After(It.IsAny<HookContext<bool>>(), It.IsAny<FlagEvaluationDetails<bool>>(), null), Times.Once);
             hookMock.Verify(x => x.Finally(It.IsAny<HookContext<bool>>(), null), Times.Once);
         }
-    
+
         [Fact]
         public async Task ShouldCatchExceptionFromNoImplementedHookMethodWhenProviderThrowException()
         {
@@ -78,7 +78,7 @@ namespace OpenFeature.Tests
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<bool>();
-        
+
             var featureProviderMock = new Mock<IFeatureProvider>();
             featureProviderMock
                 .Setup(x => x.ResolveBooleanValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
@@ -88,7 +88,7 @@ namespace OpenFeature.Tests
             hookMock
                 .Setup(x => x.Before(It.IsAny<HookContext<bool>>(), null))
                 .ThrowsAsync(new NotImplementedException());
-        
+
             hookMock
                 .Setup(x => x.Error(It.IsAny<HookContext<bool>>(), It.IsAny<Exception>(), null))
                 .ThrowsAsync(new NotImplementedException());
@@ -101,7 +101,7 @@ namespace OpenFeature.Tests
             client.AddHooks(hookMock.Object);
 
             (await client.GetBooleanValue(flagName, defaultValue)).Should().Be(defaultValue);
-        
+
             featureProviderMock.Verify(x => x.ResolveBooleanValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
             hookMock.Verify(x => x.Before(It.IsAny<HookContext<bool>>(), null), Times.Once);
             hookMock.Verify(x => x.Error(It.IsAny<HookContext<bool>>(), It.IsAny<Exception>(), null), Times.Once);

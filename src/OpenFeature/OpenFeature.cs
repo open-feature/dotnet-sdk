@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -16,19 +16,19 @@ namespace OpenFeature
         // Thread-safe singleton instance
         private static readonly Lazy<OpenFeature> lazy = new Lazy<OpenFeature>();
         private static OpenFeature Instance => lazy.Value;
-        
+
         public static void SetProvider(IFeatureProvider featureProvider) => Instance._featureProvider = featureProvider;
         public static IFeatureProvider GetProvider() => Instance._featureProvider;
         public static Metadata GetProviderMetadata() => Instance._featureProvider.GetMetadata();
         public static FeatureClient GetClient(string name = null, string version = null) => new FeatureClient(Instance._featureProvider, name, version);
-        
+
         public static void AddHooks(IEnumerable<Hook> hooks) => Instance._hooks.AddRange(hooks);
         public static IEnumerable<Hook> GetHooks() => Instance._hooks.AsReadOnly();
         public static void ClearHooks() => Instance._hooks.Clear();
 
         public static void SetContext(EvaluationContext context) => Instance._evaluationContext = context;
         public static EvaluationContext GetContext() => Instance._evaluationContext;
-        
+
         public static void SetLogger(ILogger logger) => Logger = logger;
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using AutoFixture;
 using FluentAssertions;
 using OpenFeature.Model;

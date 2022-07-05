@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace OpenFeature.Model
 {
@@ -6,7 +6,7 @@ namespace OpenFeature.Model
     {
         public IReadOnlyList<Hook> Hooks { get; }
         public IReadOnlyDictionary<string, object> HookHints { get; }
-        
+
         public FlagEvaluationOptions(IReadOnlyList<Hook> hooks, IReadOnlyDictionary<string, object> hookHints)
         {
             Hooks = hooks;

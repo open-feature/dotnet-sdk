@@ -1,4 +1,4 @@
-﻿namespace OpenFeature.Model
+namespace OpenFeature.Model
 {
     public class Metadata
     {
