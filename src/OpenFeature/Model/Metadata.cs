@@ -6,7 +6,7 @@ namespace OpenFeature.Model
 
         public Metadata(string name)
         {
-            Name = name;
+            this.Name = name;
         }
     }
 }

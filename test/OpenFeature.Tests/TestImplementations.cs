@@ -11,6 +11,8 @@ namespace OpenFeature.Tests
         public string Value { get; set; }
     }
 
+    public class TestHookNoOverride : Hook { }
+
     public class TestHook : Hook
     {
         public override Task<EvaluationContext> Before<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null)
@@ -37,7 +39,7 @@ namespace OpenFeature.Tests
 
     public class TestProvider : IFeatureProvider
     {
-        public string Name => "test-provider";
+        public static string Name => "test-provider";
 
         public Metadata GetMetadata()
         {

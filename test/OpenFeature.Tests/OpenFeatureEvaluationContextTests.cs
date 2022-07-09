@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using AutoFixture;
 using FluentAssertions;
 using OpenFeature.Model;
+using OpenFeature.Tests.Internal;
 using Xunit;
 
 namespace OpenFeature.Tests
@@ -9,7 +11,7 @@ namespace OpenFeature.Tests
     public class OpenFeatureEvaluationContextTests
     {
         [Fact]
-        public void ShouldMergeTwoContexts()
+        public void Should_Merge_Two_Contexts()
         {
             var context1 = new EvaluationContext();
             var context2 = new EvaluationContext();
@@ -25,7 +27,7 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        public void ShouldMergeTwoContextsAndOverrideDuplicatesWithRightHandContext()
+        public void Should_Merge_TwoContexts_And_Override_Duplicates_With_RightHand_Context()
         {
             var context1 = new EvaluationContext();
             var context2 = new EvaluationContext();
@@ -39,10 +41,23 @@ namespace OpenFeature.Tests
             Assert.Equal(2, context1.Count);
             Assert.Equal("overriden_value", context1["key1"]);
             Assert.Equal("value2", context1["key2"]);
+
+            context1.Remove("key1");
+            Assert.Throws<KeyNotFoundException>(() => context1["key1"]);
         }
 
         [Fact]
-        public void ShouldReturnValueTypeViaGet()
+        public void Should_Be_Able_To_Set_Value_Via_Indexer()
+        {
+            var context = new EvaluationContext();
+            context["key"] = "value";
+            context["key"].Should().Be("value");
+        }
+
+        [Fact]
+        [Specification("3.1", "The `evaluation context` structure MUST define an optional `targeting key` field of type string, identifying the subject of the flag evaluation.")]
+        [Specification("3.2", "The evaluation context MUST support the inclusion of custom fields, having keys of type `string`, and values of type `boolean | string | number | datetime | structure`.")]
+        public void EvaluationContext_Should_All_Types()
         {
             var fixture = new Fixture();
             var now = fixture.Create<DateTime>();
