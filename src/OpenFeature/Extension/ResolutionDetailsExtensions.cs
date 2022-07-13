@@ -6,7 +6,7 @@ namespace OpenFeature.Extention
     {
         public static FlagEvaluationDetails<T> ToFlagEvaluationDetails<T>(this ResolutionDetails<T> details)
         {
-            return new FlagEvaluationDetails<T>(details.FlagKey, details.Value, details.ErrorCode, details.Reason, details.Variant);
+            return new FlagEvaluationDetails<T>(details.FlagKey, details.Value, details.ErrorType, details.Reason, details.Variant);
         }
     }
 }

@@ -6,7 +6,7 @@ namespace OpenFeature.Model
 
         public ClientMetadata(string name, string version) : base(name)
         {
-            Version = version;
+            this.Version = version;
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using OpenFeature.Constant;
 
 namespace OpenFeature.Model
@@ -18,12 +19,12 @@ namespace OpenFeature.Model
             Metadata providerMetadata,
             EvaluationContext evaluationContext)
         {
-            FlagKey = flagKey;
-            DefaultValue = defaultValue;
-            FlagValueType = flagValueType;
-            ClientMetadata = clientMetadata;
-            ProviderMetadata = providerMetadata;
-            EvaluationContext = evaluationContext;
+            this.FlagKey = flagKey ?? throw new ArgumentNullException(nameof(flagKey));
+            this.DefaultValue = defaultValue;
+            this.FlagValueType = flagValueType;
+            this.ClientMetadata = clientMetadata ?? throw new ArgumentNullException(nameof(clientMetadata));
+            this.ProviderMetadata = providerMetadata ?? throw new ArgumentNullException(nameof(providerMetadata));
+            this.EvaluationContext = evaluationContext ?? throw new ArgumentNullException(nameof(evaluationContext));
         }
     }
 }

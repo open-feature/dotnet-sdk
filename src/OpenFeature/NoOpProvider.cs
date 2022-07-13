@@ -14,7 +14,7 @@ namespace OpenFeature
 
         public Metadata GetMetadata()
         {
-            return _metadata;
+            return this._metadata;
         }
 
         public Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null)
@@ -42,7 +42,8 @@ namespace OpenFeature
             return new ResolutionDetails<T>(
                 flagKey,
                 defaultValue,
-                reason: NoOpProvider.ReasonNoOp
+                reason: NoOpProvider.ReasonNoOp,
+                variant: NoOpProvider.Variant
             );
         }
     }

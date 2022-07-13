@@ -9,8 +9,14 @@ namespace OpenFeature.Model
 
         public FlagEvaluationOptions(IReadOnlyList<Hook> hooks, IReadOnlyDictionary<string, object> hookHints)
         {
-            Hooks = hooks;
-            HookHints = hookHints;
+            this.Hooks = hooks;
+            this.HookHints = hookHints;
+        }
+
+        public FlagEvaluationOptions(Hook hook, IReadOnlyDictionary<string, object> hookHints)
+        {
+            this.Hooks = new[] { hook };
+            this.HookHints = hookHints;
         }
     }
 }

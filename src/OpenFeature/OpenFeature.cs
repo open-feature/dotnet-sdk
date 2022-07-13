@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using OpenFeature.Model;
 
 namespace OpenFeature
@@ -11,24 +9,22 @@ namespace OpenFeature
         private EvaluationContext _evaluationContext = new EvaluationContext();
         private IFeatureProvider _featureProvider = new NoOpFeatureProvider();
         private readonly List<Hook> _hooks = new List<Hook>();
-        public static ILogger Logger { get; private set; } = new Logger<OpenFeature>(new NullLoggerFactory());
 
-        // Thread-safe singleton instance
-        private static readonly Lazy<OpenFeature> lazy = new Lazy<OpenFeature>();
-        private static OpenFeature Instance => lazy.Value;
+        public static OpenFeature Instance { get; } = new OpenFeature();
+        static OpenFeature() { }
+        private OpenFeature() { }
 
-        public static void SetProvider(IFeatureProvider featureProvider) => Instance._featureProvider = featureProvider;
-        public static IFeatureProvider GetProvider() => Instance._featureProvider;
-        public static Metadata GetProviderMetadata() => Instance._featureProvider.GetMetadata();
-        public static FeatureClient GetClient(string name = null, string version = null) => new FeatureClient(Instance._featureProvider, name, version);
+        public void SetProvider(IFeatureProvider featureProvider) => this._featureProvider = featureProvider;
+        public IFeatureProvider GetProvider() => this._featureProvider;
+        public Metadata GetProviderMetadata() => this._featureProvider.GetMetadata();
+        public FeatureClient GetClient(string name = null, string version = null, ILogger logger = null) => new FeatureClient(this._featureProvider, name, version, logger);
 
-        public static void AddHooks(IEnumerable<Hook> hooks) => Instance._hooks.AddRange(hooks);
-        public static IEnumerable<Hook> GetHooks() => Instance._hooks.AsReadOnly();
-        public static void ClearHooks() => Instance._hooks.Clear();
+        public void AddHooks(IEnumerable<Hook> hooks) => this._hooks.AddRange(hooks);
+        public void AddHooks(Hook hook) => this._hooks.Add(hook);
+        public IReadOnlyList<Hook> GetHooks() => this._hooks.AsReadOnly();
+        public void ClearHooks() => this._hooks.Clear();
 
-        public static void SetContext(EvaluationContext context) => Instance._evaluationContext = context;
-        public static EvaluationContext GetContext() => Instance._evaluationContext;
-
-        public static void SetLogger(ILogger logger) => Logger = logger;
+        public void SetContext(EvaluationContext context) => this._evaluationContext = context;
+        public EvaluationContext GetContext() => this._evaluationContext;
     }
 }
