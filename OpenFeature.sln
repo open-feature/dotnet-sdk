@@ -6,11 +6,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{72005F60
 	ProjectSection(SolutionItems) = preProject
 		build\Common.props = build\Common.props
 		build\Common.tests.props = build\Common.tests.props
+		build\Common.prod.props = build\Common.prod.props
+		build\RELEASING.md = build\RELEASING.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C97E9975-E10A-4817-AE2C-4DD69C3C02D4}"
 	ProjectSection(SolutionItems) = preProject
 		src\Directory.Build.props = src\Directory.Build.props
+		src\Directory.Build.targets = src\Directory.Build.targets
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{65FBA159-23E0-4CF9-881B-F78DBFF198E9}"

@@ -1,0 +1,49 @@
+<Project>
+  <Import Project=".\Common.props" />
+
+  <ItemGroup>
+    <PackageReference Include="MinVer" Version="$(MinVerPkgVer)">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- Turn this on when the api has been documented -->
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <MinVerMinimumMajorMinor>0.1</MinVerMinimumMajorMinor>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/open-feature/dotnet-sdk</RepositoryUrl>
+    <PackageTags>Feature;OpenFeature;Flags;</PackageTags>
+    <PackageIcon>openfeature-icon.png</PackageIcon>
+    <PackageProjectUrl>https://openfeature.dev</PackageProjectUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <Authors>OpenFeature Authors</Authors>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)openfeature-icon.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <PropertyGroup Label="SourceLink">
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(Deterministic)'=='true'">
+    <SourceRoot Include="$(MSBuildThisFileDirectory)/" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(Deterministic)'=='true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+</Project>
