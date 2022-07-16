@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using OpenFeature.Constant;
 using OpenFeature.Error;
-using OpenFeature.Extention;
+using OpenFeature.Extension;
 using OpenFeature.Model;
 using OpenFeature.Tests.Internal;
 using Xunit;
@@ -162,7 +162,7 @@ namespace OpenFeature.Tests
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion, mockedLogger.Object);
 
             var evaluationDetails = await client.GetObjectDetails(flagName, defaultValue);
-            evaluationDetails.ErrorType.Should().Be(ErrorType.TypeMismatch);
+            evaluationDetails.ErrorType.Should().Be(ErrorType.TypeMismatch.GetDescription());
 
             mockedFeatureProvider
                 .Verify(x => x.ResolveStructureValue<object>(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
@@ -285,7 +285,7 @@ namespace OpenFeature.Tests
             var featureProviderMock = new Mock<IFeatureProvider>();
             featureProviderMock
                 .Setup(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
-                .Throws(new FeatureProviderException(ErrorType.ParseError, new Exception("test")));
+                .Throws(new FeatureProviderException(ErrorType.ParseError));
             featureProviderMock.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(fixture.Create<string>()));
 
@@ -293,7 +293,7 @@ namespace OpenFeature.Tests
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion);
             var response = await client.GetObjectDetails(flagName, defaultValue);
 
-            response.ErrorType.Should().Be(ErrorType.ParseError);
+            response.ErrorType.Should().Be(ErrorType.ParseError.GetDescription());
             response.Reason.Should().Be(Reason.Error);
             featureProviderMock.Verify(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
         }

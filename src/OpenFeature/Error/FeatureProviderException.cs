@@ -1,19 +1,42 @@
 using System;
 using OpenFeature.Constant;
-using OpenFeature.Extention;
+using OpenFeature.Extension;
 
 namespace OpenFeature.Error
 {
+    /// <summary>
+    /// Used to represent an abnormal error when evaluating a flag. This exception should be thrown
+    /// when evaluating a flag inside a IFeatureFlag provider
+    /// </summary>
     public class FeatureProviderException : Exception
     {
-        public ErrorType ErrorType { get; }
-        public string ErrorTypeDescription { get; }
+        /// <summary>
+        /// Description of error that occured when evaluating a flag
+        /// </summary>
+        public string ErrorDescription { get; }
 
-        public FeatureProviderException(ErrorType errorType, Exception innerException)
-            : base(null, innerException)
+        /// <summary>
+        /// Initialize a new instance of the <see cref="FeatureProviderException"/> class
+        /// </summary>
+        /// <param name="errorType">Common error types <see cref="ErrorType"/></param>
+        /// <param name="message">Exception message</param>
+        /// <param name="innerException">Optional inner exception</param>
+        public FeatureProviderException(ErrorType errorType, string message = null, Exception innerException = null)
+            : base(message, innerException)
         {
-            this.ErrorType = errorType;
-            this.ErrorTypeDescription = errorType.GetDescription();
+            this.ErrorDescription = errorType.GetDescription();
+        }
+
+        /// <summary>
+        /// Initialize a new instance of the <see cref="FeatureProviderException"/> class
+        /// </summary>
+        /// <param name="errorCode">A string representation describing the error that occured</param>
+        /// <param name="message">Exception message</param>
+        /// <param name="innerException">Optional inner exception</param>
+        public FeatureProviderException(string errorCode, string message = null, Exception innerException = null)
+            : base(message, innerException)
+        {
+            this.ErrorDescription = errorCode;
         }
     }
 }

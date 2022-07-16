@@ -4,11 +4,7 @@ using OpenFeature.Model;
 
 namespace OpenFeature
 {
-    /// <summary>
-    /// The No-op provider is set by default, and is used when no other provider is set.
-    /// This simply returns the default value for the given type.
-    /// </summary>
-    public class NoOpFeatureProvider : IFeatureProvider
+    internal class NoOpFeatureProvider : IFeatureProvider
     {
         private readonly Metadata _metadata = new Metadata(NoOpProvider.NoOpProviderName);
 

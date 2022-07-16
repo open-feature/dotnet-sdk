@@ -1,8 +1,8 @@
 using OpenFeature.Model;
 
-namespace OpenFeature.Extention
+namespace OpenFeature.Extension
 {
-    public static class ResolutionDetailsExtensions
+    internal static class ResolutionDetailsExtensions
     {
         public static FlagEvaluationDetails<T> ToFlagEvaluationDetails<T>(this ResolutionDetails<T> details)
         {

@@ -20,8 +20,8 @@ The packages will aim to support all current .NET versions. Refer to the current
 ## Basic Usage
 
 ```csharp
-OpenFeature.SetProvider(new NoOpProvider());
-var client = OpenFeature.GetClient();
+OpenFeature.Instance.SetProvider(new NoOpProvider());
+var client = OpenFeature.Instance.GetClient();
 
 var isEnabled = await client.GetBooleanValue("my-feature", false);
 ```
