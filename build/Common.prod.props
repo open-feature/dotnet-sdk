@@ -9,8 +9,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <!-- Turn this on when the api has been documented -->
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup>

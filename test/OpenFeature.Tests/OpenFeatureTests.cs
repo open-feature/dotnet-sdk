@@ -90,5 +90,11 @@ namespace OpenFeature.Tests
 
             OpenFeature.Instance.GetContext().Should().BeSameAs(context);
         }
+
+        [Fact]
+        public void Should_Always_Have_Provider()
+        {
+            OpenFeature.Instance.GetProvider().Should().NotBeNull();
+        }
     }
 }

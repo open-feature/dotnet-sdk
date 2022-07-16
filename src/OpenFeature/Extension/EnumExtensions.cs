@@ -2,9 +2,9 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 
-namespace OpenFeature.Extention
+namespace OpenFeature.Extension
 {
-    public static class EnumExtensions
+    internal static class EnumExtensions
     {
         public static string GetDescription(this Enum value)
         {

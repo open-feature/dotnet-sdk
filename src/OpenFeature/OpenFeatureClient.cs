@@ -6,18 +6,29 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using OpenFeature.Constant;
 using OpenFeature.Error;
-using OpenFeature.Extention;
+using OpenFeature.Extension;
 using OpenFeature.Model;
 
 namespace OpenFeature
 {
-    public class FeatureClient : IFeatureClient
+    /// <summary>
+    ///
+    /// </summary>
+    public sealed class FeatureClient : IFeatureClient
     {
         private readonly ClientMetadata _metadata;
         private readonly IFeatureProvider _featureProvider;
         private readonly List<Hook> _hooks = new List<Hook>();
         private readonly ILogger _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FeatureClient"/> class.
+        /// </summary>
+        /// <param name="featureProvider">Feature provider used by client <see cref="IFeatureProvider"/></param>
+        /// <param name="name">Name of client <see cref="ClientMetadata"/></param>
+        /// <param name="version">Version of client <see cref="ClientMetadata"/></param>
+        /// <param name="logger">Logger used by client</param>
+        /// <exception cref="ArgumentNullException">Throws if any of the required parameters are null</exception>
         public FeatureClient(IFeatureProvider featureProvider, string name, string version, ILogger logger = null)
         {
             this._featureProvider = featureProvider ?? throw new ArgumentNullException(nameof(featureProvider));
@@ -25,40 +36,139 @@ namespace OpenFeature
             this._logger = logger ?? new Logger<OpenFeature>(new NullLoggerFactory());
         }
 
+        /// <summary>
+        /// Gets client metadata
+        /// </summary>
+        /// <returns>Client metadata <see cref="ClientMetadata"/></returns>
         public ClientMetadata GetMetadata() => this._metadata;
 
+        /// <summary>
+        /// Add hook to client
+        /// </summary>
+        /// <param name="hook">Hook that implements the <see cref="Hook"/> interface</param>
         public void AddHooks(Hook hook) => this._hooks.Add(hook);
+
+        /// <summary>
+        /// Appends hooks to client
+        /// </summary>
+        /// <param name="hooks">A list of Hooks that implement the <see cref="Hook"/> interface</param>
         public void AddHooks(IEnumerable<Hook> hooks) => this._hooks.AddRange(hooks);
-        public IReadOnlyList<Hook> GetHooks() => this._hooks.ToList();
+
+        /// <summary>
+        /// Return a immutable list of hooks that are registered against the client
+        /// </summary>
+        /// <returns>A list of immutable hooks</returns>
+        public IReadOnlyList<Hook> GetHooks() => this._hooks.ToList().AsReadOnly();
+
+        /// <summary>
+        /// Removes all hooks from the client
+        /// </summary>
         public void ClearHooks() => this._hooks.Clear();
 
-        public async Task<bool> GetBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null) =>
+        /// <summary>
+        /// Resolves a boolean feature flag
+        /// </summary>
+        /// <param name="flagKey">Feature flag key</param>
+        /// <param name="defaultValue">Default value</param>
+        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
+        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        public async Task<bool> GetBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null,
+            FlagEvaluationOptions config = null) =>
             (await this.GetBooleanDetails(flagKey, defaultValue, context, config)).Value;
 
-        public async Task<FlagEvaluationDetails<bool>> GetBooleanDetails(string flagKey, bool defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(this._featureProvider.ResolveBooleanValue, FlagValueType.Boolean, flagKey, defaultValue, context, config);
+        /// <summary>
+        /// Resolves a boolean feature flag
+        /// </summary>
+        /// <param name="flagKey">Feature flag key</param>
+        /// <param name="defaultValue">Default value</param>
+        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
+        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        public async Task<FlagEvaluationDetails<bool>> GetBooleanDetails(string flagKey, bool defaultValue,
+            EvaluationContext context = null, FlagEvaluationOptions config = null) =>
+            await this.EvaluateFlag(this._featureProvider.ResolveBooleanValue, FlagValueType.Boolean, flagKey,
+                defaultValue, context, config);
 
-        public async Task<string> GetStringValue(string flagKey, string defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null) =>
+        /// <summary>
+        /// Resolves a string feature flag
+        /// </summary>
+        /// <param name="flagKey">Feature flag key</param>
+        /// <param name="defaultValue">Default value</param>
+        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
+        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        public async Task<string> GetStringValue(string flagKey, string defaultValue, EvaluationContext context = null,
+            FlagEvaluationOptions config = null) =>
             (await this.GetStringDetails(flagKey, defaultValue, context, config)).Value;
 
-        public async Task<FlagEvaluationDetails<string>> GetStringDetails(string flagKey, string defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(this._featureProvider.ResolveStringValue, FlagValueType.String, flagKey, defaultValue, context, config);
+        /// <summary>
+        /// Resolves a string feature flag
+        /// </summary>
+        /// <param name="flagKey">Feature flag key</param>
+        /// <param name="defaultValue">Default value</param>
+        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
+        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        public async Task<FlagEvaluationDetails<string>> GetStringDetails(string flagKey, string defaultValue,
+            EvaluationContext context = null, FlagEvaluationOptions config = null) =>
+            await this.EvaluateFlag(this._featureProvider.ResolveStringValue, FlagValueType.String, flagKey,
+                defaultValue, context, config);
 
-        public async Task<int> GetNumberValue(string flagKey, int defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null) =>
+        /// <summary>
+        /// Resolves a number feature flag
+        /// </summary>
+        /// <param name="flagKey">Feature flag key</param>
+        /// <param name="defaultValue">Default value</param>
+        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
+        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        public async Task<int> GetNumberValue(string flagKey, int defaultValue, EvaluationContext context = null,
+            FlagEvaluationOptions config = null) =>
             (await this.GetNumberDetails(flagKey, defaultValue, context, config)).Value;
 
-        public async Task<FlagEvaluationDetails<int>> GetNumberDetails(string flagKey, int defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(this._featureProvider.ResolveNumberValue, FlagValueType.Number, flagKey, defaultValue, context, config);
+        /// <summary>
+        /// Resolves a number feature flag
+        /// </summary>
+        /// <param name="flagKey">Feature flag key</param>
+        /// <param name="defaultValue">Default value</param>
+        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
+        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        public async Task<FlagEvaluationDetails<int>> GetNumberDetails(string flagKey, int defaultValue,
+            EvaluationContext context = null, FlagEvaluationOptions config = null) =>
+            await this.EvaluateFlag(this._featureProvider.ResolveNumberValue, FlagValueType.Number, flagKey,
+                defaultValue, context, config);
 
-        public async Task<T> GetObjectValue<T>(string flagKey, T defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null) =>
+        /// <summary>
+        /// Resolves a object feature flag
+        /// </summary>
+        /// <param name="flagKey">Feature flag key</param>
+        /// <param name="defaultValue">Default value</param>
+        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
+        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        public async Task<T> GetObjectValue<T>(string flagKey, T defaultValue, EvaluationContext context = null,
+            FlagEvaluationOptions config = null) =>
             (await this.GetObjectDetails(flagKey, defaultValue, context, config)).Value;
 
-        public async Task<FlagEvaluationDetails<T>> GetObjectDetails<T>(string flagKey, T defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(this._featureProvider.ResolveStructureValue, FlagValueType.Object, flagKey, defaultValue, context, config);
+        /// <summary>
+        /// Resolves a object feature flag
+        /// </summary>
+        /// <param name="flagKey">Feature flag key</param>
+        /// <param name="defaultValue">Default value</param>
+        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
+        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        public async Task<FlagEvaluationDetails<T>> GetObjectDetails<T>(string flagKey, T defaultValue,
+            EvaluationContext context = null, FlagEvaluationOptions config = null) =>
+            await this.EvaluateFlag(this._featureProvider.ResolveStructureValue, FlagValueType.Object, flagKey,
+                defaultValue, context, config);
 
         private async Task<FlagEvaluationDetails<T>> EvaluateFlag<T>(
             Func<string, T, EvaluationContext, FlagEvaluationOptions, Task<ResolutionDetails<T>>> resolveValueDelegate,
-            FlagValueType flagValueType, string flagKey, T defaultValue, EvaluationContext context = null, FlagEvaluationOptions options = null)
+            FlagValueType flagValueType, string flagKey, T defaultValue, EvaluationContext context = null,
+            FlagEvaluationOptions options = null)
         {
             // New up a evaluation context if one was not provided.
             if (context == null)
@@ -103,8 +213,10 @@ namespace OpenFeature
             }
             catch (FeatureProviderException ex)
             {
-                this._logger.LogError(ex, "Error while evaluating flag {FlagKey}. Error {ErrorType}", flagKey, ex.ErrorTypeDescription);
-                evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, ex.ErrorType, Reason.Error, string.Empty);
+                this._logger.LogError(ex, "Error while evaluating flag {FlagKey}. Error {ErrorType}", flagKey,
+                    ex.ErrorDescription);
+                evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, ex.ErrorDescription, Reason.Error,
+                    string.Empty);
                 await this.TriggerErrorHooks(allHooksReversed, hookContext, ex, options);
             }
             catch (Exception ex)
@@ -122,7 +234,8 @@ namespace OpenFeature
             return evaluation;
         }
 
-        private async Task TriggerBeforeHooks<T>(IReadOnlyList<IHook> hooks, HookContext<T> context, FlagEvaluationOptions options)
+        private async Task TriggerBeforeHooks<T>(IReadOnlyList<IHook> hooks, HookContext<T> context,
+            FlagEvaluationOptions options)
         {
             foreach (var hook in hooks)
             {
@@ -139,7 +252,8 @@ namespace OpenFeature
             }
         }
 
-        private async Task TriggerAfterHooks<T>(IReadOnlyList<IHook> hooks, HookContext<T> context, FlagEvaluationDetails<T> evaluationDetails, FlagEvaluationOptions options)
+        private async Task TriggerAfterHooks<T>(IReadOnlyList<IHook> hooks, HookContext<T> context,
+            FlagEvaluationDetails<T> evaluationDetails, FlagEvaluationOptions options)
         {
             foreach (var hook in hooks)
             {
@@ -147,7 +261,8 @@ namespace OpenFeature
             }
         }
 
-        private async Task TriggerErrorHooks<T>(IReadOnlyList<IHook> hooks, HookContext<T> context, Exception exception, FlagEvaluationOptions options)
+        private async Task TriggerErrorHooks<T>(IReadOnlyList<IHook> hooks, HookContext<T> context, Exception exception,
+            FlagEvaluationOptions options)
         {
             foreach (var hook in hooks)
             {
@@ -162,7 +277,8 @@ namespace OpenFeature
             }
         }
 
-        private async Task TriggerFinallyHooks<T>(IReadOnlyList<IHook> hooks, HookContext<T> context, FlagEvaluationOptions options)
+        private async Task TriggerFinallyHooks<T>(IReadOnlyList<IHook> hooks, HookContext<T> context,
+            FlagEvaluationOptions options)
         {
             foreach (var hook in hooks)
             {
