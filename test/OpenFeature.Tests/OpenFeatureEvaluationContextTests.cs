@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using AutoFixture;
 using FluentAssertions;
-using OpenFeature.Model;
-using OpenFeature.Tests.Internal;
+using OpenFeature.SDK.Model;
+using OpenFeature.SDK.Tests.Internal;
 using Xunit;
 
-namespace OpenFeature.Tests
+namespace OpenFeature.SDK.Tests
 {
     public class OpenFeatureEvaluationContextTests
     {

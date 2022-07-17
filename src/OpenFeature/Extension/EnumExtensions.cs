@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 
-namespace OpenFeature.Extension
+namespace OpenFeature.SDK.Extension
 {
     internal static class EnumExtensions
     {

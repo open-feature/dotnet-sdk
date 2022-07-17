@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace OpenFeature.Constant
+namespace OpenFeature.SDK.Constant
 {
     /// <summary>
     /// These errors are used to indicate abnormal execution when evaluation a flag

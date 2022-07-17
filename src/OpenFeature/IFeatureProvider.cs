@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using OpenFeature.Model;
+using OpenFeature.SDK.Model;
 
-namespace OpenFeature
+namespace OpenFeature.SDK
 {
     /// <summary>
     /// The provider interface describes the abstraction layer for a feature flag provider.

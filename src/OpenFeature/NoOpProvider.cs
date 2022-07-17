@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
-using OpenFeature.Constant;
-using OpenFeature.Model;
+using OpenFeature.SDK.Constant;
+using OpenFeature.SDK.Model;
 
-namespace OpenFeature
+namespace OpenFeature.SDK
 {
     internal class NoOpFeatureProvider : IFeatureProvider
     {

@@ -20,6 +20,8 @@ The packages will aim to support all current .NET versions. Refer to the current
 ## Basic Usage
 
 ```csharp
+using OpenFeature.SDK;
+
 OpenFeature.Instance.SetProvider(new NoOpProvider());
 var client = OpenFeature.Instance.GetClient();
 

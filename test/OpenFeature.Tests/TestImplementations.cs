@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using OpenFeature.Model;
+using OpenFeature.SDK.Model;
 
-namespace OpenFeature.Tests
+namespace OpenFeature.SDK.Tests
 {
     public class TestStructure
     {

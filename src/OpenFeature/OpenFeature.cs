@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
-using OpenFeature.Model;
+using OpenFeature.SDK.Model;
 
-namespace OpenFeature
+namespace OpenFeature.SDK
 {
     /// <summary>
     /// The evaluation API allows for the evaluation of feature flag values, independent of any flag control plane or vendor.

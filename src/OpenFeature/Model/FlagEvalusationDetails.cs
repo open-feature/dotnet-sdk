@@ -1,7 +1,7 @@
-using OpenFeature.Constant;
-using OpenFeature.Extension;
+using OpenFeature.SDK.Constant;
+using OpenFeature.SDK.Extension;
 
-namespace OpenFeature.Model
+namespace OpenFeature.SDK.Model
 {
     /// <summary>
     /// The contract returned to the caller that describes the result of the flag evaluation process.

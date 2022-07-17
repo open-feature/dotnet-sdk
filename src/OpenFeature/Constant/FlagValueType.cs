@@ -1,4 +1,4 @@
-namespace OpenFeature.Constant
+namespace OpenFeature.SDK.Constant
 {
     /// <summary>
     ///  Used to identity what object type of flag being evaluated
