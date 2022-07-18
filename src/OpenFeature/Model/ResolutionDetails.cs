@@ -1,6 +1,6 @@
-using OpenFeature.Constant;
+using OpenFeature.SDK.Constant;
 
-namespace OpenFeature.Model
+namespace OpenFeature.SDK.Model
 {
     /// <summary>
     /// Defines the contract that the <see cref="IFeatureProvider"/> is required to return

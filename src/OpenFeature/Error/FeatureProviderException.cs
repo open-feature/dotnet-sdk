@@ -1,8 +1,8 @@
 using System;
-using OpenFeature.Constant;
-using OpenFeature.Extension;
+using OpenFeature.SDK.Constant;
+using OpenFeature.SDK.Extension;
 
-namespace OpenFeature.Error
+namespace OpenFeature.SDK.Error
 {
     /// <summary>
     /// Used to represent an abnormal error when evaluating a flag. This exception should be thrown

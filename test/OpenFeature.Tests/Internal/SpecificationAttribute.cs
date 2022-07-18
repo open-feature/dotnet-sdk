@@ -1,6 +1,6 @@
 using System;
 
-namespace OpenFeature.Tests.Internal
+namespace OpenFeature.SDK.Tests.Internal
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = false)]
     public class SpecificationAttribute : Attribute

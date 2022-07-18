@@ -5,14 +5,14 @@ using AutoFixture;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using OpenFeature.Constant;
-using OpenFeature.Error;
-using OpenFeature.Extension;
-using OpenFeature.Model;
-using OpenFeature.Tests.Internal;
+using OpenFeature.SDK.Constant;
+using OpenFeature.SDK.Error;
+using OpenFeature.SDK.Extension;
+using OpenFeature.SDK.Model;
+using OpenFeature.SDK.Tests.Internal;
 using Xunit;
 
-namespace OpenFeature.Tests
+namespace OpenFeature.SDK.Tests
 {
     public class OpenFeatureClientTests
     {
@@ -296,6 +296,13 @@ namespace OpenFeature.Tests
             response.ErrorType.Should().Be(ErrorType.ParseError.GetDescription());
             response.Reason.Should().Be(Reason.Error);
             featureProviderMock.Verify(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
+        }
+
+        [Fact]
+        public void Should_Throw_ArgumentNullException_When_Provider_Is_Null()
+        {
+            TestProvider provider = null;
+            Assert.Throws<ArgumentNullException>(() => new FeatureClient(provider, "test", "test"));
         }
     }
 }

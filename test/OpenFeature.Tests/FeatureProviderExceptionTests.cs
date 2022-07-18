@@ -1,10 +1,10 @@
 using System;
 using FluentAssertions;
-using OpenFeature.Constant;
-using OpenFeature.Error;
+using OpenFeature.SDK.Constant;
+using OpenFeature.SDK.Error;
 using Xunit;
 
-namespace OpenFeature.Tests
+namespace OpenFeature.SDK.Tests
 {
     public class FeatureProviderExceptionTests
     {

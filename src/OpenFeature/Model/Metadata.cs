@@ -1,4 +1,4 @@
-namespace OpenFeature.Model
+namespace OpenFeature.SDK.Model
 {
     /// <summary>
     /// <see cref="OpenFeature"/> metadata

@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using OpenFeature.Model;
+using OpenFeature.SDK.Model;
 
-namespace OpenFeature
+namespace OpenFeature.SDK
 {
     internal interface IFeatureClient
     {

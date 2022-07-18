@@ -4,12 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using OpenFeature.Constant;
-using OpenFeature.Error;
-using OpenFeature.Extension;
-using OpenFeature.Model;
+using OpenFeature.SDK.Constant;
+using OpenFeature.SDK.Error;
+using OpenFeature.SDK.Extension;
+using OpenFeature.SDK.Model;
 
-namespace OpenFeature
+namespace OpenFeature.SDK
 {
     /// <summary>
     ///

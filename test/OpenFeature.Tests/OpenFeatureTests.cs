@@ -5,12 +5,12 @@ using AutoFixture;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using OpenFeature.Constant;
-using OpenFeature.Model;
-using OpenFeature.Tests.Internal;
+using OpenFeature.SDK.Constant;
+using OpenFeature.SDK.Model;
+using OpenFeature.SDK.Tests.Internal;
 using Xunit;
 
-namespace OpenFeature.Tests
+namespace OpenFeature.SDK.Tests
 {
     public class OpenFeatureTests
     {

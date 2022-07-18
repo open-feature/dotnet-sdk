@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace OpenFeature.Model
+namespace OpenFeature.SDK.Model
 {
     /// <summary>
     /// A structure containing the one or more hooks and hook hints

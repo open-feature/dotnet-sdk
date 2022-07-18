@@ -1,7 +1,7 @@
 using System;
-using OpenFeature.Constant;
+using OpenFeature.SDK.Constant;
 
-namespace OpenFeature.Model
+namespace OpenFeature.SDK.Model
 {
     /// <summary>
     /// Context provided to hook execution

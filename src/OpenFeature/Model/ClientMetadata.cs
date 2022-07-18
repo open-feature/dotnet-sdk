@@ -1,4 +1,4 @@
-namespace OpenFeature.Model
+namespace OpenFeature.SDK.Model
 {
     /// <summary>
     /// Represents the client metadata

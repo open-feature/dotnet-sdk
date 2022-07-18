@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using Moq;
-using OpenFeature.Constant;
-using OpenFeature.Model;
-using OpenFeature.Tests.Internal;
+using OpenFeature.SDK.Constant;
+using OpenFeature.SDK.Model;
+using OpenFeature.SDK.Tests.Internal;
 using Xunit;
 
-namespace OpenFeature.Tests
+namespace OpenFeature.SDK.Tests
 {
     public class OpenFeatureHookTests
     {

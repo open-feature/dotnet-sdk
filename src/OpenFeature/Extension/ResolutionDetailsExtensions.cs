@@ -1,6 +1,6 @@
-using OpenFeature.Model;
+using OpenFeature.SDK.Model;
 
-namespace OpenFeature.Extension
+namespace OpenFeature.SDK.Extension
 {
     internal static class ResolutionDetailsExtensions
     {
