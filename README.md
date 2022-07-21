@@ -30,7 +30,7 @@ var isEnabled = await client.GetBooleanValue("my-feature", false);
 
 ## Contributors
 
-Thanks so much to your contributions to the OpenFeature project.
+Thanks so much for your contributions to the OpenFeature project.
 
 <a href="https://github.com/open-feature/dotnet-sdk/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=open-feature/dotnet-sdk" />
