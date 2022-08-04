@@ -23,22 +23,22 @@ namespace OpenFeature.SDK.Model
         /// Initializes a new instance of the <see cref="FlagEvaluationOptions"/> class.
         /// </summary>
         /// <param name="hooks"></param>
-        /// <param name="hookHints"></param>
-        public FlagEvaluationOptions(IReadOnlyList<Hook> hooks, IReadOnlyDictionary<string, object> hookHints)
+        /// <param name="hookHints">Optional - a list of hints that are passed through the hook lifecycle</param>
+        public FlagEvaluationOptions(IReadOnlyList<Hook> hooks, IReadOnlyDictionary<string, object> hookHints = null)
         {
             this.Hooks = hooks;
-            this.HookHints = hookHints;
+            this.HookHints = hookHints ?? new Dictionary<string, object>();
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FlagEvaluationOptions"/> class.
         /// </summary>
         /// <param name="hook"></param>
-        /// <param name="hookHints"></param>
-        public FlagEvaluationOptions(Hook hook, IReadOnlyDictionary<string, object> hookHints)
+        /// <param name="hookHints">Optional - a list of hints that are passed through the hook lifecycle</param>
+        public FlagEvaluationOptions(Hook hook, IReadOnlyDictionary<string, object> hookHints = null)
         {
             this.Hooks = new[] { hook };
-            this.HookHints = hookHints;
+            this.HookHints = hookHints ?? new Dictionary<string, object>();
         }
     }
 }
