@@ -60,7 +60,14 @@ namespace OpenFeature.SDK.Tests
             throw new NotImplementedException();
         }
 
-        public Task<ResolutionDetails<int>> ResolveNumberValue(string flagKey, int defaultValue,
+        public Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue,
+            EvaluationContext context = null,
+            FlagEvaluationOptions config = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue,
             EvaluationContext context = null,
             FlagEvaluationOptions config = null)
         {

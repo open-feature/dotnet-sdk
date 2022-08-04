@@ -116,28 +116,54 @@ namespace OpenFeature.SDK
                 defaultValue, context, config);
 
         /// <summary>
-        /// Resolves a number feature flag
+        /// Resolves a integer feature flag
         /// </summary>
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
         /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
-        public async Task<int> GetNumberValue(string flagKey, int defaultValue, EvaluationContext context = null,
+        public async Task<int> GetIntegerValue(string flagKey, int defaultValue, EvaluationContext context = null,
             FlagEvaluationOptions config = null) =>
-            (await this.GetNumberDetails(flagKey, defaultValue, context, config)).Value;
+            (await this.GetIntegerDetails(flagKey, defaultValue, context, config)).Value;
 
         /// <summary>
-        /// Resolves a number feature flag
+        /// Resolves a integer feature flag
         /// </summary>
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
         /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
-        public async Task<FlagEvaluationDetails<int>> GetNumberDetails(string flagKey, int defaultValue,
+        public async Task<FlagEvaluationDetails<int>> GetIntegerDetails(string flagKey, int defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(this._featureProvider.ResolveNumberValue, FlagValueType.Number, flagKey,
+            await this.EvaluateFlag(this._featureProvider.ResolveIntegerValue, FlagValueType.Number, flagKey,
+                defaultValue, context, config);
+
+        /// <summary>
+        /// Resolves a double feature flag
+        /// </summary>
+        /// <param name="flagKey">Feature flag key</param>
+        /// <param name="defaultValue">Default value</param>
+        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
+        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        public async Task<double> GetDoubleValue(string flagKey, double defaultValue,
+            EvaluationContext context = null,
+            FlagEvaluationOptions config = null) =>
+            (await this.GetDoubleDetails(flagKey, defaultValue, context, config)).Value;
+
+        /// <summary>
+        /// Resolves a double feature flag
+        /// </summary>
+        /// <param name="flagKey">Feature flag key</param>
+        /// <param name="defaultValue">Default value</param>
+        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
+        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        public async Task<FlagEvaluationDetails<double>> GetDoubleDetails(string flagKey, double defaultValue,
+            EvaluationContext context = null, FlagEvaluationOptions config = null) =>
+            await this.EvaluateFlag(this._featureProvider.ResolveDoubleValue, FlagValueType.Number, flagKey,
                 defaultValue, context, config);
 
         /// <summary>
