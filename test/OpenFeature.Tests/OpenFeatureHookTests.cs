@@ -214,7 +214,6 @@ namespace OpenFeature.SDK.Tests
             hook.Verify(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<FlagEvaluationDetails<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()), Times.Once);
             hook.Verify(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()), Times.Once);
             featureProvider.Verify(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>(), null), Times.Once);
-
         }
 
         [Fact]
@@ -366,6 +365,45 @@ namespace OpenFeature.SDK.Tests
             hook2.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()), Times.Never);
             hook1.Verify(x => x.Error(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Exception>(), null), Times.Once);
             hook2.Verify(x => x.Error(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Exception>(), null), Times.Once);
+        }
+
+        [Fact]
+        [Specification("4.5.1", "`Flag evaluation options` MAY contain `hook hints`, a map of data to be provided to hook invocations.")]
+        public async Task Hook_Hints_May_Be_Optional()
+        {
+            var featureProvider = new Mock<IFeatureProvider>();
+            var hook = new Mock<Hook>();
+            var defaultEmptyHookHints = new Dictionary<string, object>();
+            var flagOptions = new FlagEvaluationOptions(hook.Object);
+
+            var sequence = new MockSequence();
+
+            featureProvider.Setup(x => x.GetMetadata())
+                .Returns(new Metadata(null));
+
+            hook.InSequence(sequence)
+                .Setup(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), defaultEmptyHookHints))
+                .ReturnsAsync(new EvaluationContext());
+
+            featureProvider.InSequence(sequence)
+                .Setup(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>(), flagOptions))
+                .ReturnsAsync(new ResolutionDetails<bool>("test", false));
+
+            hook.InSequence(sequence)
+                .Setup(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<FlagEvaluationDetails<It.IsAnyType>>(), defaultEmptyHookHints));
+
+            hook.InSequence(sequence)
+                .Setup(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), defaultEmptyHookHints));
+
+            OpenFeature.Instance.SetProvider(featureProvider.Object);
+            var client = OpenFeature.Instance.GetClient();
+
+            await client.GetBooleanValue("test", false, config: flagOptions);
+
+            hook.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), defaultEmptyHookHints), Times.Once);
+            hook.Verify(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<FlagEvaluationDetails<It.IsAnyType>>(), defaultEmptyHookHints), Times.Once);
+            hook.Verify(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), defaultEmptyHookHints), Times.Once);
+            featureProvider.Verify(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>(), flagOptions), Times.Once);
         }
     }
 }
