@@ -55,8 +55,9 @@ namespace OpenFeature.SDK.Tests
         }
 
         [Fact]
-        [Specification("1.3.1", "The `client` MUST provide methods for flag evaluation, with parameters `flag key` (string, required), `default value` (boolean | number | string | structure, required), `evaluation context` (optional), and `evaluation options` (optional), which returns the flag value.")]
-        [Specification("1.3.2.1", "The `client` MUST provide methods for typed flag evaluation, including boolean, numeric, string, and structure.")]
+        [Specification("1.3.1", "The `client` MUST provide methods for typed flag evaluation, including boolean, numeric, string, and structure, with parameters `flag key` (string, required), `default value` (boolean | number | string | structure, required), `evaluation context` (optional), and `evaluation options` (optional), which returns the flag value.")]
+        [Specification("1.3.2.1", "he client SHOULD provide functions for floating-point numbers and integers, consistent with language idioms.")]
+        [Specification("1.3.3", "The `client` SHOULD guarantee the returned value of any typed flag evaluation method is of the expected type. If the value returned by the underlying provider implementation does not match the expected type, it's to be considered abnormal execution, and the supplied `default value` should be returned.")]
         public async Task OpenFeatureClient_Should_Allow_Flag_Evaluation()
         {
             var fixture = new Fixture();
@@ -65,7 +66,8 @@ namespace OpenFeature.SDK.Tests
             var flagName = fixture.Create<string>();
             var defaultBoolValue = fixture.Create<bool>();
             var defaultStringValue = fixture.Create<string>();
-            var defaultNumberValue = fixture.Create<int>();
+            var defaultIntegerValue = fixture.Create<int>();
+            var defaultDoubleValue = fixture.Create<double>();
             var defaultStructureValue = fixture.Create<TestStructure>();
             var emptyFlagOptions = new FlagEvaluationOptions(new List<Hook>(), new Dictionary<string, object>());
 
@@ -76,9 +78,13 @@ namespace OpenFeature.SDK.Tests
             (await client.GetBooleanValue(flagName, defaultBoolValue, new EvaluationContext())).Should().Be(defaultBoolValue);
             (await client.GetBooleanValue(flagName, defaultBoolValue, new EvaluationContext(), emptyFlagOptions)).Should().Be(defaultBoolValue);
 
-            (await client.GetNumberValue(flagName, defaultNumberValue)).Should().Be(defaultNumberValue);
-            (await client.GetNumberValue(flagName, defaultNumberValue, new EvaluationContext())).Should().Be(defaultNumberValue);
-            (await client.GetNumberValue(flagName, defaultNumberValue, new EvaluationContext(), emptyFlagOptions)).Should().Be(defaultNumberValue);
+            (await client.GetIntegerValue(flagName, defaultIntegerValue)).Should().Be(defaultIntegerValue);
+            (await client.GetIntegerValue(flagName, defaultIntegerValue, new EvaluationContext())).Should().Be(defaultIntegerValue);
+            (await client.GetIntegerValue(flagName, defaultIntegerValue, new EvaluationContext(), emptyFlagOptions)).Should().Be(defaultIntegerValue);
+
+            (await client.GetDoubleValue(flagName, defaultDoubleValue)).Should().Be(defaultDoubleValue);
+            (await client.GetDoubleValue(flagName, defaultDoubleValue, new EvaluationContext())).Should().Be(defaultDoubleValue);
+            (await client.GetDoubleValue(flagName, defaultDoubleValue, new EvaluationContext(), emptyFlagOptions)).Should().Be(defaultDoubleValue);
 
             (await client.GetStringValue(flagName, defaultStringValue)).Should().Be(defaultStringValue);
             (await client.GetStringValue(flagName, defaultStringValue, new EvaluationContext())).Should().Be(defaultStringValue);
@@ -106,7 +112,8 @@ namespace OpenFeature.SDK.Tests
             var flagName = fixture.Create<string>();
             var defaultBoolValue = fixture.Create<bool>();
             var defaultStringValue = fixture.Create<string>();
-            var defaultNumberValue = fixture.Create<int>();
+            var defaultIntegerValue = fixture.Create<int>();
+            var defaultDoubleValue = fixture.Create<double>();
             var defaultStructureValue = fixture.Create<TestStructure>();
             var emptyFlagOptions = new FlagEvaluationOptions(new List<Hook>(), new Dictionary<string, object>());
 
@@ -118,10 +125,15 @@ namespace OpenFeature.SDK.Tests
             (await client.GetBooleanDetails(flagName, defaultBoolValue, new EvaluationContext())).Should().BeEquivalentTo(boolFlagEvaluationDetails);
             (await client.GetBooleanDetails(flagName, defaultBoolValue, new EvaluationContext(), emptyFlagOptions)).Should().BeEquivalentTo(boolFlagEvaluationDetails);
 
-            var numberFlagEvaluationDetails = new FlagEvaluationDetails<int>(flagName, defaultNumberValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
-            (await client.GetNumberDetails(flagName, defaultNumberValue)).Should().BeEquivalentTo(numberFlagEvaluationDetails);
-            (await client.GetNumberDetails(flagName, defaultNumberValue, new EvaluationContext())).Should().BeEquivalentTo(numberFlagEvaluationDetails);
-            (await client.GetNumberDetails(flagName, defaultNumberValue, new EvaluationContext(), emptyFlagOptions)).Should().BeEquivalentTo(numberFlagEvaluationDetails);
+            var integerFlagEvaluationDetails = new FlagEvaluationDetails<int>(flagName, defaultIntegerValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
+            (await client.GetIntegerDetails(flagName, defaultIntegerValue)).Should().BeEquivalentTo(integerFlagEvaluationDetails);
+            (await client.GetIntegerDetails(flagName, defaultIntegerValue, new EvaluationContext())).Should().BeEquivalentTo(integerFlagEvaluationDetails);
+            (await client.GetIntegerDetails(flagName, defaultIntegerValue, new EvaluationContext(), emptyFlagOptions)).Should().BeEquivalentTo(integerFlagEvaluationDetails);
+
+            var doubleFlagEvaluationDetails = new FlagEvaluationDetails<double>(flagName, defaultDoubleValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
+            (await client.GetDoubleDetails(flagName, defaultDoubleValue)).Should().BeEquivalentTo(doubleFlagEvaluationDetails);
+            (await client.GetDoubleDetails(flagName, defaultDoubleValue, new EvaluationContext())).Should().BeEquivalentTo(doubleFlagEvaluationDetails);
+            (await client.GetDoubleDetails(flagName, defaultDoubleValue, new EvaluationContext(), emptyFlagOptions)).Should().BeEquivalentTo(doubleFlagEvaluationDetails);
 
             var stringFlagEvaluationDetails = new FlagEvaluationDetails<string>(flagName, defaultStringValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
             (await client.GetStringDetails(flagName, defaultStringValue)).Should().BeEquivalentTo(stringFlagEvaluationDetails);
@@ -236,7 +248,7 @@ namespace OpenFeature.SDK.Tests
 
             var featureProviderMock = new Mock<IFeatureProvider>();
             featureProviderMock
-                .Setup(x => x.ResolveNumberValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
+                .Setup(x => x.ResolveIntegerValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
                 .ReturnsAsync(new ResolutionDetails<int>(flagName, defaultValue));
             featureProviderMock.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(fixture.Create<string>()));
@@ -244,9 +256,9 @@ namespace OpenFeature.SDK.Tests
             OpenFeature.Instance.SetProvider(featureProviderMock.Object);
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion);
 
-            (await client.GetNumberValue(flagName, defaultValue)).Should().Be(defaultValue);
+            (await client.GetIntegerValue(flagName, defaultValue)).Should().Be(defaultValue);
 
-            featureProviderMock.Verify(x => x.ResolveNumberValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
+            featureProviderMock.Verify(x => x.ResolveIntegerValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
         }
 
         [Fact]

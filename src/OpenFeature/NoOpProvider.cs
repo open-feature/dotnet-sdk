@@ -23,7 +23,13 @@ namespace OpenFeature.SDK
             return Task.FromResult(NoOpResponse(flagKey, defaultValue));
         }
 
-        public Task<ResolutionDetails<int>> ResolveNumberValue(string flagKey, int defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null)
+        public Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null)
+        {
+            return Task.FromResult(NoOpResponse(flagKey, defaultValue));
+        }
+
+        public Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue, EvaluationContext context = null,
+            FlagEvaluationOptions config = null)
         {
             return Task.FromResult(NoOpResponse(flagKey, defaultValue));
         }

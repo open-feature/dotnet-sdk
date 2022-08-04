@@ -39,14 +39,25 @@ namespace OpenFeature.SDK
             EvaluationContext context = null, FlagEvaluationOptions config = null);
 
         /// <summary>
-        /// Resolves a number feature flag
+        /// Resolves a integer feature flag
         /// </summary>
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext"/></param>
         /// <param name="config"><see cref="FlagEvaluationOptions"/></param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
-        Task<ResolutionDetails<int>> ResolveNumberValue(string flagKey, int defaultValue,
+        Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue,
+            EvaluationContext context = null, FlagEvaluationOptions config = null);
+
+        /// <summary>
+        /// Resolves a double feature flag
+        /// </summary>
+        /// <param name="flagKey">Feature flag key</param>
+        /// <param name="defaultValue">Default value</param>
+        /// <param name="context"><see cref="EvaluationContext"/></param>
+        /// <param name="config"><see cref="FlagEvaluationOptions"/></param>
+        /// <returns><see cref="ResolutionDetails{T}"/></returns>
+        Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null);
 
         /// <summary>
