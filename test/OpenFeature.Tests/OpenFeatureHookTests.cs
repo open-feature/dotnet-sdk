@@ -405,5 +405,39 @@ namespace OpenFeature.SDK.Tests
             hook.Verify(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), defaultEmptyHookHints), Times.Once);
             featureProvider.Verify(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>(), flagOptions), Times.Once);
         }
+
+        [Fact]
+        [Specification("4.4.7", "If an error occurs in the `before` hooks, the default value MUST be returned.")]
+        public async Task When_Error_Occurs_In_Before_Hook_Should_Return_Default_Value()
+        {
+            var featureProvider = new Mock<IFeatureProvider>();
+            var hook = new Mock<Hook>();
+            var exceptionToThrow = new Exception("Fails during default");
+
+            var sequence = new MockSequence();
+
+            featureProvider.Setup(x => x.GetMetadata())
+                .Returns(new Metadata(null));
+
+            hook.InSequence(sequence)
+                .Setup(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()))
+                .ThrowsAsync(exceptionToThrow);
+
+            hook.InSequence(sequence)
+                .Setup(x => x.Error(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Exception>(), null));
+
+            hook.InSequence(sequence)
+                .Setup(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), null));
+
+            var client = OpenFeature.Instance.GetClient();
+            client.AddHooks(hook.Object);
+
+            var resolvedFlag = await client.GetBooleanValue("test", true);
+
+            resolvedFlag.Should().BeTrue();
+            hook.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), null), Times.Once);
+            hook.Verify(x => x.Error(It.IsAny<HookContext<It.IsAnyType>>(), exceptionToThrow, null), Times.Once);
+            hook.Verify(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), null), Times.Once);
+        }
     }
 }
