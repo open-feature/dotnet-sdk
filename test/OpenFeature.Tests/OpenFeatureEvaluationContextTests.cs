@@ -27,6 +27,7 @@ namespace OpenFeature.SDK.Tests
         }
 
         [Fact]
+        [Specification("3.2.2", "Duplicate values being overwritten.")]
         public void Should_Merge_TwoContexts_And_Override_Duplicates_With_RightHand_Context()
         {
             var context1 = new EvaluationContext();
@@ -76,6 +77,16 @@ namespace OpenFeature.SDK.Tests
             context.Get<bool>("key3").Should().Be(true);
             context.Get<DateTime>("key4").Should().Be(now);
             context.Get<TestStructure>("key5").Should().Be(structure);
+        }
+
+        [Fact]
+        [Specification("3.1.4", "The evaluation context fields MUST have an unique key.")]
+        public void When_Duplicate_Key_Throw_Unique_Constraint()
+        {
+            var context = new EvaluationContext { { "key", "value" } };
+            var exception = Assert.Throws<ArgumentException>(() =>
+                context.Add("key", "overriden_value"));
+            exception.Message.Should().StartWith("An item with the same key has already been added.");
         }
     }
 }
