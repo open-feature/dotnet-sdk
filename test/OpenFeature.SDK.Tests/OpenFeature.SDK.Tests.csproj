@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net6.0</TargetFrameworks>
     <TargetFrameworks Condition="$(OS) == 'Windows_NT'">$(TargetFrameworks);net462</TargetFrameworks>
+    <RootNamespace>OpenFeature.SDK.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\OpenFeature\OpenFeature.csproj" />
+    <ProjectReference Include="..\..\src\OpenFeature.SDK\OpenFeature.SDK.csproj" />
   </ItemGroup>
 
 </Project>
