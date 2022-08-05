@@ -260,7 +260,7 @@ namespace OpenFeature.SDK
             return evaluation;
         }
 
-        private async Task TriggerBeforeHooks<T>(IReadOnlyList<IHook> hooks, HookContext<T> context,
+        private async Task TriggerBeforeHooks<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
             FlagEvaluationOptions options)
         {
             foreach (var hook in hooks)
@@ -278,7 +278,7 @@ namespace OpenFeature.SDK
             }
         }
 
-        private async Task TriggerAfterHooks<T>(IReadOnlyList<IHook> hooks, HookContext<T> context,
+        private async Task TriggerAfterHooks<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
             FlagEvaluationDetails<T> evaluationDetails, FlagEvaluationOptions options)
         {
             foreach (var hook in hooks)
@@ -287,7 +287,7 @@ namespace OpenFeature.SDK
             }
         }
 
-        private async Task TriggerErrorHooks<T>(IReadOnlyList<IHook> hooks, HookContext<T> context, Exception exception,
+        private async Task TriggerErrorHooks<T>(IReadOnlyList<Hook> hooks, HookContext<T> context, Exception exception,
             FlagEvaluationOptions options)
         {
             foreach (var hook in hooks)
@@ -303,7 +303,7 @@ namespace OpenFeature.SDK
             }
         }
 
-        private async Task TriggerFinallyHooks<T>(IReadOnlyList<IHook> hooks, HookContext<T> context,
+        private async Task TriggerFinallyHooks<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
             FlagEvaluationOptions options)
         {
             foreach (var hook in hooks)

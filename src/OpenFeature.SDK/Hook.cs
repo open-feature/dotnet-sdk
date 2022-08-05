@@ -5,14 +5,6 @@ using OpenFeature.SDK.Model;
 
 namespace OpenFeature.SDK
 {
-    internal interface IHook
-    {
-        Task<EvaluationContext> Before<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null);
-        Task After<T>(HookContext<T> context, FlagEvaluationDetails<T> details, IReadOnlyDictionary<string, object> hints = null);
-        Task Error<T>(HookContext<T> context, Exception error, IReadOnlyDictionary<string, object> hints = null);
-        Task Finally<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null);
-    }
-
     /// <summary>
     /// The Hook abstract class describes the default implementation for a hook.
     /// A hook has multiple lifecycles, and is called in the following order when normal execution Before, After, Finally.
@@ -27,7 +19,7 @@ namespace OpenFeature.SDK
     ///
     /// </summary>
     /// <seealso href="https://github.com/open-feature/spec/blob/main/specification/hooks.md">Hook Specification</seealso>
-    public abstract class Hook : IHook
+    public abstract class Hook
     {
         /// <summary>
         /// Called immediately before flag evaluation.
