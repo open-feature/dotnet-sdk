@@ -88,5 +88,29 @@ namespace OpenFeature.SDK.Tests
                 context.Add("key", "overriden_value"));
             exception.Message.Should().StartWith("An item with the same key has already been added.");
         }
+
+        [Fact]
+        [Specification("3.1.3", "The evaluation context MUST support fetching the custom fields by key and also fetching all key value pairs.")]
+        public void Should_Be_Able_To_Get_All_Values()
+        {
+            var context = new EvaluationContext
+            {
+                { "key1", "value1" },
+                { "key2", "value2" },
+                { "key3", "value3" },
+                { "key4", "value4" },
+                { "key5", "value5" }
+            };
+
+            // Iterate over key value pairs and check consistency
+            var count = 0;
+            foreach (var keyValue in context)
+            {
+                context[keyValue.Key].Should().Be(keyValue.Value);
+                count++;
+            }
+
+            context.Count.Should().Be(count);
+        }
     }
 }
