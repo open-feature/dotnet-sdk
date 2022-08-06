@@ -14,7 +14,7 @@ using Xunit;
 
 namespace OpenFeature.SDK.Tests
 {
-    public class OpenFeatureClientTests
+    public class OpenFeatureClientTests : ClearOpenFeatureInstanceFixture
     {
         [Fact]
         [Specification("1.2.1", "The client MUST provide a method to add `hooks` which accepts one or more API-conformant `hooks`, and appends them to the collection of any previously added hooks. When new hooks are added, previously added hooks are not removed.")]
@@ -22,9 +22,9 @@ namespace OpenFeature.SDK.Tests
         {
             var fixture = new Fixture();
             var clientName = fixture.Create<string>();
-            var hook1 = new Mock<Hook>().Object;
-            var hook2 = new Mock<Hook>().Object;
-            var hook3 = new Mock<Hook>().Object;
+            var hook1 = new Mock<Hook>(MockBehavior.Strict).Object;
+            var hook2 = new Mock<Hook>(MockBehavior.Strict).Object;
+            var hook3 = new Mock<Hook>(MockBehavior.Strict).Object;
 
             var client = OpenFeature.Instance.GetClient(clientName);
 
@@ -160,8 +160,8 @@ namespace OpenFeature.SDK.Tests
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<TestStructure>();
-            var mockedFeatureProvider = new Mock<IFeatureProvider>();
-            var mockedLogger = new Mock<ILogger<OpenFeature>>();
+            var mockedFeatureProvider = new Mock<FeatureProvider>(MockBehavior.Strict);
+            var mockedLogger = new Mock<ILogger<OpenFeature>>(MockBehavior.Default);
 
             // This will fail to case a String to TestStructure
             mockedFeatureProvider
@@ -169,6 +169,8 @@ namespace OpenFeature.SDK.Tests
                 .ReturnsAsync(new ResolutionDetails<object>(flagName, "Mismatch"));
             mockedFeatureProvider.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(fixture.Create<string>()));
+            mockedFeatureProvider.Setup(x => x.GetProviderHooks())
+                .Returns(Array.Empty<Hook>());
 
             OpenFeature.Instance.SetProvider(mockedFeatureProvider.Object);
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion, mockedLogger.Object);
@@ -198,12 +200,14 @@ namespace OpenFeature.SDK.Tests
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<bool>();
 
-            var featureProviderMock = new Mock<IFeatureProvider>();
+            var featureProviderMock = new Mock<FeatureProvider>(MockBehavior.Strict);
             featureProviderMock
                 .Setup(x => x.ResolveBooleanValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
                 .ReturnsAsync(new ResolutionDetails<bool>(flagName, defaultValue));
             featureProviderMock.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(fixture.Create<string>()));
+            featureProviderMock.Setup(x => x.GetProviderHooks())
+                .Returns(Array.Empty<Hook>());
 
             OpenFeature.Instance.SetProvider(featureProviderMock.Object);
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion);
@@ -222,12 +226,14 @@ namespace OpenFeature.SDK.Tests
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<string>();
 
-            var featureProviderMock = new Mock<IFeatureProvider>();
+            var featureProviderMock = new Mock<FeatureProvider>(MockBehavior.Strict);
             featureProviderMock
                 .Setup(x => x.ResolveStringValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
                 .ReturnsAsync(new ResolutionDetails<string>(flagName, defaultValue));
             featureProviderMock.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(fixture.Create<string>()));
+            featureProviderMock.Setup(x => x.GetProviderHooks())
+                .Returns(Array.Empty<Hook>());
 
             OpenFeature.Instance.SetProvider(featureProviderMock.Object);
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion);
@@ -238,7 +244,7 @@ namespace OpenFeature.SDK.Tests
         }
 
         [Fact]
-        public async Task Should_Resolve_NumberValue()
+        public async Task Should_Resolve_IntegerValue()
         {
             var fixture = new Fixture();
             var clientName = fixture.Create<string>();
@@ -246,12 +252,14 @@ namespace OpenFeature.SDK.Tests
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<int>();
 
-            var featureProviderMock = new Mock<IFeatureProvider>();
+            var featureProviderMock = new Mock<FeatureProvider>(MockBehavior.Strict);
             featureProviderMock
                 .Setup(x => x.ResolveIntegerValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
                 .ReturnsAsync(new ResolutionDetails<int>(flagName, defaultValue));
             featureProviderMock.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(fixture.Create<string>()));
+            featureProviderMock.Setup(x => x.GetProviderHooks())
+                .Returns(Array.Empty<Hook>());
 
             OpenFeature.Instance.SetProvider(featureProviderMock.Object);
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion);
@@ -259,6 +267,32 @@ namespace OpenFeature.SDK.Tests
             (await client.GetIntegerValue(flagName, defaultValue)).Should().Be(defaultValue);
 
             featureProviderMock.Verify(x => x.ResolveIntegerValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
+        }
+
+        [Fact]
+        public async Task Should_Resolve_DoubleValue()
+        {
+            var fixture = new Fixture();
+            var clientName = fixture.Create<string>();
+            var clientVersion = fixture.Create<string>();
+            var flagName = fixture.Create<string>();
+            var defaultValue = fixture.Create<double>();
+
+            var featureProviderMock = new Mock<FeatureProvider>(MockBehavior.Strict);
+            featureProviderMock
+                .Setup(x => x.ResolveDoubleValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
+                .ReturnsAsync(new ResolutionDetails<double>(flagName, defaultValue));
+            featureProviderMock.Setup(x => x.GetMetadata())
+                .Returns(new Metadata(fixture.Create<string>()));
+            featureProviderMock.Setup(x => x.GetProviderHooks())
+                .Returns(Array.Empty<Hook>());
+
+            OpenFeature.Instance.SetProvider(featureProviderMock.Object);
+            var client = OpenFeature.Instance.GetClient(clientName, clientVersion);
+
+            (await client.GetDoubleValue(flagName, defaultValue)).Should().Be(defaultValue);
+
+            featureProviderMock.Verify(x => x.ResolveDoubleValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null), Times.Once);
         }
 
         [Fact]
@@ -270,12 +304,14 @@ namespace OpenFeature.SDK.Tests
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<TestStructure>();
 
-            var featureProviderMock = new Mock<IFeatureProvider>();
+            var featureProviderMock = new Mock<FeatureProvider>(MockBehavior.Strict);
             featureProviderMock
                 .Setup(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
                 .ReturnsAsync(new ResolutionDetails<TestStructure>(flagName, defaultValue));
             featureProviderMock.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(fixture.Create<string>()));
+            featureProviderMock.Setup(x => x.GetProviderHooks())
+                .Returns(Array.Empty<Hook>());
 
             OpenFeature.Instance.SetProvider(featureProviderMock.Object);
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion);
@@ -294,12 +330,14 @@ namespace OpenFeature.SDK.Tests
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<TestStructure>();
 
-            var featureProviderMock = new Mock<IFeatureProvider>();
+            var featureProviderMock = new Mock<FeatureProvider>(MockBehavior.Strict);
             featureProviderMock
                 .Setup(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>(), null))
                 .Throws(new FeatureProviderException(ErrorType.ParseError));
             featureProviderMock.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(fixture.Create<string>()));
+            featureProviderMock.Setup(x => x.GetProviderHooks())
+                .Returns(Array.Empty<Hook>());
 
             OpenFeature.Instance.SetProvider(featureProviderMock.Object);
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion);

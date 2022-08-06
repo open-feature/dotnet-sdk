@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using OpenFeature.SDK.Model;
 
@@ -8,13 +10,26 @@ namespace OpenFeature.SDK
     /// A provider acts as the translates layer between the generic feature flag structure to a target feature flag system.
     /// </summary>
     /// <seealso href="https://github.com/open-feature/spec/blob/main/specification/providers.md">Provider specification</seealso>
-    public interface IFeatureProvider
+    public abstract class FeatureProvider
     {
+        /// <summary>
+        /// Gets a immutable list of hooks that belong to the provider.
+        /// By default return a empty list
+        ///
+        /// Executed in the order of hooks
+        /// before: API, Client, Invocation, Provider
+        /// after: Provider, Invocation, Client, API
+        /// error (if applicable): Provider, Invocation, Client, API
+        /// finally: Provider, Invocation, Client, API
+        /// </summary>
+        /// <returns></returns>
+        public virtual IReadOnlyList<Hook> GetProviderHooks() => Array.Empty<Hook>();
+
         /// <summary>
         /// Metadata describing the provider.
         /// </summary>
         /// <returns><see cref="Metadata"/></returns>
-        Metadata GetMetadata();
+        public abstract Metadata GetMetadata();
 
         /// <summary>
         /// Resolves a boolean feature flag
@@ -24,7 +39,7 @@ namespace OpenFeature.SDK
         /// <param name="context"><see cref="EvaluationContext"/></param>
         /// <param name="config"><see cref="FlagEvaluationOptions"/></param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
-        Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue,
+        public abstract Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null);
 
         /// <summary>
@@ -35,7 +50,7 @@ namespace OpenFeature.SDK
         /// <param name="context"><see cref="EvaluationContext"/></param>
         /// <param name="config"><see cref="FlagEvaluationOptions"/></param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
-        Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue,
+        public abstract Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null);
 
         /// <summary>
@@ -46,7 +61,7 @@ namespace OpenFeature.SDK
         /// <param name="context"><see cref="EvaluationContext"/></param>
         /// <param name="config"><see cref="FlagEvaluationOptions"/></param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
-        Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue,
+        public abstract Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null);
 
         /// <summary>
@@ -57,7 +72,7 @@ namespace OpenFeature.SDK
         /// <param name="context"><see cref="EvaluationContext"/></param>
         /// <param name="config"><see cref="FlagEvaluationOptions"/></param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
-        Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue,
+        public abstract Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null);
 
         /// <summary>
@@ -69,7 +84,7 @@ namespace OpenFeature.SDK
         /// <param name="config"><see cref="FlagEvaluationOptions"/></param>
         /// <typeparam name="T">Type of object</typeparam>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
-        Task<ResolutionDetails<T>> ResolveStructureValue<T>(string flagKey, T defaultValue,
+        public abstract Task<ResolutionDetails<T>> ResolveStructureValue<T>(string flagKey, T defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null);
     }
 }

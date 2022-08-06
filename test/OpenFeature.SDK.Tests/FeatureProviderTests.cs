@@ -9,7 +9,7 @@ using Xunit;
 
 namespace OpenFeature.SDK.Tests
 {
-    public class FeatureProviderTests
+    public class FeatureProviderTests : ClearOpenFeatureInstanceFixture
     {
         [Fact]
         [Specification("2.1", "The provider interface MUST define a `metadata` member or accessor, containing a `name` field or accessor of type string, which identifies the provider implementation.")]
@@ -67,7 +67,7 @@ namespace OpenFeature.SDK.Tests
             var defaultIntegerValue = fixture.Create<int>();
             var defaultDoubleValue = fixture.Create<double>();
             var defaultStructureValue = fixture.Create<TestStructure>();
-            var providerMock = new Mock<IFeatureProvider>();
+            var providerMock = new Mock<FeatureProvider>(MockBehavior.Strict);
 
             providerMock.Setup(x => x.ResolveBooleanValue(flagName, defaultBoolValue, It.IsAny<EvaluationContext>(), It.IsAny<FlagEvaluationOptions>()))
                 .ReturnsAsync(new ResolutionDetails<bool>(flagName, defaultBoolValue, ErrorType.General, NoOpProvider.ReasonNoOp, NoOpProvider.Variant));
