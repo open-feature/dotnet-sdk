@@ -1,0 +1,36 @@
+name: Release Package
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  release-package:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        version: [net462,net6.0]
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Restore Tools
+      run: dotnet tool restore
+
+    - name: Install dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --configuration Release --no-restore -p:Deterministic=true
+
+    - name: Pack
+      run: dotnet pack OpenFeature.proj --configuration Release --no-build
+
+    - name: Publish to Nuget
+      run: |
+        VERSION=$(dotnet minver -v e)
+        dotnet nuget push OpenFeature.{VERSION}.nupkg --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
