@@ -11,11 +11,12 @@ using Xunit;
 
 namespace OpenFeature.SDK.Tests
 {
-    public class OpenFeatureHookTests
+    public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
     {
         [Fact]
         [Specification("1.5.1", "The `evaluation options` structure's `hooks` field denotes an ordered collection of hooks that the client MUST execute for the respective flag evaluation, in addition to those already configured.")]
-        [Specification("4.4.2", "Hooks MUST be evaluated in the following order:  - before: API, Client, Invocation - after: Invocation, Client, API - error (if applicable): Invocation, Client, API - finally: Invocation, Client, API")]
+        [Specification("2.10", "The provider interface MUST define a provider hook mechanism which can be optionally implemented in order to add hook instances to the evaluation life-cycle.")]
+        [Specification("4.4.2", "Hooks MUST be evaluated in the following order: - before: API, Client, Invocation, Provider - after: Provider, Invocation, Client, API - error (if applicable): Provider, Invocation, Client, API - finally: Provider, Invocation, Client, API")]
         public async Task Hooks_Should_Be_Called_In_Order()
         {
             var fixture = new Fixture();
@@ -23,45 +24,81 @@ namespace OpenFeature.SDK.Tests
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<bool>();
-            var clientHook = new Mock<Hook>();
-            var invocationHook = new Mock<Hook>();
+            var apiHook = new Mock<Hook>(MockBehavior.Strict);
+            var clientHook = new Mock<Hook>(MockBehavior.Strict);
+            var invocationHook = new Mock<Hook>(MockBehavior.Strict);
+            var providerHook = new Mock<Hook>(MockBehavior.Strict);
 
             var sequence = new MockSequence();
+
+            apiHook.InSequence(sequence).Setup(x => x.Before(It.IsAny<HookContext<bool>>(),
+                    It.IsAny<IReadOnlyDictionary<string, object>>()))
+                .ReturnsAsync(new EvaluationContext());
+
+            clientHook.InSequence(sequence).Setup(x => x.Before(It.IsAny<HookContext<bool>>(),
+                    It.IsAny<IReadOnlyDictionary<string, object>>()))
+                .ReturnsAsync(new EvaluationContext());
 
             invocationHook.InSequence(sequence).Setup(x => x.Before(It.IsAny<HookContext<bool>>(),
                 It.IsAny<IReadOnlyDictionary<string, object>>()))
                 .ReturnsAsync(new EvaluationContext());
 
-            clientHook.InSequence(sequence).Setup(x => x.Before(It.IsAny<HookContext<bool>>(),
-                It.IsAny<IReadOnlyDictionary<string, object>>()))
+            providerHook.InSequence(sequence).Setup(x => x.Before(It.IsAny<HookContext<bool>>(),
+                    It.IsAny<IReadOnlyDictionary<string, object>>()))
                 .ReturnsAsync(new EvaluationContext());
+
+            providerHook.InSequence(sequence).Setup(x => x.After(It.IsAny<HookContext<bool>>(),
+                It.IsAny<FlagEvaluationDetails<bool>>(),
+                It.IsAny<IReadOnlyDictionary<string, object>>())).Returns(Task.CompletedTask);
 
             invocationHook.InSequence(sequence).Setup(x => x.After(It.IsAny<HookContext<bool>>(),
                 It.IsAny<FlagEvaluationDetails<bool>>(),
-                It.IsAny<IReadOnlyDictionary<string, object>>()));
+                It.IsAny<IReadOnlyDictionary<string, object>>())).Returns(Task.CompletedTask);
 
             clientHook.InSequence(sequence).Setup(x => x.After(It.IsAny<HookContext<bool>>(),
                 It.IsAny<FlagEvaluationDetails<bool>>(),
-                It.IsAny<IReadOnlyDictionary<string, object>>()));
+                It.IsAny<IReadOnlyDictionary<string, object>>())).Returns(Task.CompletedTask);
+
+            apiHook.InSequence(sequence).Setup(x => x.After(It.IsAny<HookContext<bool>>(),
+                It.IsAny<FlagEvaluationDetails<bool>>(),
+                It.IsAny<IReadOnlyDictionary<string, object>>())).Returns(Task.CompletedTask);
+
+            providerHook.InSequence(sequence).Setup(x => x.Finally(It.IsAny<HookContext<bool>>(),
+                It.IsAny<IReadOnlyDictionary<string, object>>())).Returns(Task.CompletedTask);
 
             invocationHook.InSequence(sequence).Setup(x => x.Finally(It.IsAny<HookContext<bool>>(),
-                It.IsAny<IReadOnlyDictionary<string, object>>()));
+                It.IsAny<IReadOnlyDictionary<string, object>>())).Returns(Task.CompletedTask);
 
             clientHook.InSequence(sequence).Setup(x => x.Finally(It.IsAny<HookContext<bool>>(),
-                It.IsAny<IReadOnlyDictionary<string, object>>()));
+                It.IsAny<IReadOnlyDictionary<string, object>>())).Returns(Task.CompletedTask);
 
-            OpenFeature.Instance.SetProvider(new NoOpFeatureProvider());
+            apiHook.InSequence(sequence).Setup(x => x.Finally(It.IsAny<HookContext<bool>>(),
+                It.IsAny<IReadOnlyDictionary<string, object>>())).Returns(Task.CompletedTask);
+
+            var testProvider = new TestProvider();
+            testProvider.AddHook(providerHook.Object);
+            OpenFeature.Instance.AddHooks(apiHook.Object);
+            OpenFeature.Instance.SetProvider(testProvider);
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion);
             client.AddHooks(clientHook.Object);
 
             await client.GetBooleanValue(flagName, defaultValue, new EvaluationContext(),
                 new FlagEvaluationOptions(invocationHook.Object, new Dictionary<string, object>()));
 
-            invocationHook.Verify(x => x.Before(
+            apiHook.Verify(x => x.Before(
                 It.IsAny<HookContext<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
 
             clientHook.Verify(x => x.Before(
                 It.IsAny<HookContext<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
+
+            invocationHook.Verify(x => x.Before(
+                It.IsAny<HookContext<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
+
+            providerHook.Verify(x => x.Before(
+                It.IsAny<HookContext<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
+
+            providerHook.Verify(x => x.After(
+                It.IsAny<HookContext<bool>>(), It.IsAny<FlagEvaluationDetails<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
 
             invocationHook.Verify(x => x.After(
                 It.IsAny<HookContext<bool>>(), It.IsAny<FlagEvaluationDetails<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
@@ -69,10 +106,19 @@ namespace OpenFeature.SDK.Tests
             clientHook.Verify(x => x.After(
                 It.IsAny<HookContext<bool>>(), It.IsAny<FlagEvaluationDetails<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
 
+            apiHook.Verify(x => x.After(
+                It.IsAny<HookContext<bool>>(), It.IsAny<FlagEvaluationDetails<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
+
+            providerHook.Verify(x => x.Finally(
+                It.IsAny<HookContext<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
+
             invocationHook.Verify(x => x.Finally(
                 It.IsAny<HookContext<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
 
             clientHook.Verify(x => x.Finally(
+                It.IsAny<HookContext<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
+
+            apiHook.Verify(x => x.Finally(
                 It.IsAny<HookContext<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
         }
 
@@ -122,8 +168,8 @@ namespace OpenFeature.SDK.Tests
         public async Task Evaluation_Context_Must_Be_Mutable_Before_Hook()
         {
             var evaluationContext = new EvaluationContext { ["test"] = "test" };
-            var hook1 = new Mock<Hook>();
-            var hook2 = new Mock<Hook>();
+            var hook1 = new Mock<Hook>(MockBehavior.Strict);
+            var hook2 = new Mock<Hook>(MockBehavior.Strict);
             var hookContext = new HookContext<bool>("test", false,
                 FlagValueType.Boolean, new ClientMetadata("test", "1.0.0"), new Metadata(NoOpProvider.NoOpProviderName),
                 evaluationContext);
@@ -182,13 +228,16 @@ namespace OpenFeature.SDK.Tests
         [Specification("4.5.3", "The hook MUST NOT alter the `hook hints` structure.")]
         public async Task Hook_Should_Execute_In_Correct_Order()
         {
-            var featureProvider = new Mock<IFeatureProvider>();
-            var hook = new Mock<Hook>();
+            var featureProvider = new Mock<FeatureProvider>(MockBehavior.Strict);
+            var hook = new Mock<Hook>(MockBehavior.Strict);
 
             var sequence = new MockSequence();
 
             featureProvider.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(null));
+
+            featureProvider.Setup(x => x.GetProviderHooks())
+                .Returns(Array.Empty<Hook>());
 
             hook.InSequence(sequence).Setup(x =>
                     x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()))
@@ -217,41 +266,50 @@ namespace OpenFeature.SDK.Tests
         }
 
         [Fact]
-        [Specification("4.4.1", "The API, Client and invocation MUST have a method for registering hooks which accepts `flag evaluation options`")]
+        [Specification("4.4.1", "The API, Client, Provider, and invocation MUST have a method for registering hooks.")]
         public async Task Register_Hooks_Should_Be_Available_At_All_Levels()
         {
-            var hook1 = new Mock<Hook>();
-            var hook2 = new Mock<Hook>();
-            var hook3 = new Mock<Hook>();
+            var hook1 = new Mock<Hook>(MockBehavior.Strict);
+            var hook2 = new Mock<Hook>(MockBehavior.Strict);
+            var hook3 = new Mock<Hook>(MockBehavior.Strict);
+            var hook4 = new Mock<Hook>(MockBehavior.Strict);
 
+            var testProvider = new TestProvider();
+            testProvider.AddHook(hook4.Object);
             OpenFeature.Instance.AddHooks(hook1.Object);
+            OpenFeature.Instance.SetProvider(testProvider);
             var client = OpenFeature.Instance.GetClient();
             client.AddHooks(hook2.Object);
             await client.GetBooleanValue("test", false, null,
                 new FlagEvaluationOptions(hook3.Object, new Dictionary<string, object>()));
 
-            client.ClearHooks();
+            OpenFeature.Instance.GetHooks().Count.Should().Be(1);
+            client.GetHooks().Count.Should().Be(1);
+            testProvider.GetProviderHooks().Count.Should().Be(1);
         }
 
         [Fact]
         [Specification("4.4.3", "If a `finally` hook abnormally terminates, evaluation MUST proceed, including the execution of any remaining `finally` hooks.")]
         public async Task Finally_Hook_Should_Be_Executed_Even_If_Abnormal_Termination()
         {
-            var featureProvider = new Mock<IFeatureProvider>();
-            var hook1 = new Mock<Hook>();
-            var hook2 = new Mock<Hook>();
+            var featureProvider = new Mock<FeatureProvider>(MockBehavior.Strict);
+            var hook1 = new Mock<Hook>(MockBehavior.Strict);
+            var hook2 = new Mock<Hook>(MockBehavior.Strict);
 
             var sequence = new MockSequence();
 
             featureProvider.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(null));
 
+            featureProvider.Setup(x => x.GetProviderHooks())
+                .Returns(Array.Empty<Hook>());
+
             hook1.InSequence(sequence).Setup(x =>
-                    x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()))
+                    x.Before(It.IsAny<HookContext<It.IsAnyType>>(), null))
                 .ReturnsAsync(new EvaluationContext());
 
             hook2.InSequence(sequence).Setup(x =>
-                    x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()))
+                    x.Before(It.IsAny<HookContext<It.IsAnyType>>(), null))
                 .ReturnsAsync(new EvaluationContext());
 
             featureProvider.InSequence(sequence)
@@ -259,76 +317,83 @@ namespace OpenFeature.SDK.Tests
                     null))
                 .ReturnsAsync(new ResolutionDetails<bool>("test", false));
 
-            hook1.InSequence(sequence).Setup(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(),
-                It.IsAny<FlagEvaluationDetails<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()));
-
             hook2.InSequence(sequence).Setup(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(),
-                It.IsAny<FlagEvaluationDetails<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()));
+                It.IsAny<FlagEvaluationDetails<It.IsAnyType>>(), null))
+                .Returns(Task.CompletedTask);
 
-            hook1.Setup(x =>
-                    x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()))
-                .Throws(new Exception());
+            hook1.InSequence(sequence).Setup(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(),
+                It.IsAny<FlagEvaluationDetails<It.IsAnyType>>(), null))
+                .Returns(Task.CompletedTask);
 
             hook2.InSequence(sequence).Setup(x =>
-                    x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()));
+                    x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), null))
+                .Returns(Task.CompletedTask);
+
+            hook1.InSequence(sequence).Setup(x =>
+                    x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), null))
+                .Throws(new Exception());
 
             OpenFeature.Instance.SetProvider(featureProvider.Object);
             var client = OpenFeature.Instance.GetClient();
             client.AddHooks(new[] { hook1.Object, hook2.Object });
+            client.GetHooks().Count.Should().Be(2);
 
             await client.GetBooleanValue("test", false);
 
-            hook1.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()), Times.Once);
-            hook1.Verify(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<FlagEvaluationDetails<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()), Times.Once);
-            hook1.Verify(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()), Times.Once);
-            hook2.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()), Times.Once);
-            hook2.Verify(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<FlagEvaluationDetails<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()), Times.Once);
-            hook2.Verify(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()), Times.Once);
+            hook1.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), null), Times.Once);
+            hook2.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), null), Times.Once);
             featureProvider.Verify(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>(), null), Times.Once);
+            hook2.Verify(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<FlagEvaluationDetails<It.IsAnyType>>(), null), Times.Once);
+            hook1.Verify(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<FlagEvaluationDetails<It.IsAnyType>>(), null), Times.Once);
+            hook2.Verify(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), null), Times.Once);
+            hook1.Verify(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), null), Times.Once);
         }
 
         [Fact]
-        [Specification("4.4.4", "If a `finally` hook abnormally terminates, evaluation MUST proceed, including the execution of any remaining `finally` hooks.")]
+        [Specification("4.4.4", "If an `error` hook abnormally terminates, evaluation MUST proceed, including the execution of any remaining `error` hooks.")]
         public async Task Error_Hook_Should_Be_Executed_Even_If_Abnormal_Termination()
         {
-            var featureProvider = new Mock<IFeatureProvider>();
-            var hook1 = new Mock<Hook>();
-            var hook2 = new Mock<Hook>();
+            var featureProvider1 = new Mock<FeatureProvider>(MockBehavior.Strict);
+            var hook1 = new Mock<Hook>(MockBehavior.Strict);
+            var hook2 = new Mock<Hook>(MockBehavior.Strict);
 
             var sequence = new MockSequence();
 
-            featureProvider.Setup(x => x.GetMetadata())
+            featureProvider1.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(null));
+            featureProvider1.Setup(x => x.GetProviderHooks())
+                .Returns(Array.Empty<Hook>());
 
             hook1.InSequence(sequence).Setup(x =>
-                    x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()))
+                    x.Before(It.IsAny<HookContext<It.IsAnyType>>(), null))
                 .ReturnsAsync(new EvaluationContext());
 
             hook2.InSequence(sequence).Setup(x =>
-                    x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()))
+                    x.Before(It.IsAny<HookContext<It.IsAnyType>>(), null))
                 .ReturnsAsync(new EvaluationContext());
 
-            featureProvider.InSequence(sequence)
+            featureProvider1.InSequence(sequence)
                 .Setup(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>(),
                     null))
                 .Throws(new Exception());
 
+            hook2.InSequence(sequence).Setup(x =>
+                    x.Error(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Exception>(), null))
+                .Returns(Task.CompletedTask);
+
             hook1.InSequence(sequence).Setup(x =>
                     x.Error(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Exception>(), null))
-                .ThrowsAsync(new Exception());
+                .Returns(Task.CompletedTask);
 
-            hook2.InSequence(sequence).Setup(x =>
-                    x.Error(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Exception>(), null));
-
-            OpenFeature.Instance.SetProvider(featureProvider.Object);
+            OpenFeature.Instance.SetProvider(featureProvider1.Object);
             var client = OpenFeature.Instance.GetClient();
             client.AddHooks(new[] { hook1.Object, hook2.Object });
 
             await client.GetBooleanValue("test", false);
 
-            hook1.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()), Times.Once);
+            hook1.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), null), Times.Once);
+            hook2.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), null), Times.Once);
             hook1.Verify(x => x.Error(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Exception>(), null), Times.Once);
-            hook2.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()), Times.Once);
             hook2.Verify(x => x.Error(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Exception>(), null), Times.Once);
         }
 
@@ -336,14 +401,16 @@ namespace OpenFeature.SDK.Tests
         [Specification("4.4.6", "If an error occurs during the evaluation of `before` or `after` hooks, any remaining hooks in the `before` or `after` stages MUST NOT be invoked.")]
         public async Task Error_Occurs_During_Before_After_Evaluation_Should_Not_Invoke_Any_Remaining_Hooks()
         {
-            var featureProvider = new Mock<IFeatureProvider>();
-            var hook1 = new Mock<Hook>();
-            var hook2 = new Mock<Hook>();
+            var featureProvider = new Mock<FeatureProvider>(MockBehavior.Strict);
+            var hook1 = new Mock<Hook>(MockBehavior.Strict);
+            var hook2 = new Mock<Hook>(MockBehavior.Strict);
 
             var sequence = new MockSequence();
 
             featureProvider.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(null));
+            featureProvider.Setup(x => x.GetProviderHooks())
+                .Returns(Array.Empty<Hook>());
 
             hook1.InSequence(sequence).Setup(x =>
                     x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()))
@@ -371,29 +438,35 @@ namespace OpenFeature.SDK.Tests
         [Specification("4.5.1", "`Flag evaluation options` MAY contain `hook hints`, a map of data to be provided to hook invocations.")]
         public async Task Hook_Hints_May_Be_Optional()
         {
-            var featureProvider = new Mock<IFeatureProvider>();
-            var hook = new Mock<Hook>();
+            var featureProvider = new Mock<FeatureProvider>(MockBehavior.Strict);
+            var hook = new Mock<Hook>(MockBehavior.Strict);
             var defaultEmptyHookHints = new Dictionary<string, object>();
             var flagOptions = new FlagEvaluationOptions(hook.Object);
+            EvaluationContext evaluationContext = null;
 
             var sequence = new MockSequence();
 
             featureProvider.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(null));
 
+            featureProvider.Setup(x => x.GetProviderHooks())
+                .Returns(Array.Empty<Hook>());
+
             hook.InSequence(sequence)
                 .Setup(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), defaultEmptyHookHints))
-                .ReturnsAsync(new EvaluationContext());
+                .ReturnsAsync(evaluationContext);
 
             featureProvider.InSequence(sequence)
                 .Setup(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>(), flagOptions))
                 .ReturnsAsync(new ResolutionDetails<bool>("test", false));
 
             hook.InSequence(sequence)
-                .Setup(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<FlagEvaluationDetails<It.IsAnyType>>(), defaultEmptyHookHints));
+                .Setup(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<FlagEvaluationDetails<It.IsAnyType>>(), defaultEmptyHookHints))
+                .Returns(Task.CompletedTask);
 
             hook.InSequence(sequence)
-                .Setup(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), defaultEmptyHookHints));
+                .Setup(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), defaultEmptyHookHints))
+                .Returns(Task.CompletedTask);
 
             OpenFeature.Instance.SetProvider(featureProvider.Object);
             var client = OpenFeature.Instance.GetClient();
@@ -410,8 +483,8 @@ namespace OpenFeature.SDK.Tests
         [Specification("4.4.7", "If an error occurs in the `before` hooks, the default value MUST be returned.")]
         public async Task When_Error_Occurs_In_Before_Hook_Should_Return_Default_Value()
         {
-            var featureProvider = new Mock<IFeatureProvider>();
-            var hook = new Mock<Hook>();
+            var featureProvider = new Mock<FeatureProvider>(MockBehavior.Strict);
+            var hook = new Mock<Hook>(MockBehavior.Strict);
             var exceptionToThrow = new Exception("Fails during default");
 
             var sequence = new MockSequence();
@@ -424,10 +497,10 @@ namespace OpenFeature.SDK.Tests
                 .ThrowsAsync(exceptionToThrow);
 
             hook.InSequence(sequence)
-                .Setup(x => x.Error(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Exception>(), null));
+                .Setup(x => x.Error(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Exception>(), null)).Returns(Task.CompletedTask);
 
             hook.InSequence(sequence)
-                .Setup(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), null));
+                .Setup(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), null)).Returns(Task.CompletedTask);
 
             var client = OpenFeature.Instance.GetClient();
             client.AddHooks(hook.Object);

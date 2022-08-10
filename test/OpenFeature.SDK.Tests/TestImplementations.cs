@@ -37,48 +37,54 @@ namespace OpenFeature.SDK.Tests
         }
     }
 
-    public class TestProvider : IFeatureProvider
+    public class TestProvider : FeatureProvider
     {
+        private readonly List<Hook> _hooks = new List<Hook>();
+
         public static string Name => "test-provider";
 
-        public Metadata GetMetadata()
+        public void AddHook(Hook hook) => this._hooks.Add(hook);
+
+        public override IReadOnlyList<Hook> GetProviderHooks() => this._hooks.AsReadOnly();
+
+        public override Metadata GetMetadata()
         {
             return new Metadata(Name);
         }
 
-        public Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue,
+        public override Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue,
             EvaluationContext context = null,
             FlagEvaluationOptions config = null)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new ResolutionDetails<bool>(flagKey, defaultValue));
         }
 
-        public Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue,
+        public override Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue,
             EvaluationContext context = null,
             FlagEvaluationOptions config = null)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new ResolutionDetails<string>(flagKey, defaultValue));
         }
 
-        public Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue,
+        public override Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue,
             EvaluationContext context = null,
             FlagEvaluationOptions config = null)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new ResolutionDetails<int>(flagKey, defaultValue));
         }
 
-        public Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue,
+        public override Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue,
             EvaluationContext context = null,
             FlagEvaluationOptions config = null)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new ResolutionDetails<double>(flagKey, defaultValue));
         }
 
-        public Task<ResolutionDetails<T>> ResolveStructureValue<T>(string flagKey, T defaultValue,
+        public override Task<ResolutionDetails<T>> ResolveStructureValue<T>(string flagKey, T defaultValue,
             EvaluationContext context = null,
             FlagEvaluationOptions config = null)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new ResolutionDetails<T>(flagKey, defaultValue));
         }
     }
 }

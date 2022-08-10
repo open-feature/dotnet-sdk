@@ -12,7 +12,7 @@ namespace OpenFeature.SDK
     public sealed class OpenFeature
     {
         private EvaluationContext _evaluationContext = new EvaluationContext();
-        private IFeatureProvider _featureProvider = new NoOpFeatureProvider();
+        private FeatureProvider _featureProvider = new NoOpFeatureProvider();
         private readonly List<Hook> _hooks = new List<Hook>();
 
         /// <summary>
@@ -29,14 +29,14 @@ namespace OpenFeature.SDK
         /// <summary>
         /// Sets the feature provider
         /// </summary>
-        /// <param name="featureProvider">Implementation of <see cref="IFeatureProvider"/></param>
-        public void SetProvider(IFeatureProvider featureProvider) => this._featureProvider = featureProvider;
+        /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
+        public void SetProvider(FeatureProvider featureProvider) => this._featureProvider = featureProvider;
 
         /// <summary>
         /// Gets the feature provider
         /// </summary>
-        /// <returns><see cref="IFeatureProvider"/></returns>
-        public IFeatureProvider GetProvider() => this._featureProvider;
+        /// <returns><see cref="FeatureProvider"/></returns>
+        public FeatureProvider GetProvider() => this._featureProvider;
 
         /// <summary>
         /// Gets providers metadata
@@ -81,7 +81,7 @@ namespace OpenFeature.SDK
         /// Sets the global <see cref="EvaluationContext"/>
         /// </summary>
         /// <param name="context"></param>
-        public void SetContext(EvaluationContext context) => this._evaluationContext = context;
+        public void SetContext(EvaluationContext context) => this._evaluationContext = context ?? new EvaluationContext();
 
         /// <summary>
         /// Gets the global <see cref="EvaluationContext"/>

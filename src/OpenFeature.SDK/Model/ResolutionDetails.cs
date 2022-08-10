@@ -3,7 +3,7 @@ using OpenFeature.SDK.Constant;
 namespace OpenFeature.SDK.Model
 {
     /// <summary>
-    /// Defines the contract that the <see cref="IFeatureProvider"/> is required to return
+    /// Defines the contract that the <see cref="FeatureProvider"/> is required to return
     /// Describes the details of the feature flag being evaluated
     /// </summary>
     /// <typeparam name="T">Flag value type</typeparam>

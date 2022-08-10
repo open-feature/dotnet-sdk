@@ -4,37 +4,37 @@ using OpenFeature.SDK.Model;
 
 namespace OpenFeature.SDK
 {
-    internal class NoOpFeatureProvider : IFeatureProvider
+    internal class NoOpFeatureProvider : FeatureProvider
     {
         private readonly Metadata _metadata = new Metadata(NoOpProvider.NoOpProviderName);
 
-        public Metadata GetMetadata()
+        public override Metadata GetMetadata()
         {
             return this._metadata;
         }
 
-        public Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null)
+        public override Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null)
         {
             return Task.FromResult(NoOpResponse(flagKey, defaultValue));
         }
 
-        public Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null)
+        public override Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null)
         {
             return Task.FromResult(NoOpResponse(flagKey, defaultValue));
         }
 
-        public Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null)
+        public override Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null)
         {
             return Task.FromResult(NoOpResponse(flagKey, defaultValue));
         }
 
-        public Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue, EvaluationContext context = null,
+        public override Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue, EvaluationContext context = null,
             FlagEvaluationOptions config = null)
         {
             return Task.FromResult(NoOpResponse(flagKey, defaultValue));
         }
 
-        public Task<ResolutionDetails<T>> ResolveStructureValue<T>(string flagKey, T defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null)
+        public override Task<ResolutionDetails<T>> ResolveStructureValue<T>(string flagKey, T defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null)
         {
             return Task.FromResult(NoOpResponse(flagKey, defaultValue));
         }

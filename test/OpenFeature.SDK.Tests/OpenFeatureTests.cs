@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using AutoFixture;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using Moq;
 using OpenFeature.SDK.Constant;
 using OpenFeature.SDK.Model;
@@ -12,7 +8,7 @@ using Xunit;
 
 namespace OpenFeature.SDK.Tests
 {
-    public class OpenFeatureTests
+    public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
     {
         [Fact]
         [Specification("1.1.1", "The API, and any state it maintains SHOULD exist as a global singleton, even in cases wherein multiple versions of the API are present at runtime.")]
@@ -29,10 +25,10 @@ namespace OpenFeature.SDK.Tests
         public void OpenFeature_Should_Add_Hooks()
         {
             var openFeature = OpenFeature.Instance;
-            var hook1 = new Mock<Hook>().Object;
-            var hook2 = new Mock<Hook>().Object;
-            var hook3 = new Mock<Hook>().Object;
-            var hook4 = new Mock<Hook>().Object;
+            var hook1 = new Mock<Hook>(MockBehavior.Strict).Object;
+            var hook2 = new Mock<Hook>(MockBehavior.Strict).Object;
+            var hook3 = new Mock<Hook>(MockBehavior.Strict).Object;
+            var hook4 = new Mock<Hook>(MockBehavior.Strict).Object;
 
             openFeature.ClearHooks();
 

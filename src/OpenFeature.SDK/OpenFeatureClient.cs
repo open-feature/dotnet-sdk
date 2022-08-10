@@ -17,19 +17,19 @@ namespace OpenFeature.SDK
     public sealed class FeatureClient : IFeatureClient
     {
         private readonly ClientMetadata _metadata;
-        private readonly IFeatureProvider _featureProvider;
+        private readonly FeatureProvider _featureProvider;
         private readonly List<Hook> _hooks = new List<Hook>();
         private readonly ILogger _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FeatureClient"/> class.
         /// </summary>
-        /// <param name="featureProvider">Feature provider used by client <see cref="IFeatureProvider"/></param>
+        /// <param name="featureProvider">Feature provider used by client <see cref="FeatureProvider"/></param>
         /// <param name="name">Name of client <see cref="ClientMetadata"/></param>
         /// <param name="version">Version of client <see cref="ClientMetadata"/></param>
         /// <param name="logger">Logger used by client</param>
         /// <exception cref="ArgumentNullException">Throws if any of the required parameters are null</exception>
-        public FeatureClient(IFeatureProvider featureProvider, string name, string version, ILogger logger = null)
+        public FeatureClient(FeatureProvider featureProvider, string name, string version, ILogger logger = null)
         {
             this._featureProvider = featureProvider ?? throw new ArgumentNullException(nameof(featureProvider));
             this._metadata = new ClientMetadata(name, version);
@@ -209,6 +209,7 @@ namespace OpenFeature.SDK
                 .Concat(OpenFeature.Instance.GetHooks())
                 .Concat(this._hooks)
                 .Concat(options?.Hooks ?? Enumerable.Empty<Hook>())
+                .Concat(this._featureProvider.GetProviderHooks())
                 .ToList()
                 .AsReadOnly();
 
