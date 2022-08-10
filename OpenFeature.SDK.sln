@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{72005F60
 		.github\workflows\linux-ci.yml = .github\workflows\linux-ci.yml
 		.github\workflows\release-package.yml = .github\workflows\release-package.yml
 		.github\workflows\windows-ci.yml = .github\workflows\windows-ci.yml
+		README.md = README.md
+		CONTRIBUTING.md = CONTRIBUTING.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C97E9975-E10A-4817-AE2C-4DD69C3C02D4}"
