@@ -204,27 +204,31 @@ namespace OpenFeature.SDK.Tests
             var propHook = "4.3.4hook";
 
             // setup a cascade of overwriting properties
-            OpenFeature.Instance.SetContext(new EvaluationContext {
+            OpenFeature.Instance.SetContext(new EvaluationContext
+            {
                 [propGlobal] = true,
                 [propGlobalToOverwrite] = false
             });
-            var clientContext =  new EvaluationContext {
+            var clientContext = new EvaluationContext
+            {
                 [propClient] = true,
                 [propGlobalToOverwrite] = true,
                 [propClientToOverwrite] = false
             };
-            var invocationContext = new EvaluationContext {
+            var invocationContext = new EvaluationContext
+            {
                 [propInvocation] = true,
                 [propClientToOverwrite] = true,
                 [propInvocationToOverwrite] = false,
             };
-            var hookContext = new EvaluationContext {
+            var hookContext = new EvaluationContext
+            {
                 [propHook] = true,
                 [propInvocationToOverwrite] = true,
             };
 
             var provider = new Mock<FeatureProvider>(MockBehavior.Strict);
-            
+
             provider.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(null));
 
@@ -245,7 +249,7 @@ namespace OpenFeature.SDK.Tests
             await client.GetBooleanValue("test", false, invocationContext, new FlagEvaluationOptions(new[] { hook.Object }, new Dictionary<string, object>()));
 
             // after proper merging, all properties should equal true
-            provider.Verify(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.Is<EvaluationContext>(y => 
+            provider.Verify(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.Is<EvaluationContext>(y =>
                 y.Get<bool>(propGlobal)
                 && y.Get<bool>(propClient)
                 && y.Get<bool>(propGlobalToOverwrite)
