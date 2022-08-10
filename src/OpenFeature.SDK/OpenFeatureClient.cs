@@ -20,6 +20,13 @@ namespace OpenFeature.SDK
         private readonly FeatureProvider _featureProvider;
         private readonly List<Hook> _hooks = new List<Hook>();
         private readonly ILogger _logger;
+        private readonly EvaluationContext _evaluationContext;
+
+        /// <summary>
+        /// Gets the client <see cref="EvaluationContext"/>
+        /// </summary>
+        /// <returns></returns>
+        public EvaluationContext GetContext() => this._evaluationContext;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FeatureClient"/> class.
@@ -28,12 +35,14 @@ namespace OpenFeature.SDK
         /// <param name="name">Name of client <see cref="ClientMetadata"/></param>
         /// <param name="version">Version of client <see cref="ClientMetadata"/></param>
         /// <param name="logger">Logger used by client</param>
+        /// <param name="context">Context given to this client</param>
         /// <exception cref="ArgumentNullException">Throws if any of the required parameters are null</exception>
-        public FeatureClient(FeatureProvider featureProvider, string name, string version, ILogger logger = null)
+        public FeatureClient(FeatureProvider featureProvider, string name, string version, ILogger logger = null, EvaluationContext context = null)
         {
             this._featureProvider = featureProvider ?? throw new ArgumentNullException(nameof(featureProvider));
             this._metadata = new ClientMetadata(name, version);
             this._logger = logger ?? new Logger<OpenFeature>(new NullLoggerFactory());
+            this._evaluationContext = context ?? new EvaluationContext();
         }
 
         /// <summary>
@@ -202,7 +211,9 @@ namespace OpenFeature.SDK
                 context = new EvaluationContext();
             }
 
+            // merge api, client, and invocation context.
             var evaluationContext = OpenFeature.Instance.GetContext();
+            evaluationContext.Merge(this.GetContext());
             evaluationContext.Merge(context);
 
             var allHooks = new List<Hook>()
