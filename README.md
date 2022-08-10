@@ -153,4 +153,4 @@ Made with [contrib.rocks](https://contrib.rocks).
 
 ## License
 
-Apache License 2.0
+[Apache License 2.0](LICENSE)

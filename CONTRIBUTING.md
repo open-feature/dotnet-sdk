@@ -1,7 +1,5 @@
 # Contributing to the OpenFeature project
 
-Our community meetings are held fortnightly on Thursdays at 4pm. Check the [OpenFeature community calendar](https://calendar.google.com/calendar/u/0?cid=MHVhN2kxaGl2NWRoMThiMjd0b2FoNjM2NDRAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ) for specific dates and for the Zoom meeting links.
-
 ## Development
 
 You can contribute to this project from a Windows, macOS or Linux machine.
