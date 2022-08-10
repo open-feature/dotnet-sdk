@@ -50,9 +50,10 @@ namespace OpenFeature.SDK
         /// <param name="name">Name of client</param>
         /// <param name="version">Version of client</param>
         /// <param name="logger">Logger instance used by client</param>
+        /// <param name="context">Context given to this client</param>
         /// <returns><see cref="FeatureClient"/></returns>
-        public FeatureClient GetClient(string name = null, string version = null, ILogger logger = null) =>
-            new FeatureClient(this._featureProvider, name, version, logger);
+        public FeatureClient GetClient(string name = null, string version = null, ILogger logger = null, EvaluationContext context = null) =>
+            new FeatureClient(this._featureProvider, name, version, logger, context);
 
         /// <summary>
         /// Appends list of hooks to global hooks list

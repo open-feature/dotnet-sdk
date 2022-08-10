@@ -164,7 +164,6 @@ namespace OpenFeature.SDK.Tests
         [Fact]
         [Specification("4.1.4", "The evaluation context MUST be mutable only within the `before` hook.")]
         [Specification("4.3.3", "Any `evaluation context` returned from a `before` hook MUST be passed to subsequent `before` hooks (via `HookContext`).")]
-        [Specification("4.3.4", "When `before` hooks have finished executing, any resulting `evaluation context` MUST be merged with the invocation `evaluation context` with the invocation `evaluation context` taking precedence in the case of any conflicts.")]
         public async Task Evaluation_Context_Must_Be_Mutable_Before_Hook()
         {
             var evaluationContext = new EvaluationContext { ["test"] = "test" };
@@ -187,6 +186,74 @@ namespace OpenFeature.SDK.Tests
 
             hook1.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()), Times.Once);
             hook2.Verify(x => x.Before(It.Is<HookContext<bool>>(a => a.EvaluationContext.Get<string>("test") == "test"), It.IsAny<Dictionary<string, object>>()), Times.Once);
+        }
+
+        [Fact]
+        [Specification("4.3.4", "When before hooks have finished executing, any resulting evaluation context MUST be merged with the existing evaluation context in the following order: before-hook (highest precedence), invocation, client, api (lowest precedence).")]
+        public async Task Evaluation_Context_Must_Be_Merged_In_Correct_Order()
+        {
+            var propGlobal = "4.3.4global";
+            var propGlobalToOverwrite = "4.3.4globalToOverwrite";
+
+            var propClient = "4.3.4client";
+            var propClientToOverwrite = "4.3.4clientToOverwrite";
+
+            var propInvocation = "4.3.4invocation";
+            var propInvocationToOverwrite = "4.3.4invocationToOverwrite";
+
+            var propHook = "4.3.4hook";
+
+            // setup a cascade of overwriting properties
+            OpenFeature.Instance.SetContext(new EvaluationContext {
+                [propGlobal] = true,
+                [propGlobalToOverwrite] = false
+            });
+            var clientContext =  new EvaluationContext {
+                [propClient] = true,
+                [propGlobalToOverwrite] = true,
+                [propClientToOverwrite] = false
+            };
+            var invocationContext = new EvaluationContext {
+                [propInvocation] = true,
+                [propClientToOverwrite] = true,
+                [propInvocationToOverwrite] = false,
+            };
+            var hookContext = new EvaluationContext {
+                [propHook] = true,
+                [propInvocationToOverwrite] = true,
+            };
+
+            var provider = new Mock<FeatureProvider>(MockBehavior.Strict);
+            
+            provider.Setup(x => x.GetMetadata())
+                .Returns(new Metadata(null));
+
+            provider.Setup(x => x.GetProviderHooks())
+                .Returns(Array.Empty<Hook>());
+
+            provider.Setup(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>(), null))
+            .ReturnsAsync(new ResolutionDetails<bool>("test", true));
+
+            OpenFeature.Instance.SetProvider(provider.Object);
+
+            var hook = new Mock<Hook>(MockBehavior.Strict);
+            hook.Setup(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()))
+                .ReturnsAsync(hookContext);
+
+
+            var client = OpenFeature.Instance.GetClient("test", "1.0.0", null, clientContext);
+            await client.GetBooleanValue("test", false, invocationContext, new FlagEvaluationOptions(new[] { hook.Object }, new Dictionary<string, object>()));
+
+            // after proper merging, all properties should equal true
+            provider.Verify(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.Is<EvaluationContext>(y => 
+                y.Get<bool>(propGlobal)
+                && y.Get<bool>(propClient)
+                && y.Get<bool>(propGlobalToOverwrite)
+                && y.Get<bool>(propInvocation)
+                && y.Get<bool>(propClientToOverwrite)
+                && y.Get<bool>(propHook)
+                && y.Get<bool>(propInvocationToOverwrite)
+            ), It.IsAny<FlagEvaluationOptions>()), Times.Once);
         }
 
         [Fact]
