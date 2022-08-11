@@ -13,6 +13,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <MinVerTagPrefix>v</MinVerTagPrefix>
     <MinVerMinimumMajorMinor>0.1</MinVerMinimumMajorMinor>
   </PropertyGroup>
 
