@@ -17,16 +17,5 @@ jobs:
       - name: Restore Tools
         run: dotnet tool restore
 
-      - name: Install dependencies
-        run: dotnet restore
-
-      - name: Build
-        run: dotnet build --configuration Release --no-restore -p:Deterministic=true
-
-      - name: Pack
-        run: dotnet pack OpenFeature.SDK.proj --configuration Release --no-build -p:PackageID=OpenFeature
-
-      - name: Publish to Nuget
-        run: |
-          VERSION=$(dotnet minver -t v -v e)
-          dotnet nuget push OpenFeature.{VERSION}.nupkg --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
+      - name: Build, Tests, Pack and Publish
+        run: dotnet releaser run --nuget-token "${{secrets.NUGET_TOKEN}}" --github-token "${{secrets.GITHUB_TOKEN}}" build/dotnet-releaser.toml

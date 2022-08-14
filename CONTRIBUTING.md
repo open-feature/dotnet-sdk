@@ -93,6 +93,22 @@ on each other), the owner should try to get people aligned by:
 * If none of the above worked and the PR has been stuck for more than 2 weeks,
   the owner should bring it to the OpenFeatures [meeting](README.md#contributing).
 
+## Automated Changelog
+
+Each time a release is published the changelogs will be generated automatically using [dotnet-releaser](https://github.com/xoofx/dotnet-releaser/blob/main/doc/changelog_user_guide.md#13-categories). The tool will organise the changes based on the PR labels.
+
+- 🚨 Breaking Changes = `breaking-change`
+- ✨ New Features = `feature`
+- 🐛 Bug Fixes = `bug`
+- 🚀 Enhancements = `enhancement`
+- 🧰 Maintenance = `maintenance`
+- 🏭 Tests = `tests`, `test`
+- 🛠 Examples = `examples`
+- 📚 Documentation = `documentation`
+- 🌎 Accessibility = `translations`
+- 📦 Dependencies = `dependencies`
+- 🧰 Misc = `misc`
+
 ## Design Choices
 
 As with other OpenFeature SDKs, dotnet-sdk follows the

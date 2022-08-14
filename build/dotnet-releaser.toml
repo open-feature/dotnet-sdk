@@ -1,0 +1,22 @@
+# configuration file for dotnet-releaser
+[msbuild]
+project = "../OpenFeature.SDK.sln"
+configuration = "Release"
+[msbuild.properties]
+Deterministic = true
+[github]
+user = "open-feature"
+repo = "dotnet-sdk"
+version_prefix = "v"
+[test]
+enable = false
+[coverage]
+enable = false
+[coveralls]
+publish = false
+[brew]
+publish = false
+[service]
+publish = false
+[changelog]
+publish = true
