@@ -2,16 +2,16 @@
   "version": 1,
   "isRoot": true,
   "tools": {
-    "minver-cli": {
-      "version": "4.1.0",
-      "commands": [
-        "minver"
-      ]
-    },
     "dotnet-format": {
       "version": "5.1.250801",
       "commands": [
         "dotnet-format"
+      ]
+    },
+    "dotnet-releaser": {
+      "version": "0.4.2",
+      "commands": [
+        "dotnet-releaser"
       ]
     }
   }
