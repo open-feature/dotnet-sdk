@@ -235,7 +235,7 @@ namespace OpenFeature.SDK.Tests
             provider.Setup(x => x.GetProviderHooks())
                 .Returns(Array.Empty<Hook>());
 
-            provider.Setup(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>(), null))
+            provider.Setup(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>()))
             .ReturnsAsync(new ResolutionDetails<bool>("test", true));
 
             OpenFeature.Instance.SetProvider(provider.Object);
@@ -257,7 +257,7 @@ namespace OpenFeature.SDK.Tests
                 && y.Get<bool>(propClientToOverwrite)
                 && y.Get<bool>(propHook)
                 && y.Get<bool>(propInvocationToOverwrite)
-            ), It.IsAny<FlagEvaluationOptions>()), Times.Once);
+            )), Times.Once);
         }
 
         [Fact]
@@ -315,7 +315,7 @@ namespace OpenFeature.SDK.Tests
                 .ReturnsAsync(new EvaluationContext());
 
             featureProvider.InSequence(sequence)
-                .Setup(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>(), null))
+                .Setup(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>()))
                 .ReturnsAsync(new ResolutionDetails<bool>("test", false));
 
             hook.InSequence(sequence).Setup(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(),
@@ -333,7 +333,7 @@ namespace OpenFeature.SDK.Tests
             hook.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()), Times.Once);
             hook.Verify(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<FlagEvaluationDetails<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()), Times.Once);
             hook.Verify(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()), Times.Once);
-            featureProvider.Verify(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>(), null), Times.Once);
+            featureProvider.Verify(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>()), Times.Once);
         }
 
         [Fact]
@@ -384,8 +384,7 @@ namespace OpenFeature.SDK.Tests
                 .ReturnsAsync(new EvaluationContext());
 
             featureProvider.InSequence(sequence)
-                .Setup(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>(),
-                    null))
+                .Setup(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>()))
                 .ReturnsAsync(new ResolutionDetails<bool>("test", false));
 
             hook2.InSequence(sequence).Setup(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(),
@@ -413,7 +412,7 @@ namespace OpenFeature.SDK.Tests
 
             hook1.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), null), Times.Once);
             hook2.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), null), Times.Once);
-            featureProvider.Verify(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>(), null), Times.Once);
+            featureProvider.Verify(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>()), Times.Once);
             hook2.Verify(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<FlagEvaluationDetails<It.IsAnyType>>(), null), Times.Once);
             hook1.Verify(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<FlagEvaluationDetails<It.IsAnyType>>(), null), Times.Once);
             hook2.Verify(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), null), Times.Once);
@@ -444,8 +443,7 @@ namespace OpenFeature.SDK.Tests
                 .ReturnsAsync(new EvaluationContext());
 
             featureProvider1.InSequence(sequence)
-                .Setup(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>(),
-                    null))
+                .Setup(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>()))
                 .Throws(new Exception());
 
             hook2.InSequence(sequence).Setup(x =>
@@ -528,7 +526,7 @@ namespace OpenFeature.SDK.Tests
                 .ReturnsAsync(evaluationContext);
 
             featureProvider.InSequence(sequence)
-                .Setup(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>(), flagOptions))
+                .Setup(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>()))
                 .ReturnsAsync(new ResolutionDetails<bool>("test", false));
 
             hook.InSequence(sequence)
@@ -547,7 +545,7 @@ namespace OpenFeature.SDK.Tests
             hook.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), defaultEmptyHookHints), Times.Once);
             hook.Verify(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<FlagEvaluationDetails<It.IsAnyType>>(), defaultEmptyHookHints), Times.Once);
             hook.Verify(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), defaultEmptyHookHints), Times.Once);
-            featureProvider.Verify(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>(), flagOptions), Times.Once);
+            featureProvider.Verify(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>()), Times.Once);
         }
 
         [Fact]

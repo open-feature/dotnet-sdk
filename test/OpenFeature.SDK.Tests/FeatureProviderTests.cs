@@ -21,7 +21,7 @@ namespace OpenFeature.SDK.Tests
         }
 
         [Fact]
-        [Specification("2.2", "The `feature provider` interface MUST define methods to resolve flag values, with parameters `flag key` (string, required), `default value` (boolean | number | string | structure, required), `evaluation context` (optional), and `evaluation options` (optional), which returns a `flag resolution` structure.")]
+        [Specification("2.2", "The `feature provider` interface MUST define methods to resolve flag values, with parameters `flag key` (string, required), `default value` (boolean | number | string | structure, required) and `evaluation context` (optional), which returns a `flag resolution` structure.")]
         [Specification("2.3.1", "The `feature provider` interface MUST define methods for typed flag resolution, including boolean, numeric, string, and structure.")]
         [Specification("2.4", "In cases of normal execution, the `provider` MUST populate the `flag resolution` structure's `value` field with the resolved flag value.")]
         [Specification("2.5", "In cases of normal execution, the `provider` SHOULD populate the `flag resolution` structure's `variant` field with a string identifier corresponding to the returned flag value.")]
@@ -69,22 +69,22 @@ namespace OpenFeature.SDK.Tests
             var defaultStructureValue = fixture.Create<TestStructure>();
             var providerMock = new Mock<FeatureProvider>(MockBehavior.Strict);
 
-            providerMock.Setup(x => x.ResolveBooleanValue(flagName, defaultBoolValue, It.IsAny<EvaluationContext>(), It.IsAny<FlagEvaluationOptions>()))
+            providerMock.Setup(x => x.ResolveBooleanValue(flagName, defaultBoolValue, It.IsAny<EvaluationContext>()))
                 .ReturnsAsync(new ResolutionDetails<bool>(flagName, defaultBoolValue, ErrorType.General, NoOpProvider.ReasonNoOp, NoOpProvider.Variant));
 
-            providerMock.Setup(x => x.ResolveIntegerValue(flagName, defaultIntegerValue, It.IsAny<EvaluationContext>(), It.IsAny<FlagEvaluationOptions>()))
+            providerMock.Setup(x => x.ResolveIntegerValue(flagName, defaultIntegerValue, It.IsAny<EvaluationContext>()))
                 .ReturnsAsync(new ResolutionDetails<int>(flagName, defaultIntegerValue, ErrorType.ParseError, NoOpProvider.ReasonNoOp, NoOpProvider.Variant));
 
-            providerMock.Setup(x => x.ResolveDoubleValue(flagName, defaultDoubleValue, It.IsAny<EvaluationContext>(), It.IsAny<FlagEvaluationOptions>()))
+            providerMock.Setup(x => x.ResolveDoubleValue(flagName, defaultDoubleValue, It.IsAny<EvaluationContext>()))
                 .ReturnsAsync(new ResolutionDetails<double>(flagName, defaultDoubleValue, ErrorType.ParseError, NoOpProvider.ReasonNoOp, NoOpProvider.Variant));
 
-            providerMock.Setup(x => x.ResolveStringValue(flagName, defaultStringValue, It.IsAny<EvaluationContext>(), It.IsAny<FlagEvaluationOptions>()))
+            providerMock.Setup(x => x.ResolveStringValue(flagName, defaultStringValue, It.IsAny<EvaluationContext>()))
                 .ReturnsAsync(new ResolutionDetails<string>(flagName, defaultStringValue, ErrorType.TypeMismatch, NoOpProvider.ReasonNoOp, NoOpProvider.Variant));
 
-            providerMock.Setup(x => x.ResolveStructureValue(flagName, defaultStructureValue, It.IsAny<EvaluationContext>(), It.IsAny<FlagEvaluationOptions>()))
+            providerMock.Setup(x => x.ResolveStructureValue(flagName, defaultStructureValue, It.IsAny<EvaluationContext>()))
                 .ReturnsAsync(new ResolutionDetails<TestStructure>(flagName, defaultStructureValue, ErrorType.FlagNotFound, NoOpProvider.ReasonNoOp, NoOpProvider.Variant));
 
-            providerMock.Setup(x => x.ResolveStructureValue(flagName2, defaultStructureValue, It.IsAny<EvaluationContext>(), It.IsAny<FlagEvaluationOptions>()))
+            providerMock.Setup(x => x.ResolveStructureValue(flagName2, defaultStructureValue, It.IsAny<EvaluationContext>()))
                 .ReturnsAsync(new ResolutionDetails<TestStructure>(flagName, defaultStructureValue, ErrorType.ProviderNotReady, NoOpProvider.ReasonNoOp, NoOpProvider.Variant));
 
             var provider = providerMock.Object;
