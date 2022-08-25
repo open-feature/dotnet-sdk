@@ -53,36 +53,31 @@ namespace OpenFeature.SDK.Tests
         }
 
         public override Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue,
-            EvaluationContext context = null,
-            FlagEvaluationOptions config = null)
+            EvaluationContext context = null)
         {
             return Task.FromResult(new ResolutionDetails<bool>(flagKey, defaultValue));
         }
 
         public override Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue,
-            EvaluationContext context = null,
-            FlagEvaluationOptions config = null)
+            EvaluationContext context = null)
         {
             return Task.FromResult(new ResolutionDetails<string>(flagKey, defaultValue));
         }
 
         public override Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue,
-            EvaluationContext context = null,
-            FlagEvaluationOptions config = null)
+            EvaluationContext context = null)
         {
             return Task.FromResult(new ResolutionDetails<int>(flagKey, defaultValue));
         }
 
         public override Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue,
-            EvaluationContext context = null,
-            FlagEvaluationOptions config = null)
+            EvaluationContext context = null)
         {
             return Task.FromResult(new ResolutionDetails<double>(flagKey, defaultValue));
         }
 
         public override Task<ResolutionDetails<T>> ResolveStructureValue<T>(string flagKey, T defaultValue,
-            EvaluationContext context = null,
-            FlagEvaluationOptions config = null)
+            EvaluationContext context = null)
         {
             return Task.FromResult(new ResolutionDetails<T>(flagKey, defaultValue));
         }

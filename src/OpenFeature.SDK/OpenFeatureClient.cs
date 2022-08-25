@@ -201,7 +201,7 @@ namespace OpenFeature.SDK
                 defaultValue, context, config);
 
         private async Task<FlagEvaluationDetails<T>> EvaluateFlag<T>(
-            Func<string, T, EvaluationContext, FlagEvaluationOptions, Task<ResolutionDetails<T>>> resolveValueDelegate,
+            Func<string, T, EvaluationContext, Task<ResolutionDetails<T>>> resolveValueDelegate,
             FlagValueType flagValueType, string flagKey, T defaultValue, EvaluationContext context = null,
             FlagEvaluationOptions options = null)
         {
@@ -244,7 +244,7 @@ namespace OpenFeature.SDK
                 await this.TriggerBeforeHooks(allHooks, hookContext, options);
 
                 evaluation =
-                    (await resolveValueDelegate.Invoke(flagKey, defaultValue, hookContext.EvaluationContext, options))
+                    (await resolveValueDelegate.Invoke(flagKey, defaultValue, hookContext.EvaluationContext))
                     .ToFlagEvaluationDetails();
 
                 await this.TriggerAfterHooks(allHooksReversed, hookContext, evaluation, options);

@@ -53,36 +53,31 @@ public class MyFeatureProvider : FeatureProvider
     }
 
     public Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue,
-        EvaluationContext context = null,
-        FlagEvaluationOptions config = null)
+        EvaluationContext context = null)
     {
         // code to resolve boolean details
     }
 
     public Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue,
-        EvaluationContext context = null,
-        FlagEvaluationOptions config = null)
+        EvaluationContext context = null)
     {
         // code to resolve string details
     }
 
     public Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue,
-        EvaluationContext context = null,
-        FlagEvaluationOptions config = null)
+        EvaluationContext context = null)
     {
         // code to resolve integer details
     }
 
     public Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue,
-        EvaluationContext context = null,
-        FlagEvaluationOptions config = null)
+        EvaluationContext context = null)
     {
         // code to resolve integer details
     }
 
     public Task<ResolutionDetails<T>> ResolveStructureValue<T>(string flagKey, T defaultValue,
-        EvaluationContext context = null,
-        FlagEvaluationOptions config = null)
+        EvaluationContext context = null)
     {
         // code to resolve object details
     }

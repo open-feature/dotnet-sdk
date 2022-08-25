@@ -37,10 +37,9 @@ namespace OpenFeature.SDK
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext"/></param>
-        /// <param name="config"><see cref="FlagEvaluationOptions"/></param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
         public abstract Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue,
-            EvaluationContext context = null, FlagEvaluationOptions config = null);
+            EvaluationContext context = null);
 
         /// <summary>
         /// Resolves a string feature flag
@@ -48,10 +47,9 @@ namespace OpenFeature.SDK
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext"/></param>
-        /// <param name="config"><see cref="FlagEvaluationOptions"/></param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
         public abstract Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue,
-            EvaluationContext context = null, FlagEvaluationOptions config = null);
+            EvaluationContext context = null);
 
         /// <summary>
         /// Resolves a integer feature flag
@@ -59,10 +57,9 @@ namespace OpenFeature.SDK
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext"/></param>
-        /// <param name="config"><see cref="FlagEvaluationOptions"/></param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
         public abstract Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue,
-            EvaluationContext context = null, FlagEvaluationOptions config = null);
+            EvaluationContext context = null);
 
         /// <summary>
         /// Resolves a double feature flag
@@ -70,10 +67,9 @@ namespace OpenFeature.SDK
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext"/></param>
-        /// <param name="config"><see cref="FlagEvaluationOptions"/></param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
         public abstract Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue,
-            EvaluationContext context = null, FlagEvaluationOptions config = null);
+            EvaluationContext context = null);
 
         /// <summary>
         /// Resolves a structured feature flag
@@ -81,10 +77,9 @@ namespace OpenFeature.SDK
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext"/></param>
-        /// <param name="config"><see cref="FlagEvaluationOptions"/></param>
         /// <typeparam name="T">Type of object</typeparam>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
         public abstract Task<ResolutionDetails<T>> ResolveStructureValue<T>(string flagKey, T defaultValue,
-            EvaluationContext context = null, FlagEvaluationOptions config = null);
+            EvaluationContext context = null);
     }
 }
