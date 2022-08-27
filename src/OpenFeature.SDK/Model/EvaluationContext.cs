@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace OpenFeature.SDK.Model
 {
@@ -10,55 +8,111 @@ namespace OpenFeature.SDK.Model
     /// to the feature flag evaluation context.
     /// </summary>
     /// <seealso href="https://github.com/open-feature/spec/blob/main/specification/evaluation-context.md">Evaluation context</seealso>
-    public class EvaluationContext : IEnumerable<KeyValuePair<string, object>>
+    public class EvaluationContext
     {
-        private readonly Dictionary<string, object> _internalContext = new Dictionary<string, object>();
+        private readonly Structure _structure = new Structure();
 
         /// <summary>
-        /// Add a new key value pair to the evaluation context
-        /// </summary>
-        /// <param name="key">Key</param>
-        /// <param name="value">Value</param>
-        /// <typeparam name="T">Type of value</typeparam>
-        public void Add<T>(string key, T value)
-        {
-            this._internalContext.Add(key, value);
-        }
-
-        /// <summary>
-        /// Remove an object by key from the evaluation context
-        /// </summary>
-        /// <param name="key">Key</param>
-        /// <exception cref="ArgumentException">Key is null</exception>
-        public bool Remove(string key)
-        {
-            return this._internalContext.Remove(key);
-        }
-
-        /// <summary>
-        /// Get an object from evaluation context by key
-        /// </summary>
-        /// <param name="key">Key</param>
-        /// <typeparam name="T">Type of object</typeparam>
-        /// <returns>Object casted to provided type</returns>
-        /// <exception cref="InvalidCastException">A type mismatch occurs</exception>
-        public T Get<T>(string key)
-        {
-            return (T)this._internalContext[key];
-        }
-
-        /// <summary>
-        /// Get value by key
         ///
-        /// Note: this will not case the object to type.
-        /// This will need to be done by the caller
         /// </summary>
-        /// <param name="key">Key</param>
-        public object this[string key]
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public Value GetValue(string key) => this._structure.GetValue(key);
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="key"></param>
+        public void Remove(string key) => this._structure.Remove(key);
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public EvaluationContext Add(string key, bool value)
         {
-            get => this._internalContext[key];
-            set => this._internalContext[key] = value;
+            this._structure.Add(key, value);
+            return this;
         }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public EvaluationContext Add(string key, int value)
+        {
+            this._structure.Add(key, value);
+            return this;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public EvaluationContext Add(string key, string value)
+        {
+            this._structure.Add(key, value);
+            return this;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public EvaluationContext Add(string key, double value)
+        {
+            this._structure.Add(key, value);
+            return this;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public EvaluationContext Add(string key, DateTime value)
+        {
+            this._structure.Add(key, value);
+            return this;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public EvaluationContext Add(string key, Structure value)
+        {
+            this._structure.Add(key, value);
+            return this;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public EvaluationContext Add(string key, List<Value> value)
+        {
+            this._structure.Add(key, value);
+            return this;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public int Count => this._structure.Count;
 
         /// <summary>
         /// Merges provided evaluation context into this one
@@ -68,38 +122,26 @@ namespace OpenFeature.SDK.Model
         /// <param name="other"><see cref="EvaluationContext"/></param>
         public void Merge(EvaluationContext other)
         {
-            foreach (var key in other._internalContext.Keys)
+            foreach (var key in other._structure.Keys)
             {
-                if (this._internalContext.ContainsKey(key))
+                if (this._structure.ContainsKey(key))
                 {
-                    this._internalContext[key] = other._internalContext[key];
+                    this._structure[key] = other._structure[key];
                 }
                 else
                 {
-                    this._internalContext.Add(key, other._internalContext[key]);
+                    this._structure.Add(key, other._structure[key]);
                 }
             }
         }
 
         /// <summary>
-        /// Returns the number of items in the evaluation context
+        ///
         /// </summary>
-        public int Count => this._internalContext.Count;
-
-        /// <summary>
-        /// Returns an enumerator that iterates through the evaluation context
-        /// </summary>
-        /// <returns>Enumerator of the Evaluation context</returns>
-        [ExcludeFromCodeCoverage]
-        public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
+        /// <returns></returns>
+        public IEnumerator<KeyValuePair<string, Value>> GetEnumerator()
         {
-            return this._internalContext.GetEnumerator();
-        }
-
-        [ExcludeFromCodeCoverage]
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
+            return this._structure.GetEnumerator();
         }
     }
 }

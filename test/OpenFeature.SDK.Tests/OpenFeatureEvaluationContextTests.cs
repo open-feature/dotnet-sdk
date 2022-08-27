@@ -13,17 +13,16 @@ namespace OpenFeature.SDK.Tests
         [Fact]
         public void Should_Merge_Two_Contexts()
         {
-            var context1 = new EvaluationContext();
-            var context2 = new EvaluationContext();
-
-            context1.Add("key1", "value1");
-            context2.Add("key2", "value2");
+            var context1 = new EvaluationContext()
+                .Add("key1", "value1");
+            var context2 = new EvaluationContext()
+                .Add("key2", "value2");
 
             context1.Merge(context2);
 
             Assert.Equal(2, context1.Count);
-            Assert.Equal("value1", context1["key1"]);
-            Assert.Equal("value2", context1["key2"]);
+            Assert.Equal("value1", context1.GetValue("key1").AsString());
+            Assert.Equal("value2", context1.GetValue("key2").AsString());
         }
 
         [Fact]
@@ -40,19 +39,11 @@ namespace OpenFeature.SDK.Tests
             context1.Merge(context2);
 
             Assert.Equal(2, context1.Count);
-            Assert.Equal("overriden_value", context1["key1"]);
-            Assert.Equal("value2", context1["key2"]);
+            Assert.Equal("overriden_value", context1.GetValue("key1").AsString());
+            Assert.Equal("value2", context1.GetValue("key2").AsString());
 
             context1.Remove("key1");
-            Assert.Throws<KeyNotFoundException>(() => context1["key1"]);
-        }
-
-        [Fact]
-        public void Should_Be_Able_To_Set_Value_Via_Indexer()
-        {
-            var context = new EvaluationContext();
-            context["key"] = "value";
-            context["key"].Should().Be("value");
+            Assert.Throws<KeyNotFoundException>(() => context1.GetValue("key1"));
         }
 
         [Fact]
@@ -62,28 +53,45 @@ namespace OpenFeature.SDK.Tests
         {
             var fixture = new Fixture();
             var now = fixture.Create<DateTime>();
-            var structure = fixture.Create<TestStructure>();
-            var context = new EvaluationContext
-            {
-                { "key1", "value" },
-                { "key2", 1 },
-                { "key3", true },
-                { "key4", now },
-                { "key5", structure}
-            };
+            var structure = fixture.Create<Structure>();
+            var context = new EvaluationContext()
+                .Add("key1", "value")
+                .Add("key2", 1)
+                .Add("key3", true)
+                .Add("key4", now)
+                .Add("key5", structure)
+                .Add("key6", 1.0);
 
-            context.Get<string>("key1").Should().Be("value");
-            context.Get<int>("key2").Should().Be(1);
-            context.Get<bool>("key3").Should().Be(true);
-            context.Get<DateTime>("key4").Should().Be(now);
-            context.Get<TestStructure>("key5").Should().Be(structure);
+            var value1 = context.GetValue("key1");
+            value1.IsString().Should().BeTrue();
+            value1.AsString().Should().Be("value");
+
+            var value2 = context.GetValue("key2");
+            value2.IsInteger().Should().BeTrue();
+            value2.AsInteger().Should().Be(1);
+
+            var value3 = context.GetValue("key3");
+            value3.IsBoolean().Should().Be(true);
+            value3.AsBoolean().Should().Be(true);
+
+            var value4 = context.GetValue("key4");
+            value4.IsDateTime().Should().BeTrue();
+            value4.AsDateTime().Should().Be(now);
+
+            var value5 = context.GetValue("key5");
+            value5.IsStructure().Should().BeTrue();
+            value5.AsStructure().Should().Equal(structure);
+
+            var value6 = context.GetValue("key6");
+            value6.IsDouble().Should().BeTrue();
+            value6.AsDouble().Should().Be(1.0);
         }
 
         [Fact]
         [Specification("3.1.4", "The evaluation context fields MUST have an unique key.")]
         public void When_Duplicate_Key_Throw_Unique_Constraint()
         {
-            var context = new EvaluationContext { { "key", "value" } };
+            var context = new EvaluationContext().Add("key", "value");
             var exception = Assert.Throws<ArgumentException>(() =>
                 context.Add("key", "overriden_value"));
             exception.Message.Should().StartWith("An item with the same key has already been added.");
@@ -93,20 +101,18 @@ namespace OpenFeature.SDK.Tests
         [Specification("3.1.3", "The evaluation context MUST support fetching the custom fields by key and also fetching all key value pairs.")]
         public void Should_Be_Able_To_Get_All_Values()
         {
-            var context = new EvaluationContext
-            {
-                { "key1", "value1" },
-                { "key2", "value2" },
-                { "key3", "value3" },
-                { "key4", "value4" },
-                { "key5", "value5" }
-            };
+            var context = new EvaluationContext()
+                .Add("key1", "value1")
+                .Add("key2", "value2")
+                .Add("key3", "value3")
+                .Add("key4", "value4")
+                .Add("key5", "value5");
 
             // Iterate over key value pairs and check consistency
             var count = 0;
             foreach (var keyValue in context)
             {
-                context[keyValue.Key].Should().Be(keyValue.Value);
+                context.GetValue(keyValue.Key).AsString().Should().Be(keyValue.Value.AsString());
                 count++;
             }
 

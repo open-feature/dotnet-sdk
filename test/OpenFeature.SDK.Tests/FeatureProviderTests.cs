@@ -36,7 +36,7 @@ namespace OpenFeature.SDK.Tests
             var defaultStringValue = fixture.Create<string>();
             var defaultIntegerValue = fixture.Create<int>();
             var defaultDoubleValue = fixture.Create<double>();
-            var defaultStructureValue = fixture.Create<TestStructure>();
+            var defaultStructureValue = fixture.Create<Structure>();
             var provider = new NoOpFeatureProvider();
 
             var boolResolutionDetails = new ResolutionDetails<bool>(flagName, defaultBoolValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
@@ -51,7 +51,7 @@ namespace OpenFeature.SDK.Tests
             var stringResolutionDetails = new ResolutionDetails<string>(flagName, defaultStringValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
             (await provider.ResolveStringValue(flagName, defaultStringValue)).Should().BeEquivalentTo(stringResolutionDetails);
 
-            var structureResolutionDetails = new ResolutionDetails<TestStructure>(flagName, defaultStructureValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
+            var structureResolutionDetails = new ResolutionDetails<Structure>(flagName, defaultStructureValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
             (await provider.ResolveStructureValue(flagName, defaultStructureValue)).Should().BeEquivalentTo(structureResolutionDetails);
         }
 
@@ -66,7 +66,7 @@ namespace OpenFeature.SDK.Tests
             var defaultStringValue = fixture.Create<string>();
             var defaultIntegerValue = fixture.Create<int>();
             var defaultDoubleValue = fixture.Create<double>();
-            var defaultStructureValue = fixture.Create<TestStructure>();
+            var defaultStructureValue = fixture.Create<Structure>();
             var providerMock = new Mock<FeatureProvider>(MockBehavior.Strict);
 
             providerMock.Setup(x => x.ResolveBooleanValue(flagName, defaultBoolValue, It.IsAny<EvaluationContext>()))
@@ -82,10 +82,10 @@ namespace OpenFeature.SDK.Tests
                 .ReturnsAsync(new ResolutionDetails<string>(flagName, defaultStringValue, ErrorType.TypeMismatch, NoOpProvider.ReasonNoOp, NoOpProvider.Variant));
 
             providerMock.Setup(x => x.ResolveStructureValue(flagName, defaultStructureValue, It.IsAny<EvaluationContext>()))
-                .ReturnsAsync(new ResolutionDetails<TestStructure>(flagName, defaultStructureValue, ErrorType.FlagNotFound, NoOpProvider.ReasonNoOp, NoOpProvider.Variant));
+                .ReturnsAsync(new ResolutionDetails<Structure>(flagName, defaultStructureValue, ErrorType.FlagNotFound, NoOpProvider.ReasonNoOp, NoOpProvider.Variant));
 
             providerMock.Setup(x => x.ResolveStructureValue(flagName2, defaultStructureValue, It.IsAny<EvaluationContext>()))
-                .ReturnsAsync(new ResolutionDetails<TestStructure>(flagName, defaultStructureValue, ErrorType.ProviderNotReady, NoOpProvider.ReasonNoOp, NoOpProvider.Variant));
+                .ReturnsAsync(new ResolutionDetails<Structure>(flagName, defaultStructureValue, ErrorType.ProviderNotReady, NoOpProvider.ReasonNoOp, NoOpProvider.Variant));
 
             var provider = providerMock.Object;
 
