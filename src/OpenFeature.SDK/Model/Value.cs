@@ -5,61 +5,71 @@ using System.Collections.Generic;
 namespace OpenFeature.SDK.Model
 {
     /// <summary>
-    ///  Values server as a return type for provider objects. Providers may deal in protobufs or JSON in the backend and
-    ///  have no reasonable way to convert that into a type that users care about (e.g. an instance of `T`). This
-    ///  intermediate representation should provide a good medium of exchange.
+    ///  Values serve as a return type for provider objects. Providers may deal in JSON, protobuf, XML or some other data-interchange format.
+    ///  This intermediate representation provides a good medium of exchange.
     /// </summary>
     public class Value
     {
         private readonly object _innerValue;
 
         /// <summary>
-        /// Sets the inner value to Value type
+        /// Creates a Value with the inner value set to null
         /// </summary>
-        /// <param name="value"><see cref="Value">Value type</see></param>
-        public Value(Value value) => this._innerValue = value;
+        public Value() => this._innerValue = null;
 
         /// <summary>
-        /// Set the inner value to a bool type
+        /// Creates a Value with the inner value to the inner value of the value param
+        /// </summary>
+        /// <param name="value"><see cref="Value">Value type</see></param>
+        public Value(Value value) => this._innerValue = value._innerValue;
+
+        /// <summary>
+        /// Creates a Value with the inner set to bool type
         /// </summary>
         /// <param name="value"><see cref="bool">Bool type</see></param>
         public Value(bool value) => this._innerValue = value;
 
         /// <summary>
-        /// Set the inner value to a int type
+        /// Creates a Value with the inner set to int type
         /// </summary>
         /// <param name="value"><see cref="int">Int type</see></param>
         public Value(int value) => this._innerValue = value;
 
         /// <summary>
-        /// Set the inner value to a double type
+        /// Creates a Value with the inner set to double type
         /// </summary>
         /// <param name="value"><see cref="double">Double type</see></param>
         public Value(double value) => this._innerValue = value;
 
         /// <summary>
-        /// Set the inner value to a string type
+        /// Creates a Value with the inner set to string type
         /// </summary>
         /// <param name="value"><see cref="string">String type</see></param>
         public Value(string value) => this._innerValue = value;
 
         /// <summary>
-        /// Set the inner value to a structure type
+        /// Creates a Value with the inner set to structure type
         /// </summary>
         /// <param name="value"><see cref="Structure">Structure type</see></param>
         public Value(Structure value) => this._innerValue = value;
 
         /// <summary>
-        /// Set the inner value to a list type
+        /// Creates a Value with the inner set to list type
         /// </summary>
         /// <param name="value"><see cref="List{T}">List type</see></param>
-        public Value(IList value) => this._innerValue = value;
+        public Value(IList<Value> value) => this._innerValue = value;
 
         /// <summary>
-        /// Set the inner value to a DateTime type
+        /// Creates a Value with the inner set to DateTime type
         /// </summary>
         /// <param name="value"><see cref="DateTime">DateTime type</see></param>
         public Value(DateTime value) => this._innerValue = value;
+
+        /// <summary>
+        /// Determines if inner value is null
+        /// </summary>
+        /// <returns><see cref="bool">True if value is null</see></returns>
+        public bool IsNull() => this._innerValue is null;
 
         /// <summary>
         /// Determines if inner value is int
@@ -143,7 +153,7 @@ namespace OpenFeature.SDK.Model
         /// Value will be null if it isn't a List
         /// </summary>
         /// <returns>Value as List</returns>
-        public IList AsList() => this.IsList() ? (IList)this._innerValue : null;
+        public IList<Value> AsList() => this.IsList() ? (IList<Value>)this._innerValue : null;
 
         /// <summary>
         /// Returns the underlying DateTime value

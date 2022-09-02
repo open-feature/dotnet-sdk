@@ -6,14 +6,14 @@ using System.Diagnostics.CodeAnalysis;
 namespace OpenFeature.SDK.Model
 {
     /// <summary>
-    ///
+    /// Structure represents a map of Values
     /// </summary>
     public class Structure : IEnumerable<KeyValuePair<string, Value>>
     {
         private readonly Dictionary<string, Value> _attributes;
 
         /// <summary>
-        ///
+        /// Creates a new structure with an empty set of attributes
         /// </summary>
         public Structure()
         {
@@ -21,7 +21,7 @@ namespace OpenFeature.SDK.Model
         }
 
         /// <summary>
-        ///
+        /// Creates a new structure with the supplied attributes
         /// </summary>
         /// <param name="attributes"></param>
         public Structure(IDictionary<string, Value> attributes)
@@ -30,28 +30,28 @@ namespace OpenFeature.SDK.Model
         }
 
         /// <summary>
-        ///
+        /// Gets the Value at the specified key
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
         public Value GetValue(string key) => this._attributes[key];
 
         /// <summary>
-        ///
+        /// Bool indicating if the specified key exists in the structure
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
         public bool ContainsKey(string key) => this._attributes.ContainsKey(key);
 
         /// <summary>
-        ///
+        /// Removes the Value at the specified key
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
         public bool Remove(string key) => this._attributes.Remove(key);
 
         /// <summary>
-        ///
+        /// Gets the value associated with the specified key.
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
@@ -59,7 +59,16 @@ namespace OpenFeature.SDK.Model
         public bool TryGetValue(string key, out Value value) => this._attributes.TryGetValue(key, out value);
 
         /// <summary>
-        ///
+        /// Gets all values as a Dictionary
+        /// </summary>
+        /// <returns></returns>
+        public IDictionary<string, Value> AsDictionary()
+        {
+            return new Dictionary<string, Value>(this._attributes);
+        }
+
+        /// <summary>
+        /// Return the value at the supplied index
         /// </summary>
         /// <param name="key"></param>
         public Value this[string key]
@@ -69,17 +78,17 @@ namespace OpenFeature.SDK.Model
         }
 
         /// <summary>
-        ///
+        /// Return a collection containing all the keys in this structure
         /// </summary>
         public ICollection<string> Keys => this._attributes.Keys;
 
         /// <summary>
-        ///
+        /// Return a collection containing all the values in this structure
         /// </summary>
         public ICollection<Value> Values => this._attributes.Values;
 
         /// <summary>
-        ///
+        /// Add a new bool Value to the structure
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
@@ -91,7 +100,7 @@ namespace OpenFeature.SDK.Model
         }
 
         /// <summary>
-        ///
+        /// Add a new string Value to the structure
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
@@ -103,7 +112,7 @@ namespace OpenFeature.SDK.Model
         }
 
         /// <summary>
-        ///
+        /// Add a new int Value to the structure
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
@@ -115,7 +124,7 @@ namespace OpenFeature.SDK.Model
         }
 
         /// <summary>
-        ///
+        /// Add a new double Value to the structure
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
@@ -127,7 +136,7 @@ namespace OpenFeature.SDK.Model
         }
 
         /// <summary>
-        ///
+        /// Add a new DateTime Value to the structure
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
@@ -139,7 +148,7 @@ namespace OpenFeature.SDK.Model
         }
 
         /// <summary>
-        ///
+        /// Add a new Structure Value to the structure
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
@@ -151,36 +160,36 @@ namespace OpenFeature.SDK.Model
         }
 
         /// <summary>
-        ///
+        /// Add a new List Value to the structure
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public Structure Add(string key, List<Value> value)
+        public Structure Add(string key, IList<Value> value)
         {
             this._attributes.Add(key, new Value(value));
             return this;
         }
 
         /// <summary>
-        ///
+        /// Add a new Value to the structure
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns></returns>
         public Structure Add(string key, Value value)
         {
-            this._attributes.Add(key, value);
+            this._attributes.Add(key, new Value(value));
             return this;
         }
 
         /// <summary>
-        ///
+        /// Return a count of all values
         /// </summary>
         public int Count => this._attributes.Count;
 
         /// <summary>
-        ///
+        /// Return an enumerator for all values
         /// </summary>
         /// <returns></returns>
         public IEnumerator<KeyValuePair<string, Value>> GetEnumerator()
