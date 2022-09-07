@@ -24,21 +24,19 @@ namespace OpenFeature.SDK.Tests
         }
 
         [Fact]
-        public void Int_Arg_Should_Contain_Int()
+        public void Numeric_Arg_Should_Return_Double_Or_Int()
         {
-            int innerValue = 99;
-            Value value = new Value(innerValue);
-            Assert.True(value.IsInteger());
-            Assert.Equal(innerValue, value.AsInteger());
-        }
+            double innerDoubleValue = .75;
+            Value doubleValue = new Value(innerDoubleValue);
+            Assert.True(doubleValue.IsNumber());
+            Assert.Equal(1, doubleValue.AsInteger());     // should be rounded
+            Assert.Equal(.75, doubleValue.AsDouble());
 
-        [Fact]
-        public void Double_Arg_Should_Contain_Double()
-        {
-            double innerValue = .5;
-            Value value = new Value(innerValue);
-            Assert.True(value.IsDouble());
-            Assert.Equal(innerValue, value.AsDouble());
+            int innerIntValue = 100;
+            Value intValue = new Value(innerIntValue);
+            Assert.True(intValue.IsNumber());
+            Assert.Equal(innerIntValue, intValue.AsInteger());
+            Assert.Equal(innerIntValue, intValue.AsDouble());
         }
 
         [Fact]
@@ -72,7 +70,7 @@ namespace OpenFeature.SDK.Tests
         }
 
         [Fact]
-        public void List_Arg_Should_Contain_List()
+        public void LIst_Arg_Should_Contain_LIst()
         {
             string ITEM_VALUE = "val";
             IList<Value> innerValue = new List<Value>()

@@ -67,7 +67,7 @@ namespace OpenFeature.SDK.Tests
             value1.AsString().Should().Be("value");
 
             var value2 = context.GetValue("key2");
-            value2.IsInteger().Should().BeTrue();
+            value2.IsNumber().Should().BeTrue();
             value2.AsInteger().Should().Be(1);
 
             var value3 = context.GetValue("key3");
@@ -83,7 +83,7 @@ namespace OpenFeature.SDK.Tests
             value5.AsStructure().Should().Equal(structure);
 
             var value6 = context.GetValue("key6");
-            value6.IsDouble().Should().BeTrue();
+            value6.IsNumber().Should().BeTrue();
             value6.AsDouble().Should().Be(1.0);
         }
 

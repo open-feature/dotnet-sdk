@@ -30,10 +30,10 @@ namespace OpenFeature.SDK.Model
         public Value(bool value) => this._innerValue = value;
 
         /// <summary>
-        /// Creates a Value with the inner set to int type
+        /// Creates a Value by converting value to a double
         /// </summary>
         /// <param name="value"><see cref="int">Int type</see></param>
-        public Value(int value) => this._innerValue = value;
+        public Value(int value) => this._innerValue = Convert.ToDouble(value);
 
         /// <summary>
         /// Creates a Value with the inner set to double type
@@ -72,22 +72,16 @@ namespace OpenFeature.SDK.Model
         public bool IsNull() => this._innerValue is null;
 
         /// <summary>
-        /// Determines if inner value is int
-        /// </summary>
-        /// <returns><see cref="bool">True if value is int</see></returns>
-        public bool IsInteger() => this._innerValue is int;
-
-        /// <summary>
         /// Determines if inner value is bool
         /// </summary>
         /// <returns><see cref="bool">True if value is bool</see></returns>
         public bool IsBoolean() => this._innerValue is bool;
 
         /// <summary>
-        /// Determines if inner value is double
+        /// Determines if inner value is numeric
         /// </summary>
         /// <returns><see cref="bool">True if value is double</see></returns>
-        public bool IsDouble() => this._innerValue is double;
+        public bool IsNumber() => this._innerValue is double;
 
         /// <summary>
         /// Determines if inner value is string
@@ -118,7 +112,7 @@ namespace OpenFeature.SDK.Model
         /// Value will be null if it isn't a integer
         /// </summary>
         /// <returns>Value as int</returns>
-        public int? AsInteger() => this.IsInteger() ? (int?)this._innerValue : null;
+        public int? AsInteger() => this.IsNumber() ? (int?)Convert.ToInt32((double?)this._innerValue) : null;
 
         /// <summary>
         /// Returns the underlying bool value
@@ -132,7 +126,7 @@ namespace OpenFeature.SDK.Model
         /// Value will be null if it isn't a double
         /// </summary>
         /// <returns>Value as int</returns>
-        public double? AsDouble() => this.IsDouble() ? (double?)this._innerValue : null;
+        public double? AsDouble() => this.IsNumber() ? (double?)this._innerValue : null;
 
         /// <summary>
         /// Returns the underlying string value
