@@ -176,26 +176,26 @@ namespace OpenFeature.SDK
                 defaultValue, context, config);
 
         /// <summary>
-        /// Resolves a object feature flag
+        /// Resolves a structure object feature flag
         /// </summary>
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
         /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
-        public async Task<T> GetObjectValue<T>(string flagKey, T defaultValue, EvaluationContext context = null,
+        public async Task<Structure> GetObjectValue(string flagKey, Structure defaultValue, EvaluationContext context = null,
             FlagEvaluationOptions config = null) =>
             (await this.GetObjectDetails(flagKey, defaultValue, context, config)).Value;
 
         /// <summary>
-        /// Resolves a object feature flag
+        /// Resolves a structure object feature flag
         /// </summary>
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
         /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
-        public async Task<FlagEvaluationDetails<T>> GetObjectDetails<T>(string flagKey, T defaultValue,
+        public async Task<FlagEvaluationDetails<Structure>> GetObjectDetails(string flagKey, Structure defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await this.EvaluateFlag(this._featureProvider.ResolveStructureValue, FlagValueType.Object, flagKey,
                 defaultValue, context, config);

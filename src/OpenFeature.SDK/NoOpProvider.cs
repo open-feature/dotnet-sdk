@@ -33,7 +33,7 @@ namespace OpenFeature.SDK
             return Task.FromResult(NoOpResponse(flagKey, defaultValue));
         }
 
-        public override Task<ResolutionDetails<T>> ResolveStructureValue<T>(string flagKey, T defaultValue, EvaluationContext context = null)
+        public override Task<ResolutionDetails<Structure>> ResolveStructureValue(string flagKey, Structure defaultValue, EvaluationContext context = null)
         {
             return Task.FromResult(NoOpResponse(flagKey, defaultValue));
         }

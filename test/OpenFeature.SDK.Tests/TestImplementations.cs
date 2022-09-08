@@ -5,12 +5,6 @@ using OpenFeature.SDK.Model;
 
 namespace OpenFeature.SDK.Tests
 {
-    public class TestStructure
-    {
-        public string Name { get; set; }
-        public string Value { get; set; }
-    }
-
     public class TestHookNoOverride : Hook { }
 
     public class TestHook : Hook
@@ -76,10 +70,10 @@ namespace OpenFeature.SDK.Tests
             return Task.FromResult(new ResolutionDetails<double>(flagKey, defaultValue));
         }
 
-        public override Task<ResolutionDetails<T>> ResolveStructureValue<T>(string flagKey, T defaultValue,
+        public override Task<ResolutionDetails<Structure>> ResolveStructureValue(string flagKey, Structure defaultValue,
             EvaluationContext context = null)
         {
-            return Task.FromResult(new ResolutionDetails<T>(flagKey, defaultValue));
+            return Task.FromResult(new ResolutionDetails<Structure>(flagKey, defaultValue));
         }
     }
 }

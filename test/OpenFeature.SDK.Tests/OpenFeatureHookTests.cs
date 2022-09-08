@@ -127,19 +127,19 @@ namespace OpenFeature.SDK.Tests
         public void Hook_Context_Should_Not_Allow_Nulls()
         {
             Assert.Throws<ArgumentNullException>(() =>
-                new HookContext<TestStructure>(null, new TestStructure(), FlagValueType.Object, new ClientMetadata(null, null),
+                new HookContext<Structure>(null, new Structure(), FlagValueType.Object, new ClientMetadata(null, null),
                     new Metadata(null), new EvaluationContext()));
 
             Assert.Throws<ArgumentNullException>(() =>
-                new HookContext<TestStructure>("test", new TestStructure(), FlagValueType.Object, null,
+                new HookContext<Structure>("test", new Structure(), FlagValueType.Object, null,
                     new Metadata(null), new EvaluationContext()));
 
             Assert.Throws<ArgumentNullException>(() =>
-                new HookContext<TestStructure>("test", new TestStructure(), FlagValueType.Object, new ClientMetadata(null, null),
+                new HookContext<Structure>("test", new Structure(), FlagValueType.Object, new ClientMetadata(null, null),
                     null, new EvaluationContext()));
 
             Assert.Throws<ArgumentNullException>(() =>
-                new HookContext<TestStructure>("test", new TestStructure(), FlagValueType.Object, new ClientMetadata(null, null),
+                new HookContext<Structure>("test", new Structure(), FlagValueType.Object, new ClientMetadata(null, null),
                     new Metadata(null), null));
         }
 
@@ -150,8 +150,8 @@ namespace OpenFeature.SDK.Tests
         {
             var clientMetadata = new ClientMetadata("client", "1.0.0");
             var providerMetadata = new Metadata("provider");
-            var testStructure = new TestStructure();
-            var context = new HookContext<TestStructure>("test", testStructure, FlagValueType.Object, clientMetadata,
+            var testStructure = new Structure();
+            var context = new HookContext<Structure>("test", testStructure, FlagValueType.Object, clientMetadata,
                 providerMetadata, new EvaluationContext());
 
             context.ClientMetadata.Should().BeSameAs(clientMetadata);
@@ -166,7 +166,7 @@ namespace OpenFeature.SDK.Tests
         [Specification("4.3.3", "Any `evaluation context` returned from a `before` hook MUST be passed to subsequent `before` hooks (via `HookContext`).")]
         public async Task Evaluation_Context_Must_Be_Mutable_Before_Hook()
         {
-            var evaluationContext = new EvaluationContext { ["test"] = "test" };
+            var evaluationContext = new EvaluationContext().Add("test", "test");
             var hook1 = new Mock<Hook>(MockBehavior.Strict);
             var hook2 = new Mock<Hook>(MockBehavior.Strict);
             var hookContext = new HookContext<bool>("test", false,
@@ -185,7 +185,7 @@ namespace OpenFeature.SDK.Tests
                 new FlagEvaluationOptions(new[] { hook1.Object, hook2.Object }, new Dictionary<string, object>()));
 
             hook1.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()), Times.Once);
-            hook2.Verify(x => x.Before(It.Is<HookContext<bool>>(a => a.EvaluationContext.Get<string>("test") == "test"), It.IsAny<Dictionary<string, object>>()), Times.Once);
+            hook2.Verify(x => x.Before(It.Is<HookContext<bool>>(a => a.EvaluationContext.GetValue("test").AsString() == "test"), It.IsAny<Dictionary<string, object>>()), Times.Once);
         }
 
         [Fact]
@@ -204,28 +204,23 @@ namespace OpenFeature.SDK.Tests
             var propHook = "4.3.4hook";
 
             // setup a cascade of overwriting properties
-            OpenFeature.Instance.SetContext(new EvaluationContext
-            {
-                [propGlobal] = true,
-                [propGlobalToOverwrite] = false
-            });
-            var clientContext = new EvaluationContext
-            {
-                [propClient] = true,
-                [propGlobalToOverwrite] = true,
-                [propClientToOverwrite] = false
-            };
-            var invocationContext = new EvaluationContext
-            {
-                [propInvocation] = true,
-                [propClientToOverwrite] = true,
-                [propInvocationToOverwrite] = false,
-            };
-            var hookContext = new EvaluationContext
-            {
-                [propHook] = true,
-                [propInvocationToOverwrite] = true,
-            };
+            OpenFeature.Instance.SetContext(new EvaluationContext()
+                .Add(propGlobal, true)
+                .Add(propGlobalToOverwrite, false));
+
+            var clientContext = new EvaluationContext()
+                .Add(propClient, true)
+                .Add(propGlobalToOverwrite, true)
+                .Add(propClientToOverwrite, false);
+
+            var invocationContext = new EvaluationContext()
+                .Add(propInvocation, true)
+                .Add(propClientToOverwrite, true)
+                .Add(propInvocationToOverwrite, false);
+
+            var hookContext = new EvaluationContext()
+                .Add(propHook, true)
+                .Add(propInvocationToOverwrite, true);
 
             var provider = new Mock<FeatureProvider>(MockBehavior.Strict);
 
@@ -250,13 +245,13 @@ namespace OpenFeature.SDK.Tests
 
             // after proper merging, all properties should equal true
             provider.Verify(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.Is<EvaluationContext>(y =>
-                y.Get<bool>(propGlobal)
-                && y.Get<bool>(propClient)
-                && y.Get<bool>(propGlobalToOverwrite)
-                && y.Get<bool>(propInvocation)
-                && y.Get<bool>(propClientToOverwrite)
-                && y.Get<bool>(propHook)
-                && y.Get<bool>(propInvocationToOverwrite)
+                (y.GetValue(propGlobal).AsBoolean() ?? false)
+                && (y.GetValue(propClient).AsBoolean() ?? false)
+                && (y.GetValue(propGlobalToOverwrite).AsBoolean() ?? false)
+                && (y.GetValue(propInvocation).AsBoolean() ?? false)
+                && (y.GetValue(propClientToOverwrite).AsBoolean() ?? false)
+                && (y.GetValue(propHook).AsBoolean() ?? false)
+                && (y.GetValue(propInvocationToOverwrite).AsBoolean() ?? false)
             )), Times.Once);
         }
 
@@ -275,7 +270,7 @@ namespace OpenFeature.SDK.Tests
                 ["number"] = 1,
                 ["boolean"] = true,
                 ["datetime"] = DateTime.Now,
-                ["structure"] = new TestStructure()
+                ["structure"] = new Structure()
             };
             var hookContext = new HookContext<bool>("test", false, FlagValueType.Boolean,
                 new ClientMetadata(null, null), new Metadata(null), new EvaluationContext());

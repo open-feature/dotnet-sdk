@@ -21,7 +21,7 @@ namespace OpenFeature.SDK
         Task<double> GetDoubleValue(string flagKey, double defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null);
         Task<FlagEvaluationDetails<double>> GetDoubleDetails(string flagKey, double defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null);
 
-        Task<T> GetObjectValue<T>(string flagKey, T defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null);
-        Task<FlagEvaluationDetails<T>> GetObjectDetails<T>(string flagKey, T defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null);
+        Task<Structure> GetObjectValue(string flagKey, Structure defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null);
+        Task<FlagEvaluationDetails<Structure>> GetObjectDetails(string flagKey, Structure defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null);
     }
 }
