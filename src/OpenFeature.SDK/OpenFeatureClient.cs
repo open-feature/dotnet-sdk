@@ -20,13 +20,18 @@ namespace OpenFeature.SDK
         private readonly FeatureProvider _featureProvider;
         private readonly List<Hook> _hooks = new List<Hook>();
         private readonly ILogger _logger;
-        private readonly EvaluationContext _evaluationContext;
+        private EvaluationContext _evaluationContext;
 
         /// <summary>
-        /// Gets the client <see cref="EvaluationContext"/>
+        /// Gets the EvaluationContext of this client<see cref="EvaluationContext"/>
         /// </summary>
-        /// <returns></returns>
+        /// <returns><see cref="EvaluationContext"/>of this client</returns>
         public EvaluationContext GetContext() => this._evaluationContext;
+
+        /// <summary>
+        /// Sets the EvaluationContext of the client<see cref="EvaluationContext"/>
+        /// </summary>
+        public void SetContext(EvaluationContext evaluationContext) => this._evaluationContext = evaluationContext;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FeatureClient"/> class.
