@@ -354,5 +354,15 @@ namespace OpenFeature.SDK.Tests
             TestProvider provider = null;
             Assert.Throws<ArgumentNullException>(() => new FeatureClient(provider, "test", "test"));
         }
+
+        [Fact]
+        public void Should_Get_And_Set_Context()
+        {
+            var KEY = "key";
+            var VAL = 1;
+            FeatureClient client = OpenFeature.Instance.GetClient();
+            client.SetContext(new EvaluationContext().Add(KEY, VAL));
+            Assert.Equal(VAL, client.GetContext().GetValue(KEY).AsInteger());
+        }
     }
 }
