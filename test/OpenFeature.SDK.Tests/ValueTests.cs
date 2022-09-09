@@ -7,11 +7,62 @@ namespace OpenFeature.SDK.Tests
 {
     public class ValueTests
     {
+        class Foo { }
+
         [Fact]
         public void No_Arg_Should_Contain_Null()
         {
             Value value = new Value();
             Assert.True(value.IsNull());
+        }
+
+        [Fact]
+        public void Object_Arg_Should_Contain_Object()
+        {
+            try
+            {
+                // int is a special case, see Int_Object_Arg_Should_Contain_Object()
+                IList<Object> list = new List<Object>(){
+                    true, "val", .5, new Structure(), new List<Value>(), DateTime.Now
+                };
+
+                int i = 0;
+                foreach (Object l in list)
+                {
+                    Value value = new Value(l);
+                    Assert.Equal(list[i], value.AsObject());
+                    i++;
+                }
+            }
+            catch (Exception)
+            {
+                Assert.True(false, "Expected no exception.");
+            }
+        }
+
+        [Fact]
+        public void Int_Object_Arg_Should_Contain_Object()
+        {
+            try
+            {
+                int innerValue = 1;
+                Value value = new Value(innerValue);
+                Assert.True(value.IsNumber());
+                Assert.Equal(innerValue, value.AsInteger());
+            }
+            catch (Exception)
+            {
+                Assert.True(false, "Expected no exception.");
+            }
+        }
+
+        [Fact]
+        public void Invalid_Object_Should_Throw()
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                return new Value(new Foo());
+            });
         }
 
         [Fact]
@@ -47,7 +98,6 @@ namespace OpenFeature.SDK.Tests
             Assert.True(value.IsString());
             Assert.Equal(innerValue, value.AsString());
         }
-
 
         [Fact]
         public void DateTime_Arg_Should_Contain_DateTime()

@@ -18,6 +18,27 @@ namespace OpenFeature.SDK.Model
         public Value() => this._innerValue = null;
 
         /// <summary>
+        /// Creates a Value with the inner set to the object
+        /// </summary>
+        /// <param name="value"><see cref="Object">The object to set as the inner value</see></param>
+        public Value(Object value)
+        {
+            // integer is a special case, convert those.
+            this._innerValue = value is int ? Convert.ToDouble(value) : value;
+            if (!(this.IsNull()
+                || this.IsBoolean()
+                || this.IsString()
+                || this.IsNumber()
+                || this.IsStructure()
+                || this.IsList()
+                || this.IsDateTime()))
+            {
+                throw new ArgumentException("Invalid value type: " + value.GetType());
+            }
+        }
+
+
+        /// <summary>
         /// Creates a Value with the inner value to the inner value of the value param
         /// </summary>
         /// <param name="value"><see cref="Value">Value type</see></param>
@@ -106,6 +127,12 @@ namespace OpenFeature.SDK.Model
         /// </summary>
         /// <returns><see cref="bool">True if value is DateTime</see></returns>
         public bool IsDateTime() => this._innerValue is DateTime;
+
+        /// <summary>
+        /// Returns the underlying inner value as an object. Returns null if the inner value is null.
+        /// </summary>
+        /// <returns>Value as object</returns>
+        public object AsObject() => this._innerValue;
 
         /// <summary>
         /// Returns the underlying int value

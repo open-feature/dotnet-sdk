@@ -68,7 +68,7 @@ namespace OpenFeature.SDK.Tests
             var defaultStringValue = fixture.Create<string>();
             var defaultIntegerValue = fixture.Create<int>();
             var defaultDoubleValue = fixture.Create<double>();
-            var defaultStructureValue = fixture.Create<Structure>();
+            var defaultStructureValue = fixture.Create<Value>();
             var emptyFlagOptions = new FlagEvaluationOptions(new List<Hook>(), new Dictionary<string, object>());
 
             OpenFeature.Instance.SetProvider(new NoOpFeatureProvider());
@@ -114,7 +114,7 @@ namespace OpenFeature.SDK.Tests
             var defaultStringValue = fixture.Create<string>();
             var defaultIntegerValue = fixture.Create<int>();
             var defaultDoubleValue = fixture.Create<double>();
-            var defaultStructureValue = fixture.Create<Structure>();
+            var defaultStructureValue = fixture.Create<Value>();
             var emptyFlagOptions = new FlagEvaluationOptions(new List<Hook>(), new Dictionary<string, object>());
 
             OpenFeature.Instance.SetProvider(new NoOpFeatureProvider());
@@ -140,7 +140,7 @@ namespace OpenFeature.SDK.Tests
             (await client.GetStringDetails(flagName, defaultStringValue, new EvaluationContext())).Should().BeEquivalentTo(stringFlagEvaluationDetails);
             (await client.GetStringDetails(flagName, defaultStringValue, new EvaluationContext(), emptyFlagOptions)).Should().BeEquivalentTo(stringFlagEvaluationDetails);
 
-            var structureFlagEvaluationDetails = new FlagEvaluationDetails<Structure>(flagName, defaultStructureValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
+            var structureFlagEvaluationDetails = new FlagEvaluationDetails<Value>(flagName, defaultStructureValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
             (await client.GetObjectDetails(flagName, defaultStructureValue)).Should().BeEquivalentTo(structureFlagEvaluationDetails);
             (await client.GetObjectDetails(flagName, defaultStructureValue, new EvaluationContext())).Should().BeEquivalentTo(structureFlagEvaluationDetails);
             (await client.GetObjectDetails(flagName, defaultStructureValue, new EvaluationContext(), emptyFlagOptions)).Should().BeEquivalentTo(structureFlagEvaluationDetails);
@@ -159,7 +159,7 @@ namespace OpenFeature.SDK.Tests
             var clientName = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
-            var defaultValue = fixture.Create<Structure>();
+            var defaultValue = fixture.Create<Value>();
             var mockedFeatureProvider = new Mock<FeatureProvider>(MockBehavior.Strict);
             var mockedLogger = new Mock<ILogger<OpenFeature>>(MockBehavior.Default);
 
@@ -302,12 +302,12 @@ namespace OpenFeature.SDK.Tests
             var clientName = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
-            var defaultValue = fixture.Create<Structure>();
+            var defaultValue = fixture.Create<Value>();
 
             var featureProviderMock = new Mock<FeatureProvider>(MockBehavior.Strict);
             featureProviderMock
                 .Setup(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>()))
-                .ReturnsAsync(new ResolutionDetails<Structure>(flagName, defaultValue));
+                .ReturnsAsync(new ResolutionDetails<Value>(flagName, defaultValue));
             featureProviderMock.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.Setup(x => x.GetProviderHooks())
@@ -316,7 +316,7 @@ namespace OpenFeature.SDK.Tests
             OpenFeature.Instance.SetProvider(featureProviderMock.Object);
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion);
 
-            (await client.GetObjectValue(flagName, defaultValue)).Should().Equal(defaultValue);
+            (await client.GetObjectValue(flagName, defaultValue)).Should().Be(defaultValue);
 
             featureProviderMock.Verify(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>()), Times.Once);
         }
@@ -328,7 +328,7 @@ namespace OpenFeature.SDK.Tests
             var clientName = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
-            var defaultValue = fixture.Create<Structure>();
+            var defaultValue = fixture.Create<Value>();
 
             var featureProviderMock = new Mock<FeatureProvider>(MockBehavior.Strict);
             featureProviderMock
