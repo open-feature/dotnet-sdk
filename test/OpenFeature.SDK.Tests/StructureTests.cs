@@ -23,7 +23,7 @@ namespace OpenFeature.SDK.Tests
                 { KEY, new Value(KEY) }
             };
             Structure structure = new Structure(dictionary);
-            Assert.Equal(KEY, structure.AsDictionary()[KEY].AsString());
+            Assert.Equal(KEY, structure.AsDictionary()[KEY].AsString);
             Assert.NotSame(structure.AsDictionary(), dictionary); // should be a copy
         }
 
@@ -58,14 +58,14 @@ namespace OpenFeature.SDK.Tests
             structure.Add(LIST_KEY, LIST_VAL);
             structure.Add(VALUE_KEY, VALUE_VAL);
 
-            Assert.Equal(BOOL_VAL, structure.GetValue(BOOL_KEY).AsBoolean());
-            Assert.Equal(STRING_VAL, structure.GetValue(STRING_KEY).AsString());
-            Assert.Equal(INT_VAL, structure.GetValue(INT_KEY).AsInteger());
-            Assert.Equal(DOUBLE_VAL, structure.GetValue(DOUBLE_KEY).AsDouble());
-            Assert.Equal(DATE_VAL, structure.GetValue(DATE_KEY).AsDateTime());
-            Assert.Equal(STRUCT_VAL, structure.GetValue(STRUCT_KEY).AsStructure());
-            Assert.Equal(LIST_VAL, structure.GetValue(LIST_KEY).AsList());
-            Assert.True(structure.GetValue(VALUE_KEY).IsNull());
+            Assert.Equal(BOOL_VAL, structure.GetValue(BOOL_KEY).AsBoolean);
+            Assert.Equal(STRING_VAL, structure.GetValue(STRING_KEY).AsString);
+            Assert.Equal(INT_VAL, structure.GetValue(INT_KEY).AsInteger);
+            Assert.Equal(DOUBLE_VAL, structure.GetValue(DOUBLE_KEY).AsDouble);
+            Assert.Equal(DATE_VAL, structure.GetValue(DATE_KEY).AsDateTime);
+            Assert.Equal(STRUCT_VAL, structure.GetValue(STRUCT_KEY).AsStructure);
+            Assert.Equal(LIST_VAL, structure.GetValue(LIST_KEY).AsList);
+            Assert.True(structure.GetValue(VALUE_KEY).IsNull);
         }
 
         [Fact]
@@ -91,7 +91,7 @@ namespace OpenFeature.SDK.Tests
             structure.Add(KEY, VAL);
             Value value;
             Assert.True(structure.TryGetValue(KEY, out value));
-            Assert.Equal(VAL, value.AsString());
+            Assert.Equal(VAL, value.AsString);
         }
 
         [Fact]
@@ -127,7 +127,7 @@ namespace OpenFeature.SDK.Tests
             structure.Add(KEY, VAL);
             IEnumerator<KeyValuePair<string, Value>> enumerator = structure.GetEnumerator();
             enumerator.MoveNext();
-            Assert.Equal(VAL, enumerator.Current.Value.AsString());
+            Assert.Equal(VAL, enumerator.Current.Value.AsString);
         }
     }
 }

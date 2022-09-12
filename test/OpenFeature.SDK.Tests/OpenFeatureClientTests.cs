@@ -362,7 +362,7 @@ namespace OpenFeature.SDK.Tests
             var VAL = 1;
             FeatureClient client = OpenFeature.Instance.GetClient();
             client.SetContext(new EvaluationContext().Add(KEY, VAL));
-            Assert.Equal(VAL, client.GetContext().GetValue(KEY).AsInteger());
+            Assert.Equal(VAL, client.GetContext().GetValue(KEY).AsInteger);
         }
     }
 }

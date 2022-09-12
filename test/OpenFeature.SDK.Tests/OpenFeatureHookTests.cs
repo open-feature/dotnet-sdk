@@ -185,7 +185,7 @@ namespace OpenFeature.SDK.Tests
                 new FlagEvaluationOptions(new[] { hook1.Object, hook2.Object }, new Dictionary<string, object>()));
 
             hook1.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()), Times.Once);
-            hook2.Verify(x => x.Before(It.Is<HookContext<bool>>(a => a.EvaluationContext.GetValue("test").AsString() == "test"), It.IsAny<Dictionary<string, object>>()), Times.Once);
+            hook2.Verify(x => x.Before(It.Is<HookContext<bool>>(a => a.EvaluationContext.GetValue("test").AsString == "test"), It.IsAny<Dictionary<string, object>>()), Times.Once);
         }
 
         [Fact]
@@ -245,13 +245,13 @@ namespace OpenFeature.SDK.Tests
 
             // after proper merging, all properties should equal true
             provider.Verify(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.Is<EvaluationContext>(y =>
-                (y.GetValue(propGlobal).AsBoolean() ?? false)
-                && (y.GetValue(propClient).AsBoolean() ?? false)
-                && (y.GetValue(propGlobalToOverwrite).AsBoolean() ?? false)
-                && (y.GetValue(propInvocation).AsBoolean() ?? false)
-                && (y.GetValue(propClientToOverwrite).AsBoolean() ?? false)
-                && (y.GetValue(propHook).AsBoolean() ?? false)
-                && (y.GetValue(propInvocationToOverwrite).AsBoolean() ?? false)
+                (y.GetValue(propGlobal).AsBoolean ?? false)
+                && (y.GetValue(propClient).AsBoolean ?? false)
+                && (y.GetValue(propGlobalToOverwrite).AsBoolean ?? false)
+                && (y.GetValue(propInvocation).AsBoolean ?? false)
+                && (y.GetValue(propClientToOverwrite).AsBoolean ?? false)
+                && (y.GetValue(propHook).AsBoolean ?? false)
+                && (y.GetValue(propInvocationToOverwrite).AsBoolean ?? false)
             )), Times.Once);
         }
 

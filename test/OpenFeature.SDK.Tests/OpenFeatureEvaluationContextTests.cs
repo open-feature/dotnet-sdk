@@ -21,8 +21,8 @@ namespace OpenFeature.SDK.Tests
             context1.Merge(context2);
 
             Assert.Equal(2, context1.Count);
-            Assert.Equal("value1", context1.GetValue("key1").AsString());
-            Assert.Equal("value2", context1.GetValue("key2").AsString());
+            Assert.Equal("value1", context1.GetValue("key1").AsString);
+            Assert.Equal("value2", context1.GetValue("key2").AsString);
         }
 
         [Fact]
@@ -39,8 +39,8 @@ namespace OpenFeature.SDK.Tests
             context1.Merge(context2);
 
             Assert.Equal(2, context1.Count);
-            Assert.Equal("overriden_value", context1.GetValue("key1").AsString());
-            Assert.Equal("value2", context1.GetValue("key2").AsString());
+            Assert.Equal("overriden_value", context1.GetValue("key1").AsString);
+            Assert.Equal("value2", context1.GetValue("key2").AsString);
 
             context1.Remove("key1");
             Assert.Throws<KeyNotFoundException>(() => context1.GetValue("key1"));
@@ -63,28 +63,28 @@ namespace OpenFeature.SDK.Tests
                 .Add("key6", 1.0);
 
             var value1 = context.GetValue("key1");
-            value1.IsString().Should().BeTrue();
-            value1.AsString().Should().Be("value");
+            value1.IsString.Should().BeTrue();
+            value1.AsString.Should().Be("value");
 
             var value2 = context.GetValue("key2");
-            value2.IsNumber().Should().BeTrue();
-            value2.AsInteger().Should().Be(1);
+            value2.IsNumber.Should().BeTrue();
+            value2.AsInteger.Should().Be(1);
 
             var value3 = context.GetValue("key3");
-            value3.IsBoolean().Should().Be(true);
-            value3.AsBoolean().Should().Be(true);
+            value3.IsBoolean.Should().Be(true);
+            value3.AsBoolean.Should().Be(true);
 
             var value4 = context.GetValue("key4");
-            value4.IsDateTime().Should().BeTrue();
-            value4.AsDateTime().Should().Be(now);
+            value4.IsDateTime.Should().BeTrue();
+            value4.AsDateTime.Should().Be(now);
 
             var value5 = context.GetValue("key5");
-            value5.IsStructure().Should().BeTrue();
-            value5.AsStructure().Should().Equal(structure);
+            value5.IsStructure.Should().BeTrue();
+            value5.AsStructure.Should().Equal(structure);
 
             var value6 = context.GetValue("key6");
-            value6.IsNumber().Should().BeTrue();
-            value6.AsDouble().Should().Be(1.0);
+            value6.IsNumber.Should().BeTrue();
+            value6.AsDouble.Should().Be(1.0);
         }
 
         [Fact]
@@ -112,7 +112,7 @@ namespace OpenFeature.SDK.Tests
             var count = 0;
             foreach (var keyValue in context)
             {
-                context.GetValue(keyValue.Key).AsString().Should().Be(keyValue.Value.AsString());
+                context.GetValue(keyValue.Key).AsString.Should().Be(keyValue.Value.AsString);
                 count++;
             }
 

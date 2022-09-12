@@ -13,7 +13,7 @@ namespace OpenFeature.SDK.Tests
         public void No_Arg_Should_Contain_Null()
         {
             Value value = new Value();
-            Assert.True(value.IsNull());
+            Assert.True(value.IsNull);
         }
 
         [Fact]
@@ -30,7 +30,7 @@ namespace OpenFeature.SDK.Tests
                 foreach (Object l in list)
                 {
                     Value value = new Value(l);
-                    Assert.Equal(list[i], value.AsObject());
+                    Assert.Equal(list[i], value.AsObject);
                     i++;
                 }
             }
@@ -47,8 +47,8 @@ namespace OpenFeature.SDK.Tests
             {
                 int innerValue = 1;
                 Value value = new Value(innerValue);
-                Assert.True(value.IsNumber());
-                Assert.Equal(innerValue, value.AsInteger());
+                Assert.True(value.IsNumber);
+                Assert.Equal(innerValue, value.AsInteger);
             }
             catch (Exception)
             {
@@ -70,8 +70,8 @@ namespace OpenFeature.SDK.Tests
         {
             bool innerValue = true;
             Value value = new Value(innerValue);
-            Assert.True(value.IsBoolean());
-            Assert.Equal(innerValue, value.AsBoolean());
+            Assert.True(value.IsBoolean);
+            Assert.Equal(innerValue, value.AsBoolean);
         }
 
         [Fact]
@@ -79,15 +79,15 @@ namespace OpenFeature.SDK.Tests
         {
             double innerDoubleValue = .75;
             Value doubleValue = new Value(innerDoubleValue);
-            Assert.True(doubleValue.IsNumber());
-            Assert.Equal(1, doubleValue.AsInteger());     // should be rounded
-            Assert.Equal(.75, doubleValue.AsDouble());
+            Assert.True(doubleValue.IsNumber);
+            Assert.Equal(1, doubleValue.AsInteger);     // should be rounded
+            Assert.Equal(.75, doubleValue.AsDouble);
 
             int innerIntValue = 100;
             Value intValue = new Value(innerIntValue);
-            Assert.True(intValue.IsNumber());
-            Assert.Equal(innerIntValue, intValue.AsInteger());
-            Assert.Equal(innerIntValue, intValue.AsDouble());
+            Assert.True(intValue.IsNumber);
+            Assert.Equal(innerIntValue, intValue.AsInteger);
+            Assert.Equal(innerIntValue, intValue.AsDouble);
         }
 
         [Fact]
@@ -95,8 +95,8 @@ namespace OpenFeature.SDK.Tests
         {
             string innerValue = "hi!";
             Value value = new Value(innerValue);
-            Assert.True(value.IsString());
-            Assert.Equal(innerValue, value.AsString());
+            Assert.True(value.IsString);
+            Assert.Equal(innerValue, value.AsString);
         }
 
         [Fact]
@@ -104,8 +104,8 @@ namespace OpenFeature.SDK.Tests
         {
             DateTime innerValue = new DateTime();
             Value value = new Value(innerValue);
-            Assert.True(value.IsDateTime());
-            Assert.Equal(innerValue, value.AsDateTime());
+            Assert.True(value.IsDateTime);
+            Assert.Equal(innerValue, value.AsDateTime);
         }
 
         [Fact]
@@ -115,8 +115,8 @@ namespace OpenFeature.SDK.Tests
             string INNER_VALUE = "val";
             Structure innerValue = new Structure().Add(INNER_KEY, INNER_VALUE);
             Value value = new Value(innerValue);
-            Assert.True(value.IsStructure());
-            Assert.Equal(INNER_VALUE, value.AsStructure().GetValue(INNER_KEY).AsString());
+            Assert.True(value.IsStructure);
+            Assert.Equal(INNER_VALUE, value.AsStructure.GetValue(INNER_KEY).AsString);
         }
 
         [Fact]
@@ -128,8 +128,8 @@ namespace OpenFeature.SDK.Tests
                 new Value(ITEM_VALUE)
             };
             Value value = new Value(innerValue);
-            Assert.True(value.IsList());
-            Assert.Equal(ITEM_VALUE, value.AsList()[0].AsString());
+            Assert.True(value.IsList);
+            Assert.Equal(ITEM_VALUE, value.AsList[0].AsString);
         }
     }
 }
