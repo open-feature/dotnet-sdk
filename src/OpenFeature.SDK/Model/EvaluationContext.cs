@@ -15,35 +15,50 @@ namespace OpenFeature.SDK.Model
         /// <summary>
         /// Gets the Value at the specified key
         /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
+        /// <param name="key">The key of the value to be retrieved</param>
+        /// <returns>The <see cref="Value"/> associated with the key</returns>
+        /// <exception cref="KeyNotFoundException">
+        /// Thrown when the context does not contain the specified key
+        /// </exception>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when the key is <see langword="null" />
+        /// </exception>
         public Value GetValue(string key) => this._structure.GetValue(key);
 
         /// <summary>
         /// Bool indicating if the specified key exists in the evaluation context
         /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
+        /// <param name="key">The key of the value to be checked</param>
+        /// <returns><see cref="bool" />indicating the presence of the key</returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when the key is <see langword="null" />
+        /// </exception>
         public bool ContainsKey(string key) => this._structure.ContainsKey(key);
 
         /// <summary>
         /// Removes the Value at the specified key
         /// </summary>
-        /// <param name="key"></param>
+        /// <param name="key">The key of the value to be removed</param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when the key is <see langword="null" />
+        /// </exception>
         public void Remove(string key) => this._structure.Remove(key);
 
         /// <summary>
         /// Gets the value associated with the specified key
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The <see cref="Value"/> or <see langword="null" /> if the key was not present</param>
+        /// <param name="key">The key of the value to be retrieved</param>
+        /// <returns><see cref="bool" />indicating the presence of the key</returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when the key is <see langword="null" />
+        /// </exception>
         public bool TryGetValue(string key, out Value value) => this._structure.TryGetValue(key, out value);
 
         /// <summary>
         /// Gets all values as a Dictionary
         /// </summary>
-        /// <returns></returns>
+        /// <returns>New <see cref="IDictionary{TKey,TValue}"/> representation of this Structure</returns>
         public IDictionary<string, Value> AsDictionary()
         {
             return new Dictionary<string, Value>(this._structure.AsDictionary());
@@ -52,9 +67,15 @@ namespace OpenFeature.SDK.Model
         /// <summary>
         /// Add a new bool Value to the evaluation context
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="key">The key of the value to be added</param>
+        /// <param name="value">The value to be added</param>
+        /// <returns>This <see cref="EvaluationContext"/></returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when the key is <see langword="null" />
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown when an element with the same key is already contained in the context
+        /// </exception>
         public EvaluationContext Add(string key, bool value)
         {
             this._structure.Add(key, value);
@@ -64,9 +85,15 @@ namespace OpenFeature.SDK.Model
         /// <summary>
         /// Add a new string Value to the evaluation context
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="key">The key of the value to be added</param>
+        /// <param name="value">The value to be added</param>
+        /// <returns>This <see cref="EvaluationContext"/></returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when the key is <see langword="null" />
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown when an element with the same key is already contained in the context
+        /// </exception>
         public EvaluationContext Add(string key, string value)
         {
             this._structure.Add(key, value);
@@ -76,9 +103,15 @@ namespace OpenFeature.SDK.Model
         /// <summary>
         /// Add a new int Value to the evaluation context
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="key">The key of the value to be added</param>
+        /// <param name="value">The value to be added</param>
+        /// <returns>This <see cref="EvaluationContext"/></returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when the key is <see langword="null" />
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown when an element with the same key is already contained in the context
+        /// </exception>
         public EvaluationContext Add(string key, int value)
         {
             this._structure.Add(key, value);
@@ -88,9 +121,15 @@ namespace OpenFeature.SDK.Model
         /// <summary>
         /// Add a new double Value to the evaluation context
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="key">The key of the value to be added</param>
+        /// <param name="value">The value to be added</param>
+        /// <returns>This <see cref="EvaluationContext"/></returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when the key is <see langword="null" />
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown when an element with the same key is already contained in the context
+        /// </exception>
         public EvaluationContext Add(string key, double value)
         {
             this._structure.Add(key, value);
@@ -100,9 +139,15 @@ namespace OpenFeature.SDK.Model
         /// <summary>
         /// Add a new DateTime Value to the evaluation context
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="key">The key of the value to be added</param>
+        /// <param name="value">The value to be added</param>
+        /// <returns>This <see cref="EvaluationContext"/></returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when the key is <see langword="null" />
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown when an element with the same key is already contained in the context
+        /// </exception>
         public EvaluationContext Add(string key, DateTime value)
         {
             this._structure.Add(key, value);
@@ -112,9 +157,15 @@ namespace OpenFeature.SDK.Model
         /// <summary>
         /// Add a new Structure Value to the evaluation context
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="key">The key of the value to be added</param>
+        /// <param name="value">The value to be added</param>
+        /// <returns>This <see cref="EvaluationContext"/></returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when the key is <see langword="null" />
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown when an element with the same key is already contained in the context
+        /// </exception>
         public EvaluationContext Add(string key, Structure value)
         {
             this._structure.Add(key, value);
@@ -124,9 +175,15 @@ namespace OpenFeature.SDK.Model
         /// <summary>
         /// Add a new List Value to the evaluation context
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="key">The key of the value to be added</param>
+        /// <param name="value">The value to be added</param>
+        /// <returns>This <see cref="EvaluationContext"/></returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when the key is <see langword="null" />
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown when an element with the same key is already contained in the context
+        /// </exception>
         public EvaluationContext Add(string key, List<Value> value)
         {
             this._structure.Add(key, value);
@@ -136,9 +193,15 @@ namespace OpenFeature.SDK.Model
         /// <summary>
         /// Add a new Value to the evaluation context
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="key">The key of the value to be added</param>
+        /// <param name="value">The value to be added</param>
+        /// <returns>This <see cref="EvaluationContext"/></returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when the key is <see langword="null" />
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown when an element with the same key is already contained in the context
+        /// </exception>
         public EvaluationContext Add(string key, Value value)
         {
             this._structure.Add(key, value);
@@ -173,7 +236,7 @@ namespace OpenFeature.SDK.Model
         /// <summary>
         /// Return an enumerator for all values
         /// </summary>
-        /// <returns></returns>
+        /// <returns>An enumerator for all values</returns>
         public IEnumerator<KeyValuePair<string, Value>> GetEnumerator()
         {
             return this._structure.GetEnumerator();
