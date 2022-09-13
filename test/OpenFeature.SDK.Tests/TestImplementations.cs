@@ -70,10 +70,10 @@ namespace OpenFeature.SDK.Tests
             return Task.FromResult(new ResolutionDetails<double>(flagKey, defaultValue));
         }
 
-        public override Task<ResolutionDetails<Structure>> ResolveStructureValue(string flagKey, Structure defaultValue,
+        public override Task<ResolutionDetails<Value>> ResolveStructureValue(string flagKey, Value defaultValue,
             EvaluationContext context = null)
         {
-            return Task.FromResult(new ResolutionDetails<Structure>(flagKey, defaultValue));
+            return Task.FromResult(new ResolutionDetails<Value>(flagKey, defaultValue));
         }
     }
 }

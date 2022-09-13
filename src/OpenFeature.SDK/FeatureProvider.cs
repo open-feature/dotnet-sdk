@@ -72,13 +72,13 @@ namespace OpenFeature.SDK
             EvaluationContext context = null);
 
         /// <summary>
-        /// Resolves a structure feature flag
+        /// Resolves a structured feature flag
         /// </summary>
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext"/></param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
-        public abstract Task<ResolutionDetails<Structure>> ResolveStructureValue(string flagKey, Structure defaultValue,
+        public abstract Task<ResolutionDetails<Value>> ResolveStructureValue(string flagKey, Value defaultValue,
             EvaluationContext context = null);
     }
 }

@@ -188,7 +188,7 @@ namespace OpenFeature.SDK
         /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
         /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
-        public async Task<Structure> GetObjectValue(string flagKey, Structure defaultValue, EvaluationContext context = null,
+        public async Task<Value> GetObjectValue(string flagKey, Value defaultValue, EvaluationContext context = null,
             FlagEvaluationOptions config = null) =>
             (await this.GetObjectDetails(flagKey, defaultValue, context, config)).Value;
 
@@ -200,7 +200,7 @@ namespace OpenFeature.SDK
         /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
         /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
-        public async Task<FlagEvaluationDetails<Structure>> GetObjectDetails(string flagKey, Structure defaultValue,
+        public async Task<FlagEvaluationDetails<Value>> GetObjectDetails(string flagKey, Value defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await this.EvaluateFlag(this._featureProvider.ResolveStructureValue, FlagValueType.Object, flagKey,
                 defaultValue, context, config);
