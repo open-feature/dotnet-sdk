@@ -16,12 +16,12 @@ namespace OpenFeature.SDK.Model
         /// Gets the Value at the specified key
         /// </summary>
         /// <param name="key">The key of the value to be retrieved</param>
-        /// <returns>The <see cref="Value"/> associated with the key.</returns>
+        /// <returns>The <see cref="Value"/> associated with the key</returns>
         /// <exception cref="KeyNotFoundException">
-        /// Thrown when the context does not contain the specified key.
+        /// Thrown when the context does not contain the specified key
         /// </exception>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when the key is <see langword="null" />.
+        /// Thrown when the key is <see langword="null" />
         /// </exception>
         public Value GetValue(string key) => this._structure.GetValue(key);
 
@@ -29,9 +29,9 @@ namespace OpenFeature.SDK.Model
         /// Bool indicating if the specified key exists in the evaluation context
         /// </summary>
         /// <param name="key">The key of the value to be checked</param>
-        /// <returns><see cref="bool" />indicating the presence of the key.</returns>
+        /// <returns><see cref="bool" />indicating the presence of the key</returns>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when the key is <see langword="null" />.
+        /// Thrown when the key is <see langword="null" />
         /// </exception>
         public bool ContainsKey(string key) => this._structure.ContainsKey(key);
 
@@ -40,18 +40,18 @@ namespace OpenFeature.SDK.Model
         /// </summary>
         /// <param name="key">The key of the value to be removed</param>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when the key is <see langword="null" />.
+        /// Thrown when the key is <see langword="null" />
         /// </exception>
         public void Remove(string key) => this._structure.Remove(key);
 
         /// <summary>
         /// Gets the value associated with the specified key
         /// </summary>
-        /// <param name="value">The <see cref="Value"/> or <see langword="null" /> if the key was not present.</param>
+        /// <param name="value">The <see cref="Value"/> or <see langword="null" /> if the key was not present</param>
         /// <param name="key">The key of the value to be retrieved</param>
-        /// <returns><see cref="bool" />indicating the presence of the key.</returns>
+        /// <returns><see cref="bool" />indicating the presence of the key</returns>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when the key is <see langword="null" />.
+        /// Thrown when the key is <see langword="null" />
         /// </exception>
         public bool TryGetValue(string key, out Value value) => this._structure.TryGetValue(key, out value);
 
@@ -71,10 +71,10 @@ namespace OpenFeature.SDK.Model
         /// <param name="value">The value to be added</param>
         /// <returns>This <see cref="EvaluationContext"/></returns>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when the key is <see langword="null" />.
+        /// Thrown when the key is <see langword="null" />
         /// </exception>
         /// <exception cref="ArgumentException">
-        /// Thrown when an element with the same key is already contained in the context.
+        /// Thrown when an element with the same key is already contained in the context
         /// </exception>
         public EvaluationContext Add(string key, bool value)
         {
@@ -89,10 +89,10 @@ namespace OpenFeature.SDK.Model
         /// <param name="value">The value to be added</param>
         /// <returns>This <see cref="EvaluationContext"/></returns>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when the key is <see langword="null" />.
+        /// Thrown when the key is <see langword="null" />
         /// </exception>
         /// <exception cref="ArgumentException">
-        /// Thrown when an element with the same key is already contained in the context.
+        /// Thrown when an element with the same key is already contained in the context
         /// </exception>
         public EvaluationContext Add(string key, string value)
         {
@@ -107,10 +107,10 @@ namespace OpenFeature.SDK.Model
         /// <param name="value">The value to be added</param>
         /// <returns>This <see cref="EvaluationContext"/></returns>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when the key is <see langword="null" />.
+        /// Thrown when the key is <see langword="null" />
         /// </exception>
         /// <exception cref="ArgumentException">
-        /// Thrown when an element with the same key is already contained in the context.
+        /// Thrown when an element with the same key is already contained in the context
         /// </exception>
         public EvaluationContext Add(string key, int value)
         {
@@ -125,10 +125,10 @@ namespace OpenFeature.SDK.Model
         /// <param name="value">The value to be added</param>
         /// <returns>This <see cref="EvaluationContext"/></returns>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when the key is <see langword="null" />.
+        /// Thrown when the key is <see langword="null" />
         /// </exception>
         /// <exception cref="ArgumentException">
-        /// Thrown when an element with the same key is already contained in the context.
+        /// Thrown when an element with the same key is already contained in the context
         /// </exception>
         public EvaluationContext Add(string key, double value)
         {
@@ -143,10 +143,10 @@ namespace OpenFeature.SDK.Model
         /// <param name="value">The value to be added</param>
         /// <returns>This <see cref="EvaluationContext"/></returns>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when the key is <see langword="null" />.
+        /// Thrown when the key is <see langword="null" />
         /// </exception>
         /// <exception cref="ArgumentException">
-        /// Thrown when an element with the same key is already contained in the context.
+        /// Thrown when an element with the same key is already contained in the context
         /// </exception>
         public EvaluationContext Add(string key, DateTime value)
         {
@@ -161,10 +161,10 @@ namespace OpenFeature.SDK.Model
         /// <param name="value">The value to be added</param>
         /// <returns>This <see cref="EvaluationContext"/></returns>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when the key is <see langword="null" />.
+        /// Thrown when the key is <see langword="null" />
         /// </exception>
         /// <exception cref="ArgumentException">
-        /// Thrown when an element with the same key is already contained in the context.
+        /// Thrown when an element with the same key is already contained in the context
         /// </exception>
         public EvaluationContext Add(string key, Structure value)
         {
@@ -179,10 +179,10 @@ namespace OpenFeature.SDK.Model
         /// <param name="value">The value to be added</param>
         /// <returns>This <see cref="EvaluationContext"/></returns>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when the key is <see langword="null" />.
+        /// Thrown when the key is <see langword="null" />
         /// </exception>
         /// <exception cref="ArgumentException">
-        /// Thrown when an element with the same key is already contained in the context.
+        /// Thrown when an element with the same key is already contained in the context
         /// </exception>
         public EvaluationContext Add(string key, List<Value> value)
         {
@@ -197,10 +197,10 @@ namespace OpenFeature.SDK.Model
         /// <param name="value">The value to be added</param>
         /// <returns>This <see cref="EvaluationContext"/></returns>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when the key is <see langword="null" />.
+        /// Thrown when the key is <see langword="null" />
         /// </exception>
         /// <exception cref="ArgumentException">
-        /// Thrown when an element with the same key is already contained in the context.
+        /// Thrown when an element with the same key is already contained in the context
         /// </exception>
         public EvaluationContext Add(string key, Value value)
         {
