@@ -18,7 +18,6 @@
       Please sort alphabetically.
       Refer to https://docs.microsoft.com/nuget/concepts/package-versioning for semver syntax.
     -->
-    <MinVerPkgVer>[4.1.0,5.0)</MinVerPkgVer>
     <MicrosoftExtensionsLoggerVer>[2.0,6.0)</MicrosoftExtensionsLoggerVer>
     <MicrosoftSourceLinkGitHubPkgVer>[1.0.0,2.0)</MicrosoftSourceLinkGitHubPkgVer>
   </PropertyGroup>

@@ -7,12 +7,6 @@
       "commands": [
         "dotnet-format"
       ]
-    },
-    "dotnet-releaser": {
-      "version": "0.4.2",
-      "commands": [
-        "dotnet-releaser"
-      ]
     }
   }
 }

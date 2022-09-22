@@ -348,6 +348,3 @@ ASALocalRun/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-
-# dotnet releaser artifacts
-/build/artifacts-dotnet-releaser
