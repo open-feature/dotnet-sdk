@@ -39,6 +39,6 @@ jobs:
       - name: Publish to Nuget
         if: ${{ steps.release.outputs.releases_created }}
         run: |
-          dotnet nuget push OpenFeature.${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}.nupkg `
+          dotnet nuget push src/OpenFeatureSDK/bin/Release/OpenFeature.${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}.nupkg `
             --api-key ${{secrets.NUGET_TOKEN}} `
             --source https://api.nuget.org/v3/index.json
