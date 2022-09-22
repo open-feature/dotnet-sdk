@@ -23,7 +23,7 @@ The packages will aim to support all current .NET versions. Refer to the current
 ### Basic Usage
 
 ```csharp
-using OpenFeature.SDK;
+using OpenFeatureSDK;
 
 // Sets the provider used by the client
 OpenFeature.Instance.SetProvider(new NoOpProvider());
@@ -40,8 +40,8 @@ To develop a provider, you need to create a new project and include the OpenFeat
 Example of implementing a feature flag provider
 
 ```csharp
-using OpenFeature.SDK;
-using OpenFeature.SDK.Model;
+using OpenFeatureSDK;
+using OpenFeatureSDK.Model;
 
 public class MyFeatureProvider : FeatureProvider
 {
