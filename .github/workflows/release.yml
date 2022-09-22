@@ -1,0 +1,43 @@
+name: Run Release Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release-package:
+    runs-on: windows-latest
+
+    steps:
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          command: manifest
+          token: ${{secrets.GITHUB_TOKEN}}
+          default-branch: main
+
+      - uses: actions/checkout@v3
+        if: ${{ steps.release.outputs.releases_created }}
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        if: ${{ steps.release.outputs.releases_created }}
+        run: dotnet restore
+
+      - name: Build
+        if: ${{ steps.release.outputs.releases_created }}
+        run: |
+          dotnet build --configuration Release --no-restore -p:Deterministic=true
+
+      - name: Pack
+        if: ${{ steps.release.outputs.releases_created }}
+        run:  |
+          dotnet pack OpenFeature.SDK.proj --configuration Release --no-build -p:PackageID=OpenFeature
+
+      - name: Publish to Nuget
+        if: ${{ steps.release.outputs.releases_created }}
+        run: |
+          VERSION=${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
+          dotnet nuget push OpenFeature.{VERSION}.nupkg --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json

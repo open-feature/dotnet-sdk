@@ -1,0 +1,13 @@
+{
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "bump-minor-pre-major": true,
+      "bump-patch-for-minor-pre-major": true,
+      "versioning": "default",
+      "extra-files": [
+        "./build/Common.prod.props"
+      ]
+    }
+  }
+}

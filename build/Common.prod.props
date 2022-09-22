@@ -1,23 +1,12 @@
 <Project>
   <Import Project=".\Common.props" />
 
-  <ItemGroup>
-    <PackageReference Include="MinVer" Version="$(MinVerPkgVer)">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
-
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup>
-    <MinVerTagPrefix>v</MinVerTagPrefix>
-    <MinVerMinimumMajorMinor>0.1</MinVerMinimumMajorMinor>
-  </PropertyGroup>
-
-  <PropertyGroup>
+    <VersionNumber>0.1.5</VersionNumber> <!--x-release-please-version -->
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/open-feature/dotnet-sdk</RepositoryUrl>
     <Description>OpenFeature is an open standard for feature flag management, created to support a robust feature flag ecosystem using cloud native technologies. OpenFeature will provide a unified API and SDK, and a developer-first, cloud-native implementation, with extensibility for open source and commercial offerings.</Description>
@@ -28,6 +17,9 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <Authors>OpenFeature Authors</Authors>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Version>$(VersionNumber)</Version>
+    <AssemblyVersion>$(VersionNumber)</AssemblyVersion>
+    <FileVersion>$(VersionNumber)</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
