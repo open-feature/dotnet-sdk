@@ -1,5 +1,4 @@
 using OpenFeatureSDK.Constant;
-using OpenFeatureSDK.Extension;
 
 namespace OpenFeatureSDK.Model
 {
@@ -23,7 +22,15 @@ namespace OpenFeatureSDK.Model
         /// <summary>
         /// Error that occurred during evaluation
         /// </summary>
-        public string ErrorType { get; }
+        public ErrorType ErrorType { get; }
+
+        /// <summary>
+        /// Message containing additional details about an error.
+        ///
+        /// Will be <see langword="null" /> if there is no error or if the provider didn't provide any additional error
+        /// details.
+        /// </summary>
+        public string ErrorMessage { get; }
 
         /// <summary>
         /// Describes the reason for the outcome of the evaluation process
@@ -45,30 +52,16 @@ namespace OpenFeatureSDK.Model
         /// <param name="errorType">Error</param>
         /// <param name="reason">Reason</param>
         /// <param name="variant">Variant</param>
-        public FlagEvaluationDetails(string flagKey, T value, ErrorType errorType, string reason, string variant)
-        {
-            this.Value = value;
-            this.FlagKey = flagKey;
-            this.ErrorType = errorType.GetDescription();
-            this.Reason = reason;
-            this.Variant = variant;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FlagEvaluationDetails{T}"/> class.
-        /// </summary>
-        /// <param name="flagKey">Feature flag key</param>
-        /// <param name="value">Evaluated value</param>
-        /// <param name="errorType">Error</param>
-        /// <param name="reason">Reason</param>
-        /// <param name="variant">Variant</param>
-        public FlagEvaluationDetails(string flagKey, T value, string errorType, string reason, string variant)
+        /// <param name="errorMessage">Error message</param>
+        public FlagEvaluationDetails(string flagKey, T value, ErrorType errorType, string reason, string variant,
+            string errorMessage = null)
         {
             this.Value = value;
             this.FlagKey = flagKey;
             this.ErrorType = errorType;
             this.Reason = reason;
             this.Variant = variant;
+            this.ErrorMessage = errorMessage;
         }
     }
 }

@@ -257,9 +257,9 @@ namespace OpenFeatureSDK
             catch (FeatureProviderException ex)
             {
                 this._logger.LogError(ex, "Error while evaluating flag {FlagKey}. Error {ErrorType}", flagKey,
-                    ex.ErrorDescription);
-                evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, ex.ErrorDescription, Reason.Error,
-                    string.Empty);
+                    ex.ErrorType.GetDescription());
+                evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, ex.ErrorType, Reason.Error,
+                    string.Empty, ex.Message);
                 await this.TriggerErrorHooks(allHooksReversed, hookContext, ex, options);
             }
             catch (Exception ex)

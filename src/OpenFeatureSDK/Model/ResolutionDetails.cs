@@ -27,6 +27,11 @@ namespace OpenFeatureSDK.Model
         public ErrorType ErrorType { get; }
 
         /// <summary>
+        /// Message containing additional details about an error.
+        /// </summary>
+        public string ErrorMessage { get; }
+
+        /// <summary>
         /// Describes the reason for the outcome of the evaluation process
         /// <see cref="Reason"/>
         /// </summary>
@@ -47,14 +52,16 @@ namespace OpenFeatureSDK.Model
         /// <param name="errorType">Error</param>
         /// <param name="reason">Reason</param>
         /// <param name="variant">Variant</param>
+        /// <param name="errorMessage">Error message</param>
         public ResolutionDetails(string flagKey, T value, ErrorType errorType = ErrorType.None, string reason = null,
-            string variant = null)
+            string variant = null, string errorMessage = null)
         {
             this.Value = value;
             this.FlagKey = flagKey;
             this.ErrorType = errorType;
             this.Reason = reason;
             this.Variant = variant;
+            this.ErrorMessage = errorMessage;
         }
     }
 }
