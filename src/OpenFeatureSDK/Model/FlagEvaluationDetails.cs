@@ -26,9 +26,10 @@ namespace OpenFeatureSDK.Model
 
         /// <summary>
         /// Message containing additional details about an error.
-        ///
+        /// <para>
         /// Will be <see langword="null" /> if there is no error or if the provider didn't provide any additional error
         /// details.
+        /// </para>
         /// </summary>
         public string ErrorMessage { get; }
 
