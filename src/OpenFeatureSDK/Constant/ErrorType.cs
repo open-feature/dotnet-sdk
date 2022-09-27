@@ -46,6 +46,6 @@ namespace OpenFeatureSDK.Constant
         /// <summary>
         /// Context does not contain a targeting key and the provider requires one.
         /// </summary>
-        [Description("TARGETING_KEY_MISSING")]TargetingKeyMissing,
+        [Description("TARGETING_KEY_MISSING")] TargetingKeyMissing,
     }
 }
