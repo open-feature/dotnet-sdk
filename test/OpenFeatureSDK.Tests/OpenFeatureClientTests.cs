@@ -176,7 +176,7 @@ namespace OpenFeatureSDK.Tests
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion, mockedLogger.Object);
 
             var evaluationDetails = await client.GetObjectDetails(flagName, defaultValue);
-            evaluationDetails.ErrorType.Should().Be(ErrorType.TypeMismatch.GetDescription());
+            evaluationDetails.ErrorType.Should().Be(ErrorType.TypeMismatch);
 
             mockedFeatureProvider
                 .Verify(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>()), Times.Once);
@@ -322,18 +322,20 @@ namespace OpenFeatureSDK.Tests
         }
 
         [Fact]
-        public async Task When_Exception_Occurs_During_Evaluation_Should_Return_Error()
+        public async Task When_Error_Is_Returned_From_Provider_Should_Return_Error()
         {
             var fixture = new Fixture();
             var clientName = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<Value>();
+            const string testMessage = "Couldn't parse flag data.";
 
             var featureProviderMock = new Mock<FeatureProvider>(MockBehavior.Strict);
             featureProviderMock
                 .Setup(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>()))
-                .Throws(new FeatureProviderException(ErrorType.ParseError));
+                .Returns(Task.FromResult(new ResolutionDetails<Value>(flagName, defaultValue, ErrorType.ParseError,
+                    "ERROR", null, testMessage)));
             featureProviderMock.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.Setup(x => x.GetProviderHooks())
@@ -343,8 +345,38 @@ namespace OpenFeatureSDK.Tests
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion);
             var response = await client.GetObjectDetails(flagName, defaultValue);
 
-            response.ErrorType.Should().Be(ErrorType.ParseError.GetDescription());
+            response.ErrorType.Should().Be(ErrorType.ParseError);
             response.Reason.Should().Be(Reason.Error);
+            response.ErrorMessage.Should().Be(testMessage);
+            featureProviderMock.Verify(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task When_Exception_Occurs_During_Evaluation_Should_Return_Error()
+        {
+            var fixture = new Fixture();
+            var clientName = fixture.Create<string>();
+            var clientVersion = fixture.Create<string>();
+            var flagName = fixture.Create<string>();
+            var defaultValue = fixture.Create<Value>();
+            const string testMessage = "Couldn't parse flag data.";
+
+            var featureProviderMock = new Mock<FeatureProvider>(MockBehavior.Strict);
+            featureProviderMock
+                .Setup(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>()))
+                .Throws(new FeatureProviderException(ErrorType.ParseError, testMessage));
+            featureProviderMock.Setup(x => x.GetMetadata())
+                .Returns(new Metadata(fixture.Create<string>()));
+            featureProviderMock.Setup(x => x.GetProviderHooks())
+                .Returns(Array.Empty<Hook>());
+
+            OpenFeature.Instance.SetProvider(featureProviderMock.Object);
+            var client = OpenFeature.Instance.GetClient(clientName, clientVersion);
+            var response = await client.GetObjectDetails(flagName, defaultValue);
+
+            response.ErrorType.Should().Be(ErrorType.ParseError);
+            response.Reason.Should().Be(Reason.Error);
+            response.ErrorMessage.Should().Be(testMessage);
             featureProviderMock.Verify(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>()), Times.Once);
         }
 

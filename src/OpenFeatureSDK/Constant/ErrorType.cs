@@ -36,6 +36,16 @@ namespace OpenFeatureSDK.Constant
         /// <summary>
         /// Abnormal execution of the provider
         /// </summary>
-        [Description("GENERAL")] General
+        [Description("GENERAL")] General,
+
+        /// <summary>
+        /// Context does not satisfy provider requirements.
+        /// </summary>
+        [Description("INVALID_CONTEXT")] InvalidContext,
+
+        /// <summary>
+        /// Context does not contain a targeting key and the provider requires one.
+        /// </summary>
+        [Description("TARGETING_KEY_MISSING")] TargetingKeyMissing,
     }
 }

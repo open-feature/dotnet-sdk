@@ -2,6 +2,7 @@ using System;
 using FluentAssertions;
 using OpenFeatureSDK.Constant;
 using OpenFeatureSDK.Error;
+using OpenFeatureSDK.Extension;
 using Xunit;
 
 namespace OpenFeatureSDK.Tests
@@ -17,16 +18,16 @@ namespace OpenFeatureSDK.Tests
         public void FeatureProviderException_Should_Resolve_Description(ErrorType errorType, string errorDescription)
         {
             var ex = new FeatureProviderException(errorType);
-            ex.ErrorDescription.Should().Be(errorDescription);
+            ex.ErrorType.GetDescription().Should().Be(errorDescription);
         }
 
         [Theory]
-        [InlineData("OUT_OF_CREDIT", "Subscription has expired, please renew your subscription.")]
-        [InlineData("Exceed quota", "User has exceeded the quota for this feature.")]
-        public void FeatureProviderException_Should_Allow_Custom_ErrorCode_Messages(string errorCode, string message)
+        [InlineData(ErrorType.General, "Subscription has expired, please renew your subscription.")]
+        [InlineData(ErrorType.ProviderNotReady, "User has exceeded the quota for this feature.")]
+        public void FeatureProviderException_Should_Allow_Custom_ErrorCode_Messages(ErrorType errorCode, string message)
         {
             var ex = new FeatureProviderException(errorCode, message, new ArgumentOutOfRangeException("flag"));
-            ex.ErrorDescription.Should().Be(errorCode);
+            ex.ErrorType.Should().Be(errorCode);
             ex.Message.Should().Be(message);
             ex.InnerException.Should().BeOfType<ArgumentOutOfRangeException>();
         }

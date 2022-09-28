@@ -1,6 +1,5 @@
 using System;
 using OpenFeatureSDK.Constant;
-using OpenFeatureSDK.Extension;
 
 namespace OpenFeatureSDK.Error
 {
@@ -11,9 +10,9 @@ namespace OpenFeatureSDK.Error
     public class FeatureProviderException : Exception
     {
         /// <summary>
-        /// Description of error that occured when evaluating a flag
+        /// Error that occurred during evaluation
         /// </summary>
-        public string ErrorDescription { get; }
+        public ErrorType ErrorType { get; }
 
         /// <summary>
         /// Initialize a new instance of the <see cref="FeatureProviderException"/> class
@@ -24,19 +23,7 @@ namespace OpenFeatureSDK.Error
         public FeatureProviderException(ErrorType errorType, string message = null, Exception innerException = null)
             : base(message, innerException)
         {
-            this.ErrorDescription = errorType.GetDescription();
-        }
-
-        /// <summary>
-        /// Initialize a new instance of the <see cref="FeatureProviderException"/> class
-        /// </summary>
-        /// <param name="errorCode">A string representation describing the error that occured</param>
-        /// <param name="message">Exception message</param>
-        /// <param name="innerException">Optional inner exception</param>
-        public FeatureProviderException(string errorCode, string message = null, Exception innerException = null)
-            : base(message, innerException)
-        {
-            this.ErrorDescription = errorCode;
+            this.ErrorType = errorType;
         }
     }
 }
