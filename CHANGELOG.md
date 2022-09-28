@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.0](https://github.com/open-feature/dotnet-sdk/compare/v0.2.3...v0.3.0) (2022-09-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* ErrorType as enum, add ErrorMessage string (#72)
+
+### Features
+
+* ErrorType as enum, add ErrorMessage string ([#72](https://github.com/open-feature/dotnet-sdk/issues/72)) ([e7ab498](https://github.com/open-feature/dotnet-sdk/commit/e7ab49866bd83d7b146059b0c22944a7db6956b4))
+
 ## [0.2.3](https://github.com/open-feature/dotnet-sdk/compare/v0.2.2...v0.2.3) (2022-09-22)
 
 
