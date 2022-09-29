@@ -1,7 +1,7 @@
 # OpenFeature SDK for .NET
 
 [![a](https://img.shields.io/badge/slack-%40cncf%2Fopenfeature-brightgreen?style=flat&logo=slack)](https://cloud-native.slack.com/archives/C0344AANLA1)
-[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)]()
+[![spec version badge](https://img.shields.io/badge/Specification-v0.5.0-yellow)](https://github.com/open-feature/spec/tree/v0.5.0?rgh-link-date=2022-09-27T17%3A53%3A52Z)
 [![codecov](https://codecov.io/gh/open-feature/dotnet-sdk/branch/main/graph/badge.svg?token=MONAVJBXUJ)](https://codecov.io/gh/open-feature/dotnet-sdk)
 [![nuget](https://img.shields.io/nuget/vpre/OpenFeature)](https://www.nuget.org/packages/OpenFeature)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6250/badge)](https://bestpractices.coreinfrastructure.org/projects/6250)
@@ -11,12 +11,6 @@ OpenFeature is an open standard for feature flag management, created to support 
 ## Supported .Net Versions
 
 The packages will aim to support all current .NET versions. Refer to the currently supported versions [.NET](https://dotnet.microsoft.com/download/dotnet) and [.NET Framework](https://dotnet.microsoft.com/download/dotnet-framework) Excluding .NET Framework 3.5
-
-## Providers
-
-| Provider    | Package Name |
-| ----------- | ----------- |
-| TBA | TBA       |
 
 ## Getting Started
 
