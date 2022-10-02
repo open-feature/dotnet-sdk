@@ -51,7 +51,7 @@ public class OpenFeatureServiceCollectionExtensionsTests
         var result = await client.GetStringValue("key", String.Empty);
 
         mock.Verify(obj =>obj.ResolveStringValue(
-            "key ",
+            "key",
             It.IsAny<string>(),
             It.IsAny<EvaluationContext>()), Times.Once);
 
