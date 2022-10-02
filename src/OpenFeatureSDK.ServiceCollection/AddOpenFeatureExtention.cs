@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OpenFeature.ServiceCollection.Feature;
 using OpenFeatureSDK;
 namespace OpenFeature.ServiceCollection;
 
@@ -10,6 +11,7 @@ public static class AddOpenFeatureExtention
     {
         serviceCollection.Configure(options);
         serviceCollection.AddTransient(CreateOpenFeature);
+        serviceCollection.AddTransient(typeof(IFeatureCollection<>), typeof(FeatureCollection<>));
         return serviceCollection;
     }
 
@@ -28,7 +30,6 @@ public static class AddOpenFeatureExtention
 
         featureClient.AddHooks(options.Hooks.Select(type=>(Hook)serviceProvider.GetRequiredService(type)));
         return featureClient;
-
     }
 }
 
