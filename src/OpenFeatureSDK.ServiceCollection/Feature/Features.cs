@@ -1,15 +1,17 @@
-﻿using OpenFeatureSDK;
+﻿using Microsoft.Extensions.Options;
+using OpenFeatureSDK;
 using OpenFeatureSDK.Model;
 
 namespace OpenFeature.ServiceCollection.Feature;
 
-internal class FeatureCollection<T>:IFeatureCollection<T> where T : new()
+internal class Features<T>:IFeatures<T> where T : new()
 {
     private readonly FeatureClient _featureClient;
-
-    public FeatureCollection(FeatureClient featureClient)
+    private readonly IOptions<OpenFeatureOption> _options;
+    public Features(FeatureClient featureClient, IOptions<OpenFeatureOption> options)
     {
         this._featureClient = featureClient;
+        this._options = options;
     }
 
     public async Task<T> GetValueAsync()
@@ -18,20 +20,22 @@ internal class FeatureCollection<T>:IFeatureCollection<T> where T : new()
 
         foreach (var propertyInfo in typeof(T).GetProperties())
         {
+            var propertyInfoName = this._options.Value.PropertyNameResolver(propertyInfo.Name);
+
             if(propertyInfo.PropertyType==typeof(string))
-                propertyInfo.SetValue(featuresDto,await this._featureClient.GetStringValue(propertyInfo.Name,(string?)propertyInfo.GetValue(featuresDto)));
+                propertyInfo.SetValue(featuresDto,await this._featureClient.GetStringValue(propertyInfoName,(string?)propertyInfo.GetValue(featuresDto)));
 
             else if(propertyInfo.PropertyType==typeof(int))
-                propertyInfo.SetValue(featuresDto,await this._featureClient.GetIntegerValue(propertyInfo.Name,(int)(propertyInfo.GetValue(featuresDto) ?? 0)));
+                propertyInfo.SetValue(featuresDto,await this._featureClient.GetIntegerValue(propertyInfoName,(int)(propertyInfo.GetValue(featuresDto) ?? 0)));
 
             else if(propertyInfo.PropertyType==typeof(double))
-                propertyInfo.SetValue(featuresDto,await this._featureClient.GetDoubleDetails(propertyInfo.Name,(double)(propertyInfo.GetValue(featuresDto) ?? 0)));
+                propertyInfo.SetValue(featuresDto,await this._featureClient.GetDoubleValue(propertyInfoName,(double)(propertyInfo.GetValue(featuresDto) ?? 0)));
 
             else if(propertyInfo.PropertyType==typeof(bool))
-                propertyInfo.SetValue(featuresDto,await this._featureClient.GetBooleanValue(propertyInfo.Name,(bool)(propertyInfo.GetValue(featuresDto) ?? false)));
+                propertyInfo.SetValue(featuresDto,await this._featureClient.GetBooleanValue(propertyInfoName,(bool)(propertyInfo.GetValue(featuresDto) ?? false)));
 
             else if(propertyInfo.PropertyType==typeof(Value))
-                propertyInfo.SetValue(featuresDto,await this._featureClient.GetObjectValue(propertyInfo.Name,new Value()));
+                propertyInfo.SetValue(featuresDto,await this._featureClient.GetObjectValue(propertyInfoName,new Value()));
         }
 
         return featuresDto;

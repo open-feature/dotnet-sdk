@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenFeatureSDK.Tests", "tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenFeatureSDK.ServiceCollection", "src\OpenFeatureSDK.ServiceCollection\OpenFeatureSDK.ServiceCollection.csproj", "{CAEB096E-50A8-4053-B8AF-EF477F3F5E68}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenFeatureSDK.ServiceCollection.Tests", "test\OpenFeatureSDK.ServiceCollection.Tests\OpenFeatureSDK.ServiceCollection.Tests.csproj", "{DF6E177F-BECF-49CC-B574-15F70E850B34}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,10 +53,15 @@ Global
 		{CAEB096E-50A8-4053-B8AF-EF477F3F5E68}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CAEB096E-50A8-4053-B8AF-EF477F3F5E68}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CAEB096E-50A8-4053-B8AF-EF477F3F5E68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF6E177F-BECF-49CC-B574-15F70E850B34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF6E177F-BECF-49CC-B574-15F70E850B34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF6E177F-BECF-49CC-B574-15F70E850B34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF6E177F-BECF-49CC-B574-15F70E850B34}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{07A6E6BD-FB7E-4B3B-9CBE-65AE9D0EB223} = {C97E9975-E10A-4817-AE2C-4DD69C3C02D4}
 		{49BB42BA-10A6-4DA3-A7D5-38C968D57837} = {65FBA159-23E0-4CF9-881B-F78DBFF198E9}
 		{CAEB096E-50A8-4053-B8AF-EF477F3F5E68} = {C97E9975-E10A-4817-AE2C-4DD69C3C02D4}
+		{DF6E177F-BECF-49CC-B574-15F70E850B34} = {65FBA159-23E0-4CF9-881B-F78DBFF198E9}
 	EndGlobalSection
 EndGlobal

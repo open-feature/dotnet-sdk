@@ -6,6 +6,6 @@ public class OpenFeatureOption
     public string Name { get; set; }
     public string Version { get; set; }
     public IEnumerable<Type> Hooks { get; set; } = Enumerable.Empty<Type>();
-
+    public Func<string,string> PropertyNameResolver { get; set; } = s => s;
 
 }

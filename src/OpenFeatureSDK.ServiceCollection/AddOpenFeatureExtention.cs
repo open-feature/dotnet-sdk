@@ -11,7 +11,7 @@ public static class AddOpenFeatureExtention
     {
         serviceCollection.Configure(options);
         serviceCollection.AddTransient(CreateOpenFeature);
-        serviceCollection.AddTransient(typeof(IFeatureCollection<>), typeof(FeatureCollection<>));
+        serviceCollection.AddTransient(typeof(IFeatures<>), typeof(Features<>));
         return serviceCollection;
     }
 

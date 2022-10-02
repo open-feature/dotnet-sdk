@@ -6,7 +6,7 @@ namespace OpenFeature.ServiceCollection.Feature;
 /// Used to retrieve configured <typeparamref name="T"/>
 /// </summary>
 /// <typeparam name="T">The type of flags being requested.</typeparam>
-public interface IFeatureCollection<T> where T : new()
+public interface IFeatures<T> where T : new()
 {
     /// <summary>
     /// resolve features values and bind it to new object of type T
