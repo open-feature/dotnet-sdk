@@ -18,7 +18,7 @@ public class OpenFeatureServiceCollectionExtensionsTests
     public void AddOpenFeatureServiceCollectionExtensionsTest()
     {
         var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-        services.AddOpenFeautre(options => { });
+        services.AddOpenFeature(options => { });
         var serviceProvider = services.BuildServiceProvider();
         var openFeatureServiceCollectionExtensions = serviceProvider.GetService<FeatureClient>();
         Assert.NotNull(openFeatureServiceCollectionExtensions);
@@ -44,7 +44,7 @@ public class OpenFeatureServiceCollectionExtensionsTests
             .Returns(() => new Metadata("metadata"));
 
         services.AddTransient<TestProvider>(_=>mock.Object);
-        services.AddOpenFeautre(options => { options.FeatureProvider = typeof(TestProvider); });
+        services.AddOpenFeature(options => { options.FeatureProvider = typeof(TestProvider); });
 
         var serviceProvider = services.BuildServiceProvider();
         var client=serviceProvider.GetService<FeatureClient>();
@@ -102,7 +102,7 @@ public class OpenFeatureServiceCollectionExtensionsTests
             .ReturnsAsync(() => new ResolutionDetails<bool>("BoolFeature",true));
 
         services.AddTransient<TestProvider>(_=>mock.Object);
-        services.AddOpenFeautre(options => { options.FeatureProvider = typeof(TestProvider); });
+        services.AddOpenFeature(options => { options.FeatureProvider = typeof(TestProvider); });
 
         var serviceProvider = services.BuildServiceProvider();
         var features=serviceProvider.GetRequiredService<IFeatures<TestFeatures>>();

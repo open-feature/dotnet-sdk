@@ -3,11 +3,21 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OpenFeature.ServiceCollection.Feature;
 using OpenFeatureSDK;
-namespace OpenFeature.ServiceCollection;
+using OpenFeatureSDK.Model;
 
-public static class AddOpenFeatureExtention
+namespace OpenFeature.ServiceCollection;
+/// <summary>
+///  OpenFeature ServiceCollection Extensions
+/// </summary>
+public static class AddOpenFeatureExtension
 {
-    public static IServiceCollection AddOpenFeautre(this IServiceCollection serviceCollection,Action<OpenFeatureOption> options)
+    /// <summary>
+    /// Add OpenFeature to ServiceCollection
+    /// </summary>
+    /// <param name="serviceCollection">service collection</param>
+    /// <param name="options">open features options</param>
+    /// <returns></returns>
+    public static IServiceCollection AddOpenFeature(this IServiceCollection serviceCollection,Action<OpenFeatureOption> options)
     {
         serviceCollection.Configure(options);
         serviceCollection.AddTransient(CreateOpenFeature);
@@ -23,10 +33,16 @@ public static class AddOpenFeatureExtention
             OpenFeatureSDK.OpenFeature.Instance.SetProvider((FeatureProvider)serviceProvider.GetRequiredService(options.FeatureProvider));
         }
 
+
         var featureClient = OpenFeatureSDK.OpenFeature.Instance.GetClient(
             options.Name,
             options.Version,
             serviceProvider.GetService<ILogger<FeatureClient>>());
+
+        if (options.EvaluationContext != null)
+        {
+            featureClient.SetContext((EvaluationContext) serviceProvider.GetRequiredService(options.EvaluationContext));
+        }
 
         featureClient.AddHooks(options.Hooks.Select(type=>(Hook)serviceProvider.GetRequiredService(type)));
         return featureClient;
