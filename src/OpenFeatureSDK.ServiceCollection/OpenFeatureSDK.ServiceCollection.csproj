@@ -7,6 +7,7 @@
         <LangVersion>latest</LangVersion>
         <AssemblyName>OpenFeatureSDK.ServiceCollection</AssemblyName>
         <RootNamespace>OpenFeature.ServiceCollection</RootNamespace>
+        <PackageId>OpenFeature.ServiceCollection</PackageId>
     </PropertyGroup>
 
     <ItemGroup>
