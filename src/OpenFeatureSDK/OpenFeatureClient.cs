@@ -47,7 +47,7 @@ namespace OpenFeatureSDK
             this._featureProvider = featureProvider ?? throw new ArgumentNullException(nameof(featureProvider));
             this._metadata = new ClientMetadata(name, version);
             this._logger = logger ?? new Logger<OpenFeature>(new NullLoggerFactory());
-            this._evaluationContext = context ?? new EvaluationContext();
+            this._evaluationContext = context ?? EvaluationContext.Empty;
         }
 
         /// <summary>
@@ -213,13 +213,15 @@ namespace OpenFeatureSDK
             // New up a evaluation context if one was not provided.
             if (context == null)
             {
-                context = new EvaluationContext();
+                context = EvaluationContext.Empty;
             }
 
             // merge api, client, and invocation context.
             var evaluationContext = OpenFeature.Instance.GetContext();
-            evaluationContext.Merge(this.GetContext());
-            evaluationContext.Merge(context);
+            var evaluationContextBuilder = new EvaluationContextBuilder();
+            evaluationContextBuilder.Merge(evaluationContext);
+            evaluationContextBuilder.Merge(this.GetContext());
+            evaluationContextBuilder.Merge(context);
 
             var allHooks = new List<Hook>()
                 .Concat(OpenFeature.Instance.GetHooks())
@@ -240,16 +242,16 @@ namespace OpenFeatureSDK
                 defaultValue,
                 flagValueType, this._metadata,
                 OpenFeature.Instance.GetProviderMetadata(),
-                evaluationContext
+                evaluationContextBuilder.Build()
             );
 
             FlagEvaluationDetails<T> evaluation;
             try
             {
-                await this.TriggerBeforeHooks(allHooks, hookContext, options);
+                var contextFromHooks = await this.TriggerBeforeHooks(allHooks, hookContext, options);
 
                 evaluation =
-                    (await resolveValueDelegate.Invoke(flagKey, defaultValue, hookContext.EvaluationContext))
+                    (await resolveValueDelegate.Invoke(flagKey, defaultValue, contextFromHooks.EvaluationContext))
                     .ToFlagEvaluationDetails();
 
                 await this.TriggerAfterHooks(allHooksReversed, hookContext, evaluation, options);
@@ -277,15 +279,19 @@ namespace OpenFeatureSDK
             return evaluation;
         }
 
-        private async Task TriggerBeforeHooks<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
+        private async Task<HookContext<T>> TriggerBeforeHooks<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
             FlagEvaluationOptions options)
         {
+            var evalContextBuilder = new EvaluationContextBuilder();
+            evalContextBuilder.Merge(context.EvaluationContext);
+
             foreach (var hook in hooks)
             {
                 var resp = await hook.Before(context, options?.HookHints);
                 if (resp != null)
                 {
-                    context.EvaluationContext.Merge(resp);
+                    evalContextBuilder.Merge(resp);
+                    context = context.WithNewEvalContext(evalContextBuilder.Build());
                 }
                 else
                 {
@@ -293,6 +299,8 @@ namespace OpenFeatureSDK
                         hook.GetType().Name);
                 }
             }
+
+            return context.WithNewEvalContext(evalContextBuilder.Build());
         }
 
         private async Task TriggerAfterHooks<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,

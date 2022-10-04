@@ -8,9 +8,23 @@ namespace OpenFeatureSDK.Model
     /// to the feature flag evaluation context.
     /// </summary>
     /// <seealso href="https://github.com/open-feature/spec/blob/main/specification/evaluation-context.md">Evaluation context</seealso>
-    public class EvaluationContext
+    public sealed class EvaluationContext
     {
-        private readonly Structure _structure = new Structure();
+        private readonly Structure _structure;
+
+        internal EvaluationContext(Structure content)
+        {
+            this._structure = content;
+        }
+
+        private EvaluationContext()
+        {
+            this._structure = Structure.Empty;
+        }
+
+        private static EvaluationContext _empty = new EvaluationContext();
+
+        public static EvaluationContext Empty => _empty;
 
         /// <summary>
         /// Gets the Value at the specified key
@@ -36,15 +50,6 @@ namespace OpenFeatureSDK.Model
         public bool ContainsKey(string key) => this._structure.ContainsKey(key);
 
         /// <summary>
-        /// Removes the Value at the specified key
-        /// </summary>
-        /// <param name="key">The key of the value to be removed</param>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown when the key is <see langword="null" />
-        /// </exception>
-        public void Remove(string key) => this._structure.Remove(key);
-
-        /// <summary>
         /// Gets the value associated with the specified key
         /// </summary>
         /// <param name="value">The <see cref="Value"/> or <see langword="null" /> if the key was not present</param>
@@ -65,173 +70,9 @@ namespace OpenFeatureSDK.Model
         }
 
         /// <summary>
-        /// Add a new bool Value to the evaluation context
-        /// </summary>
-        /// <param name="key">The key of the value to be added</param>
-        /// <param name="value">The value to be added</param>
-        /// <returns>This <see cref="EvaluationContext"/></returns>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown when the key is <see langword="null" />
-        /// </exception>
-        /// <exception cref="ArgumentException">
-        /// Thrown when an element with the same key is already contained in the context
-        /// </exception>
-        public EvaluationContext Add(string key, bool value)
-        {
-            this._structure.Add(key, value);
-            return this;
-        }
-
-        /// <summary>
-        /// Add a new string Value to the evaluation context
-        /// </summary>
-        /// <param name="key">The key of the value to be added</param>
-        /// <param name="value">The value to be added</param>
-        /// <returns>This <see cref="EvaluationContext"/></returns>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown when the key is <see langword="null" />
-        /// </exception>
-        /// <exception cref="ArgumentException">
-        /// Thrown when an element with the same key is already contained in the context
-        /// </exception>
-        public EvaluationContext Add(string key, string value)
-        {
-            this._structure.Add(key, value);
-            return this;
-        }
-
-        /// <summary>
-        /// Add a new int Value to the evaluation context
-        /// </summary>
-        /// <param name="key">The key of the value to be added</param>
-        /// <param name="value">The value to be added</param>
-        /// <returns>This <see cref="EvaluationContext"/></returns>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown when the key is <see langword="null" />
-        /// </exception>
-        /// <exception cref="ArgumentException">
-        /// Thrown when an element with the same key is already contained in the context
-        /// </exception>
-        public EvaluationContext Add(string key, int value)
-        {
-            this._structure.Add(key, value);
-            return this;
-        }
-
-        /// <summary>
-        /// Add a new double Value to the evaluation context
-        /// </summary>
-        /// <param name="key">The key of the value to be added</param>
-        /// <param name="value">The value to be added</param>
-        /// <returns>This <see cref="EvaluationContext"/></returns>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown when the key is <see langword="null" />
-        /// </exception>
-        /// <exception cref="ArgumentException">
-        /// Thrown when an element with the same key is already contained in the context
-        /// </exception>
-        public EvaluationContext Add(string key, double value)
-        {
-            this._structure.Add(key, value);
-            return this;
-        }
-
-        /// <summary>
-        /// Add a new DateTime Value to the evaluation context
-        /// </summary>
-        /// <param name="key">The key of the value to be added</param>
-        /// <param name="value">The value to be added</param>
-        /// <returns>This <see cref="EvaluationContext"/></returns>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown when the key is <see langword="null" />
-        /// </exception>
-        /// <exception cref="ArgumentException">
-        /// Thrown when an element with the same key is already contained in the context
-        /// </exception>
-        public EvaluationContext Add(string key, DateTime value)
-        {
-            this._structure.Add(key, value);
-            return this;
-        }
-
-        /// <summary>
-        /// Add a new Structure Value to the evaluation context
-        /// </summary>
-        /// <param name="key">The key of the value to be added</param>
-        /// <param name="value">The value to be added</param>
-        /// <returns>This <see cref="EvaluationContext"/></returns>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown when the key is <see langword="null" />
-        /// </exception>
-        /// <exception cref="ArgumentException">
-        /// Thrown when an element with the same key is already contained in the context
-        /// </exception>
-        public EvaluationContext Add(string key, Structure value)
-        {
-            this._structure.Add(key, value);
-            return this;
-        }
-
-        /// <summary>
-        /// Add a new List Value to the evaluation context
-        /// </summary>
-        /// <param name="key">The key of the value to be added</param>
-        /// <param name="value">The value to be added</param>
-        /// <returns>This <see cref="EvaluationContext"/></returns>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown when the key is <see langword="null" />
-        /// </exception>
-        /// <exception cref="ArgumentException">
-        /// Thrown when an element with the same key is already contained in the context
-        /// </exception>
-        public EvaluationContext Add(string key, List<Value> value)
-        {
-            this._structure.Add(key, value);
-            return this;
-        }
-
-        /// <summary>
-        /// Add a new Value to the evaluation context
-        /// </summary>
-        /// <param name="key">The key of the value to be added</param>
-        /// <param name="value">The value to be added</param>
-        /// <returns>This <see cref="EvaluationContext"/></returns>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown when the key is <see langword="null" />
-        /// </exception>
-        /// <exception cref="ArgumentException">
-        /// Thrown when an element with the same key is already contained in the context
-        /// </exception>
-        public EvaluationContext Add(string key, Value value)
-        {
-            this._structure.Add(key, value);
-            return this;
-        }
-
-        /// <summary>
         /// Return a count of all values
         /// </summary>
         public int Count => this._structure.Count;
-
-        /// <summary>
-        /// Merges provided evaluation context into this one.
-        /// Any duplicate keys will be overwritten.
-        /// </summary>
-        /// <param name="other"><see cref="EvaluationContext"/></param>
-        public void Merge(EvaluationContext other)
-        {
-            foreach (var key in other._structure.Keys)
-            {
-                if (this._structure.ContainsKey(key))
-                {
-                    this._structure[key] = other._structure[key];
-                }
-                else
-                {
-                    this._structure.Add(key, other._structure[key]);
-                }
-            }
-        }
 
         /// <summary>
         /// Return an enumerator for all values

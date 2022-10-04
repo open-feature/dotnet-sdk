@@ -11,7 +11,7 @@ namespace OpenFeatureSDK.Tests
     {
         public override Task<EvaluationContext> Before<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null)
         {
-            return Task.FromResult(new EvaluationContext());
+            return Task.FromResult(EvaluationContext.Empty);
         }
 
         public override Task After<T>(HookContext<T> context, FlagEvaluationDetails<T> details,

@@ -13,12 +13,12 @@ namespace OpenFeatureSDK.Tests
         [Fact]
         public void Should_Merge_Two_Contexts()
         {
-            var context1 = new EvaluationContext()
-                .Add("key1", "value1");
-            var context2 = new EvaluationContext()
-                .Add("key2", "value2");
+            var contextBuilder1 = new EvaluationContextBuilder()
+                .Set("key1", "value1");
+            var contextBuilder2 = new EvaluationContextBuilder()
+                .Set("key2", "value2");
 
-            context1.Merge(context2);
+            var context1 = contextBuilder1.Merge(contextBuilder2.Build()).Build();
 
             Assert.Equal(2, context1.Count);
             Assert.Equal("value1", context1.GetValue("key1").AsString);
@@ -29,21 +29,18 @@ namespace OpenFeatureSDK.Tests
         [Specification("3.2.2", "Duplicate values being overwritten.")]
         public void Should_Merge_TwoContexts_And_Override_Duplicates_With_RightHand_Context()
         {
-            var context1 = new EvaluationContext();
-            var context2 = new EvaluationContext();
+            var contextBuilder1 = new EvaluationContextBuilder();
+            var contextBuilder2 = new EvaluationContextBuilder();
 
-            context1.Add("key1", "value1");
-            context2.Add("key1", "overriden_value");
-            context2.Add("key2", "value2");
+            contextBuilder1.Set("key1", "value1");
+            contextBuilder2.Set("key1", "overriden_value");
+            contextBuilder2.Set("key2", "value2");
 
-            context1.Merge(context2);
+            var context1 = contextBuilder1.Merge(contextBuilder2.Build()).Build();
 
             Assert.Equal(2, context1.Count);
             Assert.Equal("overriden_value", context1.GetValue("key1").AsString);
             Assert.Equal("value2", context1.GetValue("key2").AsString);
-
-            context1.Remove("key1");
-            Assert.Throws<KeyNotFoundException>(() => context1.GetValue("key1"));
         }
 
         [Fact]
@@ -54,13 +51,15 @@ namespace OpenFeatureSDK.Tests
             var fixture = new Fixture();
             var now = fixture.Create<DateTime>();
             var structure = fixture.Create<Structure>();
-            var context = new EvaluationContext()
-                .Add("key1", "value")
-                .Add("key2", 1)
-                .Add("key3", true)
-                .Add("key4", now)
-                .Add("key5", structure)
-                .Add("key6", 1.0);
+            var contextBuilder = new EvaluationContextBuilder()
+                .Set("key1", "value")
+                .Set("key2", 1)
+                .Set("key3", true)
+                .Set("key4", now)
+                .Set("key5", structure)
+                .Set("key6", 1.0);
+
+            var context = contextBuilder.Build();
 
             var value1 = context.GetValue("key1");
             value1.IsString.Should().BeTrue();
@@ -89,24 +88,24 @@ namespace OpenFeatureSDK.Tests
 
         [Fact]
         [Specification("3.1.4", "The evaluation context fields MUST have an unique key.")]
-        public void When_Duplicate_Key_Throw_Unique_Constraint()
+        public void When_Duplicate_Key_Set_It_Replaces_Value()
         {
-            var context = new EvaluationContext().Add("key", "value");
-            var exception = Assert.Throws<ArgumentException>(() =>
-                context.Add("key", "overriden_value"));
-            exception.Message.Should().StartWith("An item with the same key has already been added.");
+            var contextBuilder = new EvaluationContextBuilder().Set("key", "value");
+            contextBuilder.Set("key", "overriden_value");
+            Assert.Equal("overriden_value", contextBuilder.Build().GetValue("key").AsString);
         }
 
         [Fact]
         [Specification("3.1.3", "The evaluation context MUST support fetching the custom fields by key and also fetching all key value pairs.")]
         public void Should_Be_Able_To_Get_All_Values()
         {
-            var context = new EvaluationContext()
-                .Add("key1", "value1")
-                .Add("key2", "value2")
-                .Add("key3", "value3")
-                .Add("key4", "value4")
-                .Add("key5", "value5");
+            var context = new EvaluationContextBuilder()
+                .Set("key1", "value1")
+                .Set("key2", "value2")
+                .Set("key3", "value3")
+                .Set("key4", "value4")
+                .Set("key5", "value5")
+                .Build();
 
             // Iterate over key value pairs and check consistency
             var count = 0;
