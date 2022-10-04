@@ -13,7 +13,7 @@ namespace OpenFeatureSDK.Model
         private readonly ImmutableDictionary<string, Value> _attributes;
 
         /// <summary>
-        /// Creates a new structure with the specified attributes.
+        /// Internal constructor for use by the builder.
         /// </summary>
         internal Structure(ImmutableDictionary<string, Value> attributes)
         {
@@ -104,6 +104,15 @@ namespace OpenFeatureSDK.Model
         public IEnumerator<KeyValuePair<string, Value>> GetEnumerator()
         {
             return this._attributes.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Get a builder which can build a <see cref="Structure"/>.
+        /// </summary>
+        /// <returns>The builder</returns>
+        public static StructureBuilder Builder()
+        {
+            return new StructureBuilder();
         }
 
         [ExcludeFromCodeCoverage]

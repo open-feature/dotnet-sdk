@@ -47,7 +47,7 @@ namespace OpenFeatureSDK.Tests
             IList<Value> LIST_VAL = new List<Value>();
             Value VALUE_VAL = new Value();
 
-            var structureBuilder = new StructureBuilder();
+            var structureBuilder = Structure.Builder();
             structureBuilder.Set(BOOL_KEY, BOOL_VAL);
             structureBuilder.Set(STRING_KEY, STRING_VAL);
             structureBuilder.Set(INT_KEY, INT_VAL);
@@ -74,7 +74,7 @@ namespace OpenFeatureSDK.Tests
             String KEY = "key";
             bool VAL = true;
 
-            var structureBuilder = new StructureBuilder()
+            var structureBuilder = Structure.Builder()
                 .Set(KEY, VAL);
             Assert.Equal(1, structureBuilder.Build().Count);
             structureBuilder.Remove(KEY);
@@ -87,7 +87,7 @@ namespace OpenFeatureSDK.Tests
             String KEY = "key";
             String VAL = "val";
 
-            var structure = new StructureBuilder()
+            var structure = Structure.Builder()
                 .Set(KEY, VAL).Build();
             Value value;
             Assert.True(structure.TryGetValue(KEY, out value));
@@ -100,7 +100,7 @@ namespace OpenFeatureSDK.Tests
             String KEY = "key";
             Value VAL = new Value("val");
 
-            var structure = new StructureBuilder()
+            var structure = Structure.Builder()
                 .Set(KEY, VAL).Build();
             Assert.Equal(1, structure.Values.Count);
         }
@@ -111,7 +111,7 @@ namespace OpenFeatureSDK.Tests
             String KEY = "key";
             Value VAL = new Value("val");
 
-            var structure = new StructureBuilder()
+            var structure = Structure.Builder()
                 .Set(KEY, VAL).Build();
             Assert.Equal(1, structure.Keys.Count);
             Assert.Equal(0, structure.Keys.IndexOf(KEY));
@@ -123,7 +123,7 @@ namespace OpenFeatureSDK.Tests
             string KEY = "key";
             string VAL = "val";
 
-            var structure = new StructureBuilder()
+            var structure = Structure.Builder()
                 .Set(KEY, VAL).Build();
             IEnumerator<KeyValuePair<string, Value>> enumerator = structure.GetEnumerator();
             enumerator.MoveNext();

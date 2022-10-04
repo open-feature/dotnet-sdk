@@ -79,8 +79,13 @@ namespace OpenFeatureSDK.Tests
         [Fact]
         public void Should_Set_Given_Context()
         {
-            var fixture = new Fixture();
-            var context = fixture.Create<EvaluationContext>();
+            var context = EvaluationContext.Empty;
+
+            OpenFeature.Instance.SetContext(context);
+
+            OpenFeature.Instance.GetContext().Should().BeSameAs(context);
+
+            context = EvaluationContext.Builder().Build();
 
             OpenFeature.Instance.SetContext(context);
 

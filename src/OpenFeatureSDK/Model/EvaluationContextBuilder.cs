@@ -12,7 +12,12 @@ namespace OpenFeatureSDK.Model
     /// </summary>
     public sealed class EvaluationContextBuilder
     {
-        private readonly StructureBuilder _attributes = new StructureBuilder();
+        private readonly StructureBuilder _attributes = Structure.Builder();
+
+        /// <summary>
+        /// Internal to only allow direct creation by <see cref="EvaluationContext.Builder()"/>.
+        /// </summary>
+        internal EvaluationContextBuilder() {}
 
         /// <summary>
         /// Set the key to the given <see cref="Value"/>.

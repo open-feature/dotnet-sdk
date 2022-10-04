@@ -12,11 +12,18 @@ namespace OpenFeatureSDK.Model
     {
         private readonly Structure _structure;
 
+        /// <summary>
+        /// Internal constructor used by the builder.
+        /// </summary>
+        /// <param name="content">The content of the context.</param>
         internal EvaluationContext(Structure content)
         {
             this._structure = content;
         }
 
+        /// <summary>
+        /// Private constructor for making an empty <see cref="EvaluationContext"/>.
+        /// </summary>
         private EvaluationContext()
         {
             this._structure = Structure.Empty;
@@ -82,6 +89,15 @@ namespace OpenFeatureSDK.Model
         public IEnumerator<KeyValuePair<string, Value>> GetEnumerator()
         {
             return this._structure.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Get a builder which can build an <see cref="EvaluationContext"/>.
+        /// </summary>
+        /// <returns>The builder</returns>
+        public static EvaluationContextBuilder Builder()
+        {
+            return new EvaluationContextBuilder();
         }
     }
 }

@@ -218,7 +218,7 @@ namespace OpenFeatureSDK
 
             // merge api, client, and invocation context.
             var evaluationContext = OpenFeature.Instance.GetContext();
-            var evaluationContextBuilder = new EvaluationContextBuilder();
+            var evaluationContextBuilder = EvaluationContext.Builder();
             evaluationContextBuilder.Merge(evaluationContext);
             evaluationContextBuilder.Merge(this.GetContext());
             evaluationContextBuilder.Merge(context);
@@ -282,7 +282,7 @@ namespace OpenFeatureSDK
         private async Task<HookContext<T>> TriggerBeforeHooks<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
             FlagEvaluationOptions options)
         {
-            var evalContextBuilder = new EvaluationContextBuilder();
+            var evalContextBuilder = EvaluationContext.Builder();
             evalContextBuilder.Merge(context.EvaluationContext);
 
             foreach (var hook in hooks)

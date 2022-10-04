@@ -18,6 +18,11 @@ namespace OpenFeatureSDK.Model
             ImmutableDictionary.CreateBuilder<string, Value>();
 
         /// <summary>
+        /// Internal to only allow direct creation by <see cref="Structure.Builder()"/>.
+        /// </summary>
+        internal StructureBuilder() {}
+
+        /// <summary>
         /// Set the key to the given <see cref="Value"/>.
         /// </summary>
         /// <param name="key">The key for the value</param>
