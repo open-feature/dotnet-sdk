@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
@@ -78,12 +77,6 @@ namespace OpenFeatureSDK.Model
         /// </summary>
         /// <param name="value"><see cref="Structure">Structure type</see></param>
         public Value(Structure value) => this._innerValue = value;
-
-        /// <summary>
-        /// Creates a Value with the inner set to list type
-        /// </summary>
-        /// <param name="value"><see cref="IImmutableList{T}">List type</see></param>
-        public Value(IImmutableList<Value> value) => this._innerValue = value;
 
         /// <summary>
         /// Creates a Value with the inner set to list type

@@ -22,9 +22,10 @@ namespace OpenFeatureSDK.Model
             this._structure = Structure.Empty;
         }
 
-        private static EvaluationContext _empty = new EvaluationContext();
-
-        public static EvaluationContext Empty => _empty;
+        /// <summary>
+        /// An empty evaluation context.
+        /// </summary>
+        public static readonly EvaluationContext Empty = new EvaluationContext();
 
         /// <summary>
         /// Gets the Value at the specified key

@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 
 namespace OpenFeatureSDK.Model
 {
@@ -21,13 +20,18 @@ namespace OpenFeatureSDK.Model
             this._attributes = attributes;
         }
 
+        /// <summary>
+        /// Private constructor for creating an empty <see cref="Structure"/>.
+        /// </summary>
         private Structure()
         {
             this._attributes = ImmutableDictionary<string, Value>.Empty;;
         }
 
-        private static Structure _empty = new Structure();
-        public static Structure Empty => _empty;
+        /// <summary>
+        /// An empty structure.
+        /// </summary>
+        public static readonly Structure Empty = new Structure();
 
         /// <summary>
         /// Creates a new structure with the supplied attributes
