@@ -8,15 +8,15 @@ namespace OpenFeatureSDK.Model
     /// to the feature flag evaluation context.
     /// </summary>
     /// <seealso href="https://github.com/open-feature/spec/blob/main/specification/evaluation-context.md">Evaluation context</seealso>
-    public sealed class EvaluationContext
+    public sealed class EvaluationContext : IEvaluationContext
     {
-        private readonly Structure _structure;
+        private readonly IStructure _structure;
 
         /// <summary>
         /// Internal constructor used by the builder.
         /// </summary>
         /// <param name="content">The content of the context.</param>
-        internal EvaluationContext(Structure content)
+        internal EvaluationContext(IStructure content)
         {
             this._structure = content;
         }
@@ -32,7 +32,7 @@ namespace OpenFeatureSDK.Model
         /// <summary>
         /// An empty evaluation context.
         /// </summary>
-        public static readonly EvaluationContext Empty = new EvaluationContext();
+        public static readonly IEvaluationContext Empty = new EvaluationContext();
 
         /// <summary>
         /// Gets the Value at the specified key
@@ -95,7 +95,7 @@ namespace OpenFeatureSDK.Model
         /// Get a builder which can build an <see cref="EvaluationContext"/>.
         /// </summary>
         /// <returns>The builder</returns>
-        public static EvaluationContextBuilder Builder()
+        public static IEvaluationContextBuilder Builder()
         {
             return new EvaluationContextBuilder();
         }

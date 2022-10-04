@@ -114,7 +114,7 @@ namespace OpenFeatureSDK.Tests
         {
             string INNER_KEY = "key";
             string INNER_VALUE = "val";
-            Structure innerValue = Structure.Builder().Set(INNER_KEY, INNER_VALUE).Build();
+            var innerValue = Structure.Builder().Set(INNER_KEY, INNER_VALUE).Build();
             Value value = new Value(innerValue);
             Assert.True(value.IsStructure);
             Assert.Equal(INNER_VALUE, value.AsStructure.GetValue(INNER_KEY).AsString);

@@ -11,7 +11,7 @@ namespace OpenFeatureSDK
     /// <seealso href="https://github.com/open-feature/spec/blob/main/specification/flag-evaluation.md#flag-evaluation-api"/>
     public sealed class OpenFeature
     {
-        private EvaluationContext _evaluationContext = EvaluationContext.Empty;
+        private IEvaluationContext _evaluationContext = EvaluationContext.Empty;
         private FeatureProvider _featureProvider = new NoOpFeatureProvider();
         private readonly List<Hook> _hooks = new List<Hook>();
 
@@ -52,7 +52,7 @@ namespace OpenFeatureSDK
         /// <param name="logger">Logger instance used by client</param>
         /// <param name="context">Context given to this client</param>
         /// <returns><see cref="FeatureClient"/></returns>
-        public FeatureClient GetClient(string name = null, string version = null, ILogger logger = null, EvaluationContext context = null) =>
+        public FeatureClient GetClient(string name = null, string version = null, ILogger logger = null, IEvaluationContext context = null) =>
             new FeatureClient(this._featureProvider, name, version, logger, context);
 
         /// <summary>
@@ -82,12 +82,12 @@ namespace OpenFeatureSDK
         /// Sets the global <see cref="EvaluationContext"/>
         /// </summary>
         /// <param name="context"></param>
-        public void SetContext(EvaluationContext context) => this._evaluationContext = context ?? EvaluationContext.Empty;
+        public void SetContext(IEvaluationContext context) => this._evaluationContext = context ?? EvaluationContext.Empty;
 
         /// <summary>
         /// Gets the global <see cref="EvaluationContext"/>
         /// </summary>
         /// <returns></returns>
-        public EvaluationContext GetContext() => this._evaluationContext;
+        public IEvaluationContext GetContext() => this._evaluationContext;
     }
 }

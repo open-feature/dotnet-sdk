@@ -11,7 +11,7 @@ namespace OpenFeatureSDK.Tests
         [Fact]
         public void No_Arg_Should_Contain_Empty_Attributes()
         {
-            Structure structure = Structure.Empty;
+            var structure = Structure.Empty;
             Assert.Equal(0, structure.Count);
             Assert.Equal(0, structure.AsDictionary().Keys.Count);
         }
@@ -43,7 +43,7 @@ namespace OpenFeatureSDK.Tests
             int INT_VAL = 13;
             double DOUBLE_VAL = .5;
             DateTime DATE_VAL = DateTime.Now;
-            Structure STRUCT_VAL = Structure.Empty;
+            var STRUCT_VAL = Structure.Empty;
             IList<Value> LIST_VAL = new List<Value>();
             Value VALUE_VAL = new Value();
 

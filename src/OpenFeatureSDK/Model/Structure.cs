@@ -8,7 +8,7 @@ namespace OpenFeatureSDK.Model
     /// <summary>
     /// Structure represents a map of Values
     /// </summary>
-    public sealed class Structure : IEnumerable<KeyValuePair<string, Value>>
+    public sealed class Structure : IEnumerable<KeyValuePair<string, Value>>, IStructure
     {
         private readonly ImmutableDictionary<string, Value> _attributes;
 
@@ -31,7 +31,7 @@ namespace OpenFeatureSDK.Model
         /// <summary>
         /// An empty structure.
         /// </summary>
-        public static readonly Structure Empty = new Structure();
+        public static readonly IStructure Empty = new Structure();
 
         /// <summary>
         /// Creates a new structure with the supplied attributes
@@ -110,7 +110,7 @@ namespace OpenFeatureSDK.Model
         /// Get a builder which can build a <see cref="Structure"/>.
         /// </summary>
         /// <returns>The builder</returns>
-        public static StructureBuilder Builder()
+        public static IStructureBuilder Builder()
         {
             return new StructureBuilder();
         }

@@ -118,7 +118,7 @@ namespace OpenFeatureSDK.Model
         /// Determines if inner value is <see cref="Structure">Structure</see>
         /// </summary>
         /// <returns><see cref="bool">True if value is <see cref="Structure">Structure</see></see></returns>
-        public bool IsStructure => this._innerValue is Structure;
+        public bool IsStructure => this._innerValue is IStructure;
 
         /// <summary>
         /// Determines if inner value is list
@@ -171,7 +171,7 @@ namespace OpenFeatureSDK.Model
         /// Value will be null if it isn't a Structure
         /// </summary>
         /// <returns>Value as Structure</returns>
-        public Structure AsStructure => this.IsStructure ? (Structure)this._innerValue : null;
+        public IStructure AsStructure => this.IsStructure ? (Structure)this._innerValue : null;
 
         /// <summary>
         /// Returns the underlying List value

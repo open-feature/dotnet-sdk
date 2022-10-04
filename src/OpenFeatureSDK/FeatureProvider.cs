@@ -36,49 +36,49 @@ namespace OpenFeatureSDK
         /// </summary>
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext"/></param>
+        /// <param name="context"><see cref="IEvaluationContext"/></param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
         public abstract Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue,
-            EvaluationContext context = null);
+            IEvaluationContext context = null);
 
         /// <summary>
         /// Resolves a string feature flag
         /// </summary>
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext"/></param>
+        /// <param name="context"><see cref="IEvaluationContext"/></param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
         public abstract Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue,
-            EvaluationContext context = null);
+            IEvaluationContext context = null);
 
         /// <summary>
         /// Resolves a integer feature flag
         /// </summary>
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext"/></param>
+        /// <param name="context"><see cref="IEvaluationContext"/></param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
         public abstract Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue,
-            EvaluationContext context = null);
+            IEvaluationContext context = null);
 
         /// <summary>
         /// Resolves a double feature flag
         /// </summary>
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext"/></param>
+        /// <param name="context"><see cref="IEvaluationContext"/></param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
         public abstract Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue,
-            EvaluationContext context = null);
+            IEvaluationContext context = null);
 
         /// <summary>
         /// Resolves a structured feature flag
         /// </summary>
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext"/></param>
+        /// <param name="context"><see cref="IEvaluationContext"/></param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
         public abstract Task<ResolutionDetails<Value>> ResolveStructureValue(string flagKey, Value defaultValue,
-            EvaluationContext context = null);
+            IEvaluationContext context = null);
     }
 }

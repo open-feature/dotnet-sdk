@@ -127,19 +127,19 @@ namespace OpenFeatureSDK.Tests
         public void Hook_Context_Should_Not_Allow_Nulls()
         {
             Assert.Throws<ArgumentNullException>(() =>
-                new HookContext<Structure>(null, Structure.Empty, FlagValueType.Object, new ClientMetadata(null, null),
+                new HookContext<IStructure>(null, Structure.Empty, FlagValueType.Object, new ClientMetadata(null, null),
                     new Metadata(null), EvaluationContext.Empty));
 
             Assert.Throws<ArgumentNullException>(() =>
-                new HookContext<Structure>("test", Structure.Empty, FlagValueType.Object, null,
+                new HookContext<IStructure>("test", Structure.Empty, FlagValueType.Object, null,
                     new Metadata(null), EvaluationContext.Empty));
 
             Assert.Throws<ArgumentNullException>(() =>
-                new HookContext<Structure>("test", Structure.Empty, FlagValueType.Object, new ClientMetadata(null, null),
+                new HookContext<IStructure>("test", Structure.Empty, FlagValueType.Object, new ClientMetadata(null, null),
                     null, EvaluationContext.Empty));
 
             Assert.Throws<ArgumentNullException>(() =>
-                new HookContext<Structure>("test", Structure.Empty, FlagValueType.Object, new ClientMetadata(null, null),
+                new HookContext<IStructure>("test", Structure.Empty, FlagValueType.Object, new ClientMetadata(null, null),
                     new Metadata(null), null));
         }
 
@@ -151,7 +151,7 @@ namespace OpenFeatureSDK.Tests
             var clientMetadata = new ClientMetadata("client", "1.0.0");
             var providerMetadata = new Metadata("provider");
             var testStructure = Structure.Empty;
-            var context = new HookContext<Structure>("test", testStructure, FlagValueType.Object, clientMetadata,
+            var context = new HookContext<IStructure>("test", testStructure, FlagValueType.Object, clientMetadata,
                 providerMetadata, EvaluationContext.Empty);
 
             context.ClientMetadata.Should().BeSameAs(clientMetadata);

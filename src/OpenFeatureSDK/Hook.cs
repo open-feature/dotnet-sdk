@@ -28,7 +28,7 @@ namespace OpenFeatureSDK
         /// <param name="hints">Caller provided data</param>
         /// <typeparam name="T">Flag value type (bool|number|string|object)</typeparam>
         /// <returns>Modified EvaluationContext that is used for the flag evaluation</returns>
-        public virtual Task<EvaluationContext> Before<T>(HookContext<T> context,
+        public virtual Task<IEvaluationContext> Before<T>(HookContext<T> context,
             IReadOnlyDictionary<string, object> hints = null)
         {
             return Task.FromResult(EvaluationContext.Empty);

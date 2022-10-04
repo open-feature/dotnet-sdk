@@ -29,7 +29,7 @@ namespace OpenFeatureSDK.Model
         /// User defined evaluation context used in the evaluation process
         /// <see cref="EvaluationContext"/>
         /// </summary>
-        public EvaluationContext EvaluationContext { get; }
+        public IEvaluationContext EvaluationContext { get; }
 
         /// <summary>
         /// Client metadata
@@ -56,7 +56,7 @@ namespace OpenFeatureSDK.Model
             FlagValueType flagValueType,
             ClientMetadata clientMetadata,
             Metadata providerMetadata,
-            EvaluationContext evaluationContext)
+            IEvaluationContext evaluationContext)
         {
             this.FlagKey = flagKey ?? throw new ArgumentNullException(nameof(flagKey));
             this.DefaultValue = defaultValue;
@@ -66,7 +66,7 @@ namespace OpenFeatureSDK.Model
             this.EvaluationContext = evaluationContext ?? throw new ArgumentNullException(nameof(evaluationContext));
         }
 
-        internal HookContext<T> WithNewEvalContext(EvaluationContext context)
+        internal HookContext<T> WithNewEvalContext(IEvaluationContext context)
         {
             return new HookContext<T>(
                 this.FlagKey,

@@ -49,7 +49,7 @@ namespace OpenFeatureSDK.Tests
         {
             var fixture = new Fixture();
             var now = fixture.Create<DateTime>();
-            var structure = fixture.Create<Structure>();
+            var structure = Structure.Empty;
             var contextBuilder = new EvaluationContextBuilder()
                 .Set("key1", "value")
                 .Set("key2", 1)
@@ -78,7 +78,7 @@ namespace OpenFeatureSDK.Tests
 
             var value5 = context.GetValue("key5");
             value5.IsStructure.Should().BeTrue();
-            value5.AsStructure.Should().Equal(structure);
+            value5.AsStructure.Should().BeEquivalentTo(structure);
 
             var value6 = context.GetValue("key6");
             value6.IsNumber.Should().BeTrue();

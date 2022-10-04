@@ -20,18 +20,18 @@ namespace OpenFeatureSDK
         private readonly FeatureProvider _featureProvider;
         private readonly List<Hook> _hooks = new List<Hook>();
         private readonly ILogger _logger;
-        private EvaluationContext _evaluationContext;
+        private IEvaluationContext _evaluationContext;
 
         /// <summary>
-        /// Gets the EvaluationContext of this client<see cref="EvaluationContext"/>
+        /// Gets the IEvaluationContext of this client<see cref="IEvaluationContext"/>
         /// </summary>
-        /// <returns><see cref="EvaluationContext"/>of this client</returns>
-        public EvaluationContext GetContext() => this._evaluationContext;
+        /// <returns><see cref="IEvaluationContext"/>of this client</returns>
+        public IEvaluationContext GetContext() => this._evaluationContext;
 
         /// <summary>
-        /// Sets the EvaluationContext of the client<see cref="EvaluationContext"/>
+        /// Sets the IEvaluationContext of the client<see cref="IEvaluationContext"/>
         /// </summary>
-        public void SetContext(EvaluationContext evaluationContext) => this._evaluationContext = evaluationContext;
+        public void SetContext(IEvaluationContext evaluationContext) => this._evaluationContext = evaluationContext;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FeatureClient"/> class.
@@ -42,7 +42,7 @@ namespace OpenFeatureSDK
         /// <param name="logger">Logger used by client</param>
         /// <param name="context">Context given to this client</param>
         /// <exception cref="ArgumentNullException">Throws if any of the required parameters are null</exception>
-        public FeatureClient(FeatureProvider featureProvider, string name, string version, ILogger logger = null, EvaluationContext context = null)
+        public FeatureClient(FeatureProvider featureProvider, string name, string version, ILogger logger = null, IEvaluationContext context = null)
         {
             this._featureProvider = featureProvider ?? throw new ArgumentNullException(nameof(featureProvider));
             this._metadata = new ClientMetadata(name, version);
@@ -84,10 +84,10 @@ namespace OpenFeatureSDK
         /// </summary>
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
-        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <param name="context"><see cref="IEvaluationContext">Evaluation Context</see></param>
+        /// <param name="config"><see cref="IEvaluationContext">Flag Evaluation Options</see></param>
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
-        public async Task<bool> GetBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null,
+        public async Task<bool> GetBooleanValue(string flagKey, bool defaultValue, IEvaluationContext context = null,
             FlagEvaluationOptions config = null) =>
             (await this.GetBooleanDetails(flagKey, defaultValue, context, config)).Value;
 
@@ -96,11 +96,11 @@ namespace OpenFeatureSDK
         /// </summary>
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
-        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <param name="context"><see cref="IEvaluationContext">Evaluation Context</see></param>
+        /// <param name="config"><see cref="IEvaluationContext">Flag Evaluation Options</see></param>
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
         public async Task<FlagEvaluationDetails<bool>> GetBooleanDetails(string flagKey, bool defaultValue,
-            EvaluationContext context = null, FlagEvaluationOptions config = null) =>
+            IEvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await this.EvaluateFlag(this._featureProvider.ResolveBooleanValue, FlagValueType.Boolean, flagKey,
                 defaultValue, context, config);
 
@@ -109,10 +109,10 @@ namespace OpenFeatureSDK
         /// </summary>
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
-        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <param name="context"><see cref="IEvaluationContext">Evaluation Context</see></param>
+        /// <param name="config"><see cref="IEvaluationContext">Flag Evaluation Options</see></param>
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
-        public async Task<string> GetStringValue(string flagKey, string defaultValue, EvaluationContext context = null,
+        public async Task<string> GetStringValue(string flagKey, string defaultValue, IEvaluationContext context = null,
             FlagEvaluationOptions config = null) =>
             (await this.GetStringDetails(flagKey, defaultValue, context, config)).Value;
 
@@ -121,11 +121,11 @@ namespace OpenFeatureSDK
         /// </summary>
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
-        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <param name="context"><see cref="IEvaluationContext">Evaluation Context</see></param>
+        /// <param name="config"><see cref="IEvaluationContext">Flag Evaluation Options</see></param>
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
         public async Task<FlagEvaluationDetails<string>> GetStringDetails(string flagKey, string defaultValue,
-            EvaluationContext context = null, FlagEvaluationOptions config = null) =>
+            IEvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await this.EvaluateFlag(this._featureProvider.ResolveStringValue, FlagValueType.String, flagKey,
                 defaultValue, context, config);
 
@@ -134,10 +134,10 @@ namespace OpenFeatureSDK
         /// </summary>
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
-        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <param name="context"><see cref="IEvaluationContext">Evaluation Context</see></param>
+        /// <param name="config"><see cref="IEvaluationContext">Flag Evaluation Options</see></param>
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
-        public async Task<int> GetIntegerValue(string flagKey, int defaultValue, EvaluationContext context = null,
+        public async Task<int> GetIntegerValue(string flagKey, int defaultValue, IEvaluationContext context = null,
             FlagEvaluationOptions config = null) =>
             (await this.GetIntegerDetails(flagKey, defaultValue, context, config)).Value;
 
@@ -146,11 +146,11 @@ namespace OpenFeatureSDK
         /// </summary>
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
-        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <param name="context"><see cref="IEvaluationContext">Evaluation Context</see></param>
+        /// <param name="config"><see cref="IEvaluationContext">Flag Evaluation Options</see></param>
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
         public async Task<FlagEvaluationDetails<int>> GetIntegerDetails(string flagKey, int defaultValue,
-            EvaluationContext context = null, FlagEvaluationOptions config = null) =>
+            IEvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await this.EvaluateFlag(this._featureProvider.ResolveIntegerValue, FlagValueType.Number, flagKey,
                 defaultValue, context, config);
 
@@ -159,11 +159,11 @@ namespace OpenFeatureSDK
         /// </summary>
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
-        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <param name="context"><see cref="IEvaluationContext">Evaluation Context</see></param>
+        /// <param name="config"><see cref="IEvaluationContext">Flag Evaluation Options</see></param>
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
         public async Task<double> GetDoubleValue(string flagKey, double defaultValue,
-            EvaluationContext context = null,
+            IEvaluationContext context = null,
             FlagEvaluationOptions config = null) =>
             (await this.GetDoubleDetails(flagKey, defaultValue, context, config)).Value;
 
@@ -172,11 +172,11 @@ namespace OpenFeatureSDK
         /// </summary>
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
-        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <param name="context"><see cref="IEvaluationContext">Evaluation Context</see></param>
+        /// <param name="config"><see cref="IEvaluationContext">Flag Evaluation Options</see></param>
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
         public async Task<FlagEvaluationDetails<double>> GetDoubleDetails(string flagKey, double defaultValue,
-            EvaluationContext context = null, FlagEvaluationOptions config = null) =>
+            IEvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await this.EvaluateFlag(this._featureProvider.ResolveDoubleValue, FlagValueType.Number, flagKey,
                 defaultValue, context, config);
 
@@ -185,10 +185,10 @@ namespace OpenFeatureSDK
         /// </summary>
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
-        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <param name="context"><see cref="IEvaluationContext">Evaluation Context</see></param>
+        /// <param name="config"><see cref="IEvaluationContext">Flag Evaluation Options</see></param>
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
-        public async Task<Value> GetObjectValue(string flagKey, Value defaultValue, EvaluationContext context = null,
+        public async Task<Value> GetObjectValue(string flagKey, Value defaultValue, IEvaluationContext context = null,
             FlagEvaluationOptions config = null) =>
             (await this.GetObjectDetails(flagKey, defaultValue, context, config)).Value;
 
@@ -197,17 +197,17 @@ namespace OpenFeatureSDK
         /// </summary>
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
-        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <param name="context"><see cref="IEvaluationContext">Evaluation Context</see></param>
+        /// <param name="config"><see cref="IEvaluationContext">Flag Evaluation Options</see></param>
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
         public async Task<FlagEvaluationDetails<Value>> GetObjectDetails(string flagKey, Value defaultValue,
-            EvaluationContext context = null, FlagEvaluationOptions config = null) =>
+            IEvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await this.EvaluateFlag(this._featureProvider.ResolveStructureValue, FlagValueType.Object, flagKey,
                 defaultValue, context, config);
 
         private async Task<FlagEvaluationDetails<T>> EvaluateFlag<T>(
-            Func<string, T, EvaluationContext, Task<ResolutionDetails<T>>> resolveValueDelegate,
-            FlagValueType flagValueType, string flagKey, T defaultValue, EvaluationContext context = null,
+            Func<string, T, IEvaluationContext, Task<ResolutionDetails<T>>> resolveValueDelegate,
+            FlagValueType flagValueType, string flagKey, T defaultValue, IEvaluationContext context = null,
             FlagEvaluationOptions options = null)
         {
             // New up a evaluation context if one was not provided.
