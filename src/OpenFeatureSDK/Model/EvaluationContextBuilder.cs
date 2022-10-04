@@ -17,7 +17,7 @@ namespace OpenFeatureSDK.Model
         /// <summary>
         /// Internal to only allow direct creation by <see cref="EvaluationContext.Builder()"/>.
         /// </summary>
-        internal EvaluationContextBuilder() {}
+        internal EvaluationContextBuilder() { }
 
         /// <summary>
         /// Set the key to the given <see cref="Value"/>.

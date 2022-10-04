@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using OpenFeatureSDK.Constant;
 using OpenFeatureSDK.Error;
-using OpenFeatureSDK.Extension;
 using OpenFeatureSDK.Model;
 using OpenFeatureSDK.Tests.Internal;
 using Xunit;

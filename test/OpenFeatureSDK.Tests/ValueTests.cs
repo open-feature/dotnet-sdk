@@ -124,7 +124,7 @@ namespace OpenFeatureSDK.Tests
         public void List_Arg_Should_Contain_List()
         {
             string ITEM_VALUE = "val";
-            IList<Value> innerValue = new List<Value>() {new Value(ITEM_VALUE)};
+            IList<Value> innerValue = new List<Value>() { new Value(ITEM_VALUE) };
             Value value = new Value(innerValue);
             Assert.True(value.IsList);
             Assert.Equal(ITEM_VALUE, value.AsList[0].AsString);

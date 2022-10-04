@@ -20,7 +20,7 @@ namespace OpenFeatureSDK.Tests
         public void Dictionary_Arg_Should_Contain_New_Dictionary()
         {
             string KEY = "key";
-            IDictionary<string, Value> dictionary = new Dictionary<string, Value>() {{KEY, new Value(KEY)}};
+            IDictionary<string, Value> dictionary = new Dictionary<string, Value>() { { KEY, new Value(KEY) } };
             Structure structure = new Structure(dictionary);
             Assert.Equal(KEY, structure.AsDictionary()[KEY].AsString);
             Assert.NotSame(structure.AsDictionary(), dictionary); // should be a copy

@@ -20,7 +20,7 @@ namespace OpenFeatureSDK.Model
         /// <summary>
         /// Internal to only allow direct creation by <see cref="Structure.Builder()"/>.
         /// </summary>
-        internal StructureBuilder() {}
+        internal StructureBuilder() { }
 
         /// <summary>
         /// Set the key to the given <see cref="Value"/>.

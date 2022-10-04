@@ -25,7 +25,7 @@ namespace OpenFeatureSDK.Model
         /// </summary>
         private Structure()
         {
-            this._attributes = ImmutableDictionary<string, Value>.Empty;;
+            this._attributes = ImmutableDictionary<string, Value>.Empty; ;
         }
 
         /// <summary>
