@@ -8,7 +8,7 @@ namespace OpenFeatureSDK.Model
     ///  Values serve as a return type for provider objects. Providers may deal in JSON, protobuf, XML or some other data-interchange format.
     ///  This intermediate representation provides a good medium of exchange.
     /// </summary>
-    public class Value
+    public sealed class Value
     {
         private readonly object _innerValue;
 
