@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
+using FluentAssertions;
 using OpenFeatureSDK.Model;
 using Xunit;
 
@@ -13,7 +15,7 @@ namespace OpenFeatureSDK.Tests
         {
             Structure structure = Structure.Empty;
             Assert.Equal(0, structure.Count);
-            Assert.Equal(0, structure.AsDictionary().Keys.Count);
+            Assert.Empty(structure.AsDictionary());
         }
 
         [Fact]

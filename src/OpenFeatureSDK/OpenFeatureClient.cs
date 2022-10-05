@@ -291,7 +291,7 @@ namespace OpenFeatureSDK
                 if (resp != null)
                 {
                     evalContextBuilder.Merge(resp);
-                    context = context.WithNewEvalContext(evalContextBuilder.Build());
+                    context = context.WithNewEvaluationContext(evalContextBuilder.Build());
                 }
                 else
                 {
@@ -300,7 +300,7 @@ namespace OpenFeatureSDK
                 }
             }
 
-            return context.WithNewEvalContext(evalContextBuilder.Build());
+            return context.WithNewEvaluationContext(evalContextBuilder.Build());
         }
 
         private async Task TriggerAfterHooks<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,

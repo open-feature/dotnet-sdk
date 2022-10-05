@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace OpenFeatureSDK.Model
 {
@@ -72,9 +73,9 @@ namespace OpenFeatureSDK.Model
         /// Gets all values as a Dictionary
         /// </summary>
         /// <returns>New <see cref="IDictionary{TKey,TValue}"/> representation of this Structure</returns>
-        public IDictionary<string, Value> AsDictionary()
+        public IImmutableDictionary<string, Value> AsDictionary()
         {
-            return new Dictionary<string, Value>(this._structure.AsDictionary());
+            return this._structure.AsDictionary();
         }
 
         /// <summary>

@@ -69,9 +69,9 @@ namespace OpenFeatureSDK.Model
         /// Gets all values as a Dictionary
         /// </summary>
         /// <returns>New <see cref="IDictionary"/> representation of this Structure</returns>
-        public IDictionary<string, Value> AsDictionary()
+        public IImmutableDictionary<string, Value> AsDictionary()
         {
-            return new Dictionary<string, Value>(this._attributes);
+            return this._attributes;
         }
 
         /// <summary>
