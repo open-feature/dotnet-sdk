@@ -26,13 +26,12 @@ namespace OpenFeatureSDK.Model
         private Structure()
         {
             this._attributes = ImmutableDictionary<string, Value>.Empty;
-
         }
 
         /// <summary>
         /// An empty structure.
         /// </summary>
-        public static readonly Structure Empty = new Structure();
+        public static Structure Empty { get; } = new Structure();
 
         /// <summary>
         /// Creates a new structure with the supplied attributes

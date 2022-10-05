@@ -33,7 +33,7 @@ namespace OpenFeatureSDK.Model
         /// <summary>
         /// An empty evaluation context.
         /// </summary>
-        public static readonly EvaluationContext Empty = new EvaluationContext();
+        public static EvaluationContext Empty { get; } = new EvaluationContext();
 
         /// <summary>
         /// Gets the Value at the specified key
