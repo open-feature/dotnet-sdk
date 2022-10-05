@@ -66,7 +66,7 @@ namespace OpenFeatureSDK.Model
             this.EvaluationContext = evaluationContext ?? throw new ArgumentNullException(nameof(evaluationContext));
         }
 
-        internal HookContext<T> WithNewEvalContext(EvaluationContext context)
+        internal HookContext<T> WithNewEvaluationContext(EvaluationContext context)
         {
             return new HookContext<T>(
                 this.FlagKey,
