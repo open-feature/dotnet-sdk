@@ -65,5 +65,17 @@ namespace OpenFeatureSDK.Model
             this.ProviderMetadata = providerMetadata ?? throw new ArgumentNullException(nameof(providerMetadata));
             this.EvaluationContext = evaluationContext ?? throw new ArgumentNullException(nameof(evaluationContext));
         }
+
+        internal HookContext<T> WithNewEvaluationContext(EvaluationContext context)
+        {
+            return new HookContext<T>(
+                this.FlagKey,
+                this.DefaultValue,
+                this.FlagValueType,
+                this.ClientMetadata,
+                this.ProviderMetadata,
+                context
+            );
+        }
     }
 }

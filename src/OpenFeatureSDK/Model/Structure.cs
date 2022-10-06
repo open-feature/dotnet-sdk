@@ -1,6 +1,6 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
 namespace OpenFeatureSDK.Model
@@ -8,17 +8,30 @@ namespace OpenFeatureSDK.Model
     /// <summary>
     /// Structure represents a map of Values
     /// </summary>
-    public class Structure : IEnumerable<KeyValuePair<string, Value>>
+    public sealed class Structure : IEnumerable<KeyValuePair<string, Value>>
     {
-        private readonly Dictionary<string, Value> _attributes;
+        private readonly ImmutableDictionary<string, Value> _attributes;
 
         /// <summary>
-        /// Creates a new structure with an empty set of attributes
+        /// Internal constructor for use by the builder.
         /// </summary>
-        public Structure()
+        internal Structure(ImmutableDictionary<string, Value> attributes)
         {
-            this._attributes = new Dictionary<string, Value>();
+            this._attributes = attributes;
         }
+
+        /// <summary>
+        /// Private constructor for creating an empty <see cref="Structure"/>.
+        /// </summary>
+        private Structure()
+        {
+            this._attributes = ImmutableDictionary<string, Value>.Empty;
+        }
+
+        /// <summary>
+        /// An empty structure.
+        /// </summary>
+        public static Structure Empty { get; } = new Structure();
 
         /// <summary>
         /// Creates a new structure with the supplied attributes
@@ -26,7 +39,7 @@ namespace OpenFeatureSDK.Model
         /// <param name="attributes"></param>
         public Structure(IDictionary<string, Value> attributes)
         {
-            this._attributes = new Dictionary<string, Value>(attributes);
+            this._attributes = ImmutableDictionary.CreateRange(attributes);
         }
 
         /// <summary>
@@ -44,13 +57,6 @@ namespace OpenFeatureSDK.Model
         public bool ContainsKey(string key) => this._attributes.ContainsKey(key);
 
         /// <summary>
-        /// Removes the Value at the specified key
-        /// </summary>
-        /// <param name="key">The key of the value to be retrieved</param>
-        /// <returns><see cref="bool"/> indicating the presence of the key.</returns>
-        public bool Remove(string key) => this._attributes.Remove(key);
-
-        /// <summary>
         /// Gets the value associated with the specified key by mutating the supplied value.
         /// </summary>
         /// <param name="key">The key of the value to be retrieved</param>
@@ -62,9 +68,9 @@ namespace OpenFeatureSDK.Model
         /// Gets all values as a Dictionary
         /// </summary>
         /// <returns>New <see cref="IDictionary"/> representation of this Structure</returns>
-        public IDictionary<string, Value> AsDictionary()
+        public IImmutableDictionary<string, Value> AsDictionary()
         {
-            return new Dictionary<string, Value>(this._attributes);
+            return this._attributes;
         }
 
         /// <summary>
@@ -74,114 +80,17 @@ namespace OpenFeatureSDK.Model
         public Value this[string key]
         {
             get => this._attributes[key];
-            set => this._attributes[key] = value;
         }
 
         /// <summary>
-        /// Return a collection containing all the keys in this structure
+        /// Return a list containing all the keys in this structure
         /// </summary>
-        public ICollection<string> Keys => this._attributes.Keys;
+        public IImmutableList<string> Keys => this._attributes.Keys.ToImmutableList();
 
         /// <summary>
-        /// Return a collection containing all the values in this structure
+        /// Return an enumerable containing all the values in this structure
         /// </summary>
-        public ICollection<Value> Values => this._attributes.Values;
-
-        /// <summary>
-        /// Add a new bool Value to the structure
-        /// </summary>
-        /// <param name="key">The key of the value to be retrieved</param>
-        /// <param name="value">The value to be added</param>
-        /// <returns>This <see cref="Structure"/></returns>
-        public Structure Add(string key, bool value)
-        {
-            this._attributes.Add(key, new Value(value));
-            return this;
-        }
-
-        /// <summary>
-        /// Add a new string Value to the structure
-        /// </summary>
-        /// <param name="key">The key of the value to be retrieved</param>
-        /// <param name="value">The value to be added</param>
-        /// <returns>This <see cref="Structure"/></returns>
-        public Structure Add(string key, string value)
-        {
-            this._attributes.Add(key, new Value(value));
-            return this;
-        }
-
-        /// <summary>
-        /// Add a new int Value to the structure
-        /// </summary>
-        /// <param name="key">The key of the value to be retrieved</param>
-        /// <param name="value">The value to be added</param>
-        /// <returns>This <see cref="Structure"/></returns>
-        public Structure Add(string key, int value)
-        {
-            this._attributes.Add(key, new Value(value));
-            return this;
-        }
-
-        /// <summary>
-        /// Add a new double Value to the structure
-        /// </summary>
-        /// <param name="key">The key of the value to be retrieved</param>
-        /// <param name="value">The value to be added</param>
-        /// <returns>This <see cref="Structure"/></returns>
-        public Structure Add(string key, double value)
-        {
-            this._attributes.Add(key, new Value(value));
-            return this;
-        }
-
-        /// <summary>
-        /// Add a new DateTime Value to the structure
-        /// </summary>
-        /// <param name="key">The key of the value to be retrieved</param>
-        /// <param name="value">The value to be added</param>
-        /// <returns>This <see cref="Structure"/></returns>
-        public Structure Add(string key, DateTime value)
-        {
-            this._attributes.Add(key, new Value(value));
-            return this;
-        }
-
-        /// <summary>
-        /// Add a new Structure Value to the structure
-        /// </summary>
-        /// <param name="key">The key of the value to be retrieved</param>
-        /// <param name="value">The value to be added</param>
-        /// <returns>This <see cref="Structure"/></returns>
-        public Structure Add(string key, Structure value)
-        {
-            this._attributes.Add(key, new Value(value));
-            return this;
-        }
-
-        /// <summary>
-        /// Add a new List Value to the structure
-        /// </summary>
-        /// <param name="key">The key of the value to be retrieved</param>
-        /// <param name="value">The value to be added</param>
-        /// <returns>This <see cref="Structure"/></returns>
-        public Structure Add(string key, IList<Value> value)
-        {
-            this._attributes.Add(key, new Value(value));
-            return this;
-        }
-
-        /// <summary>
-        /// Add a new Value to the structure
-        /// </summary>
-        /// <param name="key">The key of the value to be retrieved</param>
-        /// <param name="value">The value to be added</param>
-        /// <returns>This <see cref="Structure"/></returns>
-        public Structure Add(string key, Value value)
-        {
-            this._attributes.Add(key, new Value(value));
-            return this;
-        }
+        public IImmutableList<Value> Values => this._attributes.Values.ToImmutableList();
 
         /// <summary>
         /// Return a count of all values
@@ -195,6 +104,15 @@ namespace OpenFeatureSDK.Model
         public IEnumerator<KeyValuePair<string, Value>> GetEnumerator()
         {
             return this._attributes.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Get a builder which can build a <see cref="Structure"/>.
+        /// </summary>
+        /// <returns>The builder</returns>
+        public static StructureBuilder Builder()
+        {
+            return new StructureBuilder();
         }
 
         [ExcludeFromCodeCoverage]

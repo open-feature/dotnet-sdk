@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using FluentAssertions;
 using OpenFeatureSDK.Model;
 using Xunit;
 
@@ -10,18 +13,16 @@ namespace OpenFeatureSDK.Tests
         [Fact]
         public void No_Arg_Should_Contain_Empty_Attributes()
         {
-            Structure structure = new Structure();
+            Structure structure = Structure.Empty;
             Assert.Equal(0, structure.Count);
-            Assert.Equal(0, structure.AsDictionary().Keys.Count);
+            Assert.Empty(structure.AsDictionary());
         }
 
         [Fact]
         public void Dictionary_Arg_Should_Contain_New_Dictionary()
         {
             string KEY = "key";
-            IDictionary<string, Value> dictionary = new Dictionary<string, Value>(){
-                { KEY, new Value(KEY) }
-            };
+            IDictionary<string, Value> dictionary = new Dictionary<string, Value>() { { KEY, new Value(KEY) } };
             Structure structure = new Structure(dictionary);
             Assert.Equal(KEY, structure.AsDictionary()[KEY].AsString);
             Assert.NotSame(structure.AsDictionary(), dictionary); // should be a copy
@@ -44,19 +45,20 @@ namespace OpenFeatureSDK.Tests
             int INT_VAL = 13;
             double DOUBLE_VAL = .5;
             DateTime DATE_VAL = DateTime.Now;
-            Structure STRUCT_VAL = new Structure();
+            Structure STRUCT_VAL = Structure.Empty;
             IList<Value> LIST_VAL = new List<Value>();
             Value VALUE_VAL = new Value();
 
-            Structure structure = new Structure();
-            structure.Add(BOOL_KEY, BOOL_VAL);
-            structure.Add(STRING_KEY, STRING_VAL);
-            structure.Add(INT_KEY, INT_VAL);
-            structure.Add(DOUBLE_KEY, DOUBLE_VAL);
-            structure.Add(DATE_KEY, DATE_VAL);
-            structure.Add(STRUCT_KEY, STRUCT_VAL);
-            structure.Add(LIST_KEY, LIST_VAL);
-            structure.Add(VALUE_KEY, VALUE_VAL);
+            var structureBuilder = Structure.Builder();
+            structureBuilder.Set(BOOL_KEY, BOOL_VAL);
+            structureBuilder.Set(STRING_KEY, STRING_VAL);
+            structureBuilder.Set(INT_KEY, INT_VAL);
+            structureBuilder.Set(DOUBLE_KEY, DOUBLE_VAL);
+            structureBuilder.Set(DATE_KEY, DATE_VAL);
+            structureBuilder.Set(STRUCT_KEY, STRUCT_VAL);
+            structureBuilder.Set(LIST_KEY, ImmutableList.CreateRange(LIST_VAL));
+            structureBuilder.Set(VALUE_KEY, VALUE_VAL);
+            var structure = structureBuilder.Build();
 
             Assert.Equal(BOOL_VAL, structure.GetValue(BOOL_KEY).AsBoolean);
             Assert.Equal(STRING_VAL, structure.GetValue(STRING_KEY).AsString);
@@ -69,26 +71,13 @@ namespace OpenFeatureSDK.Tests
         }
 
         [Fact]
-        public void Remove_Should_Remove_Value()
-        {
-            String KEY = "key";
-            bool VAL = true;
-
-            Structure structure = new Structure();
-            structure.Add(KEY, VAL);
-            Assert.Equal(1, structure.Count);
-            structure.Remove(KEY);
-            Assert.Equal(0, structure.Count);
-        }
-
-        [Fact]
         public void TryGetValue_Should_Return_Value()
         {
             String KEY = "key";
             String VAL = "val";
 
-            Structure structure = new Structure();
-            structure.Add(KEY, VAL);
+            var structure = Structure.Builder()
+                .Set(KEY, VAL).Build();
             Value value;
             Assert.True(structure.TryGetValue(KEY, out value));
             Assert.Equal(VAL, value.AsString);
@@ -100,8 +89,8 @@ namespace OpenFeatureSDK.Tests
             String KEY = "key";
             Value VAL = new Value("val");
 
-            Structure structure = new Structure();
-            structure.Add(KEY, VAL);
+            var structure = Structure.Builder()
+                .Set(KEY, VAL).Build();
             Assert.Equal(1, structure.Values.Count);
         }
 
@@ -111,10 +100,10 @@ namespace OpenFeatureSDK.Tests
             String KEY = "key";
             Value VAL = new Value("val");
 
-            Structure structure = new Structure();
-            structure.Add(KEY, VAL);
+            var structure = Structure.Builder()
+                .Set(KEY, VAL).Build();
             Assert.Equal(1, structure.Keys.Count);
-            Assert.True(structure.Keys.Contains(KEY));
+            Assert.Equal(0, structure.Keys.IndexOf(KEY));
         }
 
         [Fact]
@@ -123,8 +112,8 @@ namespace OpenFeatureSDK.Tests
             string KEY = "key";
             string VAL = "val";
 
-            Structure structure = new Structure();
-            structure.Add(KEY, VAL);
+            var structure = Structure.Builder()
+                .Set(KEY, VAL).Build();
             IEnumerator<KeyValuePair<string, Value>> enumerator = structure.GetEnumerator();
             enumerator.MoveNext();
             Assert.Equal(VAL, enumerator.Current.Value.AsString);

@@ -1,6 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace OpenFeatureSDK.Model
 {
@@ -8,7 +8,7 @@ namespace OpenFeatureSDK.Model
     ///  Values serve as a return type for provider objects. Providers may deal in JSON, protobuf, XML or some other data-interchange format.
     ///  This intermediate representation provides a good medium of exchange.
     /// </summary>
-    public class Value
+    public sealed class Value
     {
         private readonly object _innerValue;
 
@@ -23,6 +23,10 @@ namespace OpenFeatureSDK.Model
         /// <param name="value"><see cref="Object">The object to set as the inner value</see></param>
         public Value(Object value)
         {
+            if (value is IList<Value> list)
+            {
+                value = list.ToImmutableList();
+            }
             // integer is a special case, convert those.
             this._innerValue = value is int ? Convert.ToDouble(value) : value;
             if (!(this.IsNull
@@ -77,8 +81,8 @@ namespace OpenFeatureSDK.Model
         /// <summary>
         /// Creates a Value with the inner set to list type
         /// </summary>
-        /// <param name="value"><see cref="List{T}">List type</see></param>
-        public Value(IList<Value> value) => this._innerValue = value;
+        /// <param name="value"><see cref="IImmutableList{T}">List type</see></param>
+        public Value(IList<Value> value) => this._innerValue = value.ToImmutableList();
 
         /// <summary>
         /// Creates a Value with the inner set to DateTime type
@@ -120,7 +124,7 @@ namespace OpenFeatureSDK.Model
         /// Determines if inner value is list
         /// </summary>
         /// <returns><see cref="bool">True if value is list</see></returns>
-        public bool IsList => this._innerValue is IList;
+        public bool IsList => this._innerValue is IImmutableList<Value>;
 
         /// <summary>
         /// Determines if inner value is DateTime
@@ -174,7 +178,7 @@ namespace OpenFeatureSDK.Model
         /// Value will be null if it isn't a List
         /// </summary>
         /// <returns>Value as List</returns>
-        public IList<Value> AsList => this.IsList ? (IList<Value>)this._innerValue : null;
+        public IImmutableList<Value> AsList => this.IsList ? (IImmutableList<Value>)this._innerValue : null;
 
         /// <summary>
         /// Returns the underlying DateTime value

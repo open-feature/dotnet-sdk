@@ -31,7 +31,7 @@ namespace OpenFeatureSDK
         public virtual Task<EvaluationContext> Before<T>(HookContext<T> context,
             IReadOnlyDictionary<string, object> hints = null)
         {
-            return Task.FromResult(new EvaluationContext());
+            return Task.FromResult(EvaluationContext.Empty);
         }
 
         /// <summary>

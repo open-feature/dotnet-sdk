@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using OpenFeatureSDK.Constant;
 using OpenFeatureSDK.Error;
-using OpenFeatureSDK.Extension;
 using OpenFeatureSDK.Model;
 using OpenFeatureSDK.Tests.Internal;
 using Xunit;
@@ -75,24 +74,24 @@ namespace OpenFeatureSDK.Tests
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion);
 
             (await client.GetBooleanValue(flagName, defaultBoolValue)).Should().Be(defaultBoolValue);
-            (await client.GetBooleanValue(flagName, defaultBoolValue, new EvaluationContext())).Should().Be(defaultBoolValue);
-            (await client.GetBooleanValue(flagName, defaultBoolValue, new EvaluationContext(), emptyFlagOptions)).Should().Be(defaultBoolValue);
+            (await client.GetBooleanValue(flagName, defaultBoolValue, EvaluationContext.Empty)).Should().Be(defaultBoolValue);
+            (await client.GetBooleanValue(flagName, defaultBoolValue, EvaluationContext.Empty, emptyFlagOptions)).Should().Be(defaultBoolValue);
 
             (await client.GetIntegerValue(flagName, defaultIntegerValue)).Should().Be(defaultIntegerValue);
-            (await client.GetIntegerValue(flagName, defaultIntegerValue, new EvaluationContext())).Should().Be(defaultIntegerValue);
-            (await client.GetIntegerValue(flagName, defaultIntegerValue, new EvaluationContext(), emptyFlagOptions)).Should().Be(defaultIntegerValue);
+            (await client.GetIntegerValue(flagName, defaultIntegerValue, EvaluationContext.Empty)).Should().Be(defaultIntegerValue);
+            (await client.GetIntegerValue(flagName, defaultIntegerValue, EvaluationContext.Empty, emptyFlagOptions)).Should().Be(defaultIntegerValue);
 
             (await client.GetDoubleValue(flagName, defaultDoubleValue)).Should().Be(defaultDoubleValue);
-            (await client.GetDoubleValue(flagName, defaultDoubleValue, new EvaluationContext())).Should().Be(defaultDoubleValue);
-            (await client.GetDoubleValue(flagName, defaultDoubleValue, new EvaluationContext(), emptyFlagOptions)).Should().Be(defaultDoubleValue);
+            (await client.GetDoubleValue(flagName, defaultDoubleValue, EvaluationContext.Empty)).Should().Be(defaultDoubleValue);
+            (await client.GetDoubleValue(flagName, defaultDoubleValue, EvaluationContext.Empty, emptyFlagOptions)).Should().Be(defaultDoubleValue);
 
             (await client.GetStringValue(flagName, defaultStringValue)).Should().Be(defaultStringValue);
-            (await client.GetStringValue(flagName, defaultStringValue, new EvaluationContext())).Should().Be(defaultStringValue);
-            (await client.GetStringValue(flagName, defaultStringValue, new EvaluationContext(), emptyFlagOptions)).Should().Be(defaultStringValue);
+            (await client.GetStringValue(flagName, defaultStringValue, EvaluationContext.Empty)).Should().Be(defaultStringValue);
+            (await client.GetStringValue(flagName, defaultStringValue, EvaluationContext.Empty, emptyFlagOptions)).Should().Be(defaultStringValue);
 
             (await client.GetObjectValue(flagName, defaultStructureValue)).Should().BeEquivalentTo(defaultStructureValue);
-            (await client.GetObjectValue(flagName, defaultStructureValue, new EvaluationContext())).Should().BeEquivalentTo(defaultStructureValue);
-            (await client.GetObjectValue(flagName, defaultStructureValue, new EvaluationContext(), emptyFlagOptions)).Should().BeEquivalentTo(defaultStructureValue);
+            (await client.GetObjectValue(flagName, defaultStructureValue, EvaluationContext.Empty)).Should().BeEquivalentTo(defaultStructureValue);
+            (await client.GetObjectValue(flagName, defaultStructureValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(defaultStructureValue);
         }
 
         [Fact]
@@ -122,28 +121,28 @@ namespace OpenFeatureSDK.Tests
 
             var boolFlagEvaluationDetails = new FlagEvaluationDetails<bool>(flagName, defaultBoolValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
             (await client.GetBooleanDetails(flagName, defaultBoolValue)).Should().BeEquivalentTo(boolFlagEvaluationDetails);
-            (await client.GetBooleanDetails(flagName, defaultBoolValue, new EvaluationContext())).Should().BeEquivalentTo(boolFlagEvaluationDetails);
-            (await client.GetBooleanDetails(flagName, defaultBoolValue, new EvaluationContext(), emptyFlagOptions)).Should().BeEquivalentTo(boolFlagEvaluationDetails);
+            (await client.GetBooleanDetails(flagName, defaultBoolValue, EvaluationContext.Empty)).Should().BeEquivalentTo(boolFlagEvaluationDetails);
+            (await client.GetBooleanDetails(flagName, defaultBoolValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(boolFlagEvaluationDetails);
 
             var integerFlagEvaluationDetails = new FlagEvaluationDetails<int>(flagName, defaultIntegerValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
             (await client.GetIntegerDetails(flagName, defaultIntegerValue)).Should().BeEquivalentTo(integerFlagEvaluationDetails);
-            (await client.GetIntegerDetails(flagName, defaultIntegerValue, new EvaluationContext())).Should().BeEquivalentTo(integerFlagEvaluationDetails);
-            (await client.GetIntegerDetails(flagName, defaultIntegerValue, new EvaluationContext(), emptyFlagOptions)).Should().BeEquivalentTo(integerFlagEvaluationDetails);
+            (await client.GetIntegerDetails(flagName, defaultIntegerValue, EvaluationContext.Empty)).Should().BeEquivalentTo(integerFlagEvaluationDetails);
+            (await client.GetIntegerDetails(flagName, defaultIntegerValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(integerFlagEvaluationDetails);
 
             var doubleFlagEvaluationDetails = new FlagEvaluationDetails<double>(flagName, defaultDoubleValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
             (await client.GetDoubleDetails(flagName, defaultDoubleValue)).Should().BeEquivalentTo(doubleFlagEvaluationDetails);
-            (await client.GetDoubleDetails(flagName, defaultDoubleValue, new EvaluationContext())).Should().BeEquivalentTo(doubleFlagEvaluationDetails);
-            (await client.GetDoubleDetails(flagName, defaultDoubleValue, new EvaluationContext(), emptyFlagOptions)).Should().BeEquivalentTo(doubleFlagEvaluationDetails);
+            (await client.GetDoubleDetails(flagName, defaultDoubleValue, EvaluationContext.Empty)).Should().BeEquivalentTo(doubleFlagEvaluationDetails);
+            (await client.GetDoubleDetails(flagName, defaultDoubleValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(doubleFlagEvaluationDetails);
 
             var stringFlagEvaluationDetails = new FlagEvaluationDetails<string>(flagName, defaultStringValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
             (await client.GetStringDetails(flagName, defaultStringValue)).Should().BeEquivalentTo(stringFlagEvaluationDetails);
-            (await client.GetStringDetails(flagName, defaultStringValue, new EvaluationContext())).Should().BeEquivalentTo(stringFlagEvaluationDetails);
-            (await client.GetStringDetails(flagName, defaultStringValue, new EvaluationContext(), emptyFlagOptions)).Should().BeEquivalentTo(stringFlagEvaluationDetails);
+            (await client.GetStringDetails(flagName, defaultStringValue, EvaluationContext.Empty)).Should().BeEquivalentTo(stringFlagEvaluationDetails);
+            (await client.GetStringDetails(flagName, defaultStringValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(stringFlagEvaluationDetails);
 
             var structureFlagEvaluationDetails = new FlagEvaluationDetails<Value>(flagName, defaultStructureValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
             (await client.GetObjectDetails(flagName, defaultStructureValue)).Should().BeEquivalentTo(structureFlagEvaluationDetails);
-            (await client.GetObjectDetails(flagName, defaultStructureValue, new EvaluationContext())).Should().BeEquivalentTo(structureFlagEvaluationDetails);
-            (await client.GetObjectDetails(flagName, defaultStructureValue, new EvaluationContext(), emptyFlagOptions)).Should().BeEquivalentTo(structureFlagEvaluationDetails);
+            (await client.GetObjectDetails(flagName, defaultStructureValue, EvaluationContext.Empty)).Should().BeEquivalentTo(structureFlagEvaluationDetails);
+            (await client.GetObjectDetails(flagName, defaultStructureValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(structureFlagEvaluationDetails);
         }
 
         [Fact]
@@ -393,7 +392,7 @@ namespace OpenFeatureSDK.Tests
             var KEY = "key";
             var VAL = 1;
             FeatureClient client = OpenFeature.Instance.GetClient();
-            client.SetContext(new EvaluationContext().Add(KEY, VAL));
+            client.SetContext(new EvaluationContextBuilder().Set(KEY, VAL).Build());
             Assert.Equal(VAL, client.GetContext().GetValue(KEY).AsInteger);
         }
     }

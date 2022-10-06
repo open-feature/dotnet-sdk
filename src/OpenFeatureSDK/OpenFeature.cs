@@ -11,7 +11,7 @@ namespace OpenFeatureSDK
     /// <seealso href="https://github.com/open-feature/spec/blob/main/specification/flag-evaluation.md#flag-evaluation-api"/>
     public sealed class OpenFeature
     {
-        private EvaluationContext _evaluationContext = new EvaluationContext();
+        private EvaluationContext _evaluationContext = EvaluationContext.Empty;
         private FeatureProvider _featureProvider = new NoOpFeatureProvider();
         private readonly List<Hook> _hooks = new List<Hook>();
 
@@ -82,7 +82,7 @@ namespace OpenFeatureSDK
         /// Sets the global <see cref="EvaluationContext"/>
         /// </summary>
         /// <param name="context"></param>
-        public void SetContext(EvaluationContext context) => this._evaluationContext = context ?? new EvaluationContext();
+        public void SetContext(EvaluationContext context) => this._evaluationContext = context ?? EvaluationContext.Empty;
 
         /// <summary>
         /// Gets the global <see cref="EvaluationContext"/>

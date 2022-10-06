@@ -25,6 +25,14 @@ OpenFeature.Instance.SetProvider(new NoOpProvider());
 var client = OpenFeature.Instance.GetClient();
 // Evaluation the `my-feature` feature flag
 var isEnabled = await client.GetBooleanValue("my-feature", false);
+
+// Evaluating with a context.
+var evaluationContext = EvaluationContext.Builder()
+    .Set("my-key", "my-value")
+    .Build();
+
+// Evaluation the `my-conditional` feature flag
+var isEnabled = await client.GetBooleanValue("my-conditional", false, evaluationContext);
 ```
 
 ### Provider

@@ -7,7 +7,9 @@ namespace OpenFeatureSDK.Tests
 {
     public class ValueTests
     {
-        class Foo { }
+        class Foo
+        {
+        }
 
         [Fact]
         public void No_Arg_Should_Contain_Null()
@@ -19,24 +21,23 @@ namespace OpenFeatureSDK.Tests
         [Fact]
         public void Object_Arg_Should_Contain_Object()
         {
-            try
+            // int is a special case, see Int_Object_Arg_Should_Contain_Object()
+            IList<Object> list = new List<Object>()
             {
-                // int is a special case, see Int_Object_Arg_Should_Contain_Object()
-                IList<Object> list = new List<Object>(){
-                    true, "val", .5, new Structure(), new List<Value>(), DateTime.Now
-                };
+                true,
+                "val",
+                .5,
+                Structure.Empty,
+                new List<Value>(),
+                DateTime.Now
+            };
 
-                int i = 0;
-                foreach (Object l in list)
-                {
-                    Value value = new Value(l);
-                    Assert.Equal(list[i], value.AsObject);
-                    i++;
-                }
-            }
-            catch (Exception)
+            int i = 0;
+            foreach (Object l in list)
             {
-                Assert.True(false, "Expected no exception.");
+                Value value = new Value(l);
+                Assert.Equal(list[i], value.AsObject);
+                i++;
             }
         }
 
@@ -80,7 +81,7 @@ namespace OpenFeatureSDK.Tests
             double innerDoubleValue = .75;
             Value doubleValue = new Value(innerDoubleValue);
             Assert.True(doubleValue.IsNumber);
-            Assert.Equal(1, doubleValue.AsInteger);     // should be rounded
+            Assert.Equal(1, doubleValue.AsInteger); // should be rounded
             Assert.Equal(.75, doubleValue.AsDouble);
 
             int innerIntValue = 100;
@@ -113,20 +114,17 @@ namespace OpenFeatureSDK.Tests
         {
             string INNER_KEY = "key";
             string INNER_VALUE = "val";
-            Structure innerValue = new Structure().Add(INNER_KEY, INNER_VALUE);
+            Structure innerValue = Structure.Builder().Set(INNER_KEY, INNER_VALUE).Build();
             Value value = new Value(innerValue);
             Assert.True(value.IsStructure);
             Assert.Equal(INNER_VALUE, value.AsStructure.GetValue(INNER_KEY).AsString);
         }
 
         [Fact]
-        public void LIst_Arg_Should_Contain_LIst()
+        public void List_Arg_Should_Contain_List()
         {
             string ITEM_VALUE = "val";
-            IList<Value> innerValue = new List<Value>()
-            {
-                new Value(ITEM_VALUE)
-            };
+            IList<Value> innerValue = new List<Value>() { new Value(ITEM_VALUE) };
             Value value = new Value(innerValue);
             Assert.True(value.IsList);
             Assert.Equal(ITEM_VALUE, value.AsList[0].AsString);
