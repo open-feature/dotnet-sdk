@@ -71,19 +71,6 @@ namespace OpenFeatureSDK.Tests
         }
 
         [Fact]
-        public void Remove_Should_Remove_Value()
-        {
-            String KEY = "key";
-            bool VAL = true;
-
-            var structureBuilder = Structure.Builder()
-                .Set(KEY, VAL);
-            Assert.Equal(1, structureBuilder.Build().Count);
-            structureBuilder.Remove(KEY);
-            Assert.Equal(0, structureBuilder.Build().Count);
-        }
-
-        [Fact]
         public void TryGetValue_Should_Return_Value()
         {
             String KEY = "key";

@@ -132,18 +132,6 @@ namespace OpenFeatureSDK.Model
             return this;
         }
 
-
-        /// <summary>
-        /// Remove the specified key.
-        /// </summary>
-        /// <param name="key">The key to remove</param>
-        /// <returns>This builder</returns>
-        public StructureBuilder Remove(string key)
-        {
-            this._attributes.Remove(key);
-            return this;
-        }
-
         /// <summary>
         /// Build an immutable <see cref="Structure"/>/
         /// </summary>

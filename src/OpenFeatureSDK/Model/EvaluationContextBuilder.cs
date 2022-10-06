@@ -116,17 +116,6 @@ namespace OpenFeatureSDK.Model
         }
 
         /// <summary>
-        /// Remove the given key from the context.
-        /// </summary>
-        /// <param name="key">The key to remove</param>
-        /// <returns>This builder</returns>
-        public EvaluationContextBuilder Remove(string key)
-        {
-            this._attributes.Remove(key);
-            return this;
-        }
-
-        /// <summary>
         /// Incorporate an existing context into the builder.
         /// <para>
         /// Any existing keys in the builder will be replaced by keys in the context.
