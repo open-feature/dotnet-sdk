@@ -17,7 +17,6 @@ namespace OpenFeatureSDK
     public sealed class FeatureClient : IFeatureClient
     {
         private readonly ClientMetadata _metadata;
-        private readonly FeatureProvider _featureProvider;
         private readonly List<Hook> _hooks = new List<Hook>();
         private readonly ILogger _logger;
         private EvaluationContext _evaluationContext;
@@ -36,15 +35,13 @@ namespace OpenFeatureSDK
         /// <summary>
         /// Initializes a new instance of the <see cref="FeatureClient"/> class.
         /// </summary>
-        /// <param name="featureProvider">Feature provider used by client <see cref="FeatureProvider"/></param>
         /// <param name="name">Name of client <see cref="ClientMetadata"/></param>
         /// <param name="version">Version of client <see cref="ClientMetadata"/></param>
         /// <param name="logger">Logger used by client</param>
         /// <param name="context">Context given to this client</param>
         /// <exception cref="ArgumentNullException">Throws if any of the required parameters are null</exception>
-        public FeatureClient(FeatureProvider featureProvider, string name, string version, ILogger logger = null, EvaluationContext context = null)
+        public FeatureClient(string name, string version, ILogger logger = null, EvaluationContext context = null)
         {
-            this._featureProvider = featureProvider ?? throw new ArgumentNullException(nameof(featureProvider));
             this._metadata = new ClientMetadata(name, version);
             this._logger = logger ?? new Logger<OpenFeature>(new NullLoggerFactory());
             this._evaluationContext = context ?? EvaluationContext.Empty;
@@ -101,7 +98,7 @@ namespace OpenFeatureSDK
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
         public async Task<FlagEvaluationDetails<bool>> GetBooleanDetails(string flagKey, bool defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(this._featureProvider.ResolveBooleanValue, FlagValueType.Boolean, flagKey,
+            await this.EvaluateFlag(OpenFeature.Instance.GetProvider().ResolveBooleanValue, FlagValueType.Boolean, flagKey,
                 defaultValue, context, config);
 
         /// <summary>
@@ -126,7 +123,7 @@ namespace OpenFeatureSDK
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
         public async Task<FlagEvaluationDetails<string>> GetStringDetails(string flagKey, string defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(this._featureProvider.ResolveStringValue, FlagValueType.String, flagKey,
+            await this.EvaluateFlag(OpenFeature.Instance.GetProvider().ResolveStringValue, FlagValueType.String, flagKey,
                 defaultValue, context, config);
 
         /// <summary>
@@ -151,7 +148,7 @@ namespace OpenFeatureSDK
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
         public async Task<FlagEvaluationDetails<int>> GetIntegerDetails(string flagKey, int defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(this._featureProvider.ResolveIntegerValue, FlagValueType.Number, flagKey,
+            await this.EvaluateFlag(OpenFeature.Instance.GetProvider().ResolveIntegerValue, FlagValueType.Number, flagKey,
                 defaultValue, context, config);
 
         /// <summary>
@@ -177,7 +174,7 @@ namespace OpenFeatureSDK
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
         public async Task<FlagEvaluationDetails<double>> GetDoubleDetails(string flagKey, double defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(this._featureProvider.ResolveDoubleValue, FlagValueType.Number, flagKey,
+            await this.EvaluateFlag(OpenFeature.Instance.GetProvider().ResolveDoubleValue, FlagValueType.Number, flagKey,
                 defaultValue, context, config);
 
         /// <summary>
@@ -202,7 +199,7 @@ namespace OpenFeatureSDK
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
         public async Task<FlagEvaluationDetails<Value>> GetObjectDetails(string flagKey, Value defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(this._featureProvider.ResolveStructureValue, FlagValueType.Object, flagKey,
+            await this.EvaluateFlag(OpenFeature.Instance.GetProvider().ResolveStructureValue, FlagValueType.Object, flagKey,
                 defaultValue, context, config);
 
         private async Task<FlagEvaluationDetails<T>> EvaluateFlag<T>(
@@ -227,7 +224,7 @@ namespace OpenFeatureSDK
                 .Concat(OpenFeature.Instance.GetHooks())
                 .Concat(this._hooks)
                 .Concat(options?.Hooks ?? Enumerable.Empty<Hook>())
-                .Concat(this._featureProvider.GetProviderHooks())
+                .Concat(OpenFeature.Instance.GetProvider().GetProviderHooks())
                 .ToList()
                 .AsReadOnly();
 

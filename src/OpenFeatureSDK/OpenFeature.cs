@@ -13,8 +13,14 @@ namespace OpenFeatureSDK
     /// <seealso href="https://github.com/open-feature/spec/blob/main/specification/flag-evaluation.md#flag-evaluation-api"/>
     public sealed class OpenFeature
     {
-        private EvaluationContext _evaluationContext = EvaluationContext.Empty;
-        private FeatureProvider _featureProvider = new NoOpFeatureProvider();
+        /// References are atomic in C#, but it is possible to get an old value due to register caching.
+        /// Making it volatile will result in reads bypassing that cache. It doesn't provide any ordering
+        /// guarantee. Considering this is just a method to replace the value, regardless of the current value,
+        /// this should be sufficient.
+        /// https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/variables#96-atomicity-of-variable-references
+        /// https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/volatile
+        private volatile EvaluationContext _evaluationContext = EvaluationContext.Empty;
+        private volatile FeatureProvider _featureProvider = new NoOpFeatureProvider();
         private readonly ConcurrentStack<Hook> _hooks = new ConcurrentStack<Hook>();
 
         /// <summary>
@@ -55,7 +61,7 @@ namespace OpenFeatureSDK
         /// <param name="context">Context given to this client</param>
         /// <returns><see cref="FeatureClient"/></returns>
         public FeatureClient GetClient(string name = null, string version = null, ILogger logger = null, EvaluationContext context = null) =>
-            new FeatureClient(this._featureProvider, name, version, logger, context);
+            new FeatureClient(name, version, logger, context);
 
         /// <summary>
         /// Appends list of hooks to global hooks list

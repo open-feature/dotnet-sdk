@@ -381,13 +381,6 @@ namespace OpenFeatureSDK.Tests
         }
 
         [Fact]
-        public void Should_Throw_ArgumentNullException_When_Provider_Is_Null()
-        {
-            TestProvider provider = null;
-            Assert.Throws<ArgumentNullException>(() => new FeatureClient(provider, "test", "test"));
-        }
-
-        [Fact]
         public void Should_Get_And_Set_Context()
         {
             var KEY = "key";
