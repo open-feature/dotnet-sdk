@@ -1,4 +1,6 @@
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.Logging;
 using OpenFeatureSDK.Model;
 
@@ -13,7 +15,7 @@ namespace OpenFeatureSDK
     {
         private EvaluationContext _evaluationContext = EvaluationContext.Empty;
         private FeatureProvider _featureProvider = new NoOpFeatureProvider();
-        private readonly List<Hook> _hooks = new List<Hook>();
+        private readonly ConcurrentStack<Hook> _hooks = new ConcurrentStack<Hook>();
 
         /// <summary>
         /// Singleton instance of OpenFeature
@@ -59,19 +61,19 @@ namespace OpenFeatureSDK
         /// Appends list of hooks to global hooks list
         /// </summary>
         /// <param name="hooks">A list of <see cref="Hook"/></param>
-        public void AddHooks(IEnumerable<Hook> hooks) => this._hooks.AddRange(hooks);
+        public void AddHooks(IEnumerable<Hook> hooks) => this._hooks.PushRange(hooks.ToArray());
 
         /// <summary>
         /// Adds a hook to global hooks list
         /// </summary>
         /// <param name="hook">A list of <see cref="Hook"/></param>
-        public void AddHooks(Hook hook) => this._hooks.Add(hook);
+        public void AddHooks(Hook hook) => this._hooks.Push(hook);
 
         /// <summary>
         /// Returns the global immutable hooks list
         /// </summary>
         /// <returns>A immutable list of <see cref="Hook"/></returns>
-        public IReadOnlyList<Hook> GetHooks() => this._hooks.AsReadOnly();
+        public IEnumerable<Hook> GetHooks() => this._hooks;
 
         /// <summary>
         /// Removes all hooks from global hooks list

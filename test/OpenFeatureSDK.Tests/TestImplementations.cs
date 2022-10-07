@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 using OpenFeatureSDK.Model;
 
@@ -39,7 +40,7 @@ namespace OpenFeatureSDK.Tests
 
         public void AddHook(Hook hook) => this._hooks.Add(hook);
 
-        public override IReadOnlyList<Hook> GetProviderHooks() => this._hooks.AsReadOnly();
+        public override IImmutableList<Hook> GetProviderHooks() => this._hooks.ToImmutableList();
 
         public override Metadata GetMetadata()
         {

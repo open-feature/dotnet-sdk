@@ -1,3 +1,4 @@
+using System.Linq;
 using FluentAssertions;
 using Moq;
 using OpenFeatureSDK.Constant;
@@ -34,18 +35,18 @@ namespace OpenFeatureSDK.Tests
             openFeature.AddHooks(hook1);
 
             openFeature.GetHooks().Should().Contain(hook1);
-            openFeature.GetHooks().Count.Should().Be(1);
+            Assert.Single(openFeature.GetHooks());
 
             openFeature.AddHooks(hook2);
-            openFeature.GetHooks().Should().ContainInOrder(hook1, hook2);
-            openFeature.GetHooks().Count.Should().Be(2);
+            openFeature.GetHooks().Should().ContainInOrder(hook2, hook1);
+            openFeature.GetHooks().Count().Should().Be(2);
 
             openFeature.AddHooks(new[] { hook3, hook4 });
-            openFeature.GetHooks().Should().ContainInOrder(hook1, hook2, hook3, hook4);
-            openFeature.GetHooks().Count.Should().Be(4);
+            openFeature.GetHooks().Should().ContainInOrder(hook4, hook3, hook2, hook1);
+            openFeature.GetHooks().Count().Should().Be(4);
 
             openFeature.ClearHooks();
-            openFeature.GetHooks().Count.Should().Be(0);
+            Assert.Empty(openFeature.GetHooks());
         }
 
         [Fact]
