@@ -67,9 +67,14 @@ namespace OpenFeatureSDK
         public void AddHooks(IEnumerable<Hook> hooks) => this._hooks.PushRange(hooks.ToArray());
 
         /// <summary>
-        /// Return a immutable list of hooks that are registered against the client
+        /// Enumerates the global hooks.
+        /// <para>
+        /// The items enumerated will reflect the registered hooks
+        /// at the start of enumeration. Hooks added during enumeration
+        /// will not be included.
+        /// </para>
         /// </summary>
-        /// <returns>A list of immutable hooks</returns>
+        /// <returns>Enumeration of <see cref="Hook"/></returns>
         public IEnumerable<Hook> GetHooks() => this._hooks.Reverse();
 
         /// <summary>
