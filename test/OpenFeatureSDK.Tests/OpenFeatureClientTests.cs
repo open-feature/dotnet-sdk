@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
@@ -31,14 +32,14 @@ namespace OpenFeatureSDK.Tests
             client.AddHooks(new[] { hook1, hook2 });
 
             client.GetHooks().Should().ContainInOrder(hook1, hook2);
-            client.GetHooks().Count.Should().Be(2);
+            client.GetHooks().Count().Should().Be(2);
 
             client.AddHooks(hook3);
             client.GetHooks().Should().ContainInOrder(hook1, hook2, hook3);
-            client.GetHooks().Count.Should().Be(3);
+            client.GetHooks().Count().Should().Be(3);
 
             client.ClearHooks();
-            client.GetHooks().Count.Should().Be(0);
+            Assert.Empty(client.GetHooks());
         }
 
         [Fact]

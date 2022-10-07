@@ -22,7 +22,7 @@ namespace OpenFeatureSDK.Model
         /// <summary>
         /// Initializes a new instance of the <see cref="FlagEvaluationOptions"/> class.
         /// </summary>
-        /// <param name="hooks"></param>
+        /// <param name="hooks">An immutable list of hooks to use during evaluation</param>
         /// <param name="hookHints">Optional - a list of hints that are passed through the hook lifecycle</param>
         public FlagEvaluationOptions(IImmutableList<Hook> hooks, IImmutableDictionary<string, object> hookHints = null)
         {
@@ -33,7 +33,7 @@ namespace OpenFeatureSDK.Model
         /// <summary>
         /// Initializes a new instance of the <see cref="FlagEvaluationOptions"/> class.
         /// </summary>
-        /// <param name="hook"></param>
+        /// <param name="hook">A hook to use during the evaluation</param>
         /// <param name="hookHints">Optional - a list of hints that are passed through the hook lifecycle</param>
         public FlagEvaluationOptions(Hook hook, ImmutableDictionary<string, object> hookHints = null)
         {

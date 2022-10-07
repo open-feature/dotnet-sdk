@@ -79,7 +79,7 @@ namespace OpenFeatureSDK
         /// Returns the global immutable hooks list
         /// </summary>
         /// <returns>A immutable list of <see cref="Hook"/></returns>
-        public IEnumerable<Hook> GetHooks() => this._hooks;
+        public IEnumerable<Hook> GetHooks() => this._hooks.Reverse();
 
         /// <summary>
         /// Removes all hooks from global hooks list

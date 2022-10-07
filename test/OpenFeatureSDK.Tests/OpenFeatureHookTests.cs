@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
@@ -355,7 +356,7 @@ namespace OpenFeatureSDK.Tests
                 new FlagEvaluationOptions(hook3.Object, ImmutableDictionary<string, object>.Empty));
 
             Assert.Single(OpenFeature.Instance.GetHooks());
-            client.GetHooks().Count.Should().Be(1);
+            client.GetHooks().Count().Should().Be(1);
             testProvider.GetProviderHooks().Count.Should().Be(1);
         }
 
@@ -406,7 +407,7 @@ namespace OpenFeatureSDK.Tests
             OpenFeature.Instance.SetProvider(featureProvider.Object);
             var client = OpenFeature.Instance.GetClient();
             client.AddHooks(new[] { hook1.Object, hook2.Object });
-            client.GetHooks().Count.Should().Be(2);
+            client.GetHooks().Count().Should().Be(2);
 
             await client.GetBooleanValue("test", false);
 

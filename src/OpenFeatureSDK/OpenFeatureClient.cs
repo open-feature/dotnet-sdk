@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,7 +18,7 @@ namespace OpenFeatureSDK
     public sealed class FeatureClient : IFeatureClient
     {
         private readonly ClientMetadata _metadata;
-        private readonly List<Hook> _hooks = new List<Hook>();
+        private readonly ConcurrentStack<Hook> _hooks = new ConcurrentStack<Hook>();
         private readonly ILogger _logger;
         private EvaluationContext _evaluationContext;
 
@@ -57,19 +58,19 @@ namespace OpenFeatureSDK
         /// Add hook to client
         /// </summary>
         /// <param name="hook">Hook that implements the <see cref="Hook"/> interface</param>
-        public void AddHooks(Hook hook) => this._hooks.Add(hook);
+        public void AddHooks(Hook hook) => this._hooks.Push(hook);
 
         /// <summary>
         /// Appends hooks to client
         /// </summary>
         /// <param name="hooks">A list of Hooks that implement the <see cref="Hook"/> interface</param>
-        public void AddHooks(IEnumerable<Hook> hooks) => this._hooks.AddRange(hooks);
+        public void AddHooks(IEnumerable<Hook> hooks) => this._hooks.PushRange(hooks.ToArray());
 
         /// <summary>
         /// Return a immutable list of hooks that are registered against the client
         /// </summary>
         /// <returns>A list of immutable hooks</returns>
-        public IReadOnlyList<Hook> GetHooks() => this._hooks.ToList().AsReadOnly();
+        public IEnumerable<Hook> GetHooks() => this._hooks.Reverse();
 
         /// <summary>
         /// Removes all hooks from the client
@@ -222,7 +223,7 @@ namespace OpenFeatureSDK
 
             var allHooks = new List<Hook>()
                 .Concat(OpenFeature.Instance.GetHooks())
-                .Concat(this._hooks)
+                .Concat(this.GetHooks())
                 .Concat(options?.Hooks ?? Enumerable.Empty<Hook>())
                 .Concat(OpenFeature.Instance.GetProvider().GetProviderHooks())
                 .ToList()
