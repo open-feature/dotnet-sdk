@@ -23,6 +23,28 @@ namespace OpenFeatureSDK
         private EvaluationContext _evaluationContext;
 
         /// <summary>
+        /// Get a provider and an associated typed flag resolution method.
+        /// <para>
+        /// The global provider could change between two accesses, so in order to safely get provider information we
+        /// must first alias it and then use that alias to access everything we need.
+        /// </para>
+        /// </summary>
+        /// <param name="method">
+        ///     This method should return the desired flag resolution method from the given provider reference.
+        /// </param>
+        /// <typeparam name="T">The type of the resolution method</typeparam>
+        /// <returns>A tuple containing a resolution method and the provider it came from.</returns>
+        private (Func<string, T, EvaluationContext, Task<ResolutionDetails<T>>>, FeatureProvider)
+            ExtractProvider<T>(
+                Func<FeatureProvider, Func<string, T, EvaluationContext, Task<ResolutionDetails<T>>>> method)
+        {
+            // Alias the provider reference so getting the method and returning the provider are
+            // guaranteed to be the same object.
+            var provider = OpenFeature.Instance.GetProvider();
+            return (method(provider), provider);
+        }
+
+        /// <summary>
         /// Gets the EvaluationContext of this client<see cref="EvaluationContext"/>
         /// </summary>
         /// <returns><see cref="EvaluationContext"/>of this client</returns>
@@ -104,7 +126,8 @@ namespace OpenFeatureSDK
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
         public async Task<FlagEvaluationDetails<bool>> GetBooleanDetails(string flagKey, bool defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(OpenFeature.Instance.GetProvider().ResolveBooleanValue, FlagValueType.Boolean, flagKey,
+            await this.EvaluateFlag(this.ExtractProvider<bool>(provider => provider.ResolveBooleanValue),
+                FlagValueType.Boolean, flagKey,
                 defaultValue, context, config);
 
         /// <summary>
@@ -129,7 +152,8 @@ namespace OpenFeatureSDK
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
         public async Task<FlagEvaluationDetails<string>> GetStringDetails(string flagKey, string defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(OpenFeature.Instance.GetProvider().ResolveStringValue, FlagValueType.String, flagKey,
+            await this.EvaluateFlag(this.ExtractProvider<string>(provider => provider.ResolveStringValue),
+                FlagValueType.String, flagKey,
                 defaultValue, context, config);
 
         /// <summary>
@@ -154,7 +178,8 @@ namespace OpenFeatureSDK
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
         public async Task<FlagEvaluationDetails<int>> GetIntegerDetails(string flagKey, int defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(OpenFeature.Instance.GetProvider().ResolveIntegerValue, FlagValueType.Number, flagKey,
+            await this.EvaluateFlag(this.ExtractProvider<int>(provider => provider.ResolveIntegerValue),
+                FlagValueType.Number, flagKey,
                 defaultValue, context, config);
 
         /// <summary>
@@ -180,7 +205,8 @@ namespace OpenFeatureSDK
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
         public async Task<FlagEvaluationDetails<double>> GetDoubleDetails(string flagKey, double defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(OpenFeature.Instance.GetProvider().ResolveDoubleValue, FlagValueType.Number, flagKey,
+            await this.EvaluateFlag(this.ExtractProvider<double>(provider => provider.ResolveDoubleValue),
+                FlagValueType.Number, flagKey,
                 defaultValue, context, config);
 
         /// <summary>
@@ -205,14 +231,17 @@ namespace OpenFeatureSDK
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
         public async Task<FlagEvaluationDetails<Value>> GetObjectDetails(string flagKey, Value defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(OpenFeature.Instance.GetProvider().ResolveStructureValue, FlagValueType.Object, flagKey,
+            await this.EvaluateFlag(this.ExtractProvider<Value>(provider => provider.ResolveStructureValue),
+                FlagValueType.Object, flagKey,
                 defaultValue, context, config);
 
         private async Task<FlagEvaluationDetails<T>> EvaluateFlag<T>(
-            Func<string, T, EvaluationContext, Task<ResolutionDetails<T>>> resolveValueDelegate,
+            (Func<string, T, EvaluationContext, Task<ResolutionDetails<T>>>, FeatureProvider) providerInfo,
             FlagValueType flagValueType, string flagKey, T defaultValue, EvaluationContext context = null,
             FlagEvaluationOptions options = null)
         {
+            var resolveValueDelegate = providerInfo.Item1;
+            var provider = providerInfo.Item2;
             // New up a evaluation context if one was not provided.
             if (context == null)
             {
@@ -230,7 +259,7 @@ namespace OpenFeatureSDK
                 .Concat(OpenFeature.Instance.GetHooks())
                 .Concat(this.GetHooks())
                 .Concat(options?.Hooks ?? Enumerable.Empty<Hook>())
-                .Concat(OpenFeature.Instance.GetProvider().GetProviderHooks())
+                .Concat(provider.GetProviderHooks())
                 .ToList()
                 .AsReadOnly();
 
@@ -244,7 +273,7 @@ namespace OpenFeatureSDK
                 flagKey,
                 defaultValue,
                 flagValueType, this._metadata,
-                OpenFeature.Instance.GetProviderMetadata(),
+                provider.GetMetadata(),
                 evaluationContextBuilder.Build()
             );
 
