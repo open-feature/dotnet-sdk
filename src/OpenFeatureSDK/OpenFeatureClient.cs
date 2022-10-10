@@ -41,6 +41,12 @@ namespace OpenFeatureSDK
             // Alias the provider reference so getting the method and returning the provider are
             // guaranteed to be the same object.
             var provider = OpenFeature.Instance.GetProvider();
+
+            if (provider == null)
+            {
+                provider = new NoOpFeatureProvider();
+                this._logger.LogDebug("No provider configured, using no-op provider");
+            }
             return (method(provider), provider);
         }
 
@@ -242,6 +248,7 @@ namespace OpenFeatureSDK
         {
             var resolveValueDelegate = providerInfo.Item1;
             var provider = providerInfo.Item2;
+
             // New up a evaluation context if one was not provided.
             if (context == null)
             {

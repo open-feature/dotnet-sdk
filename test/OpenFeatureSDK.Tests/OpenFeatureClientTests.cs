@@ -382,6 +382,14 @@ namespace OpenFeatureSDK.Tests
         }
 
         [Fact]
+        public async Task Should_Use_No_Op_When_Provider_Is_Null()
+        {
+            OpenFeature.Instance.SetProvider(null);
+            var client = new FeatureClient("test", "test");
+            (await client.GetIntegerValue("some-key", 12)).Should().Be(12);
+        }
+
+        [Fact]
         public void Should_Get_And_Set_Context()
         {
             var KEY = "key";
