@@ -39,8 +39,14 @@ namespace OpenFeatureSDK
         public void SetProvider(FeatureProvider featureProvider)
         {
             this._featureProviderLock.EnterWriteLock();
-            this._featureProvider = featureProvider;
-            this._featureProviderLock.ExitWriteLock();
+            try
+            {
+                this._featureProvider = featureProvider;
+            }
+            finally
+            {
+                this._featureProviderLock.ExitWriteLock();
+            }
         }
 
         /// <summary>
