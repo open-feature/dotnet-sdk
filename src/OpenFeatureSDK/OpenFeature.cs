@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 using OpenFeatureSDK.Model;
 
@@ -13,15 +14,12 @@ namespace OpenFeatureSDK
     /// <seealso href="https://github.com/open-feature/spec/blob/main/specification/flag-evaluation.md#flag-evaluation-api"/>
     public sealed class OpenFeature
     {
-        /// References are atomic in C#, but it is possible to get an old value due to register caching.
-        /// Making it volatile will result in reads bypassing that cache. It doesn't provide any ordering
-        /// guarantee. Considering this is just a method to replace the value, regardless of the current value,
-        /// this should be sufficient.
-        /// https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/variables#96-atomicity-of-variable-references
-        /// https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/volatile
-        private volatile EvaluationContext _evaluationContext = EvaluationContext.Empty;
-        private volatile FeatureProvider _featureProvider = new NoOpFeatureProvider();
+        private EvaluationContext _evaluationContext = EvaluationContext.Empty;
+        private FeatureProvider _featureProvider = new NoOpFeatureProvider();
         private readonly ConcurrentStack<Hook> _hooks = new ConcurrentStack<Hook>();
+
+        private readonly ReaderWriterLockSlim _evaluationContextLock = new ReaderWriterLockSlim();
+        private readonly ReaderWriterLockSlim _featureProviderLock = new ReaderWriterLockSlim();
 
         /// <summary>
         /// Singleton instance of OpenFeature
@@ -38,19 +36,35 @@ namespace OpenFeatureSDK
         /// Sets the feature provider
         /// </summary>
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
-        public void SetProvider(FeatureProvider featureProvider) => this._featureProvider = featureProvider;
+        public void SetProvider(FeatureProvider featureProvider)
+        {
+            this._featureProviderLock.EnterWriteLock();
+            this._featureProvider = featureProvider;
+            this._featureProviderLock.ExitWriteLock();
+        }
 
         /// <summary>
         /// Gets the feature provider
         /// </summary>
         /// <returns><see cref="FeatureProvider"/></returns>
-        public FeatureProvider GetProvider() => this._featureProvider;
+        public FeatureProvider GetProvider()
+        {
+            this._featureProviderLock.EnterReadLock();
+            try
+            {
+                return this._featureProvider;
+            }
+            finally
+            {
+                this._featureProviderLock.ExitReadLock();
+            }
+        }
 
         /// <summary>
         /// Gets providers metadata
         /// </summary>
         /// <returns><see cref="ClientMetadata"/></returns>
-        public Metadata GetProviderMetadata() => this._featureProvider.GetMetadata();
+        public Metadata GetProviderMetadata() => this.GetProvider().GetMetadata();
 
         /// <summary>
         /// Create a new instance of <see cref="FeatureClient"/> using the current provider
@@ -60,7 +74,8 @@ namespace OpenFeatureSDK
         /// <param name="logger">Logger instance used by client</param>
         /// <param name="context">Context given to this client</param>
         /// <returns><see cref="FeatureClient"/></returns>
-        public FeatureClient GetClient(string name = null, string version = null, ILogger logger = null, EvaluationContext context = null) =>
+        public FeatureClient GetClient(string name = null, string version = null, ILogger logger = null,
+            EvaluationContext context = null) =>
             new FeatureClient(name, version, logger, context);
 
         /// <summary>
@@ -94,13 +109,35 @@ namespace OpenFeatureSDK
         /// <summary>
         /// Sets the global <see cref="EvaluationContext"/>
         /// </summary>
-        /// <param name="context"></param>
-        public void SetContext(EvaluationContext context) => this._evaluationContext = context ?? EvaluationContext.Empty;
+        /// <param name="context">The <see cref="EvaluationContext"/> to set</param>
+        public void SetContext(EvaluationContext context)
+        {
+            this._evaluationContextLock.EnterWriteLock();
+            try
+            {
+                this._evaluationContext = context ?? EvaluationContext.Empty;
+            }
+            finally
+            {
+                this._evaluationContextLock.ExitWriteLock();
+            }
+        }
 
         /// <summary>
         /// Gets the global <see cref="EvaluationContext"/>
         /// </summary>
-        /// <returns></returns>
-        public EvaluationContext GetContext() => this._evaluationContext;
+        /// <returns>An <see cref="EvaluationContext"/></returns>
+        public EvaluationContext GetContext()
+        {
+            this._evaluationContextLock.EnterReadLock();
+            try
+            {
+                return this._evaluationContext;
+            }
+            finally
+            {
+                this._evaluationContextLock.ExitReadLock();
+            }
+        }
     }
 }
