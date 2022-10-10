@@ -51,6 +51,13 @@ namespace OpenFeatureSDK
 
         /// <summary>
         /// Gets the feature provider
+        /// <para>
+        /// The feature provider may be set from multiple threads, when accessing the global feature provider
+        /// it should be accessed once for an operation, and then that reference should be used for all dependent
+        /// operations. For instance, during an evaluation the flag resolution method, and the provider hooks
+        /// should be accessed from the same reference, not two independent calls to
+        /// <see cref="OpenFeature.GetProvider"/>.
+        /// </para>
         /// </summary>
         /// <returns><see cref="FeatureProvider"/></returns>
         public FeatureProvider GetProvider()
@@ -68,6 +75,11 @@ namespace OpenFeatureSDK
 
         /// <summary>
         /// Gets providers metadata
+        /// <para>
+        /// This method is not guaranteed to return the same provider instance that may be used during an evaluation
+        /// in the case where the provider may be changed from another thread.
+        /// For multiple dependent provider operations see <see cref="OpenFeature.GetProvider"/>.
+        /// </para>
         /// </summary>
         /// <returns><see cref="ClientMetadata"/></returns>
         public Metadata GetProviderMetadata() => this.GetProvider().GetMetadata();
@@ -131,6 +143,12 @@ namespace OpenFeatureSDK
 
         /// <summary>
         /// Gets the global <see cref="EvaluationContext"/>
+        /// <para>
+        /// The evaluation context may be set from multiple threads, when accessing the global evaluation context
+        /// it should be accessed once for an operation, and then that reference should be used for all dependent
+        /// operations.
+        /// <see cref="OpenFeature.GetProvider"/>.
+        /// </para>
         /// </summary>
         /// <returns>An <see cref="EvaluationContext"/></returns>
         public EvaluationContext GetContext()
