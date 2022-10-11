@@ -2,7 +2,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -23,7 +22,7 @@ namespace OpenFeatureSDK
         private readonly ILogger _logger;
         private EvaluationContext _evaluationContext;
 
-        private readonly ReaderWriterLockSlim _evaluationContextLock = new ReaderWriterLockSlim();
+        private readonly object _evaluationContextLock = new object();
 
         /// <summary>
         /// Get a provider and an associated typed flag resolution method.
@@ -65,14 +64,9 @@ namespace OpenFeatureSDK
         /// <returns><see cref="EvaluationContext"/>of this client</returns>
         public EvaluationContext GetContext()
         {
-            this._evaluationContextLock.EnterReadLock();
-            try
+            lock (this._evaluationContextLock)
             {
                 return this._evaluationContext;
-            }
-            finally
-            {
-                this._evaluationContextLock.ExitReadLock();
             }
         }
 
@@ -82,14 +76,9 @@ namespace OpenFeatureSDK
         /// <param name="context">The <see cref="EvaluationContext"/> to set</param>
         public void SetContext(EvaluationContext context)
         {
-            this._evaluationContextLock.EnterWriteLock();
-            try
+            lock (this._evaluationContextLock)
             {
                 this._evaluationContext = context ?? EvaluationContext.Empty;
-            }
-            finally
-            {
-                this._evaluationContextLock.ExitWriteLock();
             }
         }
 
