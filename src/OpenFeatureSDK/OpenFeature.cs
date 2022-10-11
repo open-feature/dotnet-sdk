@@ -19,6 +19,7 @@ namespace OpenFeatureSDK
         private FeatureProvider _featureProvider = new NoOpFeatureProvider();
         private readonly ConcurrentStack<Hook> _hooks = new ConcurrentStack<Hook>();
 
+        /// The reader/writer locks are not disposed because the singleton instance should never be disposed.
         private readonly ReaderWriterLockSlim _evaluationContextLock = new ReaderWriterLockSlim();
         private readonly ReaderWriterLockSlim _featureProviderLock = new ReaderWriterLockSlim();
 
