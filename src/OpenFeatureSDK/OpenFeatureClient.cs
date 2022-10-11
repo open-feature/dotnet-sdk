@@ -47,6 +47,7 @@ namespace OpenFeatureSDK
                 provider = new NoOpFeatureProvider();
                 this._logger.LogDebug("No provider configured, using no-op provider");
             }
+
             return (method(provider), provider);
         }
 
@@ -84,12 +85,19 @@ namespace OpenFeatureSDK
 
         /// <summary>
         /// Add hook to client
+        /// <para>
+        /// Hooks which are dependent on each other should be provided in a collection
+        /// using the <see cref="AddHooks(System.Collections.Generic.IEnumerable{OpenFeatureSDK.Hook})"/>.
+        /// </para>
         /// </summary>
         /// <param name="hook">Hook that implements the <see cref="Hook"/> interface</param>
         public void AddHooks(Hook hook) => this._hooks.Push(hook);
 
         /// <summary>
         /// Appends hooks to client
+        /// <para>
+        /// The appending operation will be atomic.
+        /// </para>
         /// </summary>
         /// <param name="hooks">A list of Hooks that implement the <see cref="Hook"/> interface</param>
         public void AddHooks(IEnumerable<Hook> hooks) => this._hooks.PushRange(hooks.ToArray());

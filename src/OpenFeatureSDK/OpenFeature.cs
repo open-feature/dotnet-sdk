@@ -98,14 +98,21 @@ namespace OpenFeatureSDK
 
         /// <summary>
         /// Appends list of hooks to global hooks list
+        /// <para>
+        /// The appending operation will be atomic.
+        /// </para>
         /// </summary>
         /// <param name="hooks">A list of <see cref="Hook"/></param>
         public void AddHooks(IEnumerable<Hook> hooks) => this._hooks.PushRange(hooks.ToArray());
 
         /// <summary>
         /// Adds a hook to global hooks list
+        /// <para>
+        /// Hooks which are dependent on each other should be provided in a collection
+        /// using the <see cref="AddHooks(System.Collections.Generic.IEnumerable{OpenFeatureSDK.Hook})"/>.
+        /// </para>
         /// </summary>
-        /// <param name="hook">A list of <see cref="Hook"/></param>
+        /// <param name="hook">Hook that implements the <see cref="Hook"/> interface</param>
         public void AddHooks(Hook hook) => this._hooks.Push(hook);
 
         /// <summary>
