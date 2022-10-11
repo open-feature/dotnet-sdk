@@ -154,7 +154,6 @@ namespace OpenFeatureSDK
         /// The evaluation context may be set from multiple threads, when accessing the global evaluation context
         /// it should be accessed once for an operation, and then that reference should be used for all dependent
         /// operations.
-        /// <see cref="OpenFeature.GetProvider"/>.
         /// </para>
         /// </summary>
         /// <returns>An <see cref="EvaluationContext"/></returns>

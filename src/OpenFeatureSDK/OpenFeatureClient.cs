@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -21,6 +22,8 @@ namespace OpenFeatureSDK
         private readonly ConcurrentStack<Hook> _hooks = new ConcurrentStack<Hook>();
         private readonly ILogger _logger;
         private EvaluationContext _evaluationContext;
+
+        private readonly ReaderWriterLockSlim _evaluationContextLock = new ReaderWriterLockSlim();
 
         /// <summary>
         /// Get a provider and an associated typed flag resolution method.
@@ -53,14 +56,42 @@ namespace OpenFeatureSDK
 
         /// <summary>
         /// Gets the EvaluationContext of this client<see cref="EvaluationContext"/>
+        /// <para>
+        /// The evaluation context may be set from multiple threads, when accessing the client evaluation context
+        /// it should be accessed once for an operation, and then that reference should be used for all dependent
+        /// operations.
+        /// </para>
         /// </summary>
         /// <returns><see cref="EvaluationContext"/>of this client</returns>
-        public EvaluationContext GetContext() => this._evaluationContext;
+        public EvaluationContext GetContext()
+        {
+            this._evaluationContextLock.EnterReadLock();
+            try
+            {
+                return this._evaluationContext;
+            }
+            finally
+            {
+                this._evaluationContextLock.ExitReadLock();
+            }
+        }
 
         /// <summary>
         /// Sets the EvaluationContext of the client<see cref="EvaluationContext"/>
         /// </summary>
-        public void SetContext(EvaluationContext evaluationContext) => this._evaluationContext = evaluationContext;
+        /// <param name="context">The <see cref="EvaluationContext"/> to set</param>
+        public void SetContext(EvaluationContext context)
+        {
+            this._evaluationContextLock.EnterWriteLock();
+            try
+            {
+                this._evaluationContext = context ?? EvaluationContext.Empty;
+            }
+            finally
+            {
+                this._evaluationContextLock.ExitWriteLock();
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FeatureClient"/> class.
