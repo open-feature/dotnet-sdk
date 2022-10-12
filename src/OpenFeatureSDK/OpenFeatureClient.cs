@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,34 +18,80 @@ namespace OpenFeatureSDK
     public sealed class FeatureClient : IFeatureClient
     {
         private readonly ClientMetadata _metadata;
-        private readonly FeatureProvider _featureProvider;
-        private readonly List<Hook> _hooks = new List<Hook>();
+        private readonly ConcurrentStack<Hook> _hooks = new ConcurrentStack<Hook>();
         private readonly ILogger _logger;
         private EvaluationContext _evaluationContext;
 
+        private readonly object _evaluationContextLock = new object();
+
+        /// <summary>
+        /// Get a provider and an associated typed flag resolution method.
+        /// <para>
+        /// The global provider could change between two accesses, so in order to safely get provider information we
+        /// must first alias it and then use that alias to access everything we need.
+        /// </para>
+        /// </summary>
+        /// <param name="method">
+        ///     This method should return the desired flag resolution method from the given provider reference.
+        /// </param>
+        /// <typeparam name="T">The type of the resolution method</typeparam>
+        /// <returns>A tuple containing a resolution method and the provider it came from.</returns>
+        private (Func<string, T, EvaluationContext, Task<ResolutionDetails<T>>>, FeatureProvider)
+            ExtractProvider<T>(
+                Func<FeatureProvider, Func<string, T, EvaluationContext, Task<ResolutionDetails<T>>>> method)
+        {
+            // Alias the provider reference so getting the method and returning the provider are
+            // guaranteed to be the same object.
+            var provider = OpenFeature.Instance.GetProvider();
+
+            if (provider == null)
+            {
+                provider = new NoOpFeatureProvider();
+                this._logger.LogDebug("No provider configured, using no-op provider");
+            }
+
+            return (method(provider), provider);
+        }
+
         /// <summary>
         /// Gets the EvaluationContext of this client<see cref="EvaluationContext"/>
+        /// <para>
+        /// The evaluation context may be set from multiple threads, when accessing the client evaluation context
+        /// it should be accessed once for an operation, and then that reference should be used for all dependent
+        /// operations.
+        /// </para>
         /// </summary>
         /// <returns><see cref="EvaluationContext"/>of this client</returns>
-        public EvaluationContext GetContext() => this._evaluationContext;
+        public EvaluationContext GetContext()
+        {
+            lock (this._evaluationContextLock)
+            {
+                return this._evaluationContext;
+            }
+        }
 
         /// <summary>
         /// Sets the EvaluationContext of the client<see cref="EvaluationContext"/>
         /// </summary>
-        public void SetContext(EvaluationContext evaluationContext) => this._evaluationContext = evaluationContext;
+        /// <param name="context">The <see cref="EvaluationContext"/> to set</param>
+        public void SetContext(EvaluationContext context)
+        {
+            lock (this._evaluationContextLock)
+            {
+                this._evaluationContext = context ?? EvaluationContext.Empty;
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FeatureClient"/> class.
         /// </summary>
-        /// <param name="featureProvider">Feature provider used by client <see cref="FeatureProvider"/></param>
         /// <param name="name">Name of client <see cref="ClientMetadata"/></param>
         /// <param name="version">Version of client <see cref="ClientMetadata"/></param>
         /// <param name="logger">Logger used by client</param>
         /// <param name="context">Context given to this client</param>
         /// <exception cref="ArgumentNullException">Throws if any of the required parameters are null</exception>
-        public FeatureClient(FeatureProvider featureProvider, string name, string version, ILogger logger = null, EvaluationContext context = null)
+        public FeatureClient(string name, string version, ILogger logger = null, EvaluationContext context = null)
         {
-            this._featureProvider = featureProvider ?? throw new ArgumentNullException(nameof(featureProvider));
             this._metadata = new ClientMetadata(name, version);
             this._logger = logger ?? new Logger<OpenFeature>(new NullLoggerFactory());
             this._evaluationContext = context ?? EvaluationContext.Empty;
@@ -58,21 +105,33 @@ namespace OpenFeatureSDK
 
         /// <summary>
         /// Add hook to client
+        /// <para>
+        /// Hooks which are dependent on each other should be provided in a collection
+        /// using the <see cref="AddHooks(System.Collections.Generic.IEnumerable{OpenFeatureSDK.Hook})"/>.
+        /// </para>
         /// </summary>
         /// <param name="hook">Hook that implements the <see cref="Hook"/> interface</param>
-        public void AddHooks(Hook hook) => this._hooks.Add(hook);
+        public void AddHooks(Hook hook) => this._hooks.Push(hook);
 
         /// <summary>
         /// Appends hooks to client
+        /// <para>
+        /// The appending operation will be atomic.
+        /// </para>
         /// </summary>
         /// <param name="hooks">A list of Hooks that implement the <see cref="Hook"/> interface</param>
-        public void AddHooks(IEnumerable<Hook> hooks) => this._hooks.AddRange(hooks);
+        public void AddHooks(IEnumerable<Hook> hooks) => this._hooks.PushRange(hooks.ToArray());
 
         /// <summary>
-        /// Return a immutable list of hooks that are registered against the client
+        /// Enumerates the global hooks.
+        /// <para>
+        /// The items enumerated will reflect the registered hooks
+        /// at the start of enumeration. Hooks added during enumeration
+        /// will not be included.
+        /// </para>
         /// </summary>
-        /// <returns>A list of immutable hooks</returns>
-        public IReadOnlyList<Hook> GetHooks() => this._hooks.ToList().AsReadOnly();
+        /// <returns>Enumeration of <see cref="Hook"/></returns>
+        public IEnumerable<Hook> GetHooks() => this._hooks.Reverse();
 
         /// <summary>
         /// Removes all hooks from the client
@@ -101,7 +160,8 @@ namespace OpenFeatureSDK
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
         public async Task<FlagEvaluationDetails<bool>> GetBooleanDetails(string flagKey, bool defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(this._featureProvider.ResolveBooleanValue, FlagValueType.Boolean, flagKey,
+            await this.EvaluateFlag(this.ExtractProvider<bool>(provider => provider.ResolveBooleanValue),
+                FlagValueType.Boolean, flagKey,
                 defaultValue, context, config);
 
         /// <summary>
@@ -126,7 +186,8 @@ namespace OpenFeatureSDK
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
         public async Task<FlagEvaluationDetails<string>> GetStringDetails(string flagKey, string defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(this._featureProvider.ResolveStringValue, FlagValueType.String, flagKey,
+            await this.EvaluateFlag(this.ExtractProvider<string>(provider => provider.ResolveStringValue),
+                FlagValueType.String, flagKey,
                 defaultValue, context, config);
 
         /// <summary>
@@ -151,7 +212,8 @@ namespace OpenFeatureSDK
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
         public async Task<FlagEvaluationDetails<int>> GetIntegerDetails(string flagKey, int defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(this._featureProvider.ResolveIntegerValue, FlagValueType.Number, flagKey,
+            await this.EvaluateFlag(this.ExtractProvider<int>(provider => provider.ResolveIntegerValue),
+                FlagValueType.Number, flagKey,
                 defaultValue, context, config);
 
         /// <summary>
@@ -177,7 +239,8 @@ namespace OpenFeatureSDK
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
         public async Task<FlagEvaluationDetails<double>> GetDoubleDetails(string flagKey, double defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(this._featureProvider.ResolveDoubleValue, FlagValueType.Number, flagKey,
+            await this.EvaluateFlag(this.ExtractProvider<double>(provider => provider.ResolveDoubleValue),
+                FlagValueType.Number, flagKey,
                 defaultValue, context, config);
 
         /// <summary>
@@ -202,14 +265,18 @@ namespace OpenFeatureSDK
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
         public async Task<FlagEvaluationDetails<Value>> GetObjectDetails(string flagKey, Value defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(this._featureProvider.ResolveStructureValue, FlagValueType.Object, flagKey,
+            await this.EvaluateFlag(this.ExtractProvider<Value>(provider => provider.ResolveStructureValue),
+                FlagValueType.Object, flagKey,
                 defaultValue, context, config);
 
         private async Task<FlagEvaluationDetails<T>> EvaluateFlag<T>(
-            Func<string, T, EvaluationContext, Task<ResolutionDetails<T>>> resolveValueDelegate,
+            (Func<string, T, EvaluationContext, Task<ResolutionDetails<T>>>, FeatureProvider) providerInfo,
             FlagValueType flagValueType, string flagKey, T defaultValue, EvaluationContext context = null,
             FlagEvaluationOptions options = null)
         {
+            var resolveValueDelegate = providerInfo.Item1;
+            var provider = providerInfo.Item2;
+
             // New up a evaluation context if one was not provided.
             if (context == null)
             {
@@ -225,9 +292,9 @@ namespace OpenFeatureSDK
 
             var allHooks = new List<Hook>()
                 .Concat(OpenFeature.Instance.GetHooks())
-                .Concat(this._hooks)
+                .Concat(this.GetHooks())
                 .Concat(options?.Hooks ?? Enumerable.Empty<Hook>())
-                .Concat(this._featureProvider.GetProviderHooks())
+                .Concat(provider.GetProviderHooks())
                 .ToList()
                 .AsReadOnly();
 
@@ -241,7 +308,7 @@ namespace OpenFeatureSDK
                 flagKey,
                 defaultValue,
                 flagValueType, this._metadata,
-                OpenFeature.Instance.GetProviderMetadata(),
+                provider.GetMetadata(),
                 evaluationContextBuilder.Build()
             );
 

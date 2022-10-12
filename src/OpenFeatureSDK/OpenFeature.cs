@@ -1,4 +1,8 @@
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 using OpenFeatureSDK.Model;
 
@@ -13,7 +17,11 @@ namespace OpenFeatureSDK
     {
         private EvaluationContext _evaluationContext = EvaluationContext.Empty;
         private FeatureProvider _featureProvider = new NoOpFeatureProvider();
-        private readonly List<Hook> _hooks = new List<Hook>();
+        private readonly ConcurrentStack<Hook> _hooks = new ConcurrentStack<Hook>();
+
+        /// The reader/writer locks are not disposed because the singleton instance should never be disposed.
+        private readonly ReaderWriterLockSlim _evaluationContextLock = new ReaderWriterLockSlim();
+        private readonly ReaderWriterLockSlim _featureProviderLock = new ReaderWriterLockSlim();
 
         /// <summary>
         /// Singleton instance of OpenFeature
@@ -30,19 +38,53 @@ namespace OpenFeatureSDK
         /// Sets the feature provider
         /// </summary>
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
-        public void SetProvider(FeatureProvider featureProvider) => this._featureProvider = featureProvider;
+        public void SetProvider(FeatureProvider featureProvider)
+        {
+            this._featureProviderLock.EnterWriteLock();
+            try
+            {
+                this._featureProvider = featureProvider;
+            }
+            finally
+            {
+                this._featureProviderLock.ExitWriteLock();
+            }
+        }
 
         /// <summary>
         /// Gets the feature provider
+        /// <para>
+        /// The feature provider may be set from multiple threads, when accessing the global feature provider
+        /// it should be accessed once for an operation, and then that reference should be used for all dependent
+        /// operations. For instance, during an evaluation the flag resolution method, and the provider hooks
+        /// should be accessed from the same reference, not two independent calls to
+        /// <see cref="OpenFeature.GetProvider"/>.
+        /// </para>
         /// </summary>
         /// <returns><see cref="FeatureProvider"/></returns>
-        public FeatureProvider GetProvider() => this._featureProvider;
+        public FeatureProvider GetProvider()
+        {
+            this._featureProviderLock.EnterReadLock();
+            try
+            {
+                return this._featureProvider;
+            }
+            finally
+            {
+                this._featureProviderLock.ExitReadLock();
+            }
+        }
 
         /// <summary>
         /// Gets providers metadata
+        /// <para>
+        /// This method is not guaranteed to return the same provider instance that may be used during an evaluation
+        /// in the case where the provider may be changed from another thread.
+        /// For multiple dependent provider operations see <see cref="OpenFeature.GetProvider"/>.
+        /// </para>
         /// </summary>
         /// <returns><see cref="ClientMetadata"/></returns>
-        public Metadata GetProviderMetadata() => this._featureProvider.GetMetadata();
+        public Metadata GetProviderMetadata() => this.GetProvider().GetMetadata();
 
         /// <summary>
         /// Create a new instance of <see cref="FeatureClient"/> using the current provider
@@ -52,26 +94,39 @@ namespace OpenFeatureSDK
         /// <param name="logger">Logger instance used by client</param>
         /// <param name="context">Context given to this client</param>
         /// <returns><see cref="FeatureClient"/></returns>
-        public FeatureClient GetClient(string name = null, string version = null, ILogger logger = null, EvaluationContext context = null) =>
-            new FeatureClient(this._featureProvider, name, version, logger, context);
+        public FeatureClient GetClient(string name = null, string version = null, ILogger logger = null,
+            EvaluationContext context = null) =>
+            new FeatureClient(name, version, logger, context);
 
         /// <summary>
         /// Appends list of hooks to global hooks list
+        /// <para>
+        /// The appending operation will be atomic.
+        /// </para>
         /// </summary>
         /// <param name="hooks">A list of <see cref="Hook"/></param>
-        public void AddHooks(IEnumerable<Hook> hooks) => this._hooks.AddRange(hooks);
+        public void AddHooks(IEnumerable<Hook> hooks) => this._hooks.PushRange(hooks.ToArray());
 
         /// <summary>
         /// Adds a hook to global hooks list
+        /// <para>
+        /// Hooks which are dependent on each other should be provided in a collection
+        /// using the <see cref="AddHooks(System.Collections.Generic.IEnumerable{OpenFeatureSDK.Hook})"/>.
+        /// </para>
         /// </summary>
-        /// <param name="hook">A list of <see cref="Hook"/></param>
-        public void AddHooks(Hook hook) => this._hooks.Add(hook);
+        /// <param name="hook">Hook that implements the <see cref="Hook"/> interface</param>
+        public void AddHooks(Hook hook) => this._hooks.Push(hook);
 
         /// <summary>
-        /// Returns the global immutable hooks list
+        /// Enumerates the global hooks.
+        /// <para>
+        /// The items enumerated will reflect the registered hooks
+        /// at the start of enumeration. Hooks added during enumeration
+        /// will not be included.
+        /// </para>
         /// </summary>
-        /// <returns>A immutable list of <see cref="Hook"/></returns>
-        public IReadOnlyList<Hook> GetHooks() => this._hooks.AsReadOnly();
+        /// <returns>Enumeration of <see cref="Hook"/></returns>
+        public IEnumerable<Hook> GetHooks() => this._hooks.Reverse();
 
         /// <summary>
         /// Removes all hooks from global hooks list
@@ -81,13 +136,40 @@ namespace OpenFeatureSDK
         /// <summary>
         /// Sets the global <see cref="EvaluationContext"/>
         /// </summary>
-        /// <param name="context"></param>
-        public void SetContext(EvaluationContext context) => this._evaluationContext = context ?? EvaluationContext.Empty;
+        /// <param name="context">The <see cref="EvaluationContext"/> to set</param>
+        public void SetContext(EvaluationContext context)
+        {
+            this._evaluationContextLock.EnterWriteLock();
+            try
+            {
+                this._evaluationContext = context ?? EvaluationContext.Empty;
+            }
+            finally
+            {
+                this._evaluationContextLock.ExitWriteLock();
+            }
+        }
 
         /// <summary>
         /// Gets the global <see cref="EvaluationContext"/>
+        /// <para>
+        /// The evaluation context may be set from multiple threads, when accessing the global evaluation context
+        /// it should be accessed once for an operation, and then that reference should be used for all dependent
+        /// operations.
+        /// </para>
         /// </summary>
-        /// <returns></returns>
-        public EvaluationContext GetContext() => this._evaluationContext;
+        /// <returns>An <see cref="EvaluationContext"/></returns>
+        public EvaluationContext GetContext()
+        {
+            this._evaluationContextLock.EnterReadLock();
+            try
+            {
+                return this._evaluationContext;
+            }
+            finally
+            {
+                this._evaluationContextLock.ExitReadLock();
+            }
+        }
     }
 }

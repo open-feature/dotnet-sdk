@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
@@ -83,7 +85,7 @@ namespace OpenFeatureSDK.Tests
             client.AddHooks(clientHook.Object);
 
             await client.GetBooleanValue(flagName, defaultValue, EvaluationContext.Empty,
-                new FlagEvaluationOptions(invocationHook.Object, new Dictionary<string, object>()));
+                new FlagEvaluationOptions(invocationHook.Object, ImmutableDictionary<string, object>.Empty));
 
             apiHook.Verify(x => x.Before(
                 It.IsAny<HookContext<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
@@ -173,19 +175,19 @@ namespace OpenFeatureSDK.Tests
                 FlagValueType.Boolean, new ClientMetadata("test", "1.0.0"), new Metadata(NoOpProvider.NoOpProviderName),
                 evaluationContext);
 
-            hook1.Setup(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()))
+            hook1.Setup(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<ImmutableDictionary<string, object>>()))
                 .ReturnsAsync(evaluationContext);
 
             hook2.Setup(x =>
-                    x.Before(hookContext, It.IsAny<Dictionary<string, object>>()))
+                    x.Before(hookContext, It.IsAny<ImmutableDictionary<string, object>>()))
                 .ReturnsAsync(evaluationContext);
 
             var client = OpenFeature.Instance.GetClient("test", "1.0.0");
             await client.GetBooleanValue("test", false, EvaluationContext.Empty,
-                new FlagEvaluationOptions(new[] { hook1.Object, hook2.Object }, new Dictionary<string, object>()));
+                new FlagEvaluationOptions(ImmutableList.Create(hook1.Object, hook2.Object), ImmutableDictionary<string, object>.Empty));
 
-            hook1.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()), Times.Once);
-            hook2.Verify(x => x.Before(It.Is<HookContext<bool>>(a => a.EvaluationContext.GetValue("test").AsString == "test"), It.IsAny<Dictionary<string, object>>()), Times.Once);
+            hook1.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<ImmutableDictionary<string, object>>()), Times.Once);
+            hook2.Verify(x => x.Before(It.Is<HookContext<bool>>(a => a.EvaluationContext.GetValue("test").AsString == "test"), It.IsAny<ImmutableDictionary<string, object>>()), Times.Once);
         }
 
         [Fact]
@@ -232,7 +234,7 @@ namespace OpenFeatureSDK.Tests
                 .Returns(new Metadata(null));
 
             provider.Setup(x => x.GetProviderHooks())
-                .Returns(Array.Empty<Hook>());
+                .Returns(ImmutableList<Hook>.Empty);
 
             provider.Setup(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>()))
             .ReturnsAsync(new ResolutionDetails<bool>("test", true));
@@ -240,12 +242,12 @@ namespace OpenFeatureSDK.Tests
             OpenFeature.Instance.SetProvider(provider.Object);
 
             var hook = new Mock<Hook>(MockBehavior.Strict);
-            hook.Setup(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()))
+            hook.Setup(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<ImmutableDictionary<string, object>>()))
                 .ReturnsAsync(hookContext);
 
 
             var client = OpenFeature.Instance.GetClient("test", "1.0.0", null, clientContext);
-            await client.GetBooleanValue("test", false, invocationContext, new FlagEvaluationOptions(new[] { hook.Object }, new Dictionary<string, object>()));
+            await client.GetBooleanValue("test", false, invocationContext, new FlagEvaluationOptions(ImmutableList.Create(hook.Object), ImmutableDictionary<string, object>.Empty));
 
             // after proper merging, all properties should equal true
             provider.Verify(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.Is<EvaluationContext>(y =>
@@ -307,7 +309,7 @@ namespace OpenFeatureSDK.Tests
                 .Returns(new Metadata(null));
 
             featureProvider.Setup(x => x.GetProviderHooks())
-                .Returns(Array.Empty<Hook>());
+                .Returns(ImmutableList<Hook>.Empty);
 
             hook.InSequence(sequence).Setup(x =>
                     x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()))
@@ -351,10 +353,10 @@ namespace OpenFeatureSDK.Tests
             var client = OpenFeature.Instance.GetClient();
             client.AddHooks(hook2.Object);
             await client.GetBooleanValue("test", false, null,
-                new FlagEvaluationOptions(hook3.Object, new Dictionary<string, object>()));
+                new FlagEvaluationOptions(hook3.Object, ImmutableDictionary<string, object>.Empty));
 
-            OpenFeature.Instance.GetHooks().Count.Should().Be(1);
-            client.GetHooks().Count.Should().Be(1);
+            Assert.Single(OpenFeature.Instance.GetHooks());
+            client.GetHooks().Count().Should().Be(1);
             testProvider.GetProviderHooks().Count.Should().Be(1);
         }
 
@@ -372,7 +374,7 @@ namespace OpenFeatureSDK.Tests
                 .Returns(new Metadata(null));
 
             featureProvider.Setup(x => x.GetProviderHooks())
-                .Returns(Array.Empty<Hook>());
+                .Returns(ImmutableList<Hook>.Empty);
 
             hook1.InSequence(sequence).Setup(x =>
                     x.Before(It.IsAny<HookContext<It.IsAnyType>>(), null))
@@ -405,7 +407,7 @@ namespace OpenFeatureSDK.Tests
             OpenFeature.Instance.SetProvider(featureProvider.Object);
             var client = OpenFeature.Instance.GetClient();
             client.AddHooks(new[] { hook1.Object, hook2.Object });
-            client.GetHooks().Count.Should().Be(2);
+            client.GetHooks().Count().Should().Be(2);
 
             await client.GetBooleanValue("test", false);
 
@@ -431,7 +433,7 @@ namespace OpenFeatureSDK.Tests
             featureProvider1.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(null));
             featureProvider1.Setup(x => x.GetProviderHooks())
-                .Returns(Array.Empty<Hook>());
+                .Returns(ImmutableList<Hook>.Empty);
 
             hook1.InSequence(sequence).Setup(x =>
                     x.Before(It.IsAny<HookContext<It.IsAnyType>>(), null))
@@ -478,7 +480,7 @@ namespace OpenFeatureSDK.Tests
             featureProvider.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(null));
             featureProvider.Setup(x => x.GetProviderHooks())
-                .Returns(Array.Empty<Hook>());
+                .Returns(ImmutableList<Hook>.Empty);
 
             hook1.InSequence(sequence).Setup(x =>
                     x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()))
@@ -518,7 +520,7 @@ namespace OpenFeatureSDK.Tests
                 .Returns(new Metadata(null));
 
             featureProvider.Setup(x => x.GetProviderHooks())
-                .Returns(Array.Empty<Hook>());
+                .Returns(ImmutableList<Hook>.Empty);
 
             hook.InSequence(sequence)
                 .Setup(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), defaultEmptyHookHints))

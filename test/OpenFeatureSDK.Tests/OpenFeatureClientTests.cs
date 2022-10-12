@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
@@ -30,14 +32,14 @@ namespace OpenFeatureSDK.Tests
             client.AddHooks(new[] { hook1, hook2 });
 
             client.GetHooks().Should().ContainInOrder(hook1, hook2);
-            client.GetHooks().Count.Should().Be(2);
+            client.GetHooks().Count().Should().Be(2);
 
             client.AddHooks(hook3);
             client.GetHooks().Should().ContainInOrder(hook1, hook2, hook3);
-            client.GetHooks().Count.Should().Be(3);
+            client.GetHooks().Count().Should().Be(3);
 
             client.ClearHooks();
-            client.GetHooks().Count.Should().Be(0);
+            Assert.Empty(client.GetHooks());
         }
 
         [Fact]
@@ -68,7 +70,7 @@ namespace OpenFeatureSDK.Tests
             var defaultIntegerValue = fixture.Create<int>();
             var defaultDoubleValue = fixture.Create<double>();
             var defaultStructureValue = fixture.Create<Value>();
-            var emptyFlagOptions = new FlagEvaluationOptions(new List<Hook>(), new Dictionary<string, object>());
+            var emptyFlagOptions = new FlagEvaluationOptions(ImmutableList<Hook>.Empty, ImmutableDictionary<string, object>.Empty);
 
             OpenFeature.Instance.SetProvider(new NoOpFeatureProvider());
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion);
@@ -114,7 +116,7 @@ namespace OpenFeatureSDK.Tests
             var defaultIntegerValue = fixture.Create<int>();
             var defaultDoubleValue = fixture.Create<double>();
             var defaultStructureValue = fixture.Create<Value>();
-            var emptyFlagOptions = new FlagEvaluationOptions(new List<Hook>(), new Dictionary<string, object>());
+            var emptyFlagOptions = new FlagEvaluationOptions(ImmutableList<Hook>.Empty, ImmutableDictionary<string, object>.Empty);
 
             OpenFeature.Instance.SetProvider(new NoOpFeatureProvider());
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion);
@@ -169,7 +171,7 @@ namespace OpenFeatureSDK.Tests
             mockedFeatureProvider.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(fixture.Create<string>()));
             mockedFeatureProvider.Setup(x => x.GetProviderHooks())
-                .Returns(Array.Empty<Hook>());
+                .Returns(ImmutableList<Hook>.Empty);
 
             OpenFeature.Instance.SetProvider(mockedFeatureProvider.Object);
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion, mockedLogger.Object);
@@ -206,7 +208,7 @@ namespace OpenFeatureSDK.Tests
             featureProviderMock.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.Setup(x => x.GetProviderHooks())
-                .Returns(Array.Empty<Hook>());
+                .Returns(ImmutableList<Hook>.Empty);
 
             OpenFeature.Instance.SetProvider(featureProviderMock.Object);
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion);
@@ -232,7 +234,7 @@ namespace OpenFeatureSDK.Tests
             featureProviderMock.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.Setup(x => x.GetProviderHooks())
-                .Returns(Array.Empty<Hook>());
+                .Returns(ImmutableList<Hook>.Empty);
 
             OpenFeature.Instance.SetProvider(featureProviderMock.Object);
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion);
@@ -258,7 +260,7 @@ namespace OpenFeatureSDK.Tests
             featureProviderMock.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.Setup(x => x.GetProviderHooks())
-                .Returns(Array.Empty<Hook>());
+                .Returns(ImmutableList<Hook>.Empty);
 
             OpenFeature.Instance.SetProvider(featureProviderMock.Object);
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion);
@@ -284,7 +286,7 @@ namespace OpenFeatureSDK.Tests
             featureProviderMock.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.Setup(x => x.GetProviderHooks())
-                .Returns(Array.Empty<Hook>());
+                .Returns(ImmutableList<Hook>.Empty);
 
             OpenFeature.Instance.SetProvider(featureProviderMock.Object);
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion);
@@ -310,7 +312,7 @@ namespace OpenFeatureSDK.Tests
             featureProviderMock.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.Setup(x => x.GetProviderHooks())
-                .Returns(Array.Empty<Hook>());
+                .Returns(ImmutableList<Hook>.Empty);
 
             OpenFeature.Instance.SetProvider(featureProviderMock.Object);
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion);
@@ -338,7 +340,7 @@ namespace OpenFeatureSDK.Tests
             featureProviderMock.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.Setup(x => x.GetProviderHooks())
-                .Returns(Array.Empty<Hook>());
+                .Returns(ImmutableList<Hook>.Empty);
 
             OpenFeature.Instance.SetProvider(featureProviderMock.Object);
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion);
@@ -367,7 +369,7 @@ namespace OpenFeatureSDK.Tests
             featureProviderMock.Setup(x => x.GetMetadata())
                 .Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.Setup(x => x.GetProviderHooks())
-                .Returns(Array.Empty<Hook>());
+                .Returns(ImmutableList<Hook>.Empty);
 
             OpenFeature.Instance.SetProvider(featureProviderMock.Object);
             var client = OpenFeature.Instance.GetClient(clientName, clientVersion);
@@ -380,10 +382,11 @@ namespace OpenFeatureSDK.Tests
         }
 
         [Fact]
-        public void Should_Throw_ArgumentNullException_When_Provider_Is_Null()
+        public async Task Should_Use_No_Op_When_Provider_Is_Null()
         {
-            TestProvider provider = null;
-            Assert.Throws<ArgumentNullException>(() => new FeatureClient(provider, "test", "test"));
+            OpenFeature.Instance.SetProvider(null);
+            var client = new FeatureClient("test", "test");
+            (await client.GetIntegerValue("some-key", 12)).Should().Be(12);
         }
 
         [Fact]

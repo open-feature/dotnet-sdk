@@ -1,5 +1,4 @@
-using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 using OpenFeatureSDK.Model;
 
@@ -22,8 +21,8 @@ namespace OpenFeatureSDK
         /// error (if applicable): Provider, Invocation, Client, API
         /// finally: Provider, Invocation, Client, API
         /// </summary>
-        /// <returns></returns>
-        public virtual IReadOnlyList<Hook> GetProviderHooks() => Array.Empty<Hook>();
+        /// <returns>Immutable list of hooks</returns>
+        public virtual IImmutableList<Hook> GetProviderHooks() => ImmutableList<Hook>.Empty;
 
         /// <summary>
         /// Metadata describing the provider.

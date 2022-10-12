@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace OpenFeatureSDK.Model
 {
@@ -12,33 +12,33 @@ namespace OpenFeatureSDK.Model
         /// <summary>
         /// A immutable list of <see cref="Hook"/>
         /// </summary>
-        public IReadOnlyList<Hook> Hooks { get; }
+        public IImmutableList<Hook> Hooks { get; }
 
         /// <summary>
         /// A immutable dictionary of hook hints
         /// </summary>
-        public IReadOnlyDictionary<string, object> HookHints { get; }
+        public IImmutableDictionary<string, object> HookHints { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FlagEvaluationOptions"/> class.
         /// </summary>
-        /// <param name="hooks"></param>
+        /// <param name="hooks">An immutable list of hooks to use during evaluation</param>
         /// <param name="hookHints">Optional - a list of hints that are passed through the hook lifecycle</param>
-        public FlagEvaluationOptions(IReadOnlyList<Hook> hooks, IReadOnlyDictionary<string, object> hookHints = null)
+        public FlagEvaluationOptions(IImmutableList<Hook> hooks, IImmutableDictionary<string, object> hookHints = null)
         {
             this.Hooks = hooks;
-            this.HookHints = hookHints ?? new Dictionary<string, object>();
+            this.HookHints = hookHints ?? ImmutableDictionary<string, object>.Empty;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FlagEvaluationOptions"/> class.
         /// </summary>
-        /// <param name="hook"></param>
+        /// <param name="hook">A hook to use during the evaluation</param>
         /// <param name="hookHints">Optional - a list of hints that are passed through the hook lifecycle</param>
-        public FlagEvaluationOptions(Hook hook, IReadOnlyDictionary<string, object> hookHints = null)
+        public FlagEvaluationOptions(Hook hook, ImmutableDictionary<string, object> hookHints = null)
         {
-            this.Hooks = new[] { hook };
-            this.HookHints = hookHints ?? new Dictionary<string, object>();
+            this.Hooks = ImmutableList.Create(hook);
+            this.HookHints = hookHints ?? ImmutableDictionary<string, object>.Empty;
         }
     }
 }
