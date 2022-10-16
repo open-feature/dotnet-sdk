@@ -34,11 +34,11 @@ jobs:
       - name: Pack
         if: ${{ steps.release.outputs.releases_created }}
         run:  |
-          dotnet pack OpenFeatureSDK.proj --configuration Release --no-build -p:PackageID=OpenFeature
+          dotnet pack OpenFeature.proj --configuration Release --no-build -p:PackageID=OpenFeature
 
       - name: Publish to Nuget
         if: ${{ steps.release.outputs.releases_created }}
         run: |
-          dotnet nuget push src/OpenFeatureSDK/bin/Release/OpenFeature.${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}.nupkg `
+          dotnet nuget push src/OpenFeature/bin/Release/OpenFeature.${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}.nupkg `
             --api-key ${{secrets.NUGET_TOKEN}} `
             --source https://api.nuget.org/v3/index.json

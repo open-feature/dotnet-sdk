@@ -17,10 +17,10 @@ The packages will aim to support all current .NET versions. Refer to the current
 ### Basic Usage
 
 ```csharp
-using OpenFeatureSDK;
+using OpenFeature;
 
 // Sets the provider used by the client
-OpenFeature.Instance.SetProvider(new NoOpProvider());
+Api.Instance.SetProvider(new NoOpProvider());
 // Gets a instance of the feature flag client
 var client = OpenFeature.Instance.GetClient();
 // Evaluation the `my-feature` feature flag
@@ -42,8 +42,8 @@ To develop a provider, you need to create a new project and include the OpenFeat
 Example of implementing a feature flag provider
 
 ```csharp
-using OpenFeatureSDK;
-using OpenFeatureSDK.Model;
+using OpenFeature;
+using OpenFeature.Model;
 
 public class MyFeatureProvider : FeatureProvider
 {
@@ -94,10 +94,10 @@ Example of adding a hook
 
 ```csharp
 // add a hook globally, to run on all evaluations
-openFeature.AddHooks(new ExampleGlobalHook());
+Api.Instance.AddHooks(new ExampleGlobalHook());
 
 // add a hook on this client, to run on all evaluations made by this client
-var client = OpenFeature.Instance.GetClient();
+var client = Api.Instance.GetClient();
 client.AddHooks(new ExampleClientHook());
 
 // add a hook for this evaluation only
