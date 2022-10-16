@@ -57,7 +57,7 @@ namespace OpenFeature
         /// it should be accessed once for an operation, and then that reference should be used for all dependent
         /// operations. For instance, during an evaluation the flag resolution method, and the provider hooks
         /// should be accessed from the same reference, not two independent calls to
-        /// <see cref="Api.GetProvider"/>.
+        /// <see cref="GetProvider"/>.
         /// </para>
         /// </summary>
         /// <returns><see cref="FeatureProvider"/></returns>
@@ -79,7 +79,7 @@ namespace OpenFeature
         /// <para>
         /// This method is not guaranteed to return the same provider instance that may be used during an evaluation
         /// in the case where the provider may be changed from another thread.
-        /// For multiple dependent provider operations see <see cref="Api.GetProvider"/>.
+        /// For multiple dependent provider operations see <see cref="GetProvider"/>.
         /// </para>
         /// </summary>
         /// <returns><see cref="ClientMetadata"/></returns>
@@ -110,7 +110,7 @@ namespace OpenFeature
         /// Adds a hook to global hooks list
         /// <para>
         /// Hooks which are dependent on each other should be provided in a collection
-        /// using the <see cref="AddHooks(System.Collections.Generic.IEnumerable{Hook})"/>.
+        /// using the <see cref="AddHooks(IEnumerable{Hook})"/>.
         /// </para>
         /// </summary>
         /// <param name="hook">Hook that implements the <see cref="Hook"/> interface</param>

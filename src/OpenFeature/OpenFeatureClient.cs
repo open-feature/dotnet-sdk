@@ -7,8 +7,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using OpenFeature.Constant;
 using OpenFeature.Error;
-using OpenFeature.Model;
 using OpenFeature.Extension;
+using OpenFeature.Model;
 
 namespace OpenFeature
 {
@@ -107,7 +107,7 @@ namespace OpenFeature
         /// Add hook to client
         /// <para>
         /// Hooks which are dependent on each other should be provided in a collection
-        /// using the <see cref="AddHooks(System.Collections.Generic.IEnumerable{Hook})"/>.
+        /// using the <see cref="AddHooks(IEnumerable{Hook})"/>.
         /// </para>
         /// </summary>
         /// <param name="hook">Hook that implements the <see cref="Hook"/> interface</param>
