@@ -35,6 +35,8 @@ var evaluationContext = EvaluationContext.Builder()
 var isEnabled = await client.GetBooleanValue("my-conditional", false, evaluationContext);
 ```
 
+For complete documentation, visit: https://docs.openfeature.dev/docs/category/concepts
+
 ### Provider
 
 To develop a provider, you need to create a new project and include the OpenFeature SDK as a dependency. This can be a new repository or included in an existing contrib repository available under the OpenFeature organization. Finally, you’ll then need to write the provider itself. In most languages, this can be accomplished by implementing the provider interface exported by the OpenFeature SDK.
