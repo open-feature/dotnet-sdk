@@ -17,12 +17,14 @@ The packages will aim to support all current .NET versions. Refer to the current
 ### Basic Usage
 
 ```csharp
-using OpenFeature;
+using OpenFeature.Model;
 
 // Sets the provider used by the client
-Api.Instance.SetProvider(new NoOpProvider());
+// If no provider is set, then a default NoOpProvider will be used.
+//OpenFeature.Api.Instance.SetProvider(new MyProvider());
+
 // Gets a instance of the feature flag client
-var client = OpenFeature.Instance.GetClient();
+var client = OpenFeature.Api.Instance.GetClient();
 // Evaluation the `my-feature` feature flag
 var isEnabled = await client.GetBooleanValue("my-feature", false);
 
