@@ -16,12 +16,19 @@ jobs:
 
     strategy:
       matrix:
-        version: [net462,net6.0]
+        version: [net462,net6.0,net7.0]
 
     steps:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
+
+    - name: Setup .NET Core 6.0.x, 7.0.x
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: |
+          6.0.x
+          7.0.x
 
     - name: Install dependencies
       run: dotnet restore
