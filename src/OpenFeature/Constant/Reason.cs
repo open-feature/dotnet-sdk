@@ -27,6 +27,16 @@ namespace OpenFeature.Constant
         public static string Default = "DEFAULT";
 
         /// <summary>
+        /// The resolved value is static (no dynamic evaluation)
+        /// </summary>
+        public static string Static = "STATIC";
+
+        /// <summary>
+        /// The resolved value was retrieved from cache
+        /// </summary>
+        public static string Cached = "CACHED";
+        
+        /// <summary>
         /// Use when an unknown reason is encountered when evaluating flag.
         /// An example of this is if the feature provider returns a reason that is not defined in the spec
         /// </summary>
