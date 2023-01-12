@@ -34,8 +34,8 @@ namespace OpenFeature.Constant
         /// <summary>
         /// The resolved value was retrieved from cache
         /// </summary>
-        public static string Cached = "CACHED";
-        
+        public static string Cached = "CACHED"
+
         /// <summary>
         /// Use when an unknown reason is encountered when evaluating flag.
         /// An example of this is if the feature provider returns a reason that is not defined in the spec
