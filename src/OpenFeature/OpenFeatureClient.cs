@@ -97,10 +97,7 @@ namespace OpenFeature
             this._evaluationContext = context ?? EvaluationContext.Empty;
         }
 
-        /// <summary>
-        /// Gets client metadata
-        /// </summary>
-        /// <returns>Client metadata <see cref="ClientMetadata"/></returns>
+        /// <inheritdoc />
         public ClientMetadata GetMetadata() => this._metadata;
 
         /// <summary>
@@ -113,13 +110,7 @@ namespace OpenFeature
         /// <param name="hook">Hook that implements the <see cref="Hook"/> interface</param>
         public void AddHooks(Hook hook) => this._hooks.Push(hook);
 
-        /// <summary>
-        /// Appends hooks to client
-        /// <para>
-        /// The appending operation will be atomic.
-        /// </para>
-        /// </summary>
-        /// <param name="hooks">A list of Hooks that implement the <see cref="Hook"/> interface</param>
+        /// <inheritdoc />
         public void AddHooks(IEnumerable<Hook> hooks) => this._hooks.PushRange(hooks.ToArray());
 
         /// <summary>
@@ -138,131 +129,61 @@ namespace OpenFeature
         /// </summary>
         public void ClearHooks() => this._hooks.Clear();
 
-        /// <summary>
-        /// Resolves a boolean feature flag
-        /// </summary>
-        /// <param name="flagKey">Feature flag key</param>
-        /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
-        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
-        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        /// <inheritdoc />
         public async Task<bool> GetBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null,
             FlagEvaluationOptions config = null) =>
             (await this.GetBooleanDetails(flagKey, defaultValue, context, config)).Value;
 
-        /// <summary>
-        /// Resolves a boolean feature flag
-        /// </summary>
-        /// <param name="flagKey">Feature flag key</param>
-        /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
-        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
-        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        /// <inheritdoc />
         public async Task<FlagEvaluationDetails<bool>> GetBooleanDetails(string flagKey, bool defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await this.EvaluateFlag(this.ExtractProvider<bool>(provider => provider.ResolveBooleanValue),
                 FlagValueType.Boolean, flagKey,
                 defaultValue, context, config);
 
-        /// <summary>
-        /// Resolves a string feature flag
-        /// </summary>
-        /// <param name="flagKey">Feature flag key</param>
-        /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
-        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
-        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        /// <inheritdoc />
         public async Task<string> GetStringValue(string flagKey, string defaultValue, EvaluationContext context = null,
             FlagEvaluationOptions config = null) =>
             (await this.GetStringDetails(flagKey, defaultValue, context, config)).Value;
 
-        /// <summary>
-        /// Resolves a string feature flag
-        /// </summary>
-        /// <param name="flagKey">Feature flag key</param>
-        /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
-        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
-        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        /// <inheritdoc />
         public async Task<FlagEvaluationDetails<string>> GetStringDetails(string flagKey, string defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await this.EvaluateFlag(this.ExtractProvider<string>(provider => provider.ResolveStringValue),
                 FlagValueType.String, flagKey,
                 defaultValue, context, config);
 
-        /// <summary>
-        /// Resolves a integer feature flag
-        /// </summary>
-        /// <param name="flagKey">Feature flag key</param>
-        /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
-        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
-        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        /// <inheritdoc />
         public async Task<int> GetIntegerValue(string flagKey, int defaultValue, EvaluationContext context = null,
             FlagEvaluationOptions config = null) =>
             (await this.GetIntegerDetails(flagKey, defaultValue, context, config)).Value;
 
-        /// <summary>
-        /// Resolves a integer feature flag
-        /// </summary>
-        /// <param name="flagKey">Feature flag key</param>
-        /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
-        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
-        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        /// <inheritdoc />
         public async Task<FlagEvaluationDetails<int>> GetIntegerDetails(string flagKey, int defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await this.EvaluateFlag(this.ExtractProvider<int>(provider => provider.ResolveIntegerValue),
                 FlagValueType.Number, flagKey,
                 defaultValue, context, config);
 
-        /// <summary>
-        /// Resolves a double feature flag
-        /// </summary>
-        /// <param name="flagKey">Feature flag key</param>
-        /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
-        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
-        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        /// <inheritdoc />
         public async Task<double> GetDoubleValue(string flagKey, double defaultValue,
             EvaluationContext context = null,
             FlagEvaluationOptions config = null) =>
             (await this.GetDoubleDetails(flagKey, defaultValue, context, config)).Value;
 
-        /// <summary>
-        /// Resolves a double feature flag
-        /// </summary>
-        /// <param name="flagKey">Feature flag key</param>
-        /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
-        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
-        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        /// <inheritdoc />
         public async Task<FlagEvaluationDetails<double>> GetDoubleDetails(string flagKey, double defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await this.EvaluateFlag(this.ExtractProvider<double>(provider => provider.ResolveDoubleValue),
                 FlagValueType.Number, flagKey,
                 defaultValue, context, config);
 
-        /// <summary>
-        /// Resolves a structure object feature flag
-        /// </summary>
-        /// <param name="flagKey">Feature flag key</param>
-        /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
-        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
-        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        /// <inheritdoc />
         public async Task<Value> GetObjectValue(string flagKey, Value defaultValue, EvaluationContext context = null,
             FlagEvaluationOptions config = null) =>
             (await this.GetObjectDetails(flagKey, defaultValue, context, config)).Value;
 
-        /// <summary>
-        /// Resolves a structure object feature flag
-        /// </summary>
-        /// <param name="flagKey">Feature flag key</param>
-        /// <param name="defaultValue">Default value</param>
-        /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
-        /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
-        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        /// <inheritdoc />
         public async Task<FlagEvaluationDetails<Value>> GetObjectDetails(string flagKey, Value defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await this.EvaluateFlag(this.ExtractProvider<Value>(provider => provider.ResolveStructureValue),
