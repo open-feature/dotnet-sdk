@@ -30,7 +30,7 @@ namespace OpenFeature
         IEnumerable<Hook> GetHooks();
 
         /// <summary>
-        /// Gets the EvaluationContext of this client<see cref="EvaluationContext"/>
+        /// Gets the <see cref="EvaluationContext"/> of this client
         /// <para>
         /// The evaluation context may be set from multiple threads, when accessing the client evaluation context
         /// it should be accessed once for an operation, and then that reference should be used for all dependent
@@ -41,7 +41,7 @@ namespace OpenFeature
         EvaluationContext GetContext();
 
         /// <summary>
-        /// Sets the EvaluationContext of the client<see cref="EvaluationContext"/>
+        /// Sets the <see cref="EvaluationContext"/> of the client
         /// </summary>
         /// <param name="context">The <see cref="EvaluationContext"/> to set</param>
         void SetContext(EvaluationContext context);
