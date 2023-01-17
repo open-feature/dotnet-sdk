@@ -53,15 +53,7 @@ namespace OpenFeature
             return (method(provider), provider);
         }
 
-        /// <summary>
-        /// Gets the EvaluationContext of this client<see cref="EvaluationContext"/>
-        /// <para>
-        /// The evaluation context may be set from multiple threads, when accessing the client evaluation context
-        /// it should be accessed once for an operation, and then that reference should be used for all dependent
-        /// operations.
-        /// </para>
-        /// </summary>
-        /// <returns><see cref="EvaluationContext"/>of this client</returns>
+        /// <inheritdoc />
         public EvaluationContext GetContext()
         {
             lock (this._evaluationContextLock)
@@ -70,10 +62,7 @@ namespace OpenFeature
             }
         }
 
-        /// <summary>
-        /// Sets the EvaluationContext of the client<see cref="EvaluationContext"/>
-        /// </summary>
-        /// <param name="context">The <see cref="EvaluationContext"/> to set</param>
+        /// <inheritdoc />
         public void SetContext(EvaluationContext context)
         {
             lock (this._evaluationContextLock)
@@ -113,15 +102,7 @@ namespace OpenFeature
         /// <inheritdoc />
         public void AddHooks(IEnumerable<Hook> hooks) => this._hooks.PushRange(hooks.ToArray());
 
-        /// <summary>
-        /// Enumerates the global hooks.
-        /// <para>
-        /// The items enumerated will reflect the registered hooks
-        /// at the start of enumeration. Hooks added during enumeration
-        /// will not be included.
-        /// </para>
-        /// </summary>
-        /// <returns>Enumeration of <see cref="Hook"/></returns>
+        /// <inheritdoc />
         public IEnumerable<Hook> GetHooks() => this._hooks.Reverse();
 
         /// <summary>

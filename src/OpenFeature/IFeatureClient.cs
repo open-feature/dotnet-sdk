@@ -19,6 +19,34 @@ namespace OpenFeature
         void AddHooks(IEnumerable<Hook> hooks);
 
         /// <summary>
+        /// Enumerates the global hooks.
+        /// <para>
+        /// The items enumerated will reflect the registered hooks
+        /// at the start of enumeration. Hooks added during enumeration
+        /// will not be included.
+        /// </para>
+        /// </summary>
+        /// <returns>Enumeration of <see cref="Hook"/></returns>
+        IEnumerable<Hook> GetHooks();
+
+        /// <summary>
+        /// Gets the EvaluationContext of this client<see cref="EvaluationContext"/>
+        /// <para>
+        /// The evaluation context may be set from multiple threads, when accessing the client evaluation context
+        /// it should be accessed once for an operation, and then that reference should be used for all dependent
+        /// operations.
+        /// </para>
+        /// </summary>
+        /// <returns><see cref="EvaluationContext"/>of this client</returns>
+        EvaluationContext GetContext();
+
+        /// <summary>
+        /// Sets the EvaluationContext of the client<see cref="EvaluationContext"/>
+        /// </summary>
+        /// <param name="context">The <see cref="EvaluationContext"/> to set</param>
+        void SetContext(EvaluationContext context);
+
+        /// <summary>
         /// Gets client metadata
         /// </summary>
         /// <returns>Client metadata <see cref="ClientMetadata"/></returns>
