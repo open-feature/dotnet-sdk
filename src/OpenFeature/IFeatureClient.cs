@@ -31,7 +31,7 @@ namespace OpenFeature
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
         /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
-        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        /// <returns>Resolved flag value.</returns>
         Task<bool> GetBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null);
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace OpenFeature
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
         /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
-        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        /// <returns>Resolved flag value.</returns>
         Task<string> GetStringValue(string flagKey, string defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null);
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace OpenFeature
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
         /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
-        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        /// <returns>Resolved flag value.</returns>
         Task<int> GetIntegerValue(string flagKey, int defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null);
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace OpenFeature
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
         /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
-        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        /// <returns>Resolved flag value.</returns>
         Task<double> GetDoubleValue(string flagKey, double defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null);
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace OpenFeature
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
         /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
-        /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
+        /// <returns>Resolved flag value.</returns>
         Task<Value> GetObjectValue(string flagKey, Value defaultValue, EvaluationContext context = null, FlagEvaluationOptions config = null);
 
         /// <summary>
