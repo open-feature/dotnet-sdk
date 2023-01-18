@@ -23,6 +23,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup .NET Core 6.0.x, 7.0.x
+        if: ${{ steps.release.outputs.releases_created }}
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: |
