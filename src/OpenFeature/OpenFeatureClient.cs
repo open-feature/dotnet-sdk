@@ -12,6 +12,7 @@ using OpenFeature.Model;
 
 namespace OpenFeature
 {
+    /// <inheritdoc />
     /// <summary>
     ///
     /// </summary>
@@ -53,7 +54,6 @@ namespace OpenFeature
             return (method(provider), provider);
         }
 
-        /// <inheritdoc />
         public EvaluationContext GetContext()
         {
             lock (this._evaluationContextLock)
@@ -86,7 +86,6 @@ namespace OpenFeature
             this._evaluationContext = context ?? EvaluationContext.Empty;
         }
 
-        /// <inheritdoc />
         public ClientMetadata GetMetadata() => this._metadata;
 
         /// <summary>
@@ -99,10 +98,8 @@ namespace OpenFeature
         /// <param name="hook">Hook that implements the <see cref="Hook"/> interface</param>
         public void AddHooks(Hook hook) => this._hooks.Push(hook);
 
-        /// <inheritdoc />
         public void AddHooks(IEnumerable<Hook> hooks) => this._hooks.PushRange(hooks.ToArray());
 
-        /// <inheritdoc />
         public IEnumerable<Hook> GetHooks() => this._hooks.Reverse();
 
         /// <summary>
@@ -110,61 +107,51 @@ namespace OpenFeature
         /// </summary>
         public void ClearHooks() => this._hooks.Clear();
 
-        /// <inheritdoc />
         public async Task<bool> GetBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null,
             FlagEvaluationOptions config = null) =>
             (await this.GetBooleanDetails(flagKey, defaultValue, context, config)).Value;
 
-        /// <inheritdoc />
         public async Task<FlagEvaluationDetails<bool>> GetBooleanDetails(string flagKey, bool defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await this.EvaluateFlag(this.ExtractProvider<bool>(provider => provider.ResolveBooleanValue),
                 FlagValueType.Boolean, flagKey,
                 defaultValue, context, config);
 
-        /// <inheritdoc />
         public async Task<string> GetStringValue(string flagKey, string defaultValue, EvaluationContext context = null,
             FlagEvaluationOptions config = null) =>
             (await this.GetStringDetails(flagKey, defaultValue, context, config)).Value;
 
-        /// <inheritdoc />
         public async Task<FlagEvaluationDetails<string>> GetStringDetails(string flagKey, string defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await this.EvaluateFlag(this.ExtractProvider<string>(provider => provider.ResolveStringValue),
                 FlagValueType.String, flagKey,
                 defaultValue, context, config);
 
-        /// <inheritdoc />
         public async Task<int> GetIntegerValue(string flagKey, int defaultValue, EvaluationContext context = null,
             FlagEvaluationOptions config = null) =>
             (await this.GetIntegerDetails(flagKey, defaultValue, context, config)).Value;
 
-        /// <inheritdoc />
         public async Task<FlagEvaluationDetails<int>> GetIntegerDetails(string flagKey, int defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await this.EvaluateFlag(this.ExtractProvider<int>(provider => provider.ResolveIntegerValue),
                 FlagValueType.Number, flagKey,
                 defaultValue, context, config);
 
-        /// <inheritdoc />
         public async Task<double> GetDoubleValue(string flagKey, double defaultValue,
             EvaluationContext context = null,
             FlagEvaluationOptions config = null) =>
             (await this.GetDoubleDetails(flagKey, defaultValue, context, config)).Value;
 
-        /// <inheritdoc />
         public async Task<FlagEvaluationDetails<double>> GetDoubleDetails(string flagKey, double defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await this.EvaluateFlag(this.ExtractProvider<double>(provider => provider.ResolveDoubleValue),
                 FlagValueType.Number, flagKey,
                 defaultValue, context, config);
 
-        /// <inheritdoc />
         public async Task<Value> GetObjectValue(string flagKey, Value defaultValue, EvaluationContext context = null,
             FlagEvaluationOptions config = null) =>
             (await this.GetObjectDetails(flagKey, defaultValue, context, config)).Value;
 
-        /// <inheritdoc />
         public async Task<FlagEvaluationDetails<Value>> GetObjectDetails(string flagKey, Value defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await this.EvaluateFlag(this.ExtractProvider<Value>(provider => provider.ResolveStructureValue),
