@@ -17,7 +17,7 @@ namespace OpenFeature.Tests
     {
         [Fact]
         [Specification("1.5.1", "The `evaluation options` structure's `hooks` field denotes an ordered collection of hooks that the client MUST execute for the respective flag evaluation, in addition to those already configured.")]
-        [Specification("2.10", "The provider interface MUST define a provider hook mechanism which can be optionally implemented in order to add hook instances to the evaluation life-cycle.")]
+        [Specification("2.3.1", "The provider interface MUST define a `provider hook` mechanism which can be optionally implemented in order to add `hook` instances to the evaluation life-cycle.")]
         [Specification("4.4.2", "Hooks MUST be evaluated in the following order: - before: API, Client, Invocation, Provider - after: Provider, Invocation, Client, API - error (if applicable): Provider, Invocation, Client, API - finally: Provider, Invocation, Client, API")]
         public async Task Hooks_Should_Be_Called_In_Order()
         {
@@ -191,7 +191,8 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        [Specification("4.3.4", "When before hooks have finished executing, any resulting evaluation context MUST be merged with the existing evaluation context in the following order: before-hook (highest precedence), invocation, client, api (lowest precedence).")]
+        [Specification("3.2.2", "Evaluation context MUST be merged in the order: API (global; lowest precedence) - client - invocation - before hooks (highest precedence), with duplicate values being overwritten.")]
+        [Specification("4.3.4", "When `before` hooks have finished executing, any resulting `evaluation context` MUST be merged with the existing `evaluation context`.")]
         public async Task Evaluation_Context_Must_Be_Merged_In_Correct_Order()
         {
             var propGlobal = "4.3.4global";
@@ -265,7 +266,7 @@ namespace OpenFeature.Tests
         [Specification("4.2.1", "`hook hints` MUST be a structure supports definition of arbitrary properties, with keys of type `string`, and values of type `boolean | string | number | datetime | structure`..")]
         [Specification("4.2.2.1", "Condition: `Hook hints` MUST be immutable.")]
         [Specification("4.2.2.2", "Condition: The client `metadata` field in the `hook context` MUST be immutable.")]
-        [Specification("4.2.2.3", "Condition: The provider `metadata` field in the `hook context` MUST be immutable")]
+        [Specification("4.2.2.3", "Condition: The provider `metadata` field in the `hook context` MUST be immutable.")]
         [Specification("4.3.1", "Hooks MUST specify at least one stage.")]
         public async Task Hook_Should_Return_No_Errors()
         {

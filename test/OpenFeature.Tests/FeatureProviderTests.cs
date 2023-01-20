@@ -12,8 +12,7 @@ namespace OpenFeature.Tests
     public class FeatureProviderTests : ClearOpenFeatureInstanceFixture
     {
         [Fact]
-        [Specification("2.1",
-            "The provider interface MUST define a `metadata` member or accessor, containing a `name` field or accessor of type string, which identifies the provider implementation.")]
+        [Specification("2.1.1", "The provider interface MUST define a `metadata` member or accessor, containing a `name` field or accessor of type string, which identifies the provider implementation.")]
         public void Provider_Must_Have_Metadata()
         {
             var provider = new TestProvider();
@@ -22,22 +21,14 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        [Specification("2.2",
-            "The `feature provider` interface MUST define methods to resolve flag values, with parameters `flag key` (string, required), `default value` (boolean | number | string | structure, required) and `evaluation context` (optional), which returns a `flag resolution` structure.")]
-        [Specification("2.3.1",
-            "The `feature provider` interface MUST define methods for typed flag resolution, including boolean, numeric, string, and structure.")]
-        [Specification("2.4",
-            "In cases of normal execution, the `provider` MUST populate the `flag resolution` structure's `value` field with the resolved flag value.")]
-        [Specification("2.5",
-            "In cases of normal execution, the `provider` SHOULD populate the `flag resolution` structure's `variant` field with a string identifier corresponding to the returned flag value.")]
-        [Specification("2.6",
-            "The `provider` SHOULD populate the `flag resolution` structure's `reason` field with a string indicating the semantic reason for the returned flag value.")]
-        [Specification("2.7",
-            "In cases of normal execution, the `provider` MUST NOT populate the `flag resolution` structure's `error code` field, or otherwise must populate it with a null or falsy value.")]
-        [Specification("2.9.1",
-            "The `flag resolution` structure SHOULD accept a generic argument (or use an equivalent language feature) which indicates the type of the wrapped `value` field.")]
-        [Specification("2.11",
-            "In cases of normal execution, the `provider` MUST NOT populate the `flag resolution` structure's `error message` field, or otherwise must populate it with a null or falsy value.")]
+        [Specification("2.2.1", "The `feature provider` interface MUST define methods to resolve flag values, with parameters `flag key` (string, required), `default value` (boolean | number | string | structure, required) and `evaluation context` (optional), which returns a `resolution details` structure.")]
+        [Specification("2.2.2.1", "The `feature provider` interface MUST define methods for typed flag resolution, including boolean, numeric, string, and structure.")]
+        [Specification("2.2.3", "In cases of normal execution, the `provider` MUST populate the `resolution details` structure's `value` field with the resolved flag value.")]
+        [Specification("2.2.4", "In cases of normal execution, the `provider` SHOULD populate the `resolution details` structure's `variant` field with a string identifier corresponding to the returned flag value.")]
+        [Specification("2.2.5", "The `provider` SHOULD populate the `resolution details` structure's `reason` field with `\"STATIC\"`, `\"DEFAULT\",` `\"TARGETING_MATCH\"`, `\"SPLIT\"`, `\"CACHED\"`, `\"DISABLED\"`, `\"UNKNOWN\"`, `\"ERROR\"` or some other string indicating the semantic reason for the returned flag value.")]
+        [Specification("2.2.6", "In cases of normal execution, the `provider` MUST NOT populate the `resolution details` structure's `error code` field, or otherwise must populate it with a null or falsy value.")]
+        [Specification("2.2.8.1", "The `resolution details` structure SHOULD accept a generic argument (or use an equivalent language feature) which indicates the type of the wrapped `value` field.")]
+        [Specification("2.3.2", "In cases of normal execution, the `provider` MUST NOT populate the `resolution details` structure's `error message` field, or otherwise must populate it with a null or falsy value.")]
         public async Task Provider_Must_Resolve_Flag_Values()
         {
             var fixture = new Fixture();
@@ -76,10 +67,8 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        [Specification("2.8",
-            "In cases of abnormal execution, the `provider` MUST indicate an error using the idioms of the implementation language, with an associated `error code` and optional associated `error message`.")]
-        [Specification("2.12",
-            "In cases of abnormal execution, the `evaluation details` structure's `error message` field MAY contain a string containing additional detail about the nature of the error.")]
+        [Specification("2.2.7", "In cases of abnormal execution, the `provider` MUST indicate an error using the idioms of the implementation language, with an associated `error code` and optional associated `error message`.")]
+        [Specification("2.3.3", "In cases of abnormal execution, the `resolution details` structure's `error message` field MAY contain a string containing additional detail about the nature of the error.")]
         public async Task Provider_Must_ErrorType()
         {
             var fixture = new Fixture();
