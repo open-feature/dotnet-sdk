@@ -551,6 +551,7 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
+        [Specification("4.4.5", "If an error occurs in the `before` or `after` hooks, the `error` hooks MUST be invoked.")]
         [Specification("4.4.7", "If an error occurs in the `before` hooks, the default value MUST be returned.")]
         public async Task When_Error_Occurs_In_Before_Hook_Should_Return_Default_Value()
         {
@@ -582,6 +583,58 @@ namespace OpenFeature.Tests
             hook.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), null), Times.Once);
             hook.Verify(x => x.Error(It.IsAny<HookContext<It.IsAnyType>>(), exceptionToThrow, null), Times.Once);
             hook.Verify(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), null), Times.Once);
+        }
+
+        [Fact]
+        [Specification("4.4.5", "If an error occurs in the `before` or `after` hooks, the `error` hooks MUST be invoked.")]
+        public async Task When_Error_Occurs_In_After_Hook_Should_Invoke_Error_Hook()
+        {
+            var featureProvider = new Mock<FeatureProvider>(MockBehavior.Strict);
+            var hook = new Mock<Hook>(MockBehavior.Strict);
+            var defaultEmptyHookHints = new Dictionary<string, object>();
+            var flagOptions = new FlagEvaluationOptions(hook.Object);
+            var exceptionToThrow = new Exception("Fails during default");
+            EvaluationContext evaluationContext = null;
+
+            var sequence = new MockSequence();
+
+            featureProvider.Setup(x => x.GetMetadata())
+                .Returns(new Metadata(null));
+
+            featureProvider.Setup(x => x.GetProviderHooks())
+                .Returns(ImmutableList<Hook>.Empty);
+
+            hook.InSequence(sequence)
+                .Setup(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), defaultEmptyHookHints))
+                .ReturnsAsync(evaluationContext);
+
+            featureProvider.InSequence(sequence)
+                .Setup(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>()))
+                .ReturnsAsync(new ResolutionDetails<bool>("test", false));
+
+            hook.InSequence(sequence)
+                .Setup(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<FlagEvaluationDetails<It.IsAnyType>>(), defaultEmptyHookHints))
+                .ThrowsAsync(exceptionToThrow);
+
+            hook.InSequence(sequence)
+                .Setup(x => x.Error(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Exception>(), defaultEmptyHookHints))
+                .Returns(Task.CompletedTask);
+
+            hook.InSequence(sequence)
+                .Setup(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), defaultEmptyHookHints))
+                .Returns(Task.CompletedTask);
+
+            Api.Instance.SetProvider(featureProvider.Object);
+            var client = Api.Instance.GetClient();
+
+            var resolvedFlag = await client.GetBooleanValue("test", true, config: flagOptions);
+
+            resolvedFlag.Should().BeTrue();
+            hook.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), defaultEmptyHookHints), Times.Once);
+            hook.Verify(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<FlagEvaluationDetails<It.IsAnyType>>(), defaultEmptyHookHints), Times.Once);
+            hook.Verify(x => x.Error(It.IsAny<HookContext<It.IsAnyType>>(), exceptionToThrow, defaultEmptyHookHints), Times.Once);
+            hook.Verify(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), defaultEmptyHookHints), Times.Once);
+            featureProvider.Verify(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>()), Times.Once);
         }
     }
 }
