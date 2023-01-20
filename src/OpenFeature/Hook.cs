@@ -18,7 +18,7 @@ namespace OpenFeature
     /// Hooks can be configured to run globally (impacting all flag evaluations), per client, or per flag evaluation invocation.
     ///
     /// </summary>
-    /// <seealso href="https://github.com/open-feature/spec/blob/main/specification/hooks.md">Hook Specification</seealso>
+    /// <seealso href="https://github.com/open-feature/spec/blob/v0.5.2/specification/sections/04-hooks.md">Hook Specification</seealso>
     public abstract class Hook
     {
         /// <summary>

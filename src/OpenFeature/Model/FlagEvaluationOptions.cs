@@ -6,7 +6,7 @@ namespace OpenFeature.Model
     /// A structure containing the one or more hooks and hook hints
     /// The hook and hook hints are added to the list of hooks called during the evaluation process
     /// </summary>
-    /// <seealso href="https://github.com/open-feature/spec/blob/main/specification/types.md#evaluation-options">Flag Evaluation Options</seealso>
+    /// <seealso href="https://github.com/open-feature/spec/blob/v0.5.2/specification/types.md#evaluation-options">Flag Evaluation Options</seealso>
     public class FlagEvaluationOptions
     {
         /// <summary>

@@ -7,7 +7,7 @@ namespace OpenFeature.Model
     /// Context provided to hook execution
     /// </summary>
     /// <typeparam name="T">Flag value type</typeparam>
-    /// <seealso href="https://github.com/open-feature/spec/blob/main/specification/hooks.md#hook-context"/>
+    /// <seealso href="https://github.com/open-feature/spec/blob/v0.5.2/specification/sections/04-hooks.md#41-hook-context"/>
     public class HookContext<T>
     {
         /// <summary>
