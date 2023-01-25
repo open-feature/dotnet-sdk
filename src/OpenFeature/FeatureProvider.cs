@@ -8,7 +8,7 @@ namespace OpenFeature
     /// The provider interface describes the abstraction layer for a feature flag provider.
     /// A provider acts as the translates layer between the generic feature flag structure to a target feature flag system.
     /// </summary>
-    /// <seealso href="https://github.com/open-feature/spec/blob/main/specification/providers.md">Provider specification</seealso>
+    /// <seealso href="https://github.com/open-feature/spec/blob/v0.5.2/specification/sections/02-providers.md">Provider specification</seealso>
     public abstract class FeatureProvider
     {
         /// <summary>

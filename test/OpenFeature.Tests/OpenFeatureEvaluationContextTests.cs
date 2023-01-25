@@ -25,7 +25,7 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        [Specification("3.2.2", "Duplicate values being overwritten.")]
+        [Specification("3.2.2", "Evaluation context MUST be merged in the order: API (global; lowest precedence) - client - invocation - before hooks (highest precedence), with duplicate values being overwritten.")]
         public void Should_Merge_TwoContexts_And_Override_Duplicates_With_RightHand_Context()
         {
             var contextBuilder1 = new EvaluationContextBuilder();
@@ -43,8 +43,8 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        [Specification("3.1", "The `evaluation context` structure MUST define an optional `targeting key` field of type string, identifying the subject of the flag evaluation.")]
-        [Specification("3.2", "The evaluation context MUST support the inclusion of custom fields, having keys of type `string`, and values of type `boolean | string | number | datetime | structure`.")]
+        [Specification("3.1.1", "The `evaluation context` structure MUST define an optional `targeting key` field of type string, identifying the subject of the flag evaluation.")]
+        [Specification("3.1.2", "The evaluation context MUST support the inclusion of custom fields, having keys of type `string`, and values of type `boolean | string | number | datetime | structure`.")]
         public void EvaluationContext_Should_All_Types()
         {
             var fixture = new Fixture();

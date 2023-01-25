@@ -3,7 +3,7 @@ namespace OpenFeature.Constant
     /// <summary>
     /// Common reasons used during flag resolution
     /// </summary>
-    /// <seealso href="https://github.com/open-feature/spec/blob/main/specification/providers.md#requirement-26">Reason Specification</seealso>
+    /// <seealso href="https://github.com/open-feature/spec/blob/v0.5.2/specification/sections/02-providers.md#requirement-225">Reason Specification</seealso>
     public static class Reason
     {
         /// <summary>

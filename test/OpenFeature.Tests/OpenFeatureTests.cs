@@ -11,7 +11,7 @@ namespace OpenFeature.Tests
     public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
     {
         [Fact]
-        [Specification("1.1.1", "The API, and any state it maintains SHOULD exist as a global singleton, even in cases wherein multiple versions of the API are present at runtime.")]
+        [Specification("1.1.1", "The `API`, and any state it maintains SHOULD exist as a global singleton, even in cases wherein multiple versions of the `API` are present at runtime.")]
         public void OpenFeature_Should_Be_Singleton()
         {
             var openFeature = Api.Instance;
@@ -21,7 +21,7 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        [Specification("1.1.3", "The API MUST provide a function to add hooks which accepts one or more API-conformant hooks, and appends them to the collection of any previously added hooks. When new hooks are added, previously added hooks are not removed.")]
+        [Specification("1.1.3", "The `API` MUST provide a function to add `hooks` which accepts one or more API-conformant `hooks`, and appends them to the collection of any previously added hooks. When new hooks are added, previously added hooks are not removed.")]
         public void OpenFeature_Should_Add_Hooks()
         {
             var openFeature = Api.Instance;

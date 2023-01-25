@@ -6,7 +6,7 @@ namespace OpenFeature.Model
     /// The contract returned to the caller that describes the result of the flag evaluation process.
     /// </summary>
     /// <typeparam name="T">Flag value type</typeparam>
-    /// <seealso href="https://github.com/open-feature/spec/blob/main/specification/types.md#resolution-details"/>
+    /// <seealso href="https://github.com/open-feature/spec/blob/v0.5.2/specification/types.md#evaluation-details"/>
     public class FlagEvaluationDetails<T>
     {
         /// <summary>

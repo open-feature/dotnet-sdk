@@ -5,7 +5,7 @@ namespace OpenFeature.Constant
     /// <summary>
     /// These errors are used to indicate abnormal execution when evaluation a flag
     /// </summary>
-    /// <seealso href="https://github.com/open-feature/spec/blob/main/specification/providers.md#requirement-28"/>
+    /// <seealso href="https://github.com/open-feature/spec/blob/v0.5.2/specification/sections/02-providers.md#requirement-227"/>
     public enum ErrorType
     {
         /// <summary>

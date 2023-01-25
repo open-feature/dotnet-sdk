@@ -1,7 +1,7 @@
 # OpenFeature SDK for .NET
 
 [![a](https://img.shields.io/badge/slack-%40cncf%2Fopenfeature-brightgreen?style=flat&logo=slack)](https://cloud-native.slack.com/archives/C0344AANLA1)
-[![spec version badge](https://img.shields.io/badge/Specification-v0.5.0-yellow)](https://github.com/open-feature/spec/tree/v0.5.0?rgh-link-date=2022-09-27T17%3A53%3A52Z)
+[![spec version badge](https://img.shields.io/badge/Specification-v0.5.2-yellow)](https://github.com/open-feature/spec/tree/v0.5.2?rgh-link-date=2023-01-20T21%3A37%3A52Z)
 [![codecov](https://codecov.io/gh/open-feature/dotnet-sdk/branch/main/graph/badge.svg?token=MONAVJBXUJ)](https://codecov.io/gh/open-feature/dotnet-sdk)
 [![nuget](https://img.shields.io/nuget/vpre/OpenFeature)](https://www.nuget.org/packages/OpenFeature)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6250/badge)](https://bestpractices.coreinfrastructure.org/projects/6250)

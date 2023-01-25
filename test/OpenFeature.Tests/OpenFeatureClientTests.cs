@@ -56,7 +56,7 @@ namespace OpenFeature.Tests
 
         [Fact]
         [Specification("1.3.1", "The `client` MUST provide methods for typed flag evaluation, including boolean, numeric, string, and structure, with parameters `flag key` (string, required), `default value` (boolean | number | string | structure, required), `evaluation context` (optional), and `evaluation options` (optional), which returns the flag value.")]
-        [Specification("1.3.2.1", "he client SHOULD provide functions for floating-point numbers and integers, consistent with language idioms.")]
+        [Specification("1.3.2.1", "The client SHOULD provide functions for floating-point numbers and integers, consistent with language idioms.")]
         [Specification("1.3.3", "The `client` SHOULD guarantee the returned value of any typed flag evaluation method is of the expected type. If the value returned by the underlying provider implementation does not match the expected type, it's to be considered abnormal execution, and the supplied `default value` should be returned.")]
         public async Task OpenFeatureClient_Should_Allow_Flag_Evaluation()
         {
@@ -103,7 +103,7 @@ namespace OpenFeature.Tests
         [Specification("1.4.5", "In cases of normal execution, the `evaluation details` structure's `variant` field MUST contain the value of the `variant` field in the `flag resolution` structure returned by the configured `provider`, if the field is set.")]
         [Specification("1.4.6", "In cases of normal execution, the `evaluation details` structure's `reason` field MUST contain the value of the `reason` field in the `flag resolution` structure returned by the configured `provider`, if the field is set.")]
         [Specification("1.4.11", "The `client` SHOULD provide asynchronous or non-blocking mechanisms for flag evaluation.")]
-        [Specification("2.9", "The `flag resolution` structure SHOULD accept a generic argument (or use an equivalent language feature) which indicates the type of the wrapped `value` field.")]
+        [Specification("2.2.8.1", "The `resolution details` structure SHOULD accept a generic argument (or use an equivalent language feature) which indicates the type of the wrapped `value` field.")]
         public async Task OpenFeatureClient_Should_Allow_Details_Flag_Evaluation()
         {
             var fixture = new Fixture();
@@ -147,9 +147,9 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        [Specification("1.1.2", "The API MUST provide a function to set the global provider singleton, which accepts an API-conformant provider implementation.")]
+        [Specification("1.1.2", "The `API` MUST provide a function to set the global `provider` singleton, which accepts an API-conformant `provider` implementation.")]
         [Specification("1.3.3", "The `client` SHOULD guarantee the returned value of any typed flag evaluation method is of the expected type. If the value returned by the underlying provider implementation does not match the expected type, it's to be considered abnormal execution, and the supplied `default value` should be returned.")]
-        [Specification("1.4.7", "In cases of abnormal execution, the `evaluation details` structure's `error code` field MUST contain a string identifying an error occurred during flag evaluation and the nature of the error.")]
+        [Specification("1.4.7", "In cases of abnormal execution, the `evaluation details` structure's `error code` field MUST contain an `error code`.")]
         [Specification("1.4.8", "In cases of abnormal execution (network failure, unhandled error, etc) the `reason` field in the `evaluation details` SHOULD indicate an error.")]
         [Specification("1.4.9", "Methods, functions, or operations on the client MUST NOT throw exceptions, or otherwise abnormally terminate. Flag evaluation calls must always return the `default value` in the event of abnormal execution. Exceptions include functions or methods for the purposes for configuration or setup.")]
         [Specification("1.4.10", "In the case of abnormal execution, the client SHOULD log an informative error message.")]

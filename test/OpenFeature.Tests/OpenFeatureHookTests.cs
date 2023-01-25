@@ -17,7 +17,7 @@ namespace OpenFeature.Tests
     {
         [Fact]
         [Specification("1.5.1", "The `evaluation options` structure's `hooks` field denotes an ordered collection of hooks that the client MUST execute for the respective flag evaluation, in addition to those already configured.")]
-        [Specification("2.10", "The provider interface MUST define a provider hook mechanism which can be optionally implemented in order to add hook instances to the evaluation life-cycle.")]
+        [Specification("2.3.1", "The provider interface MUST define a `provider hook` mechanism which can be optionally implemented in order to add `hook` instances to the evaluation life-cycle.")]
         [Specification("4.4.2", "Hooks MUST be evaluated in the following order: - before: API, Client, Invocation, Provider - after: Provider, Invocation, Client, API - error (if applicable): Provider, Invocation, Client, API - finally: Provider, Invocation, Client, API")]
         public async Task Hooks_Should_Be_Called_In_Order()
         {
@@ -191,7 +191,8 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        [Specification("4.3.4", "When before hooks have finished executing, any resulting evaluation context MUST be merged with the existing evaluation context in the following order: before-hook (highest precedence), invocation, client, api (lowest precedence).")]
+        [Specification("3.2.2", "Evaluation context MUST be merged in the order: API (global; lowest precedence) - client - invocation - before hooks (highest precedence), with duplicate values being overwritten.")]
+        [Specification("4.3.4", "When `before` hooks have finished executing, any resulting `evaluation context` MUST be merged with the existing `evaluation context`.")]
         public async Task Evaluation_Context_Must_Be_Merged_In_Correct_Order()
         {
             var propGlobal = "4.3.4global";
@@ -265,7 +266,7 @@ namespace OpenFeature.Tests
         [Specification("4.2.1", "`hook hints` MUST be a structure supports definition of arbitrary properties, with keys of type `string`, and values of type `boolean | string | number | datetime | structure`..")]
         [Specification("4.2.2.1", "Condition: `Hook hints` MUST be immutable.")]
         [Specification("4.2.2.2", "Condition: The client `metadata` field in the `hook context` MUST be immutable.")]
-        [Specification("4.2.2.3", "Condition: The provider `metadata` field in the `hook context` MUST be immutable")]
+        [Specification("4.2.2.3", "Condition: The provider `metadata` field in the `hook context` MUST be immutable.")]
         [Specification("4.3.1", "Hooks MUST specify at least one stage.")]
         public async Task Hook_Should_Return_No_Errors()
         {
@@ -550,6 +551,7 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
+        [Specification("4.4.5", "If an error occurs in the `before` or `after` hooks, the `error` hooks MUST be invoked.")]
         [Specification("4.4.7", "If an error occurs in the `before` hooks, the default value MUST be returned.")]
         public async Task When_Error_Occurs_In_Before_Hook_Should_Return_Default_Value()
         {
@@ -581,6 +583,58 @@ namespace OpenFeature.Tests
             hook.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), null), Times.Once);
             hook.Verify(x => x.Error(It.IsAny<HookContext<It.IsAnyType>>(), exceptionToThrow, null), Times.Once);
             hook.Verify(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), null), Times.Once);
+        }
+
+        [Fact]
+        [Specification("4.4.5", "If an error occurs in the `before` or `after` hooks, the `error` hooks MUST be invoked.")]
+        public async Task When_Error_Occurs_In_After_Hook_Should_Invoke_Error_Hook()
+        {
+            var featureProvider = new Mock<FeatureProvider>(MockBehavior.Strict);
+            var hook = new Mock<Hook>(MockBehavior.Strict);
+            var defaultEmptyHookHints = new Dictionary<string, object>();
+            var flagOptions = new FlagEvaluationOptions(hook.Object);
+            var exceptionToThrow = new Exception("Fails during default");
+            EvaluationContext evaluationContext = null;
+
+            var sequence = new MockSequence();
+
+            featureProvider.Setup(x => x.GetMetadata())
+                .Returns(new Metadata(null));
+
+            featureProvider.Setup(x => x.GetProviderHooks())
+                .Returns(ImmutableList<Hook>.Empty);
+
+            hook.InSequence(sequence)
+                .Setup(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), defaultEmptyHookHints))
+                .ReturnsAsync(evaluationContext);
+
+            featureProvider.InSequence(sequence)
+                .Setup(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>()))
+                .ReturnsAsync(new ResolutionDetails<bool>("test", false));
+
+            hook.InSequence(sequence)
+                .Setup(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<FlagEvaluationDetails<It.IsAnyType>>(), defaultEmptyHookHints))
+                .ThrowsAsync(exceptionToThrow);
+
+            hook.InSequence(sequence)
+                .Setup(x => x.Error(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Exception>(), defaultEmptyHookHints))
+                .Returns(Task.CompletedTask);
+
+            hook.InSequence(sequence)
+                .Setup(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), defaultEmptyHookHints))
+                .Returns(Task.CompletedTask);
+
+            Api.Instance.SetProvider(featureProvider.Object);
+            var client = Api.Instance.GetClient();
+
+            var resolvedFlag = await client.GetBooleanValue("test", true, config: flagOptions);
+
+            resolvedFlag.Should().BeTrue();
+            hook.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), defaultEmptyHookHints), Times.Once);
+            hook.Verify(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<FlagEvaluationDetails<It.IsAnyType>>(), defaultEmptyHookHints), Times.Once);
+            hook.Verify(x => x.Error(It.IsAny<HookContext<It.IsAnyType>>(), exceptionToThrow, defaultEmptyHookHints), Times.Once);
+            hook.Verify(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), defaultEmptyHookHints), Times.Once);
+            featureProvider.Verify(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>()), Times.Once);
         }
     }
 }

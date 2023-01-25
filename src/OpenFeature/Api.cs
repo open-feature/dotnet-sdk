@@ -11,7 +11,7 @@ namespace OpenFeature
     /// The evaluation API allows for the evaluation of feature flag values, independent of any flag control plane or vendor.
     /// In the absence of a provider the evaluation API uses the "No-op provider", which simply returns the supplied default flag value.
     /// </summary>
-    /// <seealso href="https://github.com/open-feature/spec/blob/main/specification/flag-evaluation.md#flag-evaluation-api"/>
+    /// <seealso href="https://github.com/open-feature/spec/blob/v0.5.2/specification/sections/01-flag-evaluation.md#1-flag-evaluation-api"/>
     public sealed class Api
     {
         private EvaluationContext _evaluationContext = EvaluationContext.Empty;

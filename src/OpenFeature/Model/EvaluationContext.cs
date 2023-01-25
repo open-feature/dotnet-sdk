@@ -8,7 +8,7 @@ namespace OpenFeature.Model
     /// A KeyValuePair with a string key and object value that is used to apply user defined properties
     /// to the feature flag evaluation context.
     /// </summary>
-    /// <seealso href="https://github.com/open-feature/spec/blob/main/specification/evaluation-context.md">Evaluation context</seealso>
+    /// <seealso href="https://github.com/open-feature/spec/blob/v0.5.2/specification/sections/03-evaluation-context.md">Evaluation context</seealso>
     public sealed class EvaluationContext
     {
         private readonly Structure _structure;
