@@ -119,3 +119,13 @@ As with other OpenFeature SDKs, dotnet-sdk follows the
 This project includes a [`.editorconfig`](./.editorconfig) file which is
 supported by all the IDEs/editor mentioned above. It works with the IDE/editor
 only and does not affect the actual build of the project.
+
+## Benchmarking
+
+We use [BenchmarkDotNet](https://benchmarkdotnet.org/articles/overview.html) NuGet package to benchmark a code.
+To run pipelines locally, you can procede with a following command in a root project directory.
+```
+dotnet restore
+dotnet build --configuration Release --output "./release" --no-restore
+dotnet release\OpenFeature.Benchmarks.dll
+```

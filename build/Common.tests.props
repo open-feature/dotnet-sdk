@@ -21,6 +21,7 @@
       Refer to https://docs.microsoft.com/nuget/concepts/package-versioning for semver syntax.
     -->
     <AutoFixtureVer>[4.17.0]</AutoFixtureVer>
+    <BenchmarkDotNetVer>[0.13.1]</BenchmarkDotNetVer>
     <CoverletCollectorVer>[3.1.2]</CoverletCollectorVer>
     <FluentAssertionsVer>[6.7.0]</FluentAssertionsVer>
     <MicrosoftNETTestSdkPkgVer>[17.2.0]</MicrosoftNETTestSdkPkgVer>
