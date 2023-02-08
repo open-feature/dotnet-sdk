@@ -123,7 +123,9 @@ only and does not affect the actual build of the project.
 ## Benchmarking
 
 We use [BenchmarkDotNet](https://benchmarkdotnet.org/articles/overview.html) NuGet package to benchmark a code.
-To run pipelines locally, you can procede with a following command in a root project directory.
+
+To run pipelines locally, you can follow these commands from a root project directory.
+
 ```
 dotnet restore
 dotnet build --configuration Release --output "./release" --no-restore
