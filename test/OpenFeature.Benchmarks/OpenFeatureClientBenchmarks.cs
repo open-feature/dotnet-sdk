@@ -10,7 +10,8 @@ namespace OpenFeature.Benchmark
 {
     [MemoryDiagnoser]
     [SimpleJob(RuntimeMoniker.Net60, baseline: true)]
-    [RPlotExporter]
+    [JsonExporterAttribute.Full]
+    [JsonExporterAttribute.FullCompressed]
     public class OpenFeatureClientBenchmarks
     {
         private readonly string _clientName;
@@ -22,6 +23,7 @@ namespace OpenFeature.Benchmark
         private readonly double _defaultDoubleValue;
         private readonly Value _defaultStructureValue;
         private readonly FlagEvaluationOptions _emptyFlagOptions;
+        private readonly FeatureClient _client;
 
         public OpenFeatureClientBenchmarks()
         {
@@ -35,141 +37,69 @@ namespace OpenFeature.Benchmark
             _defaultDoubleValue = fixture.Create<double>();
             _defaultStructureValue = fixture.Create<Value>();
             _emptyFlagOptions = new FlagEvaluationOptions(ImmutableList<Hook>.Empty, ImmutableDictionary<string, object>.Empty);
+
+            Api.Instance.SetProvider(new NoOpFeatureProvider());
+            _client = Api.Instance.GetClient(_clientName, _clientVersion);
         }
 
         [Benchmark]
-        public async Task OpenFeatureClient_GetBooleanValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions()
-        {
-            Api.Instance.SetProvider(new NoOpFeatureProvider());
-            var client = Api.Instance.GetClient(_clientName, _clientVersion);
-
-            await client.GetBooleanValue(_flagName, _defaultBoolValue);
-        }
+        public async Task OpenFeatureClient_GetBooleanValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions() =>
+            await _client.GetBooleanValue(_flagName, _defaultBoolValue);
 
         [Benchmark]
-        public async Task OpenFeatureClient_GetBooleanValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions()
-        {
-            Api.Instance.SetProvider(new NoOpFeatureProvider());
-            var client = Api.Instance.GetClient(_clientName, _clientVersion);
-
-            await client.GetBooleanValue(_flagName, _defaultBoolValue, EvaluationContext.Empty);
-        }
+        public async Task OpenFeatureClient_GetBooleanValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions() =>
+            await _client.GetBooleanValue(_flagName, _defaultBoolValue, EvaluationContext.Empty);
 
         [Benchmark]
-        public async Task OpenFeatureClient_GetBooleanValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions()
-        {
-            Api.Instance.SetProvider(new NoOpFeatureProvider());
-            var client = Api.Instance.GetClient(_clientName, _clientVersion);
-
-            await client.GetBooleanValue(_flagName, _defaultBoolValue, EvaluationContext.Empty, _emptyFlagOptions);
-        }
+        public async Task OpenFeatureClient_GetBooleanValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions() =>
+            await _client.GetBooleanValue(_flagName, _defaultBoolValue, EvaluationContext.Empty, _emptyFlagOptions);
 
         [Benchmark]
-        public async Task OpenFeatureClient_GetStringValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions()
-        {
-            Api.Instance.SetProvider(new NoOpFeatureProvider());
-            var client = Api.Instance.GetClient(_clientName, _clientVersion);
-
-            await client.GetStringValue(_flagName, _defaultStringValue);
-        }
+        public async Task OpenFeatureClient_GetStringValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions() =>
+            await _client.GetStringValue(_flagName, _defaultStringValue);
 
         [Benchmark]
-        public async Task OpenFeatureClient_GetStringValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions()
-        {
-            Api.Instance.SetProvider(new NoOpFeatureProvider());
-            var client = Api.Instance.GetClient(_clientName, _clientVersion);
-
-            await client.GetStringValue(_flagName, _defaultStringValue, EvaluationContext.Empty);
-        }
+        public async Task OpenFeatureClient_GetStringValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions() =>
+            await _client.GetStringValue(_flagName, _defaultStringValue, EvaluationContext.Empty);
 
         [Benchmark]
-        public async Task OpenFeatureClient_GetStringValue_WithoutEvaluationContext_WithEmptyFlagEvaluationOptions()
-        {
-            Api.Instance.SetProvider(new NoOpFeatureProvider());
-            var client = Api.Instance.GetClient(_clientName, _clientVersion);
-
-            await client.GetStringValue(_flagName, _defaultStringValue, EvaluationContext.Empty, _emptyFlagOptions);
-        }
+        public async Task OpenFeatureClient_GetStringValue_WithoutEvaluationContext_WithEmptyFlagEvaluationOptions() =>
+            await _client.GetStringValue(_flagName, _defaultStringValue, EvaluationContext.Empty, _emptyFlagOptions);
 
         [Benchmark]
-        public async Task OpenFeatureClient_GetIntegerValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions()
-        {
-            Api.Instance.SetProvider(new NoOpFeatureProvider());
-            var client = Api.Instance.GetClient(_clientName, _clientVersion);
-
-            await client.GetIntegerValue(_flagName, _defaultIntegerValue);
-        }
+        public async Task OpenFeatureClient_GetIntegerValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions() =>
+            await _client.GetIntegerValue(_flagName, _defaultIntegerValue);
 
         [Benchmark]
-        public async Task OpenFeatureClient_GetIntegerValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions()
-        {
-            Api.Instance.SetProvider(new NoOpFeatureProvider());
-            var client = Api.Instance.GetClient(_clientName, _clientVersion);
-
-            await client.GetIntegerValue(_flagName, _defaultIntegerValue, EvaluationContext.Empty);
-        }
+        public async Task OpenFeatureClient_GetIntegerValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions() =>
+            await _client.GetIntegerValue(_flagName, _defaultIntegerValue, EvaluationContext.Empty);
 
         [Benchmark]
-        public async Task OpenFeatureClient_GetIntegerValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions()
-        {
-            Api.Instance.SetProvider(new NoOpFeatureProvider());
-            var client = Api.Instance.GetClient(_clientName, _clientVersion);
-
-            await client.GetIntegerValue(_flagName, _defaultIntegerValue, EvaluationContext.Empty, _emptyFlagOptions);
-        }
+        public async Task OpenFeatureClient_GetIntegerValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions() =>
+            await _client.GetIntegerValue(_flagName, _defaultIntegerValue, EvaluationContext.Empty, _emptyFlagOptions);
 
         [Benchmark]
-        public async Task OpenFeatureClient_GetDoubleValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions()
-        {
-            Api.Instance.SetProvider(new NoOpFeatureProvider());
-            var client = Api.Instance.GetClient(_clientName, _clientVersion);
-
-            await client.GetDoubleValue(_flagName, _defaultDoubleValue);
-        }
+        public async Task OpenFeatureClient_GetDoubleValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions() =>
+            await _client.GetDoubleValue(_flagName, _defaultDoubleValue);
 
         [Benchmark]
-        public async Task OpenFeatureClient_GetDoubleValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions()
-        {
-            Api.Instance.SetProvider(new NoOpFeatureProvider());
-            var client = Api.Instance.GetClient(_clientName, _clientVersion);
-
-            await client.GetDoubleValue(_flagName, _defaultDoubleValue, EvaluationContext.Empty);
-        }
+        public async Task OpenFeatureClient_GetDoubleValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions() =>
+            await _client.GetDoubleValue(_flagName, _defaultDoubleValue, EvaluationContext.Empty);
 
         [Benchmark]
-        public async Task OpenFeatureClient_GetDoubleValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions()
-        {
-            Api.Instance.SetProvider(new NoOpFeatureProvider());
-            var client = Api.Instance.GetClient(_clientName, _clientVersion);
-
-            await client.GetDoubleValue(_flagName, _defaultDoubleValue, EvaluationContext.Empty, _emptyFlagOptions);
-        }
+        public async Task OpenFeatureClient_GetDoubleValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions() =>
+            await _client.GetDoubleValue(_flagName, _defaultDoubleValue, EvaluationContext.Empty, _emptyFlagOptions);
 
         [Benchmark]
-        public async Task OpenFeatureClient_GetObjectValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions()
-        {
-            Api.Instance.SetProvider(new NoOpFeatureProvider());
-            var client = Api.Instance.GetClient(_clientName, _clientVersion);
-
-            await client.GetObjectValue(_flagName, _defaultStructureValue);
-        }
+        public async Task OpenFeatureClient_GetObjectValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions() =>
+            await _client.GetObjectValue(_flagName, _defaultStructureValue);
 
         [Benchmark]
-        public async Task OpenFeatureClient_GetObjectValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions()
-        {
-            Api.Instance.SetProvider(new NoOpFeatureProvider());
-            var client = Api.Instance.GetClient(_clientName, _clientVersion);
-
-            await client.GetObjectValue(_flagName, _defaultStructureValue, EvaluationContext.Empty);
-        }
+        public async Task OpenFeatureClient_GetObjectValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions() =>
+            await _client.GetObjectValue(_flagName, _defaultStructureValue, EvaluationContext.Empty);
 
         [Benchmark]
-        public async Task OpenFeatureClient_GetObjectValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions()
-        {
-            Api.Instance.SetProvider(new NoOpFeatureProvider());
-            var client = Api.Instance.GetClient(_clientName, _clientVersion);
-
-            await client.GetObjectValue(_flagName, _defaultStructureValue, EvaluationContext.Empty, _emptyFlagOptions);
-        }
+        public async Task OpenFeatureClient_GetObjectValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions() =>
+            await _client.GetObjectValue(_flagName, _defaultStructureValue, EvaluationContext.Empty, _emptyFlagOptions);
     }
 }

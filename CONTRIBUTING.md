@@ -129,5 +129,5 @@ To run pipelines locally, you can follow these commands from a root project dire
 ```
 dotnet restore
 dotnet build --configuration Release --output "./release" --no-restore
-dotnet release\OpenFeature.Benchmarks.dll
+dotnet release/OpenFeature.Benchmarks.dll
 ```
