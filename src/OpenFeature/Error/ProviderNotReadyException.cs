@@ -5,7 +5,6 @@ namespace OpenFeature.Error
 {
     /// <summary>
     /// Provider has yet been initialized when evaluating a flag.
-    /// This exception should be thrown when evaluating a flag inside a IFeatureFlag provider
     /// </summary>
     public class ProviderNotReadyException : FeatureProviderException
     {

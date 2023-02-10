@@ -5,7 +5,6 @@ namespace OpenFeature.Error
 {
     /// <summary>
     /// Request type does not match the expected type when evaluating a flag.
-    /// This exception should be thrown when evaluating a flag inside a IFeatureFlag provider
     /// </summary>
     public class TypeMismatchException : FeatureProviderException
     {

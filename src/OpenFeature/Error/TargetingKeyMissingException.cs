@@ -5,7 +5,6 @@ namespace OpenFeature.Error
 {
     /// <summary>
     /// Context does not contain a targeting key and the provider requires one when evaluating a flag.
-    /// This exception should be thrown when evaluating a flag inside a IFeatureFlag provider
     /// </summary>
     public class TargetingKeyMissingException : FeatureProviderException
     {

@@ -5,7 +5,6 @@ namespace OpenFeature.Error
 {
     /// <summary>
     /// Provider was unable to find the flag error when evaluating a flag.
-    /// This exception should be thrown when evaluating a flag inside a IFeatureFlag provider
     /// </summary>
     public class FlagNotFoundException : FeatureProviderException
     {

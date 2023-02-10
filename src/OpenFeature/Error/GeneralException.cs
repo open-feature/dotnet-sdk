@@ -5,7 +5,6 @@ namespace OpenFeature.Error
 {
     /// <summary>
     /// Abnormal execution of the provider when evaluating a flag.
-    /// This exception should be thrown when evaluating a flag inside a IFeatureFlag provider
     /// </summary>
     public class GeneralException : FeatureProviderException
     {
