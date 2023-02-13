@@ -4,8 +4,8 @@ using OpenFeature.Constant;
 namespace OpenFeature.Error
 {
     /// <summary>
-    /// Used to represent an abnormal error when evaluating a flag. This exception should be thrown
-    /// when evaluating a flag inside a IFeatureFlag provider
+    /// Used to represent an abnormal error when evaluating a flag.
+    /// This exception should be thrown when evaluating a flag inside a IFeatureFlag provider
     /// </summary>
     public class FeatureProviderException : Exception
     {
