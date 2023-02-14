@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>OpenFeature.Benchmark</RootNamespace>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoFixture" Version="$(AutoFixtureVer)" />
+    <PackageReference Include="BenchmarkDotNet" Version="$(BenchmarkDotNetVer)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\OpenFeature\OpenFeature.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,21 +1,24 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenFeature", "src\OpenFeature\OpenFeature.csproj", "{07A6E6BD-FB7E-4B3B-9CBE-65AE9D0EB223}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenFeature", "src\OpenFeature\OpenFeature.csproj", "{07A6E6BD-FB7E-4B3B-9CBE-65AE9D0EB223}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{72005F60-C2E8-40BF-AE95-893635134D7D}"
 	ProjectSection(SolutionItems) = preProject
-		build\Common.props = build\Common.props
-		build\Common.tests.props = build\Common.tests.props
-		build\Common.prod.props = build\Common.prod.props
 		.github\workflows\code-coverage.yml = .github\workflows\code-coverage.yml
 		.github\workflows\codeql-analysis.yml = .github\workflows\codeql-analysis.yml
+		build\Common.prod.props = build\Common.prod.props
+		build\Common.props = build\Common.props
+		build\Common.tests.props = build\Common.tests.props
+		CONTRIBUTING.md = CONTRIBUTING.md
 		.github\workflows\dotnet-format.yml = .github\workflows\dotnet-format.yml
+		.github\workflows\lint-pr.yml = .github\workflows\lint-pr.yml
 		.github\workflows\linux-ci.yml = .github\workflows\linux-ci.yml
+		README.md = README.md
 		.github\workflows\release.yml = .github\workflows\release.yml
 		.github\workflows\windows-ci.yml = .github\workflows\windows-ci.yml
-		README.md = README.md
-		CONTRIBUTING.md = CONTRIBUTING.md
-		.github\workflows\lint-pr.yml = .github\workflows\lint-pr.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C97E9975-E10A-4817-AE2C-4DD69C3C02D4}"
@@ -29,7 +32,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{65FBA159-2
 		test\Directory.Build.props = test\Directory.Build.props
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenFeature.Tests", "test\OpenFeature.Tests\OpenFeature.Tests.csproj", "{49BB42BA-10A6-4DA3-A7D5-38C968D57837}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenFeature.Tests", "test\OpenFeature.Tests\OpenFeature.Tests.csproj", "{49BB42BA-10A6-4DA3-A7D5-38C968D57837}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenFeature.Benchmarks", "test\OpenFeature.Benchmarks\OpenFeature.Benchmarks.csproj", "{90E7EAD3-251E-4490-AF78-E758E33518E5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,9 +50,20 @@ Global
 		{49BB42BA-10A6-4DA3-A7D5-38C968D57837}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49BB42BA-10A6-4DA3-A7D5-38C968D57837}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49BB42BA-10A6-4DA3-A7D5-38C968D57837}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90E7EAD3-251E-4490-AF78-E758E33518E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90E7EAD3-251E-4490-AF78-E758E33518E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90E7EAD3-251E-4490-AF78-E758E33518E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90E7EAD3-251E-4490-AF78-E758E33518E5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{07A6E6BD-FB7E-4B3B-9CBE-65AE9D0EB223} = {C97E9975-E10A-4817-AE2C-4DD69C3C02D4}
 		{49BB42BA-10A6-4DA3-A7D5-38C968D57837} = {65FBA159-23E0-4CF9-881B-F78DBFF198E9}
+		{90E7EAD3-251E-4490-AF78-E758E33518E5} = {65FBA159-23E0-4CF9-881B-F78DBFF198E9}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {41F01B78-FB06-404F-8AD0-6ED6973F948F}
 	EndGlobalSection
 EndGlobal
