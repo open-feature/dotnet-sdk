@@ -37,7 +37,7 @@ var evaluationContext = EvaluationContext.Builder()
 var isEnabled = await client.GetBooleanValue("my-conditional", false, evaluationContext);
 ```
 
-For complete documentation, visit: https://docs.openfeature.dev/docs/category/concepts
+For complete documentation, visit: https://openfeature.dev/docs/category/concepts
 
 ### Provider
 
