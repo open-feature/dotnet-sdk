@@ -31,7 +31,8 @@ Standardizing feature flags unifies tools and vendors behind a common interface 
 - .NET Core 6+
 - .NET Framework 4+
 
-Note that he packages will aim to support all current .NET versions. Refer to the currently supported versions [.NET](https://dotnet.microsoft.com/download/dotnet) and [.NET Framework](https://dotnet.microsoft.com/download/dotnet-framework) Excluding .NET Framework 3.5
+Note that the packages will aim to support all current .NET versions. Refer to the currently supported versions [.NET](https://dotnet.microsoft.com/download/dotnet) and [.NET Framework](https://dotnet.microsoft.com/download/dotnet-framework) excluding .NET Framework 3.5
+
 
 ## 📦 Installation:
 
