@@ -29,7 +29,7 @@ Standardizing feature flags unifies tools and vendors behind a common interface 
 
 - .NET 6+
 - .NET Core 6+
-- .NET Framework 4+
+- .NET Framework 4.6.2+
 
 Note that the packages will aim to support all current .NET versions. Refer to the currently supported versions [.NET](https://dotnet.microsoft.com/download/dotnet) and [.NET Framework](https://dotnet.microsoft.com/download/dotnet-framework) excluding .NET Framework 3.5
 
@@ -56,10 +56,6 @@ Use the following in your `*.csproj` file:
 </Project>
 ```
 <!-- x-release-please-end-version -->
-
-### Software Bill of Materials (SBOM)
-
-We publish SBOMs with all of our releases as of 0.3.0. You can find them in Maven Central alongside the artifacts.
 
 ## 🌟 Features:
 
