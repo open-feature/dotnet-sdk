@@ -36,26 +36,17 @@ Note that the packages will aim to support all current .NET versions. Refer to t
 
 ## 📦 Installation:
 
-Use the following in your `*.csproj` file:
+Use the following to initialize your project:
 
-<!-- x-release-please-start-version -->
-```xml
-<Project Sdk="Microsoft.NET.Sdk">
-
-  <ItemGroup>
-    <PackageReference Include="OpenFeature" Version="1.2.0" />
-  </ItemGroup>
-
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-
-</Project>
+```sh
+dotnet new console
 ```
-<!-- x-release-please-end-version -->
+
+and install OpenFeature:
+
+```sh
+dotnet add package OpenFeature
+```
 
 ## 🌟 Features:
 
