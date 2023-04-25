@@ -1,0 +1,56 @@
+name: Test
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+    - '**.md'
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+    - '**.md'
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET Core 6.0.x, 7.0.x
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: |
+          6.0.x
+          7.0.x
+
+    - name: Run Tests
+      run: dotnet test test/OpenFeature.Tests/ --configuration Release --logger:"console;verbosity=detailed"
+
+  e2e-tests:
+    runs-on: ubuntu-latest
+    services:
+      flagd:
+        image: ghcr.io/open-feature/flagd-testbed:latest
+        ports:
+          - 8013:8013
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET Core 6.0.x, 7.0.x
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: |
+          6.0.x
+          7.0.x
+
+    - name: Initialize Tests
+      run: | 
+        git submodule update --init --recursive
+        cp test-harness/features/evaluation.feature test/OpenFeature.IntegrationTests/Features/
+
+    - name: Run Tests
+      run: dotnet test test/OpenFeature.IntegrationTests/ --configuration Release --logger:"console;verbosity=detailed"

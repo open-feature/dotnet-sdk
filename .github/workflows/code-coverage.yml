@@ -13,11 +13,6 @@ on:
 jobs:
   build-test-report:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        version: [net7.0]
-
     env:
       OS: ${{ matrix.os }}
 
@@ -31,14 +26,8 @@ jobs:
       with:
         dotnet-version: '7.0.x'
 
-    - name: Install dependencies
-      run: dotnet restore
-
-    - name: Build
-      run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
-
-    - name: Test ${{ matrix.version }}
-      run: dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+    - name: Run Test
+      run: dotnet test --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 
     - uses: codecov/codecov-action@v3.1.2
       with:
