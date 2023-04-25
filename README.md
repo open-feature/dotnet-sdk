@@ -1,4 +1,13 @@
-# OpenFeature SDK for .NET
+<!-- markdownlint-disable MD033 -->
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/open-feature/community/0e23508c163a6a1ac8c0ced3e4bd78faafe627c7/assets/logo/horizontal/white/openfeature-horizontal-white.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/open-feature/community/0e23508c163a6a1ac8c0ced3e4bd78faafe627c7/assets/logo/horizontal/black/openfeature-horizontal-black.svg">
+    <img align="center" alt="OpenFeature Logo">
+  </picture>
+</p>
+
+<h2 align="center">OpenFeature .NET SDK</h2>
 
 [![a](https://img.shields.io/badge/slack-%40cncf%2Fopenfeature-brightgreen?style=flat&logo=slack)](https://cloud-native.slack.com/archives/C0344AANLA1)
 [![spec version badge](https://img.shields.io/badge/Specification-v0.5.2-yellow)](https://github.com/open-feature/spec/tree/v0.5.2?rgh-link-date=2023-01-20T21%3A37%3A52Z)
@@ -6,15 +15,49 @@
 [![nuget](https://img.shields.io/nuget/vpre/OpenFeature)](https://www.nuget.org/packages/OpenFeature)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6250/badge)](https://bestpractices.coreinfrastructure.org/projects/6250)
 
-OpenFeature is an open standard for feature flag management, created to support a robust feature flag ecosystem using cloud native technologies. OpenFeature will provide a unified API and SDK, and a developer-first, cloud-native implementation, with extensibility for open source and commercial offerings.
+## 👋 Hey there! Thanks for checking out the OpenFeature .NET SDK
 
-## Supported .Net Versions
+### What is OpenFeature?
 
-The packages will aim to support all current .NET versions. Refer to the currently supported versions [.NET](https://dotnet.microsoft.com/download/dotnet) and [.NET Framework](https://dotnet.microsoft.com/download/dotnet-framework) Excluding .NET Framework 3.5
+[OpenFeature][openfeature-website] is an open standard that provides a vendor-agnostic, community-driven API for feature flagging that works with your favorite feature flag management tool.
 
-## Getting Started
+### Why standardize feature flags?
 
-### Basic Usage
+Standardizing feature flags unifies tools and vendors behind a common interface which avoids vendor lock-in at the code level. Additionally, it offers a framework for building extensions and integrations and allows providers to focus on their unique value proposition.
+
+## 🔍 Requirements:
+
+- .NET 6+
+- .NET Core 6+
+- .NET Framework 4.6.2+
+
+Note that the packages will aim to support all current .NET versions. Refer to the currently supported versions [.NET](https://dotnet.microsoft.com/download/dotnet) and [.NET Framework](https://dotnet.microsoft.com/download/dotnet-framework) excluding .NET Framework 3.5
+
+
+## 📦 Installation:
+
+Use the following to initialize your project:
+
+```sh
+dotnet new console
+```
+
+and install OpenFeature:
+
+```sh
+dotnet add package OpenFeature
+```
+
+## 🌟 Features:
+
+- support for various backend [providers](https://openfeature.dev/docs/reference/concepts/provider)
+- easy integration and extension via [hooks](https://openfeature.dev/docs/reference/concepts/hooks)
+- bool, string, numeric and object flag types
+- [context-aware](https://openfeature.dev/docs/reference/concepts/evaluation-context) evaluation
+
+## 🚀 Usage:
+
+### Basics:
 
 ```csharp
 using OpenFeature.Model;
@@ -27,6 +70,20 @@ using OpenFeature.Model;
 var client = OpenFeature.Api.Instance.GetClient();
 // Evaluation the `my-feature` feature flag
 var isEnabled = await client.GetBooleanValue("my-feature", false);
+```
+
+For complete documentation, visit: https://openfeature.dev/docs/category/concepts
+
+### Context-aware evaluation:
+
+Sometimes the value of a flag must take into account some dynamic criteria about the application or user, such as the user location, IP, email address, or the location of the server.
+In OpenFeature, we refer to this as [`targeting`](https://openfeature.dev/specification/glossary#targeting).
+If the flag system you're using supports targeting, you can provide the input data using the `EvaluationContext`.
+
+```csharp
+using OpenFeature.Model;
+
+var client = OpenFeature.Api.Instance.GetClient();
 
 // Evaluating with a context.
 var evaluationContext = EvaluationContext.Builder()
@@ -37,13 +94,9 @@ var evaluationContext = EvaluationContext.Builder()
 var isEnabled = await client.GetBooleanValue("my-conditional", false, evaluationContext);
 ```
 
-For complete documentation, visit: https://openfeature.dev/docs/category/concepts
+### Providers:
 
-### Provider
-
-To develop a provider, you need to create a new project and include the OpenFeature SDK as a dependency. This can be a new repository or included in an existing contrib repository available under the OpenFeature organization. Finally, you’ll then need to write the provider itself. In most languages, this can be accomplished by implementing the provider interface exported by the OpenFeature SDK.
-
-Example of implementing a feature flag provider
+To develop a provider, you need to create a new project and include the OpenFeature SDK as a dependency. This can be a new repository or included in [the existing contrib repository](https://github.com/open-feature/dotnet-sdk-contrib) available under the OpenFeature organization. Finally, you’ll then need to write the provider itself. This can be accomplished by implementing the `FeatureProvider` interface exported by the OpenFeature SDK.
 
 ```csharp
 using OpenFeature;
@@ -90,11 +143,11 @@ public class MyFeatureProvider : FeatureProvider
 }
 ```
 
-### Hook
+See [here](https://openfeature.dev/docs/reference/technologies/server/dotnet) for a catalog of available providers.
+
+### Hooks:
 
 Hooks are a mechanism that allow for the addition of arbitrary behavior at well-defined points of the flag evaluation life-cycle. Use cases include validation of the resolved flag value, modifying or adding data to the evaluation context, logging, telemetry, and tracking.
-
-Example of adding a hook
 
 ```csharp
 // add a hook globally, to run on all evaluations
@@ -138,14 +191,26 @@ public class MyHook : Hook
 }
 ```
 
-## Contributing
+See [here](https://openfeature.dev/docs/reference/technologies/server/dotnet) for a catalog of available hooks.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute to the OpenFeature project.
+### Logging:
 
-Our community meetings are held regularly and open to everyone. Check the [OpenFeature community calendar](https://calendar.google.com/calendar/u/0?cid=MHVhN2kxaGl2NWRoMThiMjd0b2FoNjM2NDRAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ) for specific dates and for the Zoom meeting links.
+The .NET SDK uses Microsoft Extensions Logger. See the [manual](https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line) for complete documentation.
 
+## ⭐️ Support the project
 
-Thanks so much for your contributions to the OpenFeature project.
+- Give this repo a ⭐️!
+- Follow us social media:
+  - Twitter: [@openfeature](https://twitter.com/openfeature)
+  - LinkedIn: [OpenFeature](https://www.linkedin.com/company/openfeature/)
+- Join us on [Slack](https://cloud-native.slack.com/archives/C0344AANLA1)
+- For more check out our [community page](https://openfeature.dev/community/)
+
+## 🤝 Contributing
+
+Interested in contributing? Great, we'd love your help! To get started, take a look at the [CONTRIBUTING](CONTRIBUTING.md) guide.
+
+### Thanks to everyone that has already contributed
 
 <a href="https://github.com/open-feature/dotnet-sdk/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=open-feature/dotnet-sdk" />
@@ -153,6 +218,8 @@ Thanks so much for your contributions to the OpenFeature project.
 
 Made with [contrib.rocks](https://contrib.rocks).
 
-## License
+## 📜 License
 
 [Apache License 2.0](LICENSE)
+
+[openfeature-website]: https://openfeature.dev
