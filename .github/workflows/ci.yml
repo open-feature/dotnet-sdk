@@ -27,8 +27,25 @@ jobs:
 
     - name: Run Tests
       run: dotnet test test/OpenFeature.Tests/ --configuration Release --logger:"console;verbosity=detailed"
+  
+  unit-tests-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
-  e2e-tests-linux:
+    - name: Setup .NET Core 6.0.x, 7.0.x
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: |
+          6.0.x
+          7.0.x
+
+    - name: Run Tests
+      run: dotnet test test\OpenFeature.Tests\ --configuration Release --logger:"console;verbosity=detailed"
+  
+  e2e-tests:
     runs-on: ubuntu-latest
     services:
       flagd:
@@ -54,20 +71,3 @@ jobs:
 
     - name: Run Tests
       run: dotnet test test/OpenFeature.E2ETests/ --configuration Release --logger:"console;verbosity=detailed"
-  
-  unit-tests-windows:
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-
-    - name: Setup .NET Core 6.0.x, 7.0.x
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: |
-          6.0.x
-          7.0.x
-
-    - name: Run Tests
-      run: dotnet test test\OpenFeature.Tests\ --configuration Release --logger:"console;verbosity=detailed"
