@@ -350,5 +350,5 @@ ASALocalRun/
 !.vscode/extensions.json
 
 # integration tests
-test/OpenFeature.IntegrationTests/Features/evaluation.feature
-test/OpenFeature.IntegrationTests/Features/evaluation.feature.cs
+test/OpenFeature.E2ETests/Features/evaluation.feature
+test/OpenFeature.E2ETests/Features/evaluation.feature.cs

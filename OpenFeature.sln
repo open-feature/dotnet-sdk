@@ -36,7 +36,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenFeature.Tests", "test\O
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenFeature.Benchmarks", "test\OpenFeature.Benchmarks\OpenFeature.Benchmarks.csproj", "{90E7EAD3-251E-4490-AF78-E758E33518E5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenFeature.IntegrationTests", "test\OpenFeature.IntegrationTests\OpenFeature.IntegrationTests.csproj", "{90E7EAD3-251E-4490-AF78-E758E33518E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenFeature.E2ETests", "test\OpenFeature.E2ETests\OpenFeature.E2ETests.csproj", "{90E7EAD3-251E-4490-AF78-E758E33518E5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

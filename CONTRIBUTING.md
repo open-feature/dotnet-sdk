@@ -64,7 +64,7 @@ dotnet test test/OpenFeature.Tests/
 To be able to run the e2e tests, first we need to initialize the submodule and copy the test files:
 
 ```bash
-git submodule update --init --recursive && cp test-harness/features/evaluation.feature test/OpenFeature.IntegrationTests/Features/
+git submodule update --init --recursive && cp test-harness/features/evaluation.feature test/OpenFeature.E2ETests/Features/
 ```
 
 Afterwards, you need to start flagd locally:
@@ -76,7 +76,7 @@ docker run -p 8013:8013 ghcr.io/open-feature/flagd-testbed:latest
 Now you can run the tests using:
 
 ```bash
-dotnet test test/OpenFeature.IntegrationTests/
+dotnet test test/OpenFeature.E2ETests/
 ```
 
 ### How to Receive Comments

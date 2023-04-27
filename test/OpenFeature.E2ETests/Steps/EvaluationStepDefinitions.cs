@@ -10,7 +10,7 @@ using OpenFeature.Model;
 using TechTalk.SpecFlow;
 using Xunit;
 
-namespace OpenFeature.IntegrationTests
+namespace OpenFeature.E2ETests
 {
     [Binding]
     public class EvaluationStepDefinitions
@@ -49,7 +49,7 @@ namespace OpenFeature.IntegrationTests
         [Given(@"a provider is registered with cache disabled")]
         public void Givenaproviderisregisteredwithcachedisabled()
         {
-            //_scenarioContext.Pending();
+
         }
 
         [When(@"a boolean flag with key ""(.*)"" is evaluated with default value ""(.*)""")]

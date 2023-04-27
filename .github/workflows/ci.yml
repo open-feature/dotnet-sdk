@@ -50,7 +50,7 @@ jobs:
     - name: Initialize Tests
       run: | 
         git submodule update --init --recursive
-        cp test-harness/features/evaluation.feature test/OpenFeature.IntegrationTests/Features/
+        cp test-harness/features/evaluation.feature test/OpenFeature.E2ETests/Features/
 
     - name: Run Tests
-      run: dotnet test test/OpenFeature.IntegrationTests/ --configuration Release --logger:"console;verbosity=detailed"
+      run: dotnet test test/OpenFeature.E2ETests/ --configuration Release --logger:"console;verbosity=detailed"

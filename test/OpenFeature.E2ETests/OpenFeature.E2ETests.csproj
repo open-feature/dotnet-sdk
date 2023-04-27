@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
     <TargetFrameworks Condition="$(OS) == 'Windows_NT'">$(TargetFrameworks);net462</TargetFrameworks>
-    <RootNamespace>OpenFeature.IntegrationTests</RootNamespace>
+    <RootNamespace>OpenFeature.E2ETests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
