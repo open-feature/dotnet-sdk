@@ -38,12 +38,6 @@ Add your fork as an origin
 git remote add fork https://github.com/YOUR_GITHUB_USERNAME/dotnet-sdk.git
 ```
 
-Makes sure your development environment is all setup by building and testing
-```bash
-dotnet build
-dotnet test
-```
-
 To start working on a new feature or bugfix, create a new branch and start working on it.
 
 ```bash
@@ -54,6 +48,36 @@ git push fork feat/NAME_OF_FEATURE
 ```
 
 Open a pull request against the main dotnet-sdk repository.
+
+### Running tests locally
+
+#### Unit tests
+
+To run unit tests execute:
+
+```bash
+dotnet test test/OpenFeature.Tests/
+```
+
+#### E2E tests
+
+To be able to run the e2e tests, first we need to initialize the submodule and copy the test files:
+
+```bash
+git submodule update --init --recursive && cp test-harness/features/evaluation.feature test/OpenFeature.E2ETests/Features/
+```
+
+Afterwards, you need to start flagd locally:
+
+```bash
+docker run -p 8013:8013 ghcr.io/open-feature/flagd-testbed:latest
+```
+
+Now you can run the tests using:
+
+```bash
+dotnet test test/OpenFeature.E2ETests/
+```
 
 ### How to Receive Comments
 

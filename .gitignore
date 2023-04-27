@@ -348,3 +348,7 @@ ASALocalRun/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# integration tests
+test/OpenFeature.E2ETests/Features/evaluation.feature
+test/OpenFeature.E2ETests/Features/evaluation.feature.cs
