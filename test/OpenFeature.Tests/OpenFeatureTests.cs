@@ -21,7 +21,65 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        [Specification("1.1.3", "The `API` MUST provide a function to add `hooks` which accepts one or more API-conformant `hooks`, and appends them to the collection of any previously added hooks. When new hooks are added, previously added hooks are not removed.")]
+        [Specification("1.1.3", "The `API` MUST provide a function to bind a given `provider` to one or more client `name`s. If the client-name already has a bound provider, it is overwritten with the new mapping.")]
+        public void OpenFeature_Should_Not_Change_Named_Providers_When_Setting_Default_Provider()
+        {
+            var openFeature = Api.Instance;
+
+            openFeature.SetProvider(new NoOpFeatureProvider());
+            openFeature.SetProvider(TestProvider.Name, new TestProvider());
+
+            var defaultClient = openFeature.GetProviderMetadata();
+            var namedClient = openFeature.GetProviderMetadata(TestProvider.Name);
+
+            defaultClient.Name.Should().Be(NoOpProvider.NoOpProviderName);
+            namedClient.Name.Should().Be(TestProvider.Name);
+        }
+
+        [Fact]
+        [Specification("1.1.3", "The `API` MUST provide a function to bind a given `provider` to one or more client `name`s. If the client-name already has a bound provider, it is overwritten with the new mapping.")]
+        public void OpenFeature_Should_Set_Default_Provide_When_No_Name_Provided()
+        {
+            var openFeature = Api.Instance;
+
+            openFeature.SetProvider(new TestProvider());
+
+            var defaultClient = openFeature.GetProviderMetadata();
+
+            defaultClient.Name.Should().Be(TestProvider.Name);
+        }
+
+        [Fact]
+        [Specification("1.1.3", "The `API` MUST provide a function to bind a given `provider` to one or more client `name`s. If the client-name already has a bound provider, it is overwritten with the new mapping.")]
+        public void OpenFeature_Should_Assign_Provider_To_Existing_Client()
+        {
+            const string name = "new-client";
+            var openFeature = Api.Instance;
+
+            openFeature.SetProvider(name, new TestProvider());
+            openFeature.SetProvider(name, new NoOpFeatureProvider());
+
+            openFeature.GetProviderMetadata(name).Name.Should().Be(NoOpProvider.NoOpProviderName);
+        }
+
+        [Fact]
+        [Specification("1.1.3", "The `API` MUST provide a function to bind a given `provider` to one or more client `name`s. If the client-name already has a bound provider, it is overwritten with the new mapping.")]
+        public void OpenFeature_Should_Allow_Multiple_Client_Names_Of_Same_Instance()
+        {
+            var openFeature = Api.Instance;
+            var provider = new TestProvider();
+
+            openFeature.SetProvider("a", provider);
+            openFeature.SetProvider("b", provider);
+
+            var clientA = openFeature.GetProvider("a");
+            var clientB = openFeature.GetProvider("b");
+
+            clientA.Should().Be(clientB);
+        }
+
+        [Fact]
+        [Specification("1.1.4", "The `API` MUST provide a function to add `hooks` which accepts one or more API-conformant `hooks`, and appends them to the collection of any previously added hooks. When new hooks are added, previously added hooks are not removed.")]
         public void OpenFeature_Should_Add_Hooks()
         {
             var openFeature = Api.Instance;
@@ -50,7 +108,7 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        [Specification("1.1.4", "The API MUST provide a function for retrieving the metadata field of the configured `provider`.")]
+        [Specification("1.1.5", "The API MUST provide a function for retrieving the metadata field of the configured `provider`.")]
         public void OpenFeature_Should_Get_Metadata()
         {
             Api.Instance.SetProvider(new NoOpFeatureProvider());
@@ -65,7 +123,7 @@ namespace OpenFeature.Tests
         [InlineData("client1", "version1")]
         [InlineData("client2", null)]
         [InlineData(null, null)]
-        [Specification("1.1.5", "The `API` MUST provide a function for creating a `client` which accepts the following options:  - name (optional): A logical string identifier for the client.")]
+        [Specification("1.1.6", "The `API` MUST provide a function for creating a `client` which accepts the following options: - name (optional): A logical string identifier for the client.")]
         public void OpenFeature_Should_Create_Client(string name = null, string version = null)
         {
             var openFeature = Api.Instance;
@@ -96,6 +154,24 @@ namespace OpenFeature.Tests
         public void Should_Always_Have_Provider()
         {
             Api.Instance.GetProvider().Should().NotBeNull();
+        }
+
+        [Fact]
+        public void OpenFeature_Should_Allow_Multiple_Client_Mapping()
+        {
+            var openFeature = Api.Instance;
+
+            openFeature.SetProvider("client1", new TestProvider());
+            openFeature.SetProvider("client2", new NoOpFeatureProvider());
+
+            var client1 = openFeature.GetClient("client1");
+            var client2 = openFeature.GetClient("client2");
+
+            client1.GetMetadata().Name.Should().Be("client1");
+            client2.GetMetadata().Name.Should().Be("client2");
+
+            client1.GetBooleanValue("test", false).Result.Should().BeTrue();
+            client2.GetBooleanValue("test", false).Result.Should().BeFalse();
         }
     }
 }

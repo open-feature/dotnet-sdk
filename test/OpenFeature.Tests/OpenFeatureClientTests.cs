@@ -147,7 +147,7 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        [Specification("1.1.2", "The `API` MUST provide a function to set the global `provider` singleton, which accepts an API-conformant `provider` implementation.")]
+        [Specification("1.1.2", "The `API` MUST provide a function to set the default `provider`, which accepts an API-conformant `provider` implementation.")]
         [Specification("1.3.3", "The `client` SHOULD guarantee the returned value of any typed flag evaluation method is of the expected type. If the value returned by the underlying provider implementation does not match the expected type, it's to be considered abnormal execution, and the supplied `default value` should be returned.")]
         [Specification("1.4.7", "In cases of abnormal execution, the `evaluation details` structure's `error code` field MUST contain an `error code`.")]
         [Specification("1.4.8", "In cases of abnormal execution (network failure, unhandled error, etc) the `reason` field in the `evaluation details` SHOULD indicate an error.")]

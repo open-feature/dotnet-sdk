@@ -42,13 +42,7 @@ namespace OpenFeature
         {
             // Alias the provider reference so getting the method and returning the provider are
             // guaranteed to be the same object.
-            var provider = Api.Instance.GetProvider();
-
-            if (provider == null)
-            {
-                provider = new NoOpFeatureProvider();
-                this._logger.LogDebug("No provider configured, using no-op provider");
-            }
+            var provider = Api.Instance.GetProvider(this._metadata.Name);
 
             return (method(provider), provider);
         }
