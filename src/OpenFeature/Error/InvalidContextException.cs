@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using OpenFeature.Constant;
 
 namespace OpenFeature.Error
@@ -6,6 +7,7 @@ namespace OpenFeature.Error
     /// <summary>
     /// Context does not satisfy provider requirements when evaluating a flag.
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class InvalidContextException : FeatureProviderException
     {
         /// <summary>
