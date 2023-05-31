@@ -50,7 +50,7 @@ namespace OpenFeature.Tests
         public override Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue,
             EvaluationContext context = null)
         {
-            return Task.FromResult(new ResolutionDetails<bool>(flagKey, defaultValue));
+            return Task.FromResult(new ResolutionDetails<bool>(flagKey, !defaultValue));
         }
 
         public override Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue,

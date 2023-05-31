@@ -15,7 +15,9 @@ namespace OpenFeature
     public sealed class Api
     {
         private EvaluationContext _evaluationContext = EvaluationContext.Empty;
-        private FeatureProvider _featureProvider = new NoOpFeatureProvider();
+        private FeatureProvider _defaultProvider = new NoOpFeatureProvider();
+        private readonly ConcurrentDictionary<string, FeatureProvider> _featureProviders =
+            new ConcurrentDictionary<string, FeatureProvider>();
         private readonly ConcurrentStack<Hook> _hooks = new ConcurrentStack<Hook>();
 
         /// The reader/writer locks are not disposed because the singleton instance should never be disposed.
@@ -42,12 +44,23 @@ namespace OpenFeature
             this._featureProviderLock.EnterWriteLock();
             try
             {
-                this._featureProvider = featureProvider;
+                this._defaultProvider = featureProvider ?? this._defaultProvider;
             }
             finally
             {
                 this._featureProviderLock.ExitWriteLock();
             }
+        }
+
+        /// <summary>
+        /// Sets the feature provider to given clientName
+        /// </summary>
+        /// <param name="clientName">Name of client</param>
+        /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
+        public void SetProvider(string clientName, FeatureProvider featureProvider)
+        {
+            this._featureProviders.AddOrUpdate(clientName, featureProvider,
+                (key, current) => featureProvider);
         }
 
         /// <summary>
@@ -57,7 +70,7 @@ namespace OpenFeature
         /// it should be accessed once for an operation, and then that reference should be used for all dependent
         /// operations. For instance, during an evaluation the flag resolution method, and the provider hooks
         /// should be accessed from the same reference, not two independent calls to
-        /// <see cref="GetProvider"/>.
+        /// <see cref="GetProvider()"/>.
         /// </para>
         /// </summary>
         /// <returns><see cref="FeatureProvider"/></returns>
@@ -66,7 +79,7 @@ namespace OpenFeature
             this._featureProviderLock.EnterReadLock();
             try
             {
-                return this._featureProvider;
+                return this._defaultProvider;
             }
             finally
             {
@@ -75,15 +88,42 @@ namespace OpenFeature
         }
 
         /// <summary>
+        /// Gets the feature provider with given clientName
+        /// </summary>
+        /// <param name="clientName">Name of client</param>
+        /// <returns>A provider associated with the given clientName, if clientName is empty or doesn't
+        /// have a corresponding provider the default provider will be returned</returns>
+        public FeatureProvider GetProvider(string clientName)
+        {
+            if (string.IsNullOrEmpty(clientName))
+            {
+                return this.GetProvider();
+            }
+
+            return this._featureProviders.TryGetValue(clientName, out var featureProvider)
+                ? featureProvider
+                : this.GetProvider();
+        }
+
+
+        /// <summary>
         /// Gets providers metadata
         /// <para>
         /// This method is not guaranteed to return the same provider instance that may be used during an evaluation
         /// in the case where the provider may be changed from another thread.
-        /// For multiple dependent provider operations see <see cref="GetProvider"/>.
+        /// For multiple dependent provider operations see <see cref="GetProvider()"/>.
         /// </para>
         /// </summary>
         /// <returns><see cref="ClientMetadata"/></returns>
         public Metadata GetProviderMetadata() => this.GetProvider().GetMetadata();
+
+        /// <summary>
+        /// Gets providers metadata assigned to the given clientName. If the clientName has no provider
+        /// assigned to it the default provider will be returned
+        /// </summary>
+        /// <param name="clientName">Name of client</param>
+        /// <returns>Metadata assigned to provider</returns>
+        public Metadata GetProviderMetadata(string clientName) => this.GetProvider(clientName).GetMetadata();
 
         /// <summary>
         /// Create a new instance of <see cref="FeatureClient"/> using the current provider
