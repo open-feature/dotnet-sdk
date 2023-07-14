@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.0](https://github.com/open-feature/dotnet-sdk/compare/v1.2.0...v1.3.0) (2023-07-14)
+
+
+### Features
+
+* Support for name client to given provider ([#129](https://github.com/open-feature/dotnet-sdk/issues/129)) ([3f765c6](https://github.com/open-feature/dotnet-sdk/commit/3f765c6fb4ccd651de2d4f46e1fec38cd26610fe))
+
+
+### Bug Fixes
+
+* max System.Collections.Immutable version ++ ([#137](https://github.com/open-feature/dotnet-sdk/issues/137)) ([55c5e8e](https://github.com/open-feature/dotnet-sdk/commit/55c5e8e5c9e7667afb84d0b7946234e5274d4924))
+
 ## [1.2.0](https://github.com/open-feature/dotnet-sdk/compare/v1.1.0...v1.2.0) (2023-02-14)
 
 
