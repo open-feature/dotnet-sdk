@@ -1,6 +1,6 @@
 using System.Linq;
 using FluentAssertions;
-using Moq;
+using NSubstitute;
 using OpenFeature.Constant;
 using OpenFeature.Model;
 using OpenFeature.Tests.Internal;
@@ -83,10 +83,10 @@ namespace OpenFeature.Tests
         public void OpenFeature_Should_Add_Hooks()
         {
             var openFeature = Api.Instance;
-            var hook1 = new Mock<Hook>(MockBehavior.Strict).Object;
-            var hook2 = new Mock<Hook>(MockBehavior.Strict).Object;
-            var hook3 = new Mock<Hook>(MockBehavior.Strict).Object;
-            var hook4 = new Mock<Hook>(MockBehavior.Strict).Object;
+            var hook1 = Substitute.For<Hook>();
+            var hook2 = Substitute.For<Hook>();
+            var hook3 = Substitute.For<Hook>();
+            var hook4 = Substitute.For<Hook>();
 
             openFeature.ClearHooks();
 
