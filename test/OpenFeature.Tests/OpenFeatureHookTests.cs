@@ -5,11 +5,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
-using Moq;
+using NSubstitute;
 using OpenFeature.Constant;
 using OpenFeature.Model;
 using OpenFeature.Tests.Internal;
 using Xunit;
+using Moq;
 
 namespace OpenFeature.Tests
 {
@@ -26,102 +27,62 @@ namespace OpenFeature.Tests
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<bool>();
-            var apiHook = new Mock<Hook>(MockBehavior.Strict);
-            var clientHook = new Mock<Hook>(MockBehavior.Strict);
-            var invocationHook = new Mock<Hook>(MockBehavior.Strict);
-            var providerHook = new Mock<Hook>(MockBehavior.Strict);
+            var apiHook = Substitute.For<Hook>();
+            var clientHook = Substitute.For<Hook>();
+            var invocationHook = Substitute.For<Hook>();
+            var providerHook = Substitute.For<Hook>();
 
-            var sequence = new MockSequence();
-
-            apiHook.InSequence(sequence).Setup(x => x.Before(It.IsAny<HookContext<bool>>(),
-                    It.IsAny<IReadOnlyDictionary<string, object>>()))
-                .ReturnsAsync(EvaluationContext.Empty);
-
-            clientHook.InSequence(sequence).Setup(x => x.Before(It.IsAny<HookContext<bool>>(),
-                    It.IsAny<IReadOnlyDictionary<string, object>>()))
-                .ReturnsAsync(EvaluationContext.Empty);
-
-            invocationHook.InSequence(sequence).Setup(x => x.Before(It.IsAny<HookContext<bool>>(),
-                It.IsAny<IReadOnlyDictionary<string, object>>()))
-                .ReturnsAsync(EvaluationContext.Empty);
-
-            providerHook.InSequence(sequence).Setup(x => x.Before(It.IsAny<HookContext<bool>>(),
-                    It.IsAny<IReadOnlyDictionary<string, object>>()))
-                .ReturnsAsync(EvaluationContext.Empty);
-
-            providerHook.InSequence(sequence).Setup(x => x.After(It.IsAny<HookContext<bool>>(),
-                It.IsAny<FlagEvaluationDetails<bool>>(),
-                It.IsAny<IReadOnlyDictionary<string, object>>())).Returns(Task.CompletedTask);
-
-            invocationHook.InSequence(sequence).Setup(x => x.After(It.IsAny<HookContext<bool>>(),
-                It.IsAny<FlagEvaluationDetails<bool>>(),
-                It.IsAny<IReadOnlyDictionary<string, object>>())).Returns(Task.CompletedTask);
-
-            clientHook.InSequence(sequence).Setup(x => x.After(It.IsAny<HookContext<bool>>(),
-                It.IsAny<FlagEvaluationDetails<bool>>(),
-                It.IsAny<IReadOnlyDictionary<string, object>>())).Returns(Task.CompletedTask);
-
-            apiHook.InSequence(sequence).Setup(x => x.After(It.IsAny<HookContext<bool>>(),
-                It.IsAny<FlagEvaluationDetails<bool>>(),
-                It.IsAny<IReadOnlyDictionary<string, object>>())).Returns(Task.CompletedTask);
-
-            providerHook.InSequence(sequence).Setup(x => x.Finally(It.IsAny<HookContext<bool>>(),
-                It.IsAny<IReadOnlyDictionary<string, object>>())).Returns(Task.CompletedTask);
-
-            invocationHook.InSequence(sequence).Setup(x => x.Finally(It.IsAny<HookContext<bool>>(),
-                It.IsAny<IReadOnlyDictionary<string, object>>())).Returns(Task.CompletedTask);
-
-            clientHook.InSequence(sequence).Setup(x => x.Finally(It.IsAny<HookContext<bool>>(),
-                It.IsAny<IReadOnlyDictionary<string, object>>())).Returns(Task.CompletedTask);
-
-            apiHook.InSequence(sequence).Setup(x => x.Finally(It.IsAny<HookContext<bool>>(),
-                It.IsAny<IReadOnlyDictionary<string, object>>())).Returns(Task.CompletedTask);
+            apiHook.Before(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(EvaluationContext.Empty);
+            clientHook.Before(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(EvaluationContext.Empty);
+            invocationHook.Before(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(EvaluationContext.Empty);
+            providerHook.Before(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(EvaluationContext.Empty);
+            providerHook.After(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(Task.CompletedTask);
+            invocationHook.After(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(Task.CompletedTask);
+            clientHook.After(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(Task.CompletedTask);
+            apiHook.After(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(Task.CompletedTask);
+            providerHook.Finally(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(Task.CompletedTask);
+            invocationHook.Finally(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(Task.CompletedTask);
+            clientHook.Finally(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(Task.CompletedTask);
+            apiHook.Finally(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(Task.CompletedTask);
 
             var testProvider = new TestProvider();
-            testProvider.AddHook(providerHook.Object);
-            Api.Instance.AddHooks(apiHook.Object);
+            testProvider.AddHook(providerHook);
+            Api.Instance.AddHooks(apiHook);
             Api.Instance.SetProvider(testProvider);
             var client = Api.Instance.GetClient(clientName, clientVersion);
-            client.AddHooks(clientHook.Object);
+            client.AddHooks(clientHook);
 
             await client.GetBooleanValue(flagName, defaultValue, EvaluationContext.Empty,
-                new FlagEvaluationOptions(invocationHook.Object, ImmutableDictionary<string, object>.Empty));
+                new FlagEvaluationOptions(invocationHook, ImmutableDictionary<string, object>.Empty));
 
-            apiHook.Verify(x => x.Before(
-                It.IsAny<HookContext<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
+            Received.InOrder(() =>
+            {
+                apiHook.Before(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+                clientHook.Before(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+                invocationHook.Before(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+                providerHook.Before(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+                providerHook.After(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+                invocationHook.After(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+                clientHook.After(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+                apiHook.After(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+                providerHook.Finally(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+                invocationHook.Finally(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+                clientHook.Finally(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+                apiHook.Finally(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+            });
 
-            clientHook.Verify(x => x.Before(
-                It.IsAny<HookContext<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
-
-            invocationHook.Verify(x => x.Before(
-                It.IsAny<HookContext<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
-
-            providerHook.Verify(x => x.Before(
-                It.IsAny<HookContext<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
-
-            providerHook.Verify(x => x.After(
-                It.IsAny<HookContext<bool>>(), It.IsAny<FlagEvaluationDetails<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
-
-            invocationHook.Verify(x => x.After(
-                It.IsAny<HookContext<bool>>(), It.IsAny<FlagEvaluationDetails<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
-
-            clientHook.Verify(x => x.After(
-                It.IsAny<HookContext<bool>>(), It.IsAny<FlagEvaluationDetails<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
-
-            apiHook.Verify(x => x.After(
-                It.IsAny<HookContext<bool>>(), It.IsAny<FlagEvaluationDetails<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
-
-            providerHook.Verify(x => x.Finally(
-                It.IsAny<HookContext<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
-
-            invocationHook.Verify(x => x.Finally(
-                It.IsAny<HookContext<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
-
-            clientHook.Verify(x => x.Finally(
-                It.IsAny<HookContext<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
-
-            apiHook.Verify(x => x.Finally(
-                It.IsAny<HookContext<bool>>(), It.IsAny<IReadOnlyDictionary<string, object>>()), Times.Once);
+            _ = apiHook.Received(1).Before(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+            _ = clientHook.Received(1).Before(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+            _ = invocationHook.Received(1).Before(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+            _ = providerHook.Received(1).Before(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+            _ = providerHook.Received(1).After(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+            _ = invocationHook.Received(1).After(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+            _ = clientHook.Received(1).After(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+            _ = apiHook.Received(1).After(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+            _ = providerHook.Received(1).Finally(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+            _ = invocationHook.Received(1).Finally(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+            _ = clientHook.Received(1).Finally(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+            _ = apiHook.Received(1).Finally(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
         }
 
         [Fact]
@@ -342,19 +303,19 @@ namespace OpenFeature.Tests
         [Specification("4.4.1", "The API, Client, Provider, and invocation MUST have a method for registering hooks.")]
         public async Task Register_Hooks_Should_Be_Available_At_All_Levels()
         {
-            var hook1 = new Mock<Hook>(MockBehavior.Strict);
-            var hook2 = new Mock<Hook>(MockBehavior.Strict);
-            var hook3 = new Mock<Hook>(MockBehavior.Strict);
-            var hook4 = new Mock<Hook>(MockBehavior.Strict);
+            var hook1 = Substitute.For<Hook>();
+            var hook2 = Substitute.For<Hook>();
+            var hook3 = Substitute.For<Hook>();
+            var hook4 = Substitute.For<Hook>();
 
             var testProvider = new TestProvider();
-            testProvider.AddHook(hook4.Object);
-            Api.Instance.AddHooks(hook1.Object);
+            testProvider.AddHook(hook4);
+            Api.Instance.AddHooks(hook1);
             Api.Instance.SetProvider(testProvider);
             var client = Api.Instance.GetClient();
-            client.AddHooks(hook2.Object);
+            client.AddHooks(hook2);
             await client.GetBooleanValue("test", false, null,
-                new FlagEvaluationOptions(hook3.Object, ImmutableDictionary<string, object>.Empty));
+                new FlagEvaluationOptions(hook3, ImmutableDictionary<string, object>.Empty));
 
             Assert.Single(Api.Instance.GetHooks());
             client.GetHooks().Count().Should().Be(1);
