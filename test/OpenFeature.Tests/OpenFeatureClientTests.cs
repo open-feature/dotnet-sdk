@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using Moq;
+using Microsoft.Extensions.Logging.Internal;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using OpenFeature.Constant;
 using OpenFeature.Error;
 using OpenFeature.Model;
@@ -22,9 +24,9 @@ namespace OpenFeature.Tests
         {
             var fixture = new Fixture();
             var clientName = fixture.Create<string>();
-            var hook1 = new Mock<Hook>(MockBehavior.Strict).Object;
-            var hook2 = new Mock<Hook>(MockBehavior.Strict).Object;
-            var hook3 = new Mock<Hook>(MockBehavior.Strict).Object;
+            var hook1 = Substitute.For<Hook>();
+            var hook2 = Substitute.For<Hook>();
+            var hook3 = Substitute.For<Hook>();
 
             var client = Api.Instance.GetClient(clientName);
 
@@ -160,35 +162,28 @@ namespace OpenFeature.Tests
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<Value>();
-            var mockedFeatureProvider = new Mock<FeatureProvider>(MockBehavior.Strict);
-            var mockedLogger = new Mock<ILogger<Api>>(MockBehavior.Default);
+            var mockedFeatureProvider = Substitute.For<FeatureProvider>();
+            var mockedLogger = Substitute.For<ILogger<Api>>();
 
             // This will fail to case a String to TestStructure
-            mockedFeatureProvider
-                .Setup(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>()))
-                .Throws<InvalidCastException>();
-            mockedFeatureProvider.Setup(x => x.GetMetadata())
-                .Returns(new Metadata(fixture.Create<string>()));
-            mockedFeatureProvider.Setup(x => x.GetProviderHooks())
-                .Returns(ImmutableList<Hook>.Empty);
+            mockedFeatureProvider.ResolveStructureValue(flagName, defaultValue, Arg.Any<EvaluationContext>()).Throws<InvalidCastException>();
+            mockedFeatureProvider.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
+            mockedFeatureProvider.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            Api.Instance.SetProvider(mockedFeatureProvider.Object);
-            var client = Api.Instance.GetClient(clientName, clientVersion, mockedLogger.Object);
+            Api.Instance.SetProvider(mockedFeatureProvider);
+            var client = Api.Instance.GetClient(clientName, clientVersion, mockedLogger);
 
             var evaluationDetails = await client.GetObjectDetails(flagName, defaultValue);
             evaluationDetails.ErrorType.Should().Be(ErrorType.TypeMismatch);
 
-            mockedFeatureProvider
-                .Verify(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>()), Times.Once);
+            _ = mockedFeatureProvider.Received(1).ResolveStructureValue(flagName, defaultValue, Arg.Any<EvaluationContext>());
 
-            mockedLogger.Verify(
-                x => x.Log(
-                    LogLevel.Error,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((o, t) => string.Equals($"Error while evaluating flag {flagName}", o.ToString(), StringComparison.InvariantCultureIgnoreCase)),
-                    It.IsAny<Exception>(),
-                    It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-                Times.Once);
+            mockedLogger.Received(1).Log(
+                LogLevel.Error,
+                Arg.Any<EventId>(),
+                Arg.Is<FormattedLogValues>(t => string.Equals($"Error while evaluating flag {flagName}", t.ToString(), StringComparison.InvariantCultureIgnoreCase)),
+                Arg.Any<Exception>(),
+                Arg.Any<Func<object, Exception, string>>());
         }
 
         [Fact]
@@ -200,21 +195,17 @@ namespace OpenFeature.Tests
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<bool>();
 
-            var featureProviderMock = new Mock<FeatureProvider>(MockBehavior.Strict);
-            featureProviderMock
-                .Setup(x => x.ResolveBooleanValue(flagName, defaultValue, It.IsAny<EvaluationContext>()))
-                .ReturnsAsync(new ResolutionDetails<bool>(flagName, defaultValue));
-            featureProviderMock.Setup(x => x.GetMetadata())
-                .Returns(new Metadata(fixture.Create<string>()));
-            featureProviderMock.Setup(x => x.GetProviderHooks())
-                .Returns(ImmutableList<Hook>.Empty);
+            var featureProviderMock = Substitute.For<FeatureProvider>();
+            featureProviderMock.ResolveBooleanValue(flagName, defaultValue, Arg.Any<EvaluationContext>()).Returns(new ResolutionDetails<bool>(flagName, defaultValue));
+            featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
+            featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            Api.Instance.SetProvider(featureProviderMock.Object);
+            Api.Instance.SetProvider(featureProviderMock);
             var client = Api.Instance.GetClient(clientName, clientVersion);
 
             (await client.GetBooleanValue(flagName, defaultValue)).Should().Be(defaultValue);
 
-            featureProviderMock.Verify(x => x.ResolveBooleanValue(flagName, defaultValue, It.IsAny<EvaluationContext>()), Times.Once);
+            _ = featureProviderMock.Received(1).ResolveBooleanValue(flagName, defaultValue, Arg.Any<EvaluationContext>());
         }
 
         [Fact]
@@ -226,21 +217,17 @@ namespace OpenFeature.Tests
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<string>();
 
-            var featureProviderMock = new Mock<FeatureProvider>(MockBehavior.Strict);
-            featureProviderMock
-                .Setup(x => x.ResolveStringValue(flagName, defaultValue, It.IsAny<EvaluationContext>()))
-                .ReturnsAsync(new ResolutionDetails<string>(flagName, defaultValue));
-            featureProviderMock.Setup(x => x.GetMetadata())
-                .Returns(new Metadata(fixture.Create<string>()));
-            featureProviderMock.Setup(x => x.GetProviderHooks())
-                .Returns(ImmutableList<Hook>.Empty);
+            var featureProviderMock = Substitute.For<FeatureProvider>();
+            featureProviderMock.ResolveStringValue(flagName, defaultValue, Arg.Any<EvaluationContext>()).Returns(new ResolutionDetails<string>(flagName, defaultValue));
+            featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
+            featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            Api.Instance.SetProvider(featureProviderMock.Object);
+            Api.Instance.SetProvider(featureProviderMock);
             var client = Api.Instance.GetClient(clientName, clientVersion);
 
             (await client.GetStringValue(flagName, defaultValue)).Should().Be(defaultValue);
 
-            featureProviderMock.Verify(x => x.ResolveStringValue(flagName, defaultValue, It.IsAny<EvaluationContext>()), Times.Once);
+            _ = featureProviderMock.Received(1).ResolveStringValue(flagName, defaultValue, Arg.Any<EvaluationContext>());
         }
 
         [Fact]
@@ -252,21 +239,17 @@ namespace OpenFeature.Tests
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<int>();
 
-            var featureProviderMock = new Mock<FeatureProvider>(MockBehavior.Strict);
-            featureProviderMock
-                .Setup(x => x.ResolveIntegerValue(flagName, defaultValue, It.IsAny<EvaluationContext>()))
-                .ReturnsAsync(new ResolutionDetails<int>(flagName, defaultValue));
-            featureProviderMock.Setup(x => x.GetMetadata())
-                .Returns(new Metadata(fixture.Create<string>()));
-            featureProviderMock.Setup(x => x.GetProviderHooks())
-                .Returns(ImmutableList<Hook>.Empty);
+            var featureProviderMock = Substitute.For<FeatureProvider>();
+            featureProviderMock.ResolveIntegerValue(flagName, defaultValue, Arg.Any<EvaluationContext>()).Returns(new ResolutionDetails<int>(flagName, defaultValue));
+            featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
+            featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            Api.Instance.SetProvider(featureProviderMock.Object);
+            Api.Instance.SetProvider(featureProviderMock);
             var client = Api.Instance.GetClient(clientName, clientVersion);
 
             (await client.GetIntegerValue(flagName, defaultValue)).Should().Be(defaultValue);
 
-            featureProviderMock.Verify(x => x.ResolveIntegerValue(flagName, defaultValue, It.IsAny<EvaluationContext>()), Times.Once);
+            _ = featureProviderMock.Received(1).ResolveIntegerValue(flagName, defaultValue, Arg.Any<EvaluationContext>());
         }
 
         [Fact]
@@ -278,21 +261,17 @@ namespace OpenFeature.Tests
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<double>();
 
-            var featureProviderMock = new Mock<FeatureProvider>(MockBehavior.Strict);
-            featureProviderMock
-                .Setup(x => x.ResolveDoubleValue(flagName, defaultValue, It.IsAny<EvaluationContext>()))
-                .ReturnsAsync(new ResolutionDetails<double>(flagName, defaultValue));
-            featureProviderMock.Setup(x => x.GetMetadata())
-                .Returns(new Metadata(fixture.Create<string>()));
-            featureProviderMock.Setup(x => x.GetProviderHooks())
-                .Returns(ImmutableList<Hook>.Empty);
+            var featureProviderMock = Substitute.For<FeatureProvider>();
+            featureProviderMock.ResolveDoubleValue(flagName, defaultValue, Arg.Any<EvaluationContext>()).Returns(new ResolutionDetails<double>(flagName, defaultValue));
+            featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
+            featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            Api.Instance.SetProvider(featureProviderMock.Object);
+            Api.Instance.SetProvider(featureProviderMock);
             var client = Api.Instance.GetClient(clientName, clientVersion);
 
             (await client.GetDoubleValue(flagName, defaultValue)).Should().Be(defaultValue);
 
-            featureProviderMock.Verify(x => x.ResolveDoubleValue(flagName, defaultValue, It.IsAny<EvaluationContext>()), Times.Once);
+            _ = featureProviderMock.Received(1).ResolveDoubleValue(flagName, defaultValue, Arg.Any<EvaluationContext>());
         }
 
         [Fact]
@@ -304,21 +283,17 @@ namespace OpenFeature.Tests
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<Value>();
 
-            var featureProviderMock = new Mock<FeatureProvider>(MockBehavior.Strict);
-            featureProviderMock
-                .Setup(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>()))
-                .ReturnsAsync(new ResolutionDetails<Value>(flagName, defaultValue));
-            featureProviderMock.Setup(x => x.GetMetadata())
-                .Returns(new Metadata(fixture.Create<string>()));
-            featureProviderMock.Setup(x => x.GetProviderHooks())
-                .Returns(ImmutableList<Hook>.Empty);
+            var featureProviderMock = Substitute.For<FeatureProvider>();
+            featureProviderMock.ResolveStructureValue(flagName, defaultValue, Arg.Any<EvaluationContext>()).Returns(new ResolutionDetails<Value>(flagName, defaultValue));
+            featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
+            featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            Api.Instance.SetProvider(featureProviderMock.Object);
+            Api.Instance.SetProvider(featureProviderMock);
             var client = Api.Instance.GetClient(clientName, clientVersion);
 
             (await client.GetObjectValue(flagName, defaultValue)).Should().Be(defaultValue);
 
-            featureProviderMock.Verify(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>()), Times.Once);
+            _ = featureProviderMock.Received(1).ResolveStructureValue(flagName, defaultValue, Arg.Any<EvaluationContext>());
         }
 
         [Fact]
@@ -331,24 +306,19 @@ namespace OpenFeature.Tests
             var defaultValue = fixture.Create<Value>();
             const string testMessage = "Couldn't parse flag data.";
 
-            var featureProviderMock = new Mock<FeatureProvider>(MockBehavior.Strict);
-            featureProviderMock
-                .Setup(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>()))
-                .Returns(Task.FromResult(new ResolutionDetails<Value>(flagName, defaultValue, ErrorType.ParseError,
-                    "ERROR", null, testMessage)));
-            featureProviderMock.Setup(x => x.GetMetadata())
-                .Returns(new Metadata(fixture.Create<string>()));
-            featureProviderMock.Setup(x => x.GetProviderHooks())
-                .Returns(ImmutableList<Hook>.Empty);
+            var featureProviderMock = Substitute.For<FeatureProvider>();
+            featureProviderMock.ResolveStructureValue(flagName, defaultValue, Arg.Any<EvaluationContext>()).Returns(Task.FromResult(new ResolutionDetails<Value>(flagName, defaultValue, ErrorType.ParseError, "ERROR", null, testMessage)));
+            featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
+            featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            Api.Instance.SetProvider(featureProviderMock.Object);
+            Api.Instance.SetProvider(featureProviderMock);
             var client = Api.Instance.GetClient(clientName, clientVersion);
             var response = await client.GetObjectDetails(flagName, defaultValue);
 
             response.ErrorType.Should().Be(ErrorType.ParseError);
             response.Reason.Should().Be(Reason.Error);
             response.ErrorMessage.Should().Be(testMessage);
-            featureProviderMock.Verify(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>()), Times.Once);
+            _ = featureProviderMock.Received(1).ResolveStructureValue(flagName, defaultValue, Arg.Any<EvaluationContext>());
         }
 
         [Fact]
@@ -361,23 +331,19 @@ namespace OpenFeature.Tests
             var defaultValue = fixture.Create<Value>();
             const string testMessage = "Couldn't parse flag data.";
 
-            var featureProviderMock = new Mock<FeatureProvider>(MockBehavior.Strict);
-            featureProviderMock
-                .Setup(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>()))
-                .Throws(new FeatureProviderException(ErrorType.ParseError, testMessage));
-            featureProviderMock.Setup(x => x.GetMetadata())
-                .Returns(new Metadata(fixture.Create<string>()));
-            featureProviderMock.Setup(x => x.GetProviderHooks())
-                .Returns(ImmutableList<Hook>.Empty);
+            var featureProviderMock = Substitute.For<FeatureProvider>();
+            featureProviderMock.ResolveStructureValue(flagName, defaultValue, Arg.Any<EvaluationContext>()).Throws(new FeatureProviderException(ErrorType.ParseError, testMessage));
+            featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
+            featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            Api.Instance.SetProvider(featureProviderMock.Object);
+            Api.Instance.SetProvider(featureProviderMock);
             var client = Api.Instance.GetClient(clientName, clientVersion);
             var response = await client.GetObjectDetails(flagName, defaultValue);
 
             response.ErrorType.Should().Be(ErrorType.ParseError);
             response.Reason.Should().Be(Reason.Error);
             response.ErrorMessage.Should().Be(testMessage);
-            featureProviderMock.Verify(x => x.ResolveStructureValue(flagName, defaultValue, It.IsAny<EvaluationContext>()), Times.Once);
+            _ = featureProviderMock.Received(1).ResolveStructureValue(flagName, defaultValue, Arg.Any<EvaluationContext>());
         }
 
         [Fact]
