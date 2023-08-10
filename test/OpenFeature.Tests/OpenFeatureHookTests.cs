@@ -130,25 +130,21 @@ namespace OpenFeature.Tests
         public async Task Evaluation_Context_Must_Be_Mutable_Before_Hook()
         {
             var evaluationContext = new EvaluationContextBuilder().Set("test", "test").Build();
-            var hook1 = new Mock<Hook>(MockBehavior.Strict);
-            var hook2 = new Mock<Hook>(MockBehavior.Strict);
+            var hook1 = Substitute.For<Hook>();
+            var hook2 = Substitute.For<Hook>();
             var hookContext = new HookContext<bool>("test", false,
                 FlagValueType.Boolean, new ClientMetadata("test", "1.0.0"), new Metadata(NoOpProvider.NoOpProviderName),
                 evaluationContext);
 
-            hook1.Setup(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<ImmutableDictionary<string, object>>()))
-                .ReturnsAsync(evaluationContext);
-
-            hook2.Setup(x =>
-                    x.Before(hookContext, It.IsAny<ImmutableDictionary<string, object>>()))
-                .ReturnsAsync(evaluationContext);
+            hook1.Before(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>()).Returns(evaluationContext);
+            hook2.Before(hookContext, Arg.Any<ImmutableDictionary<string, object>>()).Returns(evaluationContext);
 
             var client = Api.Instance.GetClient("test", "1.0.0");
             await client.GetBooleanValue("test", false, EvaluationContext.Empty,
-                new FlagEvaluationOptions(ImmutableList.Create(hook1.Object, hook2.Object), ImmutableDictionary<string, object>.Empty));
+                new FlagEvaluationOptions(ImmutableList.Create(hook1, hook2), ImmutableDictionary<string, object>.Empty));
 
-            hook1.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<ImmutableDictionary<string, object>>()), Times.Once);
-            hook2.Verify(x => x.Before(It.Is<HookContext<bool>>(a => a.EvaluationContext.GetValue("test").AsString == "test"), It.IsAny<ImmutableDictionary<string, object>>()), Times.Once);
+            _ = hook1.Received(1).Before(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
+            _ = hook2.Received(1).Before(Arg.Is<HookContext<bool>>(a => a.EvaluationContext.GetValue("test").AsString == "test"), Arg.Any<ImmutableDictionary<string, object>>());
         }
 
         [Fact]
