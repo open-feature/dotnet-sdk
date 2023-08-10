@@ -254,41 +254,36 @@ namespace OpenFeature.Tests
         [Specification("4.5.3", "The hook MUST NOT alter the `hook hints` structure.")]
         public async Task Hook_Should_Execute_In_Correct_Order()
         {
-            var featureProvider = new Mock<FeatureProvider>(MockBehavior.Strict);
-            var hook = new Mock<Hook>(MockBehavior.Strict);
+            var featureProvider = Substitute.For<FeatureProvider>();
+            var hook = Substitute.For<Hook>();
 
-            var sequence = new MockSequence();
+            featureProvider.GetMetadata().Returns(new Metadata(null));
+            featureProvider.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            featureProvider.Setup(x => x.GetMetadata())
-                .Returns(new Metadata(null));
+            // Sequence
+            hook.Before(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>()).Returns(EvaluationContext.Empty);
+            featureProvider.ResolveBooleanValue(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>()).Returns(new ResolutionDetails<bool>("test", false));
+            _ = hook.After(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>());
+            _ = hook.Finally(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>());
 
-            featureProvider.Setup(x => x.GetProviderHooks())
-                .Returns(ImmutableList<Hook>.Empty);
-
-            hook.InSequence(sequence).Setup(x =>
-                    x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()))
-                .ReturnsAsync(EvaluationContext.Empty);
-
-            featureProvider.InSequence(sequence)
-                .Setup(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>()))
-                .ReturnsAsync(new ResolutionDetails<bool>("test", false));
-
-            hook.InSequence(sequence).Setup(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(),
-                It.IsAny<FlagEvaluationDetails<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()));
-
-            hook.InSequence(sequence).Setup(x =>
-                x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()));
-
-            Api.Instance.SetProvider(featureProvider.Object);
+            Api.Instance.SetProvider(featureProvider);
             var client = Api.Instance.GetClient();
-            client.AddHooks(hook.Object);
+            client.AddHooks(hook);
 
             await client.GetBooleanValue("test", false);
 
-            hook.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()), Times.Once);
-            hook.Verify(x => x.After(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<FlagEvaluationDetails<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()), Times.Once);
-            hook.Verify(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()), Times.Once);
-            featureProvider.Verify(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>()), Times.Once);
+            Received.InOrder(() =>
+            {
+                hook.Before(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>());
+                featureProvider.ResolveBooleanValue(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>());
+                hook.After(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>());
+                hook.Finally(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>());
+            });
+
+            _ = hook.Received(1).Before(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>());
+            _ = hook.Received(1).After(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>());
+            _ = hook.Received(1).Finally(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>());
+            _ = featureProvider.Received(1).ResolveBooleanValue(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>());
         }
 
         [Fact]
