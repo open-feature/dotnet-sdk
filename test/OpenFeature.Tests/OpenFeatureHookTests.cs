@@ -5,12 +5,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
+using Moq;
 using NSubstitute;
 using OpenFeature.Constant;
 using OpenFeature.Model;
 using OpenFeature.Tests.Internal;
 using Xunit;
-using Moq;
 
 namespace OpenFeature.Tests
 {
