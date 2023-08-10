@@ -33,6 +33,7 @@ namespace OpenFeature.Tests
             var invocationHook = Substitute.For<Hook>();
             var providerHook = Substitute.For<Hook>();
 
+            // Sequence
             apiHook.Before(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(EvaluationContext.Empty);
             clientHook.Before(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(EvaluationContext.Empty);
             invocationHook.Before(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(EvaluationContext.Empty);
@@ -319,7 +320,6 @@ namespace OpenFeature.Tests
             var hook2 = Substitute.For<Hook>();
 
             featureProvider.GetMetadata().Returns(new Metadata(null));
-
             featureProvider.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
             // Sequence
