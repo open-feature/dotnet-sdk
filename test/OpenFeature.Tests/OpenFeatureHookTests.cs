@@ -362,47 +362,39 @@ namespace OpenFeature.Tests
         [Specification("4.4.4", "If an `error` hook abnormally terminates, evaluation MUST proceed, including the execution of any remaining `error` hooks.")]
         public async Task Error_Hook_Should_Be_Executed_Even_If_Abnormal_Termination()
         {
-            var featureProvider1 = new Mock<FeatureProvider>(MockBehavior.Strict);
-            var hook1 = new Mock<Hook>(MockBehavior.Strict);
-            var hook2 = new Mock<Hook>(MockBehavior.Strict);
+            var featureProvider1 = Substitute.For<FeatureProvider>();
+            var hook1 = Substitute.For<Hook>();
+            var hook2 = Substitute.For<Hook>();
 
-            var sequence = new MockSequence();
+            featureProvider1.GetMetadata().Returns(new Metadata(null));
+            featureProvider1.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            featureProvider1.Setup(x => x.GetMetadata())
-                .Returns(new Metadata(null));
-            featureProvider1.Setup(x => x.GetProviderHooks())
-                .Returns(ImmutableList<Hook>.Empty);
+            // Sequence
+            hook1.Before(Arg.Any<HookContext<bool>>(), null).Returns(EvaluationContext.Empty);
+            hook2.Before(Arg.Any<HookContext<bool>>(), null).Returns(EvaluationContext.Empty);
+            featureProvider1.ResolveBooleanValue(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>()).Throws(new Exception());
+            hook2.Error(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null).Returns(Task.CompletedTask);
+            hook1.Error(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null).Returns(Task.CompletedTask);
 
-            hook1.InSequence(sequence).Setup(x =>
-                    x.Before(It.IsAny<HookContext<It.IsAnyType>>(), null))
-                .ReturnsAsync(EvaluationContext.Empty);
-
-            hook2.InSequence(sequence).Setup(x =>
-                    x.Before(It.IsAny<HookContext<It.IsAnyType>>(), null))
-                .ReturnsAsync(EvaluationContext.Empty);
-
-            featureProvider1.InSequence(sequence)
-                .Setup(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>()))
-                .Throws(new Exception());
-
-            hook2.InSequence(sequence).Setup(x =>
-                    x.Error(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Exception>(), null))
-                .Returns(Task.CompletedTask);
-
-            hook1.InSequence(sequence).Setup(x =>
-                    x.Error(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Exception>(), null))
-                .Returns(Task.CompletedTask);
-
-            Api.Instance.SetProvider(featureProvider1.Object);
+            Api.Instance.SetProvider(featureProvider1);
             var client = Api.Instance.GetClient();
-            client.AddHooks(new[] { hook1.Object, hook2.Object });
+            client.AddHooks(new[] { hook1, hook2 });
 
             await client.GetBooleanValue("test", false);
 
-            hook1.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), null), Times.Once);
-            hook2.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), null), Times.Once);
-            hook1.Verify(x => x.Error(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Exception>(), null), Times.Once);
-            hook2.Verify(x => x.Error(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Exception>(), null), Times.Once);
+            Received.InOrder(() =>
+            {
+                hook1.Before(Arg.Any<HookContext<bool>>(), null);
+                hook2.Before(Arg.Any<HookContext<bool>>(), null);
+                featureProvider1.ResolveBooleanValue(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>());
+                hook2.Error(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
+                hook1.Error(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
+            });
+
+            _ = hook1.Received(1).Before(Arg.Any<HookContext<bool>>(), null);
+            _ = hook2.Received(1).Before(Arg.Any<HookContext<bool>>(), null);
+            _ = hook1.Received(1).Error(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
+            _ = hook2.Received(1).Error(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
         }
 
         [Fact]
