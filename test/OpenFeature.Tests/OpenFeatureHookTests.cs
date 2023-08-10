@@ -190,29 +190,25 @@ namespace OpenFeature.Tests
                 .Set(propInvocationToOverwrite, true)
                 .Build();
 
-            var provider = new Mock<FeatureProvider>(MockBehavior.Strict);
+            var provider = Substitute.For<FeatureProvider>();
 
-            provider.Setup(x => x.GetMetadata())
-                .Returns(new Metadata(null));
+            provider.GetMetadata().Returns(new Metadata(null));
 
-            provider.Setup(x => x.GetProviderHooks())
-                .Returns(ImmutableList<Hook>.Empty);
+            provider.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            provider.Setup(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<EvaluationContext>()))
-            .ReturnsAsync(new ResolutionDetails<bool>("test", true));
+            provider.ResolveBooleanValue(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>()).Returns(new ResolutionDetails<bool>("test", true));
 
-            Api.Instance.SetProvider(provider.Object);
+            Api.Instance.SetProvider(provider);
 
-            var hook = new Mock<Hook>(MockBehavior.Strict);
-            hook.Setup(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<ImmutableDictionary<string, object>>()))
-                .ReturnsAsync(hookContext);
+            var hook = Substitute.For<Hook>();
+            hook.Before(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>()).Returns(hookContext);
 
 
             var client = Api.Instance.GetClient("test", "1.0.0", null, clientContext);
-            await client.GetBooleanValue("test", false, invocationContext, new FlagEvaluationOptions(ImmutableList.Create(hook.Object), ImmutableDictionary<string, object>.Empty));
+            await client.GetBooleanValue("test", false, invocationContext, new FlagEvaluationOptions(ImmutableList.Create(hook), ImmutableDictionary<string, object>.Empty));
 
             // after proper merging, all properties should equal true
-            provider.Verify(x => x.ResolveBooleanValue(It.IsAny<string>(), It.IsAny<bool>(), It.Is<EvaluationContext>(y =>
+            _ = provider.Received(1).ResolveBooleanValue(Arg.Any<string>(), Arg.Any<bool>(), Arg.Is<EvaluationContext>(y =>
                 (y.GetValue(propGlobal).AsBoolean ?? false)
                 && (y.GetValue(propClient).AsBoolean ?? false)
                 && (y.GetValue(propGlobalToOverwrite).AsBoolean ?? false)
@@ -220,7 +216,7 @@ namespace OpenFeature.Tests
                 && (y.GetValue(propClientToOverwrite).AsBoolean ?? false)
                 && (y.GetValue(propHook).AsBoolean ?? false)
                 && (y.GetValue(propInvocationToOverwrite).AsBoolean ?? false)
-            )), Times.Once);
+            ));
         }
 
         [Fact]
