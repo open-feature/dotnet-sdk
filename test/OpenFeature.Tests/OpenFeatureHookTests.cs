@@ -401,37 +401,35 @@ namespace OpenFeature.Tests
         [Specification("4.4.6", "If an error occurs during the evaluation of `before` or `after` hooks, any remaining hooks in the `before` or `after` stages MUST NOT be invoked.")]
         public async Task Error_Occurs_During_Before_After_Evaluation_Should_Not_Invoke_Any_Remaining_Hooks()
         {
-            var featureProvider = new Mock<FeatureProvider>(MockBehavior.Strict);
-            var hook1 = new Mock<Hook>(MockBehavior.Strict);
-            var hook2 = new Mock<Hook>(MockBehavior.Strict);
+            var featureProvider = Substitute.For<FeatureProvider>();
+            var hook1 = Substitute.For<Hook>();
+            var hook2 = Substitute.For<Hook>();
 
-            var sequence = new MockSequence();
+            featureProvider.GetMetadata().Returns(new Metadata(null));
+            featureProvider.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            featureProvider.Setup(x => x.GetMetadata())
-                .Returns(new Metadata(null));
-            featureProvider.Setup(x => x.GetProviderHooks())
-                .Returns(ImmutableList<Hook>.Empty);
+            // Sequence
+            hook1.Before(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>()).ThrowsAsync(new Exception());
+            _ = hook1.Error(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
+            _ = hook2.Error(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
 
-            hook1.InSequence(sequence).Setup(x =>
-                    x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()))
-                .ThrowsAsync(new Exception());
-
-            hook1.InSequence(sequence).Setup(x =>
-                    x.Error(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Exception>(), null));
-
-            hook2.InSequence(sequence).Setup(x =>
-                    x.Error(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Exception>(), null));
-
-            Api.Instance.SetProvider(featureProvider.Object);
+            Api.Instance.SetProvider(featureProvider);
             var client = Api.Instance.GetClient();
-            client.AddHooks(new[] { hook1.Object, hook2.Object });
+            client.AddHooks(new[] { hook1, hook2 });
 
             await client.GetBooleanValue("test", false);
 
-            hook1.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()), Times.Once);
-            hook2.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()), Times.Never);
-            hook1.Verify(x => x.Error(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Exception>(), null), Times.Once);
-            hook2.Verify(x => x.Error(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Exception>(), null), Times.Once);
+            Received.InOrder(() =>
+            {
+                hook1.Before(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>());
+                hook2.Error(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
+                hook1.Error(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
+            });
+
+            _ = hook1.Received(1).Before(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>());
+            _ = hook2.DidNotReceive().Before(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>());
+            _ = hook1.Received(1).Error(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
+            _ = hook2.Received(1).Error(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
         }
 
         [Fact]
