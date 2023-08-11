@@ -18,7 +18,8 @@
     </PackageReference>
     <PackageReference Include="FluentAssertions" Version="$(FluentAssertionsVer)" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNETTestSdkPkgVer)" />
-    <PackageReference Include="Moq" Version="$(MoqVer)" />
+    <PackageReference Include="Moq" Version="[4.18.4]" />
+    <PackageReference Include="NSubstitute" Version="$(NSubstituteVer)" />
     <PackageReference Include="xunit" Version="$(XUnitPkgVer)" />
     <PackageReference Include="xunit.runner.visualstudio" Version="$(XUnitRunnerVisualStudioPkgVer)">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

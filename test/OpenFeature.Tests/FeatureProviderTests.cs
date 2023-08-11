@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
-using Moq;
+using NSubstitute;
 using OpenFeature.Constant;
 using OpenFeature.Model;
 using OpenFeature.Tests.Internal;
@@ -79,67 +79,62 @@ namespace OpenFeature.Tests
             var defaultIntegerValue = fixture.Create<int>();
             var defaultDoubleValue = fixture.Create<double>();
             var defaultStructureValue = fixture.Create<Value>();
-            var providerMock = new Mock<FeatureProvider>(MockBehavior.Strict);
+            var providerMock = Substitute.For<FeatureProvider>();
             const string testMessage = "An error message";
 
-            providerMock.Setup(x => x.ResolveBooleanValue(flagName, defaultBoolValue, It.IsAny<EvaluationContext>()))
-                .ReturnsAsync(new ResolutionDetails<bool>(flagName, defaultBoolValue, ErrorType.General,
+            providerMock.ResolveBooleanValue(flagName, defaultBoolValue, Arg.Any<EvaluationContext>())
+                .Returns(new ResolutionDetails<bool>(flagName, defaultBoolValue, ErrorType.General,
                     NoOpProvider.ReasonNoOp, NoOpProvider.Variant, testMessage));
 
-            providerMock.Setup(x => x.ResolveIntegerValue(flagName, defaultIntegerValue, It.IsAny<EvaluationContext>()))
-                .ReturnsAsync(new ResolutionDetails<int>(flagName, defaultIntegerValue, ErrorType.ParseError,
+            providerMock.ResolveIntegerValue(flagName, defaultIntegerValue, Arg.Any<EvaluationContext>())
+                .Returns(new ResolutionDetails<int>(flagName, defaultIntegerValue, ErrorType.ParseError,
                     NoOpProvider.ReasonNoOp, NoOpProvider.Variant, testMessage));
 
-            providerMock.Setup(x => x.ResolveDoubleValue(flagName, defaultDoubleValue, It.IsAny<EvaluationContext>()))
-                .ReturnsAsync(new ResolutionDetails<double>(flagName, defaultDoubleValue, ErrorType.InvalidContext,
+            providerMock.ResolveDoubleValue(flagName, defaultDoubleValue, Arg.Any<EvaluationContext>())
+                .Returns(new ResolutionDetails<double>(flagName, defaultDoubleValue, ErrorType.InvalidContext,
                     NoOpProvider.ReasonNoOp, NoOpProvider.Variant, testMessage));
 
-            providerMock.Setup(x => x.ResolveStringValue(flagName, defaultStringValue, It.IsAny<EvaluationContext>()))
-                .ReturnsAsync(new ResolutionDetails<string>(flagName, defaultStringValue, ErrorType.TypeMismatch,
+            providerMock.ResolveStringValue(flagName, defaultStringValue, Arg.Any<EvaluationContext>())
+                .Returns(new ResolutionDetails<string>(flagName, defaultStringValue, ErrorType.TypeMismatch,
                     NoOpProvider.ReasonNoOp, NoOpProvider.Variant, testMessage));
 
-            providerMock.Setup(x =>
-                    x.ResolveStructureValue(flagName, defaultStructureValue, It.IsAny<EvaluationContext>()))
-                .ReturnsAsync(new ResolutionDetails<Value>(flagName, defaultStructureValue, ErrorType.FlagNotFound,
+            providerMock.ResolveStructureValue(flagName, defaultStructureValue, Arg.Any<EvaluationContext>())
+                .Returns(new ResolutionDetails<Value>(flagName, defaultStructureValue, ErrorType.FlagNotFound,
                     NoOpProvider.ReasonNoOp, NoOpProvider.Variant, testMessage));
 
-            providerMock.Setup(x =>
-                    x.ResolveStructureValue(flagName2, defaultStructureValue, It.IsAny<EvaluationContext>()))
-                .ReturnsAsync(new ResolutionDetails<Value>(flagName2, defaultStructureValue, ErrorType.ProviderNotReady,
+            providerMock.ResolveStructureValue(flagName2, defaultStructureValue, Arg.Any<EvaluationContext>())
+                .Returns(new ResolutionDetails<Value>(flagName2, defaultStructureValue, ErrorType.ProviderNotReady,
                     NoOpProvider.ReasonNoOp, NoOpProvider.Variant, testMessage));
 
-            providerMock.Setup(x => x.ResolveBooleanValue(flagName2, defaultBoolValue, It.IsAny<EvaluationContext>()))
-                .ReturnsAsync(new ResolutionDetails<bool>(flagName2, defaultBoolValue, ErrorType.TargetingKeyMissing,
+            providerMock.ResolveBooleanValue(flagName2, defaultBoolValue, Arg.Any<EvaluationContext>())
+                .Returns(new ResolutionDetails<bool>(flagName2, defaultBoolValue, ErrorType.TargetingKeyMissing,
                     NoOpProvider.ReasonNoOp, NoOpProvider.Variant));
 
-
-            var provider = providerMock.Object;
-
-            var boolRes = await provider.ResolveBooleanValue(flagName, defaultBoolValue);
+            var boolRes = await providerMock.ResolveBooleanValue(flagName, defaultBoolValue);
             boolRes.ErrorType.Should().Be(ErrorType.General);
             boolRes.ErrorMessage.Should().Be(testMessage);
 
-            var intRes = await provider.ResolveIntegerValue(flagName, defaultIntegerValue);
+            var intRes = await providerMock.ResolveIntegerValue(flagName, defaultIntegerValue);
             intRes.ErrorType.Should().Be(ErrorType.ParseError);
             intRes.ErrorMessage.Should().Be(testMessage);
 
-            var doubleRes = await provider.ResolveDoubleValue(flagName, defaultDoubleValue);
+            var doubleRes = await providerMock.ResolveDoubleValue(flagName, defaultDoubleValue);
             doubleRes.ErrorType.Should().Be(ErrorType.InvalidContext);
             doubleRes.ErrorMessage.Should().Be(testMessage);
 
-            var stringRes = await provider.ResolveStringValue(flagName, defaultStringValue);
+            var stringRes = await providerMock.ResolveStringValue(flagName, defaultStringValue);
             stringRes.ErrorType.Should().Be(ErrorType.TypeMismatch);
             stringRes.ErrorMessage.Should().Be(testMessage);
 
-            var structRes1 = await provider.ResolveStructureValue(flagName, defaultStructureValue);
+            var structRes1 = await providerMock.ResolveStructureValue(flagName, defaultStructureValue);
             structRes1.ErrorType.Should().Be(ErrorType.FlagNotFound);
             structRes1.ErrorMessage.Should().Be(testMessage);
 
-            var structRes2 = await provider.ResolveStructureValue(flagName2, defaultStructureValue);
+            var structRes2 = await providerMock.ResolveStructureValue(flagName2, defaultStructureValue);
             structRes2.ErrorType.Should().Be(ErrorType.ProviderNotReady);
             structRes2.ErrorMessage.Should().Be(testMessage);
 
-            var boolRes2 = await provider.ResolveBooleanValue(flagName2, defaultBoolValue);
+            var boolRes2 = await providerMock.ResolveBooleanValue(flagName2, defaultBoolValue);
             boolRes2.ErrorType.Should().Be(ErrorType.TargetingKeyMissing);
             boolRes2.ErrorMessage.Should().BeNull();
         }
