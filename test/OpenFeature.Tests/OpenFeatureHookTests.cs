@@ -482,34 +482,33 @@ namespace OpenFeature.Tests
         [Specification("4.4.7", "If an error occurs in the `before` hooks, the default value MUST be returned.")]
         public async Task When_Error_Occurs_In_Before_Hook_Should_Return_Default_Value()
         {
-            var featureProvider = new Mock<FeatureProvider>(MockBehavior.Strict);
-            var hook = new Mock<Hook>(MockBehavior.Strict);
+            var featureProvider = Substitute.For<FeatureProvider>();
+            var hook = Substitute.For<Hook>();
             var exceptionToThrow = new Exception("Fails during default");
 
-            var sequence = new MockSequence();
+            featureProvider.GetMetadata().Returns(new Metadata(null));
 
-            featureProvider.Setup(x => x.GetMetadata())
-                .Returns(new Metadata(null));
-
-            hook.InSequence(sequence)
-                .Setup(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Dictionary<string, object>>()))
-                .ThrowsAsync(exceptionToThrow);
-
-            hook.InSequence(sequence)
-                .Setup(x => x.Error(It.IsAny<HookContext<It.IsAnyType>>(), It.IsAny<Exception>(), null)).Returns(Task.CompletedTask);
-
-            hook.InSequence(sequence)
-                .Setup(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), null)).Returns(Task.CompletedTask);
+            // Sequence
+            hook.Before(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>()).ThrowsAsync(exceptionToThrow);
+            hook.Error(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null).Returns(Task.CompletedTask);
+            hook.Finally(Arg.Any<HookContext<bool>>(), null).Returns(Task.CompletedTask);
 
             var client = Api.Instance.GetClient();
-            client.AddHooks(hook.Object);
+            client.AddHooks(hook);
 
             var resolvedFlag = await client.GetBooleanValue("test", true);
 
+            Received.InOrder(() =>
+            {
+                hook.Before(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>());
+                hook.Error(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
+                hook.Finally(Arg.Any<HookContext<bool>>(), null);
+            });
+
             resolvedFlag.Should().BeTrue();
-            hook.Verify(x => x.Before(It.IsAny<HookContext<It.IsAnyType>>(), null), Times.Once);
-            hook.Verify(x => x.Error(It.IsAny<HookContext<It.IsAnyType>>(), exceptionToThrow, null), Times.Once);
-            hook.Verify(x => x.Finally(It.IsAny<HookContext<It.IsAnyType>>(), null), Times.Once);
+            _ = hook.Received(1).Before(Arg.Any<HookContext<bool>>(), null);
+            _ = hook.Received(1).Error(Arg.Any<HookContext<bool>>(), exceptionToThrow, null);
+            _ = hook.Received(1).Finally(Arg.Any<HookContext<bool>>(), null);
         }
 
         [Fact]
