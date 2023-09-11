@@ -19,7 +19,7 @@
 
 ### What is OpenFeature?
 
-[OpenFeature][openfeature-website] is an open standard that provides a vendor-agnostic, community-driven API for feature flagging that works with your favorite feature flag management tool.
+[OpenFeature][openfeature-website] is an open specification that provides a vendor-agnostic, community-driven API for feature flagging that works with your favorite feature flag management tool.
 
 ### Why standardize feature flags?
 
