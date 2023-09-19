@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.3.1](https://github.com/open-feature/dotnet-sdk/compare/v1.3.0...v1.3.1) (2023-09-19)
+
+
+### 🐛 Bug Fixes
+
+* deadlocks in client applications ([#150](https://github.com/open-feature/dotnet-sdk/issues/150)) ([17a7772](https://github.com/open-feature/dotnet-sdk/commit/17a7772c0dad9c68a4a0e0e272fe32ce3bfe0cff))
+
+
+### 🧹 Chore
+
+* **deps:** update dependency dotnet-sdk to v7.0.306 ([#135](https://github.com/open-feature/dotnet-sdk/issues/135)) ([15473b6](https://github.com/open-feature/dotnet-sdk/commit/15473b6c3ab969ca660b7f3a98e1999373517b42))
+* **deps:** update dependency dotnet-sdk to v7.0.400 ([#139](https://github.com/open-feature/dotnet-sdk/issues/139)) ([ecc9707](https://github.com/open-feature/dotnet-sdk/commit/ecc970701ff46815d0116417232f7c6ea670bdef))
+* update rp config (emoji) ([f921dc6](https://github.com/open-feature/dotnet-sdk/commit/f921dc699a358070568be93027680d49e0f7cb8e))
+
+
+### 📚 Documentation
+
+* Update README.md ([#147](https://github.com/open-feature/dotnet-sdk/issues/147)) ([3da02e6](https://github.com/open-feature/dotnet-sdk/commit/3da02e67a6e1e11af72fbd38aa42215b41b4e33b))
+
 ## [1.3.0](https://github.com/open-feature/dotnet-sdk/compare/v1.2.0...v1.3.0) (2023-07-14)
 
 
