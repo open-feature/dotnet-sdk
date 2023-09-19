@@ -107,63 +107,63 @@ namespace OpenFeature
         /// <inheritdoc />
         public async Task<bool> GetBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null,
             FlagEvaluationOptions config = null) =>
-            (await this.GetBooleanDetails(flagKey, defaultValue, context, config)).Value;
+            (await this.GetBooleanDetails(flagKey, defaultValue, context, config).ConfigureAwait(false)).Value;
 
         /// <inheritdoc />
         public async Task<FlagEvaluationDetails<bool>> GetBooleanDetails(string flagKey, bool defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await this.EvaluateFlag(this.ExtractProvider<bool>(provider => provider.ResolveBooleanValue),
                 FlagValueType.Boolean, flagKey,
-                defaultValue, context, config);
+                defaultValue, context, config).ConfigureAwait(false);
 
         /// <inheritdoc />
         public async Task<string> GetStringValue(string flagKey, string defaultValue, EvaluationContext context = null,
             FlagEvaluationOptions config = null) =>
-            (await this.GetStringDetails(flagKey, defaultValue, context, config)).Value;
+            (await this.GetStringDetails(flagKey, defaultValue, context, config).ConfigureAwait(false)).Value;
 
         /// <inheritdoc />
         public async Task<FlagEvaluationDetails<string>> GetStringDetails(string flagKey, string defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await this.EvaluateFlag(this.ExtractProvider<string>(provider => provider.ResolveStringValue),
                 FlagValueType.String, flagKey,
-                defaultValue, context, config);
+                defaultValue, context, config).ConfigureAwait(false);
 
         /// <inheritdoc />
         public async Task<int> GetIntegerValue(string flagKey, int defaultValue, EvaluationContext context = null,
             FlagEvaluationOptions config = null) =>
-            (await this.GetIntegerDetails(flagKey, defaultValue, context, config)).Value;
+            (await this.GetIntegerDetails(flagKey, defaultValue, context, config).ConfigureAwait(false)).Value;
 
         /// <inheritdoc />
         public async Task<FlagEvaluationDetails<int>> GetIntegerDetails(string flagKey, int defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await this.EvaluateFlag(this.ExtractProvider<int>(provider => provider.ResolveIntegerValue),
                 FlagValueType.Number, flagKey,
-                defaultValue, context, config);
+                defaultValue, context, config).ConfigureAwait(false);
 
         /// <inheritdoc />
         public async Task<double> GetDoubleValue(string flagKey, double defaultValue,
             EvaluationContext context = null,
             FlagEvaluationOptions config = null) =>
-            (await this.GetDoubleDetails(flagKey, defaultValue, context, config)).Value;
+            (await this.GetDoubleDetails(flagKey, defaultValue, context, config).ConfigureAwait(false)).Value;
 
         /// <inheritdoc />
         public async Task<FlagEvaluationDetails<double>> GetDoubleDetails(string flagKey, double defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await this.EvaluateFlag(this.ExtractProvider<double>(provider => provider.ResolveDoubleValue),
                 FlagValueType.Number, flagKey,
-                defaultValue, context, config);
+                defaultValue, context, config).ConfigureAwait(false);
 
         /// <inheritdoc />
         public async Task<Value> GetObjectValue(string flagKey, Value defaultValue, EvaluationContext context = null,
             FlagEvaluationOptions config = null) =>
-            (await this.GetObjectDetails(flagKey, defaultValue, context, config)).Value;
+            (await this.GetObjectDetails(flagKey, defaultValue, context, config).ConfigureAwait(false)).Value;
 
         /// <inheritdoc />
         public async Task<FlagEvaluationDetails<Value>> GetObjectDetails(string flagKey, Value defaultValue,
             EvaluationContext context = null, FlagEvaluationOptions config = null) =>
             await this.EvaluateFlag(this.ExtractProvider<Value>(provider => provider.ResolveStructureValue),
                 FlagValueType.Object, flagKey,
-                defaultValue, context, config);
+                defaultValue, context, config).ConfigureAwait(false);
 
         private async Task<FlagEvaluationDetails<T>> EvaluateFlag<T>(
             (Func<string, T, EvaluationContext, Task<ResolutionDetails<T>>>, FeatureProvider) providerInfo,
@@ -211,13 +211,13 @@ namespace OpenFeature
             FlagEvaluationDetails<T> evaluation;
             try
             {
-                var contextFromHooks = await this.TriggerBeforeHooks(allHooks, hookContext, options);
+                var contextFromHooks = await this.TriggerBeforeHooks(allHooks, hookContext, options).ConfigureAwait(false);
 
                 evaluation =
-                    (await resolveValueDelegate.Invoke(flagKey, defaultValue, contextFromHooks.EvaluationContext))
+                    (await resolveValueDelegate.Invoke(flagKey, defaultValue, contextFromHooks.EvaluationContext).ConfigureAwait(false))
                     .ToFlagEvaluationDetails();
 
-                await this.TriggerAfterHooks(allHooksReversed, hookContext, evaluation, options);
+                await this.TriggerAfterHooks(allHooksReversed, hookContext, evaluation, options).ConfigureAwait(false);
             }
             catch (FeatureProviderException ex)
             {
@@ -225,18 +225,18 @@ namespace OpenFeature
                     ex.ErrorType.GetDescription());
                 evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, ex.ErrorType, Reason.Error,
                     string.Empty, ex.Message);
-                await this.TriggerErrorHooks(allHooksReversed, hookContext, ex, options);
+                await this.TriggerErrorHooks(allHooksReversed, hookContext, ex, options).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 this._logger.LogError(ex, "Error while evaluating flag {FlagKey}", flagKey);
                 var errorCode = ex is InvalidCastException ? ErrorType.TypeMismatch : ErrorType.General;
                 evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, errorCode, Reason.Error, string.Empty);
-                await this.TriggerErrorHooks(allHooksReversed, hookContext, ex, options);
+                await this.TriggerErrorHooks(allHooksReversed, hookContext, ex, options).ConfigureAwait(false);
             }
             finally
             {
-                await this.TriggerFinallyHooks(allHooksReversed, hookContext, options);
+                await this.TriggerFinallyHooks(allHooksReversed, hookContext, options).ConfigureAwait(false);
             }
 
             return evaluation;
@@ -250,7 +250,7 @@ namespace OpenFeature
 
             foreach (var hook in hooks)
             {
-                var resp = await hook.Before(context, options?.HookHints);
+                var resp = await hook.Before(context, options?.HookHints).ConfigureAwait(false);
                 if (resp != null)
                 {
                     evalContextBuilder.Merge(resp);
@@ -271,7 +271,7 @@ namespace OpenFeature
         {
             foreach (var hook in hooks)
             {
-                await hook.After(context, evaluationDetails, options?.HookHints);
+                await hook.After(context, evaluationDetails, options?.HookHints).ConfigureAwait(false);
             }
         }
 
@@ -282,7 +282,7 @@ namespace OpenFeature
             {
                 try
                 {
-                    await hook.Error(context, exception, options?.HookHints);
+                    await hook.Error(context, exception, options?.HookHints).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
@@ -298,7 +298,7 @@ namespace OpenFeature
             {
                 try
                 {
-                    await hook.Finally(context, options?.HookHints);
+                    await hook.Finally(context, options?.HookHints).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
