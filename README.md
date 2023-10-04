@@ -33,7 +33,8 @@
     <img alt="Codecov" src="https://img.shields.io/nuget/vpre/OpenFeature" />
   </a>
   <a href="https://www.bestpractices.dev/en/projects/6250">
-    <img alt="CII Best Practices" src="https://bestpractices.coreinfrastructure.org/projects/6241/badge" />
+    <img alt="CII Best Practices" src="https://bestpractices.coreinfrastructure.org/projects/6250/badge" />
+
   </a>
 </p>
 <!-- x-hide-in-docs-start -->
