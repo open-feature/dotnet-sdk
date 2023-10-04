@@ -106,7 +106,8 @@ public async Task Example()
 ### Providers
 
 [Providers](https://openfeature.dev/docs/reference/concepts/provider) are an abstraction between a flag management system and the OpenFeature SDK.
-Look [here](https://openfeature.dev/docs/reference/technologies/server/dotnet/) for a complete list of available providers.
+Look [here](https://openfeature.dev/ecosystem?instant_search%5BrefinementList%5D%5Btype%5D%5B0%5D=Provider&instant_search%5BrefinementList%5D%5Btechnology%5D%5B0%5D=.NET) for a complete list of available providers.
+
 If the provider you're looking for hasn't been created yet, see the [develop a provider](#develop-a-provider) section to learn how to build it yourself.
 
 Once you've added a provider as a dependency, it can be registered with OpenFeature like this:
