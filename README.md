@@ -127,25 +127,25 @@ If the flag management system you're using supports targeting, you can provide t
 
 ```csharp
 // set a value to the global context
-            EvaluationContextBuilder builder = EvaluationContext.Builder();
-            builder.Set("region", "us-east-1");
-            EvaluationContext apiCtx = builder.Build();
-            Api.Instance.SetContext(apiCtx);
+EvaluationContextBuilder builder = EvaluationContext.Builder();
+builder.Set("region", "us-east-1");
+EvaluationContext apiCtx = builder.Build();
+Api.Instance.SetContext(apiCtx);
 
-            // set a value to the client context
-            builder = EvaluationContext.Builder();
-            builder.Set("region", "us-east-1");
-            EvaluationContext clientCtx = builder.Build();
-            var client = Api.Instance.GetClient();
-            client.SetContext(clientCtx);
+// set a value to the client context
+builder = EvaluationContext.Builder();
+builder.Set("region", "us-east-1");
+EvaluationContext clientCtx = builder.Build();
+var client = Api.Instance.GetClient();
+client.SetContext(clientCtx);
 
+// set a value to the invocation context
+builder = EvaluationContext.Builder();
+builder.Set("region", "us-east-1");
+EvaluationContext reqCtx = builder.Build();
 
-            // set a value to the invocation context
-            builder = EvaluationContext.Builder();
-            builder.Set("region", "us-east-1");
-            EvaluationContext reqCtx = builder.Build();
+bool flagValue = await client.GetBooleanValue("some-flag", false, reqCtx);
 
-            bool flagValue = await client.GetBooleanValue("some-flag", false, reqCtx);
 ```
 
 ### Hooks
