@@ -180,14 +180,15 @@ If a name has no associated provider, the global provider is used.
 
 ```csharp
 // registering the default provider
-            Api.Instance.SetProvider(new LocalProvider());
-            // registering a named provider
-            Api.Instance.SetProvider("clientForCache", new CachedProvider());
+Api.Instance.SetProvider(new LocalProvider());
+// registering a named provider
+Api.Instance.SetProvider("clientForCache", new CachedProvider());
 
-            // a client backed by default provider
-            FeatureClient clientDefault = Api.Instance.GetClient();
-            // a client backed by CachedProvider
-            FeatureClient clientNamed = Api.Instance.GetClient("clientForCache");
+// a client backed by default provider
+ FeatureClient clientDefault = Api.Instance.GetClient();
+// a client backed by CachedProvider
+FeatureClient clientNamed = Api.Instance.GetClient("clientForCache");
+
 ```
 
 ## Extending
