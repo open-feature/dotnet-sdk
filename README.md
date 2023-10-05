@@ -106,7 +106,7 @@ public async Task Example()
 ### Providers
 
 [Providers](https://openfeature.dev/docs/reference/concepts/provider) are an abstraction between a flag management system and the OpenFeature SDK.
-Look [here](https://openfeature.dev/ecosystem?instant_search%5BrefinementList%5D%5Btype%5D%5B0%5D=Provider&instant_search%5BrefinementList%5D%5Btechnology%5D%5B0%5D=.NET) for a complete list of available providers.
+Here is [a complete list of available providers](https://openfeature.dev/ecosystem?instant_search%5BrefinementList%5D%5Btype%5D%5B0%5D=Provider&instant_search%5BrefinementList%5D%5Btechnology%5D%5B0%5D=.NET).
 
 If the provider you're looking for hasn't been created yet, see the [develop a provider](#develop-a-provider) section to learn how to build it yourself.
 
@@ -117,7 +117,7 @@ Api.Instance.SetProvider(new MyProvider());
 ```
 
 In some situations, it may be beneficial to register multiple providers in the same application.
-This is possible using [named clients](#named-clients), which is covered in more details below.
+This is possible using [named clients](#named-clients), which is covered in more detail below.
 
 ### Targeting
 
@@ -151,7 +151,7 @@ bool flagValue = await client.GetBooleanValue("some-flag", false, reqCtx);
 ### Hooks
 
 [Hooks](https://openfeature.dev/docs/reference/concepts/hooks) allow for custom logic to be added at well-defined points of the flag evaluation life-cycle.
-Look [here](https://openfeature.dev/docs/reference/technologies/server/dotnet/) for a complete list of available hooks.
+Here is [a complete list of available hooks](https://openfeature.dev/docs/reference/technologies/server/dotnet/).
 If the hook you're looking for hasn't been created yet, see the [develop a hook](#develop-a-hook) section to learn how to build it yourself.
 
 Once you've added a hook as a dependency, it can be registered at the global, client, or flag invocation level.
@@ -170,12 +170,12 @@ var value = await client.GetBooleanValue("boolFlag", false, context, new FlagEva
 
 ### Logging
 
-The .NET SDK uses Microsoft Extensions Logger. See the [manual](https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line) for complete documentation.
+The .NET SDK uses Microsoft.Extensions.Logging. See the [manual](https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line) for a complete documentation.
 
 ### Named clients
 
 Clients can be given a name.
-A name is a logical identifier which can be used to associate clients with a particular provider.
+A name is a logical identifier that can be used to associate clients with a particular provider.
 If a name has no associated provider, the global provider is used.
 
 ```csharp
@@ -274,17 +274,17 @@ Built a new hook? [Let us know](https://github.com/open-feature/openfeature.dev/
 ## ⭐️ Support the project
 
 -   Give this repo a ⭐️!
--   Follow us social media:
+-   Follow us on social media:
     -   Twitter: [@openfeature](https://twitter.com/openfeature)
     -   LinkedIn: [OpenFeature](https://www.linkedin.com/company/openfeature/)
 -   Join us on [Slack](https://cloud-native.slack.com/archives/C0344AANLA1)
--   For more check out our [community page](https://openfeature.dev/community/)
+-   For more information, check out our [community page](https://openfeature.dev/community/)
 
 ## 🤝 Contributing
 
 Interested in contributing? Great, we'd love your help! To get started, take a look at the [CONTRIBUTING](CONTRIBUTING.md) guide.
 
-### Thanks to everyone that has already contributed
+### Thanks to everyone who has already contributed
 
 <a href="https://github.com/open-feature/dotnet-sdk/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=open-feature/dotnet-sdk" />
