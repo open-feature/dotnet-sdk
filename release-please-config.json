@@ -8,7 +8,8 @@
       "bump-patch-for-minor-pre-major": true,
       "versioning": "default",
       "extra-files": [
-        "build/Common.prod.props"
+        "build/Common.prod.props",
+        "README.md"
       ]
     }
   },
