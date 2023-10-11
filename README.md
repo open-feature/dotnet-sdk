@@ -196,7 +196,7 @@ FeatureClient clientNamed = Api.Instance.GetClient("clientForCache");
 ### Develop a provider
 
 To develop a provider, you need to create a new project and include the OpenFeature SDK as a dependency.
-This can be a new repository or included in [the existing contrib repository](https://github.com/open-feature/dotnet-sdk) available under the OpenFeature organization.
+This can be a new repository or included in [the existing contrib repository](https://github.com/open-feature/dotnet-sdk-contrib) available under the OpenFeature organization.
 You’ll then need to write the provider by implementing the `FeatureProvider` interface exported by the OpenFeature SDK.
 
 ```csharp
@@ -237,7 +237,7 @@ public class MyProvider : FeatureProvider
 ### Develop a hook
 
 To develop a hook, you need to create a new project and include the OpenFeature SDK as a dependency.
-This can be a new repository or included in [the existing contrib repository](https://github.com/open-feature/dotnet-sdk) available under the OpenFeature organization.
+This can be a new repository or included in [the existing contrib repository](https://github.com/open-feature/dotnet-sdk-contrib) available under the OpenFeature organization.
 Implement your own hook by conforming to the `Hook interface`.
 To satisfy the interface, all methods (`Before`/`After`/`Finally`/`Error`) need to be defined.
 
