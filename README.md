@@ -39,7 +39,7 @@
 </p>
 <!-- x-hide-in-docs-start -->
 
-[OpenFeature](https://openfeature.dev) is an open standard that provides a vendor-agnostic, community-driven API for feature flagging that works with your favorite feature flag management tool.
+[OpenFeature](https://openfeature.dev) is an open specification that provides a vendor-agnostic, community-driven API for feature flagging that works with your favorite feature flag management tool.
 
 <!-- x-hide-in-docs-end -->
 
@@ -170,7 +170,7 @@ var value = await client.GetBooleanValue("boolFlag", false, context, new FlagEva
 
 ### Logging
 
-The .NET SDK uses Microsoft.Extensions.Logging. See the [manual](https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line) for a complete documentation.
+The .NET SDK uses Microsoft.Extensions.Logging. See the [manual](https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line) for complete documentation.
 
 ### Named clients
 
@@ -271,6 +271,7 @@ public class MyHook : Hook
 
 Built a new hook? [Let us know](https://github.com/open-feature/openfeature.dev/issues/new?assignees=&labels=hook&projects=&template=document-hook.yaml&title=%5BHook%5D%3A+) so we can add it to the docs!
 
+<!-- x-hide-in-docs-start -->
 ## ⭐️ Support the project
 
 -   Give this repo a ⭐️!
@@ -291,9 +292,4 @@ Interested in contributing? Great, we'd love your help! To get started, take a l
 </a>
 
 Made with [contrib.rocks](https://contrib.rocks).
-
-## 📜 License
-
-[Apache License 2.0](LICENSE)
-
-[openfeature-website]: https://openfeature.dev
+<!-- x-hide-in-docs-end -->
