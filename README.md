@@ -190,6 +190,14 @@ FeatureClient clientNamed = Api.Instance.GetClient("clientForCache");
 
 ```
 
+### Eventing
+
+Events are currently not supported by the .NET SDK. Progress on this feature can be tracked [here](https://github.com/open-feature/dotnet-sdk/issues/126).
+
+### Shutdown
+
+A shutdown handler is not yet available in the .NET SDK. Progress on this feature can be tracked [here](https://github.com/open-feature/dotnet-sdk/issues/126).
+
 ## Extending
 
 ### Develop a provider
