@@ -29,7 +29,7 @@
     <img alt="Codecov" src="https://codecov.io/gh/open-feature/dotnet-sdk/branch/main/graph/badge.svg?token=MONAVJBXUJ" />
   </a>
   <a href="https://www.nuget.org/packages/OpenFeature">
-    <img alt="Codecov" src="https://img.shields.io/nuget/vpre/OpenFeature" />
+    <img alt="NuGet" src="https://img.shields.io/nuget/vpre/OpenFeature" />
   </a>
   <a href="https://www.bestpractices.dev/en/projects/6250">
     <img alt="CII Best Practices" src="https://bestpractices.coreinfrastructure.org/projects/6250/badge" />
