@@ -18,7 +18,7 @@ namespace OpenFeature
         private EvaluationContext _evaluationContext = EvaluationContext.Empty;
         private Func<FeatureProvider> _defaultProviderFunc = () => new NoOpFeatureProvider();
         private readonly ConcurrentDictionary<string, Func<FeatureProvider>> _featureProviders =
-            new ConcurrentDictionary<string, Func<FeatureProvider>> ();
+            new ConcurrentDictionary<string, Func<FeatureProvider>>();
         private readonly ConcurrentStack<Hook> _hooks = new ConcurrentStack<Hook>();
 
         /// The reader/writer locks are not disposed because the singleton instance should never be disposed.
