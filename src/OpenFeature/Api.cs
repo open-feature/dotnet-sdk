@@ -41,7 +41,7 @@ namespace OpenFeature
         /// </summary>
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
         public void SetProvider(FeatureProvider featureProvider)
-            => this.SetProvider(featureProvider == null ? (Func<FeatureProvider>) null : () => featureProvider);
+            => this.SetProvider(featureProvider == null ? (Func<FeatureProvider>)null : () => featureProvider);
 
         /// <summary>
         /// Sets the feature provider to given clientName
@@ -50,7 +50,6 @@ namespace OpenFeature
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
         public void SetProvider(string clientName, FeatureProvider featureProvider)
             => this.SetProvider(clientName, featureProvider == null ? (Func<FeatureProvider>)null : () => featureProvider);
-        
 
         /// <summary>
         /// Sets the feature provider
