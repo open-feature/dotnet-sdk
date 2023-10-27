@@ -41,17 +41,7 @@ namespace OpenFeature
         /// </summary>
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
         public void SetProvider(FeatureProvider featureProvider)
-        {
-            this._featureProviderLock.EnterWriteLock();
-            try
-            {
-                this._defaultProviderFunc = featureProvider != null ? () => featureProvider : this._defaultProviderFunc;
-            }
-            finally
-            {
-                this._featureProviderLock.ExitWriteLock();
-            }
-        }
+            => this.SetProvider(featureProvider == null ? (Func<FeatureProvider>) null : () => featureProvider);
 
         /// <summary>
         /// Sets the feature provider to given clientName
@@ -59,11 +49,8 @@ namespace OpenFeature
         /// <param name="clientName">Name of client</param>
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
         public void SetProvider(string clientName, FeatureProvider featureProvider)
-        {
-            FeatureProvider func() => featureProvider;
-            this._featureProviders.AddOrUpdate(clientName, func,
-                (key, current) => func);
-        }
+            => this.SetProvider(clientName, featureProvider == null ? (Func<FeatureProvider>)null : () => featureProvider);
+        
 
         /// <summary>
         /// Sets the feature provider
