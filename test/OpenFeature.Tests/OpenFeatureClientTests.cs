@@ -351,7 +351,7 @@ namespace OpenFeature.Tests
         [Fact]
         public async Task Should_Use_No_Op_When_Provider_Is_Null()
         {
-            Api.Instance.SetProvider(null);
+            Api.Instance.SetProvider((FeatureProvider)null);
             var client = new FeatureClient("test", "test");
             (await client.GetIntegerValue("some-key", 12)).Should().Be(12);
         }

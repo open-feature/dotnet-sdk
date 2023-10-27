@@ -23,6 +23,7 @@ namespace OpenFeature
         private EvaluationContext _evaluationContext;
 
         private readonly object _evaluationContextLock = new object();
+        private FeatureProvider _featureProvider;
 
         /// <summary>
         /// Get a provider and an associated typed flag resolution method.
@@ -40,11 +41,10 @@ namespace OpenFeature
             ExtractProvider<T>(
                 Func<FeatureProvider, Func<string, T, EvaluationContext, Task<ResolutionDetails<T>>>> method)
         {
-            // Alias the provider reference so getting the method and returning the provider are
-            // guaranteed to be the same object.
-            var provider = Api.Instance.GetProvider(this._metadata.Name);
+            // Will use factory to get provider if it's not created for this client.
+            this._featureProvider = this._featureProvider ?? Api.Instance.GetProvider(this._metadata.Name);
 
-            return (method(provider), provider);
+            return (method(this._featureProvider), this._featureProvider);
         }
 
         /// <inheritdoc />

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +16,9 @@ namespace OpenFeature
     public sealed class Api
     {
         private EvaluationContext _evaluationContext = EvaluationContext.Empty;
-        private FeatureProvider _defaultProvider = new NoOpFeatureProvider();
-        private readonly ConcurrentDictionary<string, FeatureProvider> _featureProviders =
-            new ConcurrentDictionary<string, FeatureProvider>();
+        private Func<FeatureProvider> _defaultProviderFunc = () => new NoOpFeatureProvider();
+        private readonly ConcurrentDictionary<string, Func<FeatureProvider>> _featureProviders =
+            new ConcurrentDictionary<string, Func<FeatureProvider>> ();
         private readonly ConcurrentStack<Hook> _hooks = new ConcurrentStack<Hook>();
 
         /// The reader/writer locks are not disposed because the singleton instance should never be disposed.
@@ -44,7 +45,7 @@ namespace OpenFeature
             this._featureProviderLock.EnterWriteLock();
             try
             {
-                this._defaultProvider = featureProvider ?? this._defaultProvider;
+                this._defaultProviderFunc = featureProvider != null ? () => featureProvider : this._defaultProviderFunc;
             }
             finally
             {
@@ -59,8 +60,37 @@ namespace OpenFeature
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
         public void SetProvider(string clientName, FeatureProvider featureProvider)
         {
-            this._featureProviders.AddOrUpdate(clientName, featureProvider,
-                (key, current) => featureProvider);
+            FeatureProvider func() => featureProvider;
+            this._featureProviders.AddOrUpdate(clientName, func,
+                (key, current) => func);
+        }
+
+        /// <summary>
+        /// Sets the feature provider
+        /// </summary>
+        /// <param name="featureProviderFactory">A function to create new <see cref="FeatureProvider"/></param>
+        public void SetProvider(Func<FeatureProvider> featureProviderFactory)
+        {
+            this._featureProviderLock.EnterWriteLock();
+            try
+            {
+                this._defaultProviderFunc = featureProviderFactory ?? this._defaultProviderFunc;
+            }
+            finally
+            {
+                this._featureProviderLock.ExitWriteLock();
+            }
+        }
+
+        /// <summary>
+        /// Sets the feature provider to given clientName
+        /// </summary>
+        /// <param name="clientName">Name of client</param>
+        /// <param name="featureProviderFactory">A function to create new <see cref="FeatureProvider"/></param>
+        public void SetProvider(string clientName, Func<FeatureProvider> featureProviderFactory)
+        {
+            this._featureProviders.AddOrUpdate(clientName, featureProviderFactory,
+                (key, current) => featureProviderFactory);
         }
 
         /// <summary>
@@ -79,7 +109,7 @@ namespace OpenFeature
             this._featureProviderLock.EnterReadLock();
             try
             {
-                return this._defaultProvider;
+                return this._defaultProviderFunc();
             }
             finally
             {
@@ -100,8 +130,8 @@ namespace OpenFeature
                 return this.GetProvider();
             }
 
-            return this._featureProviders.TryGetValue(clientName, out var featureProvider)
-                ? featureProvider
+            return this._featureProviders.TryGetValue(clientName, out var featureProviderFunc)
+                ? featureProviderFunc()
                 : this.GetProvider();
         }
 
