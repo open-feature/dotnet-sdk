@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Threading.Tasks;
+using OpenFeature.Constant;
 using OpenFeature.Model;
 
 namespace OpenFeature
@@ -79,5 +80,53 @@ namespace OpenFeature
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
         public abstract Task<ResolutionDetails<Value>> ResolveStructureValue(string flagKey, Value defaultValue,
             EvaluationContext context = null);
+
+        /// <summary>
+        /// Get the status of the provider.
+        /// </summary>
+        /// <returns>The current <see cref="ProviderStatus"/></returns>
+        /// <remarks>
+        /// If a provider does not override this method, then its status will be assumed to be
+        /// <see cref="ProviderStatus.Ready"/>. If a provider implements this method, and supports initialization,
+        /// then it should start in the <see cref="ProviderStatus.NotReady"/>status . If the status is
+        /// <see cref="ProviderStatus.NotReady"/>, then the Api will call the <see cref="Initialize" /> when the
+        /// provider is set.
+        /// </remarks>
+        public virtual ProviderStatus GetStatus() => ProviderStatus.Ready;
+
+        /// <summary>
+        /// <para>
+        /// This method is called before a provider is used to evaluate flags. Providers can overwrite this method,
+        /// if they have special initialization needed prior being called for flag evaluation.
+        /// </para>
+        /// </summary>
+        /// <param name="context"><see cref="EvaluationContext"/></param>
+        /// <returns>A task that completes when the initialization process is complete.</returns>
+        /// <remarks>
+        /// <para>
+        /// A provider which supports initialization should override this method as well as
+        /// <see cref="FeatureProvider.GetStatus"/>.
+        /// </para>
+        /// <para>
+        /// The provider should return <see cref="ProviderStatus.Ready"/> or <see cref="ProviderStatus.Error"/> from
+        /// the <see cref="GetStatus"/> method after initialization is complete.
+        /// </para>
+        /// </remarks>
+        public virtual Task Initialize(EvaluationContext context)
+        {
+            // Intentionally left blank.
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// This method is called when a new provider is about to be used to evaluate flags, or the SDK is shut down.
+        /// Providers can overwrite this method, if they have special shutdown actions needed.
+        /// </summary>
+        /// <returns>A task that completes when the shutdown process is complete.</returns>
+        public virtual Task Shutdown()
+        {
+            // Intentionally left blank.
+            return Task.CompletedTask;
+        }
     }
 }

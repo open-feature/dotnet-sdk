@@ -72,7 +72,7 @@ dotnet add package OpenFeature
 public async Task Example()
         {
             // Register your feature flag provider
-            Api.Instance.SetProvider(new InMemoryProvider());
+            await Api.Instance.SetProvider(new InMemoryProvider());
 
             // Create a new client
             FeatureClient client = Api.Instance.GetClient();
@@ -97,7 +97,7 @@ public async Task Example()
 | ✅     | [Logging](#logging)             | Integrate with popular logging packages.                                                                                           |
 | ✅     | [Named clients](#named-clients) | Utilize multiple providers in a single application.                                                                                |
 | ❌     | [Eventing](#eventing)           | React to state changes in the provider or flag management system.                                                                  |
-| ❌     | [Shutdown](#shutdown)           | Gracefully clean up a provider during application shutdown.                                                                        |
+| ✅    | [Shutdown](#shutdown)           | Gracefully clean up a provider during application shutdown.                                                                        |
 | ✅     | [Extending](#extending)         | Extend OpenFeature with custom providers and hooks.                                                                                |
 
 <sub>Implemented: ✅ | In-progress: ⚠️ | Not implemented yet: ❌</sub>
@@ -112,7 +112,7 @@ If the provider you're looking for hasn't been created yet, see the [develop a p
 Once you've added a provider as a dependency, it can be registered with OpenFeature like this:
 
 ```csharp
-Api.Instance.SetProvider(new MyProvider());
+await Api.Instance.SetProvider(new MyProvider());
 ```
 
 In some situations, it may be beneficial to register multiple providers in the same application.
@@ -179,9 +179,9 @@ If a name has no associated provider, the global provider is used.
 
 ```csharp
 // registering the default provider
-Api.Instance.SetProvider(new LocalProvider());
+await Api.Instance.SetProvider(new LocalProvider());
 // registering a named provider
-Api.Instance.SetProvider("clientForCache", new CachedProvider());
+await Api.Instance.SetProvider("clientForCache", new CachedProvider());
 
 // a client backed by default provider
  FeatureClient clientDefault = Api.Instance.GetClient();
@@ -196,7 +196,12 @@ Events are currently not supported by the .NET SDK. Progress on this feature can
 
 ### Shutdown
 
-A shutdown handler is not yet available in the .NET SDK. Progress on this feature can be tracked [here](https://github.com/open-feature/dotnet-sdk/issues/126).
+The OpenFeature API provides a close function to perform a cleanup of all registered providers. This should only be called when your application is in the process of shutting down.
+
+```csharp
+// Shut down all providers
+await Api.Instance.Shutdown();
+```
 
 ## Extending
 

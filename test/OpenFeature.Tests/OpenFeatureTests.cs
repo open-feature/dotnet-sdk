@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using NSubstitute;
 using OpenFeature.Constant;
@@ -18,6 +19,74 @@ namespace OpenFeature.Tests
             var openFeature2 = Api.Instance;
 
             openFeature.Should().BeSameAs(openFeature2);
+        }
+
+        [Fact]
+        [Specification("1.1.2.2", "The provider mutator function MUST invoke the initialize function on the newly registered provider before using it to resolve flag values.")]
+        public async Task OpenFeature_Should_Initialize_Provider()
+        {
+            var providerMockDefault = Substitute.For<FeatureProvider>();
+            providerMockDefault.GetStatus().Returns(ProviderStatus.NotReady);
+
+            await Api.Instance.SetProvider(providerMockDefault).ConfigureAwait(false);
+            await providerMockDefault.Received(1).Initialize(Api.Instance.GetContext()).ConfigureAwait(false);
+
+            var providerMockNamed = Substitute.For<FeatureProvider>();
+            providerMockNamed.GetStatus().Returns(ProviderStatus.NotReady);
+
+            await Api.Instance.SetProvider("the-name", providerMockNamed).ConfigureAwait(false);
+            await providerMockNamed.Received(1).Initialize(Api.Instance.GetContext()).ConfigureAwait(false);
+        }
+
+        [Fact]
+        [Specification("1.1.2.3",
+            "The provider mutator function MUST invoke the shutdown function on the previously registered provider once it's no longer being used to resolve flag values.")]
+        public async Task OpenFeature_Should_Shutdown_Unused_Provider()
+        {
+            var providerA = Substitute.For<FeatureProvider>();
+            providerA.GetStatus().Returns(ProviderStatus.NotReady);
+
+            await Api.Instance.SetProvider(providerA).ConfigureAwait(false);
+            await providerA.Received(1).Initialize(Api.Instance.GetContext()).ConfigureAwait(false);
+
+            var providerB = Substitute.For<FeatureProvider>();
+            providerB.GetStatus().Returns(ProviderStatus.NotReady);
+
+            await Api.Instance.SetProvider(providerB).ConfigureAwait(false);
+            await providerB.Received(1).Initialize(Api.Instance.GetContext()).ConfigureAwait(false);
+            await providerA.Received(1).Shutdown().ConfigureAwait(false);
+
+            var providerC = Substitute.For<FeatureProvider>();
+            providerC.GetStatus().Returns(ProviderStatus.NotReady);
+
+            await Api.Instance.SetProvider("named", providerC).ConfigureAwait(false);
+            await providerC.Received(1).Initialize(Api.Instance.GetContext()).ConfigureAwait(false);
+
+            var providerD = Substitute.For<FeatureProvider>();
+            providerD.GetStatus().Returns(ProviderStatus.NotReady);
+
+            await Api.Instance.SetProvider("named", providerD).ConfigureAwait(false);
+            await providerD.Received(1).Initialize(Api.Instance.GetContext()).ConfigureAwait(false);
+            await providerC.Received(1).Shutdown().ConfigureAwait(false);
+        }
+
+        [Fact]
+        [Specification("1.6.1", "The API MUST define a mechanism to propagate a shutdown request to active providers.")]
+        public async Task OpenFeature_Should_Support_Shutdown()
+        {
+            var providerA = Substitute.For<FeatureProvider>();
+            providerA.GetStatus().Returns(ProviderStatus.NotReady);
+
+            var providerB = Substitute.For<FeatureProvider>();
+            providerB.GetStatus().Returns(ProviderStatus.NotReady);
+
+            await Api.Instance.SetProvider(providerA).ConfigureAwait(false);
+            await Api.Instance.SetProvider("named", providerB).ConfigureAwait(false);
+
+            await Api.Instance.Shutdown().ConfigureAwait(false);
+
+            await providerA.Received(1).Shutdown().ConfigureAwait(false);
+            await providerB.Received(1).Shutdown().ConfigureAwait(false);
         }
 
         [Fact]
@@ -111,7 +180,7 @@ namespace OpenFeature.Tests
         [Specification("1.1.5", "The API MUST provide a function for retrieving the metadata field of the configured `provider`.")]
         public void OpenFeature_Should_Get_Metadata()
         {
-            Api.Instance.SetProvider(new NoOpFeatureProvider());
+            Api.Instance.SetProvider(new NoOpFeatureProvider()).Wait();
             var openFeature = Api.Instance;
             var metadata = openFeature.GetProviderMetadata();
 

@@ -7,7 +7,7 @@ namespace OpenFeature.Tests
         {
             Api.Instance.SetContext(null);
             Api.Instance.ClearHooks();
-            Api.Instance.SetProvider(new NoOpFeatureProvider());
+            Api.Instance.SetProvider(new NoOpFeatureProvider()).Wait();
         }
     }
 }
