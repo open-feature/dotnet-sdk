@@ -382,7 +382,7 @@ namespace OpenFeature.Tests
 
             await repository.SetProvider("B", provider1, context);
             await repository.SetProvider("A", provider1, context);
-            // Provider one is replaced for "A", but not "B.
+            // Provider one is replaced for "A", but not "B".
             await repository.SetProvider("A", provider2, context);
 
             provider1.DidNotReceive().Shutdown();
