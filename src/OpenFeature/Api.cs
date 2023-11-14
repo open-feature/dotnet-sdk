@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenFeature.Model;
 
@@ -15,14 +16,12 @@ namespace OpenFeature
     public sealed class Api
     {
         private EvaluationContext _evaluationContext = EvaluationContext.Empty;
-        private FeatureProvider _defaultProvider = new NoOpFeatureProvider();
-        private readonly ConcurrentDictionary<string, FeatureProvider> _featureProviders =
-            new ConcurrentDictionary<string, FeatureProvider>();
+        private readonly ProviderRepository _repository = new ProviderRepository();
         private readonly ConcurrentStack<Hook> _hooks = new ConcurrentStack<Hook>();
 
         /// The reader/writer locks are not disposed because the singleton instance should never be disposed.
         private readonly ReaderWriterLockSlim _evaluationContextLock = new ReaderWriterLockSlim();
-        private readonly ReaderWriterLockSlim _featureProviderLock = new ReaderWriterLockSlim();
+
 
         /// <summary>
         /// Singleton instance of Api
@@ -36,31 +35,26 @@ namespace OpenFeature
         private Api() { }
 
         /// <summary>
-        /// Sets the feature provider
+        /// Sets the feature provider. In order to wait for the provider to be set, and initialization to complete,
+        /// await the returned task.
         /// </summary>
+        /// <remarks>The provider cannot be set to null. Attempting to set the provider to null has no effect.</remarks>
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
-        public void SetProvider(FeatureProvider featureProvider)
+        public async Task SetProvider(FeatureProvider featureProvider)
         {
-            this._featureProviderLock.EnterWriteLock();
-            try
-            {
-                this._defaultProvider = featureProvider ?? this._defaultProvider;
-            }
-            finally
-            {
-                this._featureProviderLock.ExitWriteLock();
-            }
+            await this._repository.SetProvider(featureProvider, this.GetContext()).ConfigureAwait(false);
         }
 
+
         /// <summary>
-        /// Sets the feature provider to given clientName
+        /// Sets the feature provider to given clientName. In order to wait for the provider to be set, and
+        /// initialization to complete, await the returned task.
         /// </summary>
         /// <param name="clientName">Name of client</param>
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
-        public void SetProvider(string clientName, FeatureProvider featureProvider)
+        public async Task SetProvider(string clientName, FeatureProvider featureProvider)
         {
-            this._featureProviders.AddOrUpdate(clientName, featureProvider,
-                (key, current) => featureProvider);
+            await this._repository.SetProvider(clientName, featureProvider, this.GetContext()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -76,15 +70,7 @@ namespace OpenFeature
         /// <returns><see cref="FeatureProvider"/></returns>
         public FeatureProvider GetProvider()
         {
-            this._featureProviderLock.EnterReadLock();
-            try
-            {
-                return this._defaultProvider;
-            }
-            finally
-            {
-                this._featureProviderLock.ExitReadLock();
-            }
+            return this._repository.GetProvider();
         }
 
         /// <summary>
@@ -95,16 +81,8 @@ namespace OpenFeature
         /// have a corresponding provider the default provider will be returned</returns>
         public FeatureProvider GetProvider(string clientName)
         {
-            if (string.IsNullOrEmpty(clientName))
-            {
-                return this.GetProvider();
-            }
-
-            return this._featureProviders.TryGetValue(clientName, out var featureProvider)
-                ? featureProvider
-                : this.GetProvider();
+            return this._repository.GetProvider(clientName);
         }
-
 
         /// <summary>
         /// Gets providers metadata
@@ -209,6 +187,20 @@ namespace OpenFeature
             {
                 this._evaluationContextLock.ExitReadLock();
             }
+        }
+
+        /// <summary>
+        /// <para>
+        /// Shut down and reset the current status of OpenFeature API.
+        /// </para>
+        /// <para>
+        /// This call cleans up all active providers and attempts to shut down internal event handling mechanisms.
+        /// Once shut down is complete, API is reset and ready to use again.
+        /// </para>
+        /// </summary>
+        public async Task Shutdown()
+        {
+            await this._repository.Shutdown().ConfigureAwait(false);
         }
     }
 }

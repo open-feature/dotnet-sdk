@@ -40,7 +40,6 @@ namespace OpenFeature.Benchmark
             _defaultStructureValue = fixture.Create<Value>();
             _emptyFlagOptions = new FlagEvaluationOptions(ImmutableList<Hook>.Empty, ImmutableDictionary<string, object>.Empty);
 
-            Api.Instance.SetProvider(new NoOpFeatureProvider());
             _client = Api.Instance.GetClient(_clientName, _clientVersion);
         }
 
