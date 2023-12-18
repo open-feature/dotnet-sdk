@@ -105,7 +105,7 @@ namespace OpenFeature
         /// <remarks>
         /// <para>
         /// A provider which supports initialization should override this method as well as
-        /// <see cref="FeatureProvider.GetStatus"/>.
+        /// <see cref="GetStatus"/>.
         /// </para>
         /// <para>
         /// The provider should return <see cref="ProviderStatus.Ready"/> or <see cref="ProviderStatus.Error"/> from

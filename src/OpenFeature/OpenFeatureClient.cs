@@ -104,6 +104,13 @@ namespace OpenFeature
         /// </summary>
         public void ClearHooks() => this._hooks.Clear();
 
+        /// <summary>
+        /// Adds an event handler to the client
+        /// </summary>
+        public void AddHandler(ProviderEventTypes type, EventHandlerDelegate handler)
+        {
+        }
+
         /// <inheritdoc />
         public async Task<bool> GetBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null,
             FlagEvaluationOptions config = null) =>

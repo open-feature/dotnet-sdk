@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using OpenFeature.Constant;
 using OpenFeature.Model;
 
 namespace OpenFeature
@@ -13,7 +14,7 @@ namespace OpenFeature
     /// In the absence of a provider the evaluation API uses the "No-op provider", which simply returns the supplied default flag value.
     /// </summary>
     /// <seealso href="https://github.com/open-feature/spec/blob/v0.5.2/specification/sections/01-flag-evaluation.md#1-flag-evaluation-api"/>
-    public sealed class Api
+    public sealed class Api : IEventBus
     {
         private EvaluationContext _evaluationContext = EvaluationContext.Empty;
         private readonly ProviderRepository _repository = new ProviderRepository();
@@ -21,6 +22,8 @@ namespace OpenFeature
 
         /// The reader/writer locks are not disposed because the singleton instance should never be disposed.
         private readonly ReaderWriterLockSlim _evaluationContextLock = new ReaderWriterLockSlim();
+
+        private readonly EventExecutor _eventExecutor = new EventExecutor();
 
 
         /// <summary>
@@ -201,6 +204,17 @@ namespace OpenFeature
         public async Task Shutdown()
         {
             await this._repository.Shutdown().ConfigureAwait(false);
+        }
+
+        public void AddHandler(ProviderEventTypes type, EventHandlerDelegate handler)
+        {
+            this._eventExecutor.AddGlobalHandler(type, handler);
+        }
+
+        public void RemoveHandler(ProviderEventTypes type, EventHandlerDelegate handler)
+        {
+            // TODO
+            throw new System.NotImplementedException();
         }
     }
 }
