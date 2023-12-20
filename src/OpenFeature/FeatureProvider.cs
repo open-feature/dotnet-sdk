@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using System.Threading.Tasks;
 using OpenFeature.Constant;
 using OpenFeature.Model;
+using System.Threading.Channels;
 
 namespace OpenFeature
 {
@@ -24,6 +25,8 @@ namespace OpenFeature
         /// </summary>
         /// <returns>Immutable list of hooks</returns>
         public virtual IImmutableList<Hook> GetProviderHooks() => ImmutableList<Hook>.Empty;
+
+        protected Channel<object> _eventChannel = Channel.CreateBounded<object>(1);
 
         /// <summary>
         /// Metadata describing the provider.
@@ -128,5 +131,7 @@ namespace OpenFeature
             // Intentionally left blank.
             return Task.CompletedTask;
         }
+
+        public virtual Channel<object> GetEventChannel() => this._eventChannel;
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
+using OpenFeature.Constant;
 using OpenFeature.Model;
 
 namespace OpenFeature.Tests
@@ -38,9 +39,13 @@ namespace OpenFeature.Tests
 
         public static string Name => "test-provider";
 
+        private ProviderStatus _status;
+
         public void AddHook(Hook hook) => this._hooks.Add(hook);
 
         public override IImmutableList<Hook> GetProviderHooks() => this._hooks.ToImmutableList();
+
+        public TestProvider() => this._status = ProviderStatus.NotReady;
 
         public override Metadata GetMetadata()
         {
@@ -75,6 +80,18 @@ namespace OpenFeature.Tests
             EvaluationContext context = null)
         {
             return Task.FromResult(new ResolutionDetails<Value>(flagKey, defaultValue));
+        }
+
+        public override ProviderStatus GetStatus()
+        {
+            return this._status;
+        }
+
+        public override Task Initialize(EvaluationContext context)
+        {
+            this._status = ProviderStatus.Ready;
+            this._eventChannel.Writer.TryWrite(new ProviderEventPayload { Type = ProviderEventTypes.PROVIDER_READY });
+            return base.Initialize(context);
         }
     }
 }

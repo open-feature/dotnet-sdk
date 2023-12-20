@@ -12,7 +12,7 @@ namespace OpenFeature
     public class EventExecutor
     {
         public readonly Channel<object> eventChannel = Channel.CreateBounded<object>(1);
-        private FeatureProviderReference defaultProvider;
+        private FeatureProviderReference _defaultProvider;
         private readonly SemaphoreSlim _shutdownSemaphore = new SemaphoreSlim(0);
         private readonly Dictionary<ProviderEventTypes, List<EventHandlerDelegate>> _apiLevelHandlers = new Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>();
         
@@ -40,6 +40,35 @@ namespace OpenFeature
             }
         }
         
+        internal void RegisterDefaultFeatureProvider(FeatureProvider provider)
+        {
+            if (this._defaultProvider != null)
+            {
+                this._defaultProvider.Provider.GetEventChannel().Writer.TryWrite(new ShutdownSignal());
+            }
+            this._defaultProvider = new FeatureProviderReference(provider);
+            this.ProcessFeatureProviderEventsAsync(this._defaultProvider);
+        }
+
+        private async Task ProcessFeatureProviderEventsAsync(FeatureProviderReference providerRef)
+        {
+            while (true)
+            {
+                var item = await providerRef.Provider.GetEventChannel().Reader.ReadAsync().ConfigureAwait(false);
+
+                switch (item)
+                {
+                    case ProviderEventPayload eventPayload:
+                        // TODO encapsulate eventPayload into object containing the feature provider as well
+                        this.eventChannel.Writer.TryWrite(eventPayload);
+                        break;
+                    case ShutdownSignal _:
+                        providerRef.ShutdownSemaphore.Release();
+                        return;
+                }
+            }
+        }
+
         // Method to process events
         private async Task ProcessEventAsync()
         {
@@ -60,7 +89,7 @@ namespace OpenFeature
                        break;
                    case ShutdownSignal _:
                        this._shutdownSemaphore.Release();
-                        return;
+                       return;
                }
                
             }
@@ -73,7 +102,7 @@ namespace OpenFeature
             this.eventChannel.Writer.TryWrite(new ShutdownSignal());
 
             // Wait for the processing loop to acknowledge the shutdown
-            await this.shutdownSemaphore.WaitAsync().ConfigureAwait(false);
+            await this._shutdownSemaphore.WaitAsync().ConfigureAwait(false);
         }
     }
 
@@ -83,15 +112,12 @@ namespace OpenFeature
 
     internal class FeatureProviderReference
     {
-        private Channel<Boolean> _shutdownChannel;
-        private readonly SemaphoreSlim _shutdownSemaphore = new SemaphoreSlim(0);
+        internal readonly SemaphoreSlim ShutdownSemaphore = new SemaphoreSlim(0);
+        internal FeatureProvider Provider { get; }
 
-        public FeatureProviderReference()
+        public FeatureProviderReference(FeatureProvider provider)
         {
-            this._shutdownChannel = Channel.CreateBounded<Boolean>(new BoundedChannelOptions(1)
-            {
-                FullMode = BoundedChannelFullMode.Wait
-            });
+            this.Provider = provider;
         }
     }
 }
