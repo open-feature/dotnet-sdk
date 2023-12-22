@@ -63,7 +63,10 @@ namespace OpenFeature
 
             this._scopedApiHandlers[client][eventType].Add(handler);
 
-            this.EmitOnRegistration(this._namedProviderReferences[client], eventType, handler);
+            if (this._namedProviderReferences.TryGetValue(client, out var clientProviderReference))
+            {
+                this.EmitOnRegistration(clientProviderReference, eventType, handler);
+            }
         }
 
         internal void RegisterDefaultFeatureProvider(FeatureProvider provider)

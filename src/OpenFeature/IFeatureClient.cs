@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using OpenFeature.Constant;
 using OpenFeature.Model;
 
 namespace OpenFeature
@@ -17,6 +18,16 @@ namespace OpenFeature
         /// </summary>
         /// <param name="hooks">A list of Hooks that implement the <see cref="Hook"/> interface</param>
         void AddHooks(IEnumerable<Hook> hooks);
+
+        /// <summary>
+        /// Adds an Event Handler for the client
+        /// <para>
+        /// The appending operation will be atomic.
+        /// </para>
+        /// </summary>
+        /// <param name="eventType">The event type</param>
+        /// <param name="handler">An object that implements the <see cref="EventHandlerDelegate"/> interface</param>
+        void AddHandler(ProviderEventTypes eventType, EventHandlerDelegate handler);
 
         /// <summary>
         /// Enumerates the global hooks.

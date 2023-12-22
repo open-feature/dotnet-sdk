@@ -93,6 +93,19 @@ namespace OpenFeature
         /// <param name="hook">Hook that implements the <see cref="Hook"/> interface</param>
         public void AddHooks(Hook hook) => this._hooks.Push(hook);
 
+        /// <summary>
+        /// Adds an Event Handler for the client
+        /// <para>
+        /// The appending operation will be atomic.
+        /// </para>
+        /// </summary>
+        /// <param name="eventType">The event type</param>
+        /// <param name="handler">An object that implements the <see cref="EventHandlerDelegate"/> interface</param>
+        public void AddHandler(ProviderEventTypes eventType, EventHandlerDelegate handler)
+        {
+            Api.Instance.EventExecutor.AddNamedHandler(this._metadata.Name, eventType, handler);
+        }
+
         /// <inheritdoc />
         public void AddHooks(IEnumerable<Hook> hooks) => this._hooks.PushRange(hooks.ToArray());
 
@@ -103,13 +116,6 @@ namespace OpenFeature
         /// Removes all hooks from the client
         /// </summary>
         public void ClearHooks() => this._hooks.Clear();
-
-        /// <summary>
-        /// Adds an event handler to the client
-        /// </summary>
-        public void AddHandler(ProviderEventTypes type, EventHandlerDelegate handler)
-        {
-        }
 
         /// <inheritdoc />
         public async Task<bool> GetBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null,

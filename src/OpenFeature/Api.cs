@@ -23,7 +23,7 @@ namespace OpenFeature
         /// The reader/writer locks are not disposed because the singleton instance should never be disposed.
         private readonly ReaderWriterLockSlim _evaluationContextLock = new ReaderWriterLockSlim();
 
-        private readonly EventExecutor _eventExecutor = new EventExecutor();
+        internal readonly EventExecutor EventExecutor = new EventExecutor();
 
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace OpenFeature
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
         public async Task SetProvider(FeatureProvider featureProvider)
         {
-            this._eventExecutor.RegisterDefaultFeatureProvider(featureProvider);
+            this.EventExecutor.RegisterDefaultFeatureProvider(featureProvider);
             await this._repository.SetProvider(featureProvider, this.GetContext()).ConfigureAwait(false);
         }
 
@@ -58,6 +58,7 @@ namespace OpenFeature
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
         public async Task SetProvider(string clientName, FeatureProvider featureProvider)
         {
+            this.EventExecutor.RegisterClientFeatureProvider(clientName, featureProvider);
             await this._repository.SetProvider(clientName, featureProvider, this.GetContext()).ConfigureAwait(false);
         }
 
@@ -209,7 +210,7 @@ namespace OpenFeature
 
         public void AddHandler(ProviderEventTypes type, EventHandlerDelegate handler)
         {
-            this._eventExecutor.AddApiLevelHandler(type, handler);
+            this.EventExecutor.AddApiLevelHandler(type, handler);
         }
 
         public void RemoveHandler(ProviderEventTypes type, EventHandlerDelegate handler)
