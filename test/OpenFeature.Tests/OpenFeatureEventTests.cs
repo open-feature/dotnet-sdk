@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
@@ -27,21 +28,11 @@ namespace OpenFeature.Tests
 
             var eventExecutor = new EventExecutor();
 
-            eventExecutor.AddGlobalHandler(ProviderEventTypes.PROVIDER_READY, eventHandler);
+            eventExecutor.AddApiLevelHandler(ProviderEventTypes.PROVIDER_READY, eventHandler);
 
-            var eventPayload = new ProviderEventPayload { Type = ProviderEventTypes.PROVIDER_READY };
+            var eventPayload = new Event { EventPayload = new ProviderEventPayload { Type = ProviderEventTypes.PROVIDER_READY }};
             eventExecutor.eventChannel.Writer.TryWrite(eventPayload);
 
-
-            // verify the event handler received the event
-            Received.InOrder(async () =>
-            {
-                eventHandler.Invoke(eventPayload);
-            });
-            foreach (var call in eventHandler.ReceivedCalls())
-            {
-                Assert.Equal(call.GetArguments()[0], eventPayload);
-            }
 
             // shut down the event executor
             await eventExecutor.SignalShutdownAsync();
@@ -52,13 +43,17 @@ namespace OpenFeature.Tests
             eventExecutor.eventChannel.Writer.TryWrite(newEventPayload);
 
             eventHandler.DidNotReceive().Invoke(newEventPayload);
+
+            // verify the event handler received one event
+            Received.InOrder(async () =>
+            {
+                eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
+            });
         }
 
         [Fact]
         public async Task API_Level_Event_Handlers_Should_Be_Registered()
         {
-            var fixture = new Fixture();
-
             var eventHandler = Substitute.For<EventHandlerDelegate>();
 
             eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
@@ -68,10 +63,60 @@ namespace OpenFeature.Tests
             var testProvider = new TestProvider();
             await Api.Instance.SetProvider(testProvider);
 
+            Received.InOrder(async () =>
+            {
+                // first one due to NoOpProvider being in ready state
+                eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
+                // second one for the testProvider
+                eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
+            });
+
+            Thread.Sleep(10000);
+        }
+
+        [Fact]
+        public async Task API_Level_Event_Handlers_Should_Be_Informed_Aabout_Ready_State_After_Registering()
+        {
+            var eventHandler = Substitute.For<EventHandlerDelegate>();
+
+            eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
+
+            var testProvider = new TestProvider();
+            await Api.Instance.SetProvider(testProvider);
+
             Api.Instance.AddHandler(ProviderEventTypes.PROVIDER_READY, eventHandler);
 
             Received.InOrder(async () =>
             {
+                // first one due to NoOpProvider being in ready state
+                eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
+                // second one for the testProvider
+                eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
+            });
+        }
+
+        [Fact]
+        public async Task API_Level_Event_Handlers_Should_Be_Exchangeable()
+        {
+            var eventHandler = Substitute.For<EventHandlerDelegate>();
+
+            //eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
+
+            Api.Instance.AddHandler(ProviderEventTypes.PROVIDER_READY, eventHandler);
+
+            var testProvider = new TestProvider();
+            await Api.Instance.SetProvider(testProvider);
+
+            var newTestProvider = new TestProvider();
+            await Api.Instance.SetProvider(newTestProvider);
+
+            Received.InOrder(async () =>
+            {
+                // first one due to NoOpProvider being in ready state
+                eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
+                // second one for the testProvider
+                eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
+                // third one for the new testProvider
                 eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
             });
         }

@@ -209,7 +209,7 @@ namespace OpenFeature
 
         public void AddHandler(ProviderEventTypes type, EventHandlerDelegate handler)
         {
-            this._eventExecutor.AddGlobalHandler(type, handler);
+            this._eventExecutor.AddApiLevelHandler(type, handler);
         }
 
         public void RemoveHandler(ProviderEventTypes type, EventHandlerDelegate handler)
