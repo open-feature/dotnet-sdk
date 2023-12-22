@@ -120,5 +120,27 @@ namespace OpenFeature.Tests
                 eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
             });
         }
+
+        [Fact]
+        public async Task Client_Level_Event_Handlers_Should_Be_Registered()
+        {
+            var eventHandler = Substitute.For<EventHandlerDelegate>();
+
+            eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
+
+            var myClient = Api.Instance.GetClient("my-client");
+
+            myClient.AddHandler(ProviderEventTypes.PROVIDER_READY, eventHandler);
+
+            var testProvider = new TestProvider();
+            await Api.Instance.SetProvider(myClient.GetMetadata().Name, testProvider);
+
+            Received.InOrder(async () =>
+            {
+                eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
+            });
+
+            Thread.Sleep(10000);
+        }
     }
 }
