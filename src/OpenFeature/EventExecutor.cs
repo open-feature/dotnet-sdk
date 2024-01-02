@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -10,7 +7,6 @@ using OpenFeature.Model;
 
 namespace OpenFeature
 {
-    [SuppressMessage("warning", "CS4014")]
     internal class EventExecutor
     {
         private readonly Mutex _mutex = new Mutex();
@@ -25,7 +21,9 @@ namespace OpenFeature
 
         public EventExecutor()
         {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             this.ProcessEventAsync();
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         }
 
         internal void AddApiLevelHandler(ProviderEventTypes eventType, EventHandlerDelegate handler)
@@ -128,16 +126,14 @@ namespace OpenFeature
             if (!this.IsProviderActive(newProvider))
             {
                 this._activeSubscriptions.Add(newProvider);
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 this.ProcessFeatureProviderEventsAsync(newProvider);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
 
             if (oldProvider != null && !this.IsProviderBound(oldProvider))
             {
                 this._activeSubscriptions.Remove(oldProvider);
-                if (oldProvider.Provider == null)
-                {
-                    Console.WriteLine("wtf");
-                }
                 var channel = oldProvider.Provider.GetEventChannel();
                 if (channel != null)
                 {
