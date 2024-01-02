@@ -23,7 +23,7 @@ namespace OpenFeature.Tests
 
             eventExecutor.AddApiLevelHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
-            var eventPayload = new Event { EventPayload = new ProviderEventPayload { Type = ProviderEventTypes.ProviderReady }};
+            var eventPayload = new Event { EventPayload = new ProviderEventPayload { Type = ProviderEventTypes.ProviderReady } };
             eventExecutor.EventChannel.Writer.TryWrite(eventPayload);
 
             Thread.Sleep(1000);
@@ -100,16 +100,12 @@ namespace OpenFeature.Tests
             await Api.Instance.SetProvider(testProvider);
 
             Thread.Sleep(1000);
-
-            eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
-
             Api.Instance.RemoveHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
             var newTestProvider = new TestProvider();
             await Api.Instance.SetProvider(newTestProvider);
 
-            // now we should not receive any event since we have removed the event handler
-            Received.InOrder(async () => {});
+            eventHandler.Received(1).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
         }
 
         [Fact]

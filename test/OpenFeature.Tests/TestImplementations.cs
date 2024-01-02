@@ -90,7 +90,7 @@ namespace OpenFeature.Tests
         public override Task Initialize(EvaluationContext context)
         {
             this._status = ProviderStatus.Ready;
-            this.EventChannel.Writer.TryWrite(new ProviderEventPayload { Type = ProviderEventTypes.ProviderReady, ProviderName = this.GetMetadata().Name});
+            this.EventChannel.Writer.TryWrite(new ProviderEventPayload { Type = ProviderEventTypes.ProviderReady, ProviderName = this.GetMetadata().Name });
             return base.Initialize(context);
         }
 
