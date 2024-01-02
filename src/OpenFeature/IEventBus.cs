@@ -3,6 +3,9 @@ using OpenFeature.Model;
 
 namespace OpenFeature
 {
+    /// <summary>
+    /// Defines the methods required for handling events.
+    /// </summary>
     public interface IEventBus
     {
         /// <summary>

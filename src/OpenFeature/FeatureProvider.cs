@@ -26,7 +26,10 @@ namespace OpenFeature
         /// <returns>Immutable list of hooks</returns>
         public virtual IImmutableList<Hook> GetProviderHooks() => ImmutableList<Hook>.Empty;
 
-        protected Channel<object> _eventChannel = Channel.CreateBounded<object>(1);
+        /// <summary>
+        /// The event channel of the provider.
+        /// </summary>
+        protected Channel<object> EventChannel = Channel.CreateBounded<object>(1);
 
         /// <summary>
         /// Metadata describing the provider.
@@ -132,6 +135,10 @@ namespace OpenFeature
             return Task.CompletedTask;
         }
 
-        public virtual Channel<object> GetEventChannel() => this._eventChannel;
+        /// <summary>
+        /// Returns the event channel of the provider.
+        /// </summary>
+        /// <returns>The event channel of the provider</returns>
+        public virtual Channel<object> GetEventChannel() => this.EventChannel;
     }
 }

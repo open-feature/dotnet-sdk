@@ -1,6 +1,5 @@
-
-using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -9,10 +8,11 @@ using OpenFeature.Model;
 
 namespace OpenFeature
 {
-    public class EventExecutor
+    [SuppressMessage("warning", "CS4014")]
+    internal class EventExecutor
     {
-        private Mutex _mutex = new Mutex();
-        public readonly Channel<object> eventChannel = Channel.CreateBounded<object>(1);
+        private readonly Mutex _mutex = new Mutex();
+        public readonly Channel<object> EventChannel = Channel.CreateBounded<object>(1);
         private FeatureProviderReference _defaultProvider;
         private readonly Dictionary<string, FeatureProviderReference> _namedProviderReferences = new Dictionary<string, FeatureProviderReference>();
         private readonly List<FeatureProviderReference> _activeSubscriptions = new List<FeatureProviderReference>();
@@ -162,15 +162,15 @@ namespace OpenFeature
             var status = provider.Provider.GetStatus();
 
             var message = "";
-            if (status == ProviderStatus.Ready && eventType == ProviderEventTypes.PROVIDER_READY)
+            if (status == ProviderStatus.Ready && eventType == ProviderEventTypes.ProviderReady)
             {
                 message = "Provider is ready";
             }
-            else if (status == ProviderStatus.Error && eventType == ProviderEventTypes.PROVIDER_ERROR)
+            else if (status == ProviderStatus.Error && eventType == ProviderEventTypes.ProviderError)
             {
                 message = "Provider is in error state";
             }
-            else if (status == ProviderStatus.Stale && eventType == ProviderEventTypes.PROVIDER_STALE)
+            else if (status == ProviderStatus.Stale && eventType == ProviderEventTypes.ProviderStale)
             {
                 message = "Provider is in stale state";
             }
@@ -181,7 +181,7 @@ namespace OpenFeature
                 {
                     ProviderName = provider.Provider.GetMetadata().Name,
                     Type = eventType,
-                    Message = message,
+                    Message = message
                 });
             }
         }
@@ -195,7 +195,7 @@ namespace OpenFeature
                 switch (item)
                 {
                     case ProviderEventPayload eventPayload:
-                        this.eventChannel.Writer.TryWrite(new Event { Provider = providerRef, EventPayload = eventPayload });
+                        this.EventChannel.Writer.TryWrite(new Event { Provider = providerRef, EventPayload = eventPayload });
                         break;
                     case ShutdownSignal _:
                         providerRef.ShutdownSemaphore.Release();
@@ -209,7 +209,7 @@ namespace OpenFeature
         {
             while (true)
             {
-                var item = await this.eventChannel.Reader.ReadAsync().ConfigureAwait(false);
+                var item = await this.EventChannel.Reader.ReadAsync().ConfigureAwait(false);
 
                 switch (item)
                 {
@@ -254,7 +254,7 @@ namespace OpenFeature
         public async Task SignalShutdownAsync()
         {
             // Enqueue a shutdown signal
-            this.eventChannel.Writer.TryWrite(new ShutdownSignal());
+            this.EventChannel.Writer.TryWrite(new ShutdownSignal());
 
             // Wait for the processing loop to acknowledge the shutdown
             await this._shutdownSemaphore.WaitAsync().ConfigureAwait(false);
