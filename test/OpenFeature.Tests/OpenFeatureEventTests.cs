@@ -33,6 +33,7 @@ namespace OpenFeature.Tests
             var eventPayload = new Event { EventPayload = new ProviderEventPayload { Type = ProviderEventTypes.PROVIDER_READY }};
             eventExecutor.eventChannel.Writer.TryWrite(eventPayload);
 
+            eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.Type == ProviderEventTypes.PROVIDER_READY));
 
             // shut down the event executor
             await eventExecutor.SignalShutdownAsync();
@@ -44,11 +45,7 @@ namespace OpenFeature.Tests
 
             eventHandler.DidNotReceive().Invoke(newEventPayload);
 
-            // verify the event handler received one event
-            Received.InOrder(async () =>
-            {
-                eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
-            });
+            eventHandler.DidNotReceive().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.Type == ProviderEventTypes.PROVIDER_STALE));
         }
 
         [Fact]
@@ -63,44 +60,27 @@ namespace OpenFeature.Tests
             var testProvider = new TestProvider();
             await Api.Instance.SetProvider(testProvider);
 
-            Received.InOrder(async () =>
-            {
-                // first one due to NoOpProvider being in ready state
-                eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
-                // second one for the testProvider
-                eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
-            });
-
-            Thread.Sleep(10000);
+            eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
         }
 
         [Fact]
-        public async Task API_Level_Event_Handlers_Should_Be_Informed_Aabout_Ready_State_After_Registering()
+        public async Task API_Level_Event_Handlers_Should_Be_Informed_About_Ready_State_After_Registering()
         {
             var eventHandler = Substitute.For<EventHandlerDelegate>();
-
-            eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
 
             var testProvider = new TestProvider();
             await Api.Instance.SetProvider(testProvider);
 
             Api.Instance.AddHandler(ProviderEventTypes.PROVIDER_READY, eventHandler);
 
-            Received.InOrder(async () =>
-            {
-                // first one due to NoOpProvider being in ready state
-                eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
-                // second one for the testProvider
-                eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
-            });
+            Thread.Sleep(1000);
+            eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
         }
 
         [Fact]
         public async Task API_Level_Event_Handlers_Should_Be_Exchangeable()
         {
             var eventHandler = Substitute.For<EventHandlerDelegate>();
-
-            //eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
 
             Api.Instance.AddHandler(ProviderEventTypes.PROVIDER_READY, eventHandler);
 
@@ -110,37 +90,94 @@ namespace OpenFeature.Tests
             var newTestProvider = new TestProvider();
             await Api.Instance.SetProvider(newTestProvider);
 
-            Received.InOrder(async () =>
-            {
-                // first one due to NoOpProvider being in ready state
-                eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
-                // second one for the testProvider
-                eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
-                // third one for the new testProvider
-                eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
-            });
+            Thread.Sleep(1000);
+            eventHandler.Received(2).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
+        }
+
+        [Fact]
+        public async Task API_Level_Event_Handlers_Should_Be_Removable()
+        {
+            var eventHandler = Substitute.For<EventHandlerDelegate>();
+
+            Api.Instance.AddHandler(ProviderEventTypes.PROVIDER_READY, eventHandler);
+
+            var testProvider = new TestProvider();
+            await Api.Instance.SetProvider(testProvider);
+
+            Thread.Sleep(1000);
+
+            eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
+
+            Api.Instance.RemoveHandler(ProviderEventTypes.PROVIDER_READY, eventHandler);
+
+            var newTestProvider = new TestProvider();
+            await Api.Instance.SetProvider(newTestProvider);
+
+            // now we should not receive any event since we have removed the event handler
+            Received.InOrder(async () => {});
         }
 
         [Fact]
         public async Task Client_Level_Event_Handlers_Should_Be_Registered()
         {
+            var fixture = new Fixture();
             var eventHandler = Substitute.For<EventHandlerDelegate>();
 
             eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
 
-            var myClient = Api.Instance.GetClient("my-client");
+            var myClient = Api.Instance.GetClient(fixture.Create<string>());
+
+            var testProvider = new TestProvider();
+            await Api.Instance.SetProvider(myClient.GetMetadata().Name, testProvider);
+
+            myClient.AddHandler(ProviderEventTypes.PROVIDER_READY, eventHandler);
+
+            eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
+        }
+
+        [Fact]
+        public async Task Client_Level_Event_Handlers_Should_Be_Informed_About_Ready_State_After_Registering()
+        {
+            var fixture = new Fixture();
+            var eventHandler = Substitute.For<EventHandlerDelegate>();
+
+            eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
+
+            var myClient = Api.Instance.GetClient(fixture.Create<string>());
+
+            var testProvider = new TestProvider();
+            await Api.Instance.SetProvider(myClient.GetMetadata().Name, testProvider);
+
+            // add the event handler after the provider has already transitioned into the ready state
+            myClient.AddHandler(ProviderEventTypes.PROVIDER_READY, eventHandler);
+
+            eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
+        }
+
+        [Fact]
+        public async Task Client_Level_Event_Handlers_Should_Be_Removable()
+        {
+            var fixture = new Fixture();
+
+            var eventHandler = Substitute.For<EventHandlerDelegate>();
+
+            var myClient = Api.Instance.GetClient(fixture.Create<string>());
 
             myClient.AddHandler(ProviderEventTypes.PROVIDER_READY, eventHandler);
 
             var testProvider = new TestProvider();
             await Api.Instance.SetProvider(myClient.GetMetadata().Name, testProvider);
 
-            Received.InOrder(async () =>
-            {
-                eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
-            });
+            // wait for the first event to be received
+            Thread.Sleep(1000);
+            myClient.RemoveHandler(ProviderEventTypes.PROVIDER_READY, eventHandler);
 
-            Thread.Sleep(10000);
+            var newTestProvider = new TestProvider();
+            await Api.Instance.SetProvider(myClient.GetMetadata().Name, newTestProvider);
+
+            // wait a bit and make sure we only have received the first event, but nothing after removing the event handler
+            Thread.Sleep(1000);
+            eventHandler.Received(1).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
         }
     }
 }

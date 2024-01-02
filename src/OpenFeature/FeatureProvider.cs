@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using OpenFeature.Constant;
 using OpenFeature.Model;
-using System.Threading.Channels;
 
 namespace OpenFeature
 {

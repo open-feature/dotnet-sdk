@@ -208,15 +208,16 @@ namespace OpenFeature
             await this._repository.Shutdown().ConfigureAwait(false);
         }
 
+        /// <inheritdoc />
         public void AddHandler(ProviderEventTypes type, EventHandlerDelegate handler)
         {
             this.EventExecutor.AddApiLevelHandler(type, handler);
         }
 
+        /// <inheritdoc />
         public void RemoveHandler(ProviderEventTypes type, EventHandlerDelegate handler)
         {
-            // TODO
-            throw new System.NotImplementedException();
+            this.EventExecutor.RemoveApiLevelHandler(type, handler);
         }
     }
 }

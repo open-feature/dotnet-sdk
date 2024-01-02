@@ -93,17 +93,16 @@ namespace OpenFeature
         /// <param name="hook">Hook that implements the <see cref="Hook"/> interface</param>
         public void AddHooks(Hook hook) => this._hooks.Push(hook);
 
-        /// <summary>
-        /// Adds an Event Handler for the client
-        /// <para>
-        /// The appending operation will be atomic.
-        /// </para>
-        /// </summary>
-        /// <param name="eventType">The event type</param>
-        /// <param name="handler">An object that implements the <see cref="EventHandlerDelegate"/> interface</param>
+        /// <inheritdoc />
         public void AddHandler(ProviderEventTypes eventType, EventHandlerDelegate handler)
         {
-            Api.Instance.EventExecutor.AddNamedHandler(this._metadata.Name, eventType, handler);
+            Api.Instance.EventExecutor.AddClientHandler(this._metadata.Name, eventType, handler);
+        }
+
+        /// <inheritdoc />
+        public void RemoveHandler(ProviderEventTypes type, EventHandlerDelegate handler)
+        {
+            Api.Instance.EventExecutor.RemoveClientHandler(this._metadata.Name, type, handler);
         }
 
         /// <inheritdoc />

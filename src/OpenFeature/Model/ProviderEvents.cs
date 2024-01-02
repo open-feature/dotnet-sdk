@@ -11,7 +11,7 @@ namespace OpenFeature.Model
         /// Name of the provider
         /// </summary>
         public string ProviderName { get; set; }
-        public ProviderEventTypes Type {get; set; }
+        public ProviderEventTypes Type { get; set; }
         public string Message { get; set; }
         public List<string> FlagChanges { get; set; }
         public Dictionary<string, object> EventMetadata { get; set; }
