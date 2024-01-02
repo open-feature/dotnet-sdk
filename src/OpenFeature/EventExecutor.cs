@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Channels;
@@ -91,6 +93,10 @@ namespace OpenFeature
 
         internal void RegisterDefaultFeatureProvider(FeatureProvider provider)
         {
+            if (provider == null)
+            {
+                return;
+            }
             this._mutex.WaitOne();
             var oldProvider = this._defaultProvider;
 
@@ -128,7 +134,15 @@ namespace OpenFeature
             if (oldProvider != null && !this.IsProviderBound(oldProvider))
             {
                 this._activeSubscriptions.Remove(oldProvider);
-                oldProvider.Provider.GetEventChannel().Writer.TryWrite(new ShutdownSignal());
+                if (oldProvider.Provider == null)
+                {
+                    Console.WriteLine("wtf");
+                }
+                var channel = oldProvider.Provider.GetEventChannel();
+                if (channel != null)
+                {
+                    channel.Writer.TryWrite(new ShutdownSignal());
+                }
             }
         }
 

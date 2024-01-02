@@ -26,6 +26,8 @@ namespace OpenFeature.Tests
             var eventPayload = new Event { EventPayload = new ProviderEventPayload { Type = ProviderEventTypes.ProviderReady }};
             eventExecutor.EventChannel.Writer.TryWrite(eventPayload);
 
+            Thread.Sleep(1000);
+
             eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.Type == ProviderEventTypes.ProviderReady));
 
             // shut down the event executor
