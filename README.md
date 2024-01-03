@@ -167,6 +167,30 @@ client.AddHooks(new ExampleClientHook());
 var value = await client.GetBooleanValue("boolFlag", false, context, new FlagEvaluationOptions(new ExampleInvocationHook()));
 ```
 
+### Eventing
+
+Events allow you to react to state changes in the provider or underlying flag management system, such as flag definition changes,
+provider readiness, or error conditions.
+Initialization events (`PROVIDER_READY` on success, `PROVIDER_ERROR` on failure) are dispatched for every provider.
+Some providers support additional events, such as `PROVIDER_CONFIGURATION_CHANGED`.
+
+Please refer to the documentation of the provider you're using to see what events are supported.
+
+Example usage of an Event handler:
+
+```csharp
+public static void EventHandler(ProviderEventPayload eventDetails)
+{
+    Console.WriteLine(eventDetails.Type);
+}
+```
+
+```csharp
+EventHandlerDelegate callback = EventHandler;
+// add an implementation of the EventHandlerDelegate for the PROVIDER_READY event
+Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, callback);
+```
+
 ### Logging
 
 The .NET SDK uses Microsoft.Extensions.Logging. See the [manual](https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line) for complete documentation.
