@@ -55,8 +55,38 @@ namespace OpenFeature.Tests
             var testProvider = new TestProvider();
             await Api.Instance.SetProvider(testProvider);
 
+            testProvider.SendEvent(ProviderEventTypes.ProviderConfigurationChanged);
+            testProvider.SendEvent(ProviderEventTypes.ProviderError);
+            testProvider.SendEvent(ProviderEventTypes.ProviderStale);
+
             Thread.Sleep(1000);
-            eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
+            eventHandler
+                .Received()
+                .Invoke(
+                    Arg.Is<ProviderEventPayload>(
+                        payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderReady
+                    ));
+
+            eventHandler
+                .Received()
+                .Invoke(
+                    Arg.Is<ProviderEventPayload>(
+                        payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderConfigurationChanged
+                    ));
+
+            eventHandler
+                .Received()
+                .Invoke(
+                    Arg.Is<ProviderEventPayload>(
+                        payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderError
+                    ));
+
+            eventHandler
+                .Received()
+                .Invoke(
+                    Arg.Is<ProviderEventPayload>(
+                        payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderStale
+                    ));
         }
 
         [Fact]
