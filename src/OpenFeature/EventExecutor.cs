@@ -137,7 +137,7 @@ namespace OpenFeature
                 var channel = oldProvider.Provider.GetEventChannel();
                 if (channel != null)
                 {
-                    channel.Writer.TryWrite(new ShutdownSignal());
+                    channel.Writer.WriteAsync(new ShutdownSignal());
                 }
             }
         }
@@ -205,7 +205,7 @@ namespace OpenFeature
                 switch (item)
                 {
                     case ProviderEventPayload eventPayload:
-                        this.EventChannel.Writer.TryWrite(new Event { Provider = providerRef, EventPayload = eventPayload });
+                        this.EventChannel.Writer.WriteAsync(new Event { Provider = providerRef, EventPayload = eventPayload });
                         break;
                     case ShutdownSignal _:
                         providerRef.ShutdownSemaphore.Release();
@@ -264,7 +264,7 @@ namespace OpenFeature
         public async Task SignalShutdownAsync()
         {
             // Enqueue a shutdown signal
-            this.EventChannel.Writer.TryWrite(new ShutdownSignal());
+            this.EventChannel.Writer.WriteAsync(new ShutdownSignal());
 
             // Wait for the processing loop to acknowledge the shutdown
             await this._shutdownSemaphore.WaitAsync().ConfigureAwait(false);

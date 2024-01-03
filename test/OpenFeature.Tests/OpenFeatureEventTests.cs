@@ -51,6 +51,9 @@ namespace OpenFeature.Tests
             eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
 
             Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
+            Api.Instance.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, eventHandler);
+            Api.Instance.AddHandler(ProviderEventTypes.ProviderError, eventHandler);
+            Api.Instance.AddHandler(ProviderEventTypes.ProviderStale, eventHandler);
 
             var testProvider = new TestProvider();
             await Api.Instance.SetProvider(testProvider);
