@@ -93,7 +93,7 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        public async Task API_Level_Event_Handlers_Should_Be_Informed_About_Ready_State_After_Registering()
+        public async Task API_Level_Event_Handlers_Should_Be_Informed_About_Ready_State_After_Registering_Provider_Ready()
         {
             var eventHandler = Substitute.For<EventHandlerDelegate>();
 
@@ -103,7 +103,54 @@ namespace OpenFeature.Tests
             Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
             Thread.Sleep(1000);
-            eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
+            eventHandler
+                .Received()
+                .Invoke(
+                    Arg.Is<ProviderEventPayload>(
+                        payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderReady
+                    ));
+        }
+
+        [Fact]
+        public async Task API_Level_Event_Handlers_Should_Be_Informed_About_Ready_State_After_Registering_Provider_Error()
+        {
+            var eventHandler = Substitute.For<EventHandlerDelegate>();
+
+            var testProvider = new TestProvider();
+            await Api.Instance.SetProvider(testProvider);
+
+            testProvider.SetStatus(ProviderStatus.Error);
+
+            Api.Instance.AddHandler(ProviderEventTypes.ProviderError, eventHandler);
+
+            Thread.Sleep(1000);
+            eventHandler
+                .Received()
+                .Invoke(
+                    Arg.Is<ProviderEventPayload>(
+                        payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderError
+                    ));
+        }
+
+        [Fact]
+        public async Task API_Level_Event_Handlers_Should_Be_Informed_About_Ready_State_After_Registering_Provider_Stale()
+        {
+            var eventHandler = Substitute.For<EventHandlerDelegate>();
+
+            var testProvider = new TestProvider();
+            await Api.Instance.SetProvider(testProvider);
+
+            testProvider.SetStatus(ProviderStatus.Stale);
+
+            Api.Instance.AddHandler(ProviderEventTypes.ProviderStale, eventHandler);
+
+            Thread.Sleep(1000);
+            eventHandler
+                .Received()
+                .Invoke(
+                    Arg.Is<ProviderEventPayload>(
+                        payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderStale
+                    ));
         }
 
         [Fact]

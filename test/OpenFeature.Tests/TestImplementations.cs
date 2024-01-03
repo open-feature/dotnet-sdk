@@ -87,6 +87,11 @@ namespace OpenFeature.Tests
             return this._status;
         }
 
+        public void SetStatus(ProviderStatus status)
+        {
+            this._status = status;
+        }
+
         public override Task Initialize(EvaluationContext context)
         {
             this._status = ProviderStatus.Ready;
