@@ -191,6 +191,19 @@ EventHandlerDelegate callback = EventHandler;
 Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, callback);
 ```
 
+It is also possible to register an event handler for a specific client, as in the following example:
+
+```csharp
+EventHandlerDelegate callback = EventHandler;
+
+var myClient = Api.Instance.GetClient("my-client");
+
+var provider = new ExampleProvider();
+await Api.Instance.SetProvider(myClient.GetMetadata().Name, provider);
+
+myClient.AddHandler(ProviderEventTypes.ProviderReady, callback);
+```
+
 ### Logging
 
 The .NET SDK uses Microsoft.Extensions.Logging. See the [manual](https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line) for complete documentation.
