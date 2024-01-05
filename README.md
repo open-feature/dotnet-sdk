@@ -70,21 +70,21 @@ dotnet add package OpenFeature
 
 ```csharp
 public async Task Example()
-        {
-            // Register your feature flag provider
-            await Api.Instance.SetProvider(new InMemoryProvider());
+{
+    // Register your feature flag provider
+    await Api.Instance.SetProvider(new InMemoryProvider());
 
-            // Create a new client
-            FeatureClient client = Api.Instance.GetClient();
+    // Create a new client
+    FeatureClient client = Api.Instance.GetClient();
 
-            // Evaluate your feature flag
-            bool v2Enabled = await client.GetBooleanValue("v2_enabled", false);
+    // Evaluate your feature flag
+    bool v2Enabled = await client.GetBooleanValue("v2_enabled", false);
 
-            if ( v2Enabled )
-            {
-                //Do some work
-            }
-        }
+    if ( v2Enabled )
+    {
+        //Do some work
+    }
+}
 ```
 
 ## 🌟 Features
@@ -180,11 +180,13 @@ If a name has no associated provider, the global provider is used.
 ```csharp
 // registering the default provider
 await Api.Instance.SetProvider(new LocalProvider());
+
 // registering a named provider
 await Api.Instance.SetProvider("clientForCache", new CachedProvider());
 
 // a client backed by default provider
- FeatureClient clientDefault = Api.Instance.GetClient();
+FeatureClient clientDefault = Api.Instance.GetClient();
+
 // a client backed by CachedProvider
 FeatureClient clientNamed = Api.Instance.GetClient("clientForCache");
 
@@ -213,37 +215,37 @@ You’ll then need to write the provider by implementing the `FeatureProvider` i
 
 ```csharp
 public class MyProvider : FeatureProvider
+{
+    public override Metadata GetMetadata()
     {
-        public override Metadata GetMetadata()
-        {
-            return new Metadata("My Provider");
-        }
-
-        public override Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null)
-        {
-            // resolve a boolean flag value
-        }
-
-        public override Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue, EvaluationContext context = null)
-        {
-            // resolve a double flag value
-        }
-
-        public override Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue, EvaluationContext context = null)
-        {
-            // resolve an int flag value
-        }
-
-        public override Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue, EvaluationContext context = null)
-        {
-            // resolve a string flag value
-        }
-
-        public override Task<ResolutionDetails<Value>> ResolveStructureValue(string flagKey, Value defaultValue, EvaluationContext context = null)
-        {
-            // resolve an object flag value
-        }
+        return new Metadata("My Provider");
     }
+
+    public override Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null)
+    {
+        // resolve a boolean flag value
+    }
+
+    public override Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue, EvaluationContext context = null)
+    {
+        // resolve a double flag value
+    }
+
+    public override Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue, EvaluationContext context = null)
+    {
+        // resolve an int flag value
+    }
+
+    public override Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue, EvaluationContext context = null)
+    {
+        // resolve a string flag value
+    }
+
+    public override Task<ResolutionDetails<Value>> ResolveStructureValue(string flagKey, Value defaultValue, EvaluationContext context = null)
+    {
+        // resolve an object flag value
+    }
+}
 ```
 
 ### Develop a hook
