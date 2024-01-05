@@ -96,13 +96,13 @@ namespace OpenFeature.Tests
             var openFeature = Api.Instance;
 
             openFeature.SetProvider(new NoOpFeatureProvider());
-            openFeature.SetProvider(TestProvider.Name, new TestProvider());
+            openFeature.SetProvider(TestProvider.DefaultName, new TestProvider());
 
             var defaultClient = openFeature.GetProviderMetadata();
-            var namedClient = openFeature.GetProviderMetadata(TestProvider.Name);
+            var namedClient = openFeature.GetProviderMetadata(TestProvider.DefaultName);
 
             defaultClient.Name.Should().Be(NoOpProvider.NoOpProviderName);
-            namedClient.Name.Should().Be(TestProvider.Name);
+            namedClient.Name.Should().Be(TestProvider.DefaultName);
         }
 
         [Fact]
@@ -115,7 +115,7 @@ namespace OpenFeature.Tests
 
             var defaultClient = openFeature.GetProviderMetadata();
 
-            defaultClient.Name.Should().Be(TestProvider.Name);
+            defaultClient.Name.Should().Be(TestProvider.DefaultName);
         }
 
         [Fact]

@@ -9,7 +9,7 @@ namespace OpenFeature
 {
     internal class EventExecutor
     {
-        private readonly Mutex _mutex = new Mutex();
+        private readonly object _lockObj = new object();
         public readonly Channel<object> EventChannel = Channel.CreateBounded<object>(1);
         private FeatureProviderReference _defaultProvider;
         private readonly Dictionary<string, FeatureProviderReference> _namedProviderReferences = new Dictionary<string, FeatureProviderReference>();
@@ -21,72 +21,75 @@ namespace OpenFeature
 
         public EventExecutor()
         {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            this.ProcessEventAsync();
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            var eventProcessing = new Thread(this.ProcessEventAsync);
+            eventProcessing.Start();
         }
 
         internal void AddApiLevelHandler(ProviderEventTypes eventType, EventHandlerDelegate handler)
         {
-            this._mutex.WaitOne();
-            if (!this._apiHandlers.TryGetValue(eventType, out var eventHandlers))
+            lock(this._lockObj)
             {
-                eventHandlers = new List<EventHandlerDelegate>();
-                this._apiHandlers[eventType] = eventHandlers;
+                if (!this._apiHandlers.TryGetValue(eventType, out var eventHandlers))
+                {
+                    eventHandlers = new List<EventHandlerDelegate>();
+                    this._apiHandlers[eventType] = eventHandlers;
+                }
+
+                eventHandlers.Add(handler);
+
+                this.EmitOnRegistration(this._defaultProvider, eventType, handler);
             }
-
-            eventHandlers.Add(handler);
-
-            this.EmitOnRegistration(this._defaultProvider, eventType, handler);
-            this._mutex.ReleaseMutex();
         }
 
         internal void RemoveApiLevelHandler(ProviderEventTypes type, EventHandlerDelegate handler)
         {
-            this._mutex.WaitOne();
-            if (this._apiHandlers.TryGetValue(type, out var eventHandlers))
+            lock(this._lockObj)
             {
-                eventHandlers.Remove(handler);
-            }
-            this._mutex.ReleaseMutex();
-        }
-
-        internal void AddClientHandler(string client, ProviderEventTypes eventType, EventHandlerDelegate handler)
-        {
-            this._mutex.WaitOne();
-            // check if there is already a list of handlers for the given client and event type
-            if (!this._clientHandlers.TryGetValue(client, out var registry))
-            {
-                registry = new Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>();
-                this._clientHandlers[client] = registry;
-            }
-
-            if (!this._clientHandlers[client].TryGetValue(eventType, out var eventHandlers))
-            {
-                eventHandlers = new List<EventHandlerDelegate>();
-                this._clientHandlers[client][eventType] = eventHandlers;
-            }
-
-            this._clientHandlers[client][eventType].Add(handler);
-
-            if (this._namedProviderReferences.TryGetValue(client, out var clientProviderReference))
-            {
-                this.EmitOnRegistration(clientProviderReference, eventType, handler);
-            }
-            this._mutex.ReleaseMutex();
-        }
-
-        internal void RemoveClientHandler(string client, ProviderEventTypes type, EventHandlerDelegate handler)
-        {
-            this._mutex.WaitOne();
-            if (this._clientHandlers.TryGetValue(client, out var clientEventHandlers))
-            {
-                if (clientEventHandlers.TryGetValue(type, out var eventHandlers))
+                if (this._apiHandlers.TryGetValue(type, out var eventHandlers))
                 {
                     eventHandlers.Remove(handler);
                 }
             }
-            this._mutex.ReleaseMutex();
+        }
+
+        internal void AddClientHandler(string client, ProviderEventTypes eventType, EventHandlerDelegate handler)
+        {
+            lock(this._lockObj)
+            {
+                // check if there is already a list of handlers for the given client and event type
+                if (!this._clientHandlers.TryGetValue(client, out var registry))
+                {
+                    registry = new Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>();
+                    this._clientHandlers[client] = registry;
+                }
+
+                if (!this._clientHandlers[client].TryGetValue(eventType, out var eventHandlers))
+                {
+                    eventHandlers = new List<EventHandlerDelegate>();
+                    this._clientHandlers[client][eventType] = eventHandlers;
+                }
+
+                this._clientHandlers[client][eventType].Add(handler);
+
+                this.EmitOnRegistration(
+                    this._namedProviderReferences.TryGetValue(client, out var clientProviderReference)
+                        ? clientProviderReference
+                        : this._defaultProvider, eventType, handler);
+            }
+        }
+
+        internal void RemoveClientHandler(string client, ProviderEventTypes type, EventHandlerDelegate handler)
+        {
+            lock(this._lockObj)
+            {
+                if (this._clientHandlers.TryGetValue(client, out var clientEventHandlers))
+                {
+                    if (clientEventHandlers.TryGetValue(type, out var eventHandlers))
+                    {
+                        eventHandlers.Remove(handler);
+                    }
+                }
+            }
         }
 
         internal void RegisterDefaultFeatureProvider(FeatureProvider provider)
@@ -95,29 +98,31 @@ namespace OpenFeature
             {
                 return;
             }
-            this._mutex.WaitOne();
-            var oldProvider = this._defaultProvider;
+            lock(this._lockObj)
+            {
+                var oldProvider = this._defaultProvider;
 
-            this._defaultProvider = new FeatureProviderReference(provider);
+                this._defaultProvider = new FeatureProviderReference(provider);
 
-            this.StartListeningAndShutdownOld(this._defaultProvider, oldProvider);
-            this._mutex.ReleaseMutex();
+                this.StartListeningAndShutdownOld(this._defaultProvider, oldProvider);
+            }
         }
 
         internal void RegisterClientFeatureProvider(string client, FeatureProvider provider)
         {
-            this._mutex.WaitOne();
-            var newProvider = new FeatureProviderReference(provider);
-            FeatureProviderReference oldProvider = null;
-            if (this._namedProviderReferences.TryGetValue(client, out var foundOldProvider))
+            lock(this._lockObj)
             {
-                oldProvider = foundOldProvider;
+                var newProvider = new FeatureProviderReference(provider);
+                FeatureProviderReference oldProvider = null;
+                if (this._namedProviderReferences.TryGetValue(client, out var foundOldProvider))
+                {
+                    oldProvider = foundOldProvider;
+                }
+
+                this._namedProviderReferences[client] = newProvider;
+
+                this.StartListeningAndShutdownOld(newProvider, oldProvider);
             }
-
-            this._namedProviderReferences[client] = newProvider;
-
-            this.StartListeningAndShutdownOld(newProvider, oldProvider);
-            this._mutex.ReleaseMutex();
         }
 
         private void StartListeningAndShutdownOld(FeatureProviderReference newProvider, FeatureProviderReference oldProvider)
@@ -126,9 +131,8 @@ namespace OpenFeature
             if (!this.IsProviderActive(newProvider))
             {
                 this._activeSubscriptions.Add(newProvider);
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                this.ProcessFeatureProviderEventsAsync(newProvider);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                var featureProviderEventProcessing = new Thread(() => this.ProcessFeatureProviderEventsAsync(newProvider));
+                featureProviderEventProcessing.Start();
             }
 
             if (oldProvider != null && !this.IsProviderBound(oldProvider))
@@ -196,7 +200,7 @@ namespace OpenFeature
             }
         }
 
-        private async Task ProcessFeatureProviderEventsAsync(FeatureProviderReference providerRef)
+        private async void ProcessFeatureProviderEventsAsync(FeatureProviderReference providerRef)
         {
             while (true)
             {
@@ -215,7 +219,7 @@ namespace OpenFeature
         }
 
         // Method to process events
-        private async Task ProcessEventAsync()
+        private async void ProcessEventAsync()
         {
             while (true)
             {
@@ -224,33 +228,56 @@ namespace OpenFeature
                 switch (item)
                 {
                     case Event e:
-                        this._mutex.WaitOne();
-                        if (this._apiHandlers.TryGetValue(e.EventPayload.Type, out var eventHandlers))
+                        lock(this._lockObj)
                         {
-                            foreach (var eventHandler in eventHandlers)
+                            if (this._apiHandlers.TryGetValue(e.EventPayload.Type, out var eventHandlers))
                             {
-                                eventHandler.Invoke(e.EventPayload);
-                            }
-                        }
-
-                        // look for client handlers and call invoke method there
-                        foreach (var keyAndValue in this._namedProviderReferences)
-                        {
-                            if (keyAndValue.Value == e.Provider)
-                            {
-                                if (this._clientHandlers.TryGetValue(keyAndValue.Key, out var clientRegistry))
+                                foreach (var eventHandler in eventHandlers)
                                 {
-                                    if (clientRegistry.TryGetValue(e.EventPayload.Type, out var clientEventHandlers))
+                                    eventHandler.Invoke(e.EventPayload);
+                                }
+                            }
+
+                            // look for client handlers and call invoke method there
+                            foreach (var keyAndValue in this._namedProviderReferences)
+                            {
+                                if (keyAndValue.Value == e.Provider)
+                                {
+                                    if (this._clientHandlers.TryGetValue(keyAndValue.Key, out var clientRegistry))
                                     {
-                                        foreach (var eventHandler in clientEventHandlers)
+                                        if (clientRegistry.TryGetValue(e.EventPayload.Type, out var clientEventHandlers))
                                         {
-                                            eventHandler.Invoke(e.EventPayload);
+                                            foreach (var eventHandler in clientEventHandlers)
+                                            {
+                                                eventHandler.Invoke(e.EventPayload);
+                                            }
                                         }
                                     }
                                 }
                             }
+
+                            if (e.Provider != this._defaultProvider)
+                            {
+                                break;
+                            }
+                            // handling the default provider - invoke event handlers for clients which are not bound
+                            // to a particular feature provider
+                            foreach (var keyAndValues in this._clientHandlers)
+                            {
+                                if (this._namedProviderReferences.TryGetValue(keyAndValues.Key, out _))
+                                {
+                                    // if there is an association for the client to a specific feature provider, then continue
+                                    continue;
+                                }
+                                if (keyAndValues.Value.TryGetValue(e.EventPayload.Type, out var clientEventHandlers))
+                                {
+                                    foreach (var eventHandler in clientEventHandlers)
+                                    {
+                                        eventHandler.Invoke(e.EventPayload);
+                                    }
+                                }
+                            }
                         }
-                        this._mutex.ReleaseMutex();
                         break;
                     case ShutdownSignal _:
                         this._shutdownSemaphore.Release();

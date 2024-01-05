@@ -37,7 +37,9 @@ namespace OpenFeature.Tests
     {
         private readonly List<Hook> _hooks = new List<Hook>();
 
-        public static string Name => "test-provider";
+        public static string DefaultName = "test-provider";
+
+        public string Name { get; set; }
 
         private ProviderStatus _status;
 
@@ -45,11 +47,21 @@ namespace OpenFeature.Tests
 
         public override IImmutableList<Hook> GetProviderHooks() => this._hooks.ToImmutableList();
 
-        public TestProvider() => this._status = ProviderStatus.NotReady;
+        public TestProvider()
+        {
+            this._status = ProviderStatus.NotReady;
+            this.Name = DefaultName;
+        }
+
+        public TestProvider(string name)
+        {
+            this._status = ProviderStatus.NotReady;
+            this.Name = name;
+        }
 
         public override Metadata GetMetadata()
         {
-            return new Metadata(Name);
+            return new Metadata(this.Name);
         }
 
         public override Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue,

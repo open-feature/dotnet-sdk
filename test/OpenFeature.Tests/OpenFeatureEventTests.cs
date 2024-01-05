@@ -5,14 +5,16 @@ using AutoFixture;
 using NSubstitute;
 using OpenFeature.Constant;
 using OpenFeature.Model;
+using OpenFeature.Tests.Internal;
 using Xunit;
 
 namespace OpenFeature.Tests
 {
     [SuppressMessage("Reliability", "CA2007:Consider calling ConfigureAwait on the awaited task")]
-    public class OpenFeatureEventTests : ClearOpenFeatureInstanceFixture
+    public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
     {
         [Fact]
+        [Specification("5.1.2", "When a `provider` signals the occurrence of a particular `event`, the associated `client` and `API` event handlers MUST run.")]
         public async Task Event_Executor_Should_Propagate_Events_ToGlobal_Handler()
         {
             var eventHandler = Substitute.For<EventHandlerDelegate>();
@@ -44,6 +46,10 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
+        [Specification("5.1.2", "When a `provider` signals the occurrence of a particular `event`, the associated `client` and `API` event handlers MUST run.")]
+        [Specification("5.2.2", "The `API` MUST provide a function for associating `handler functions` with a particular `provider event type`.")]
+        [Specification("5.2.3", "The `event details` MUST contain the `provider name` associated with the event.")]
+        [Specification("5.2.4", "The `handler function` MUST accept a `event details` parameter.")]
         public async Task API_Level_Event_Handlers_Should_Be_Registered()
         {
             var eventHandler = Substitute.For<EventHandlerDelegate>();
@@ -93,6 +99,12 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
+        [Specification("5.1.2", "When a `provider` signals the occurrence of a particular `event`, the associated `client` and `API` event handlers MUST run.")]
+        [Specification("5.2.2", "The `API` MUST provide a function for associating `handler functions` with a particular `provider event type`.")]
+        [Specification("5.2.3", "The `event details` MUST contain the `provider name` associated with the event.")]
+        [Specification("5.2.4", "The `handler function` MUST accept a `event details` parameter.")]
+        [Specification("5.3.1", "If the provider's `initialize` function terminates normally, `PROVIDER_READY` handlers MUST run.")]
+        [Specification("5.3.3", "Handlers attached after the provider is already in the associated state, MUST run immediately.")]
         public async Task API_Level_Event_Handlers_Should_Be_Informed_About_Ready_State_After_Registering_Provider_Ready()
         {
             var eventHandler = Substitute.For<EventHandlerDelegate>();
@@ -112,6 +124,12 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
+        [Specification("5.1.2", "When a `provider` signals the occurrence of a particular `event`, the associated `client` and `API` event handlers MUST run.")]
+        [Specification("5.2.2", "The `API` MUST provide a function for associating `handler functions` with a particular `provider event type`.")]
+        [Specification("5.2.3", "The `event details` MUST contain the `provider name` associated with the event.")]
+        [Specification("5.2.4", "The `handler function` MUST accept a `event details` parameter.")]
+        [Specification("5.3.2", "If the provider's `initialize` function terminates abnormally, `PROVIDER_ERROR` handlers MUST run.")]
+        [Specification("5.3.3", "Handlers attached after the provider is already in the associated state, MUST run immediately.")]
         public async Task API_Level_Event_Handlers_Should_Be_Informed_About_Ready_State_After_Registering_Provider_Error()
         {
             var eventHandler = Substitute.For<EventHandlerDelegate>();
@@ -133,6 +151,11 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
+        [Specification("5.1.2", "When a `provider` signals the occurrence of a particular `event`, the associated `client` and `API` event handlers MUST run.")]
+        [Specification("5.2.2", "The `API` MUST provide a function for associating `handler functions` with a particular `provider event type`.")]
+        [Specification("5.2.3", "The `event details` MUST contain the `provider name` associated with the event.")]
+        [Specification("5.2.4", "The `handler function` MUST accept a `event details` parameter.")]
+        [Specification("5.3.3", "Handlers attached after the provider is already in the associated state, MUST run immediately.")]
         public async Task API_Level_Event_Handlers_Should_Be_Informed_About_Ready_State_After_Registering_Provider_Stale()
         {
             var eventHandler = Substitute.For<EventHandlerDelegate>();
@@ -154,6 +177,10 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
+        [Specification("5.1.2", "When a `provider` signals the occurrence of a particular `event`, the associated `client` and `API` event handlers MUST run.")]
+        [Specification("5.2.2", "The `API` MUST provide a function for associating `handler functions` with a particular `provider event type`.")]
+        [Specification("5.2.3", "The `event details` MUST contain the `provider name` associated with the event.")]
+        [Specification("5.2.4", "The `handler function` MUST accept a `event details` parameter.")]
         public async Task API_Level_Event_Handlers_Should_Be_Exchangeable()
         {
             var eventHandler = Substitute.For<EventHandlerDelegate>();
@@ -171,6 +198,10 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
+        [Specification("5.2.2", "The `API` MUST provide a function for associating `handler functions` with a particular `provider event type`.")]
+        [Specification("5.2.3", "The `event details` MUST contain the `provider name` associated with the event.")]
+        [Specification("5.2.4", "The `handler function` MUST accept a `event details` parameter.")]
+        [Specification("5.2.7", "The `API` and `client` MUST provide a function allowing the removal of event handlers.")]
         public async Task API_Level_Event_Handlers_Should_Be_Removable()
         {
             var eventHandler = Substitute.For<EventHandlerDelegate>();
@@ -190,6 +221,10 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
+        [Specification("5.1.2", "When a `provider` signals the occurrence of a particular `event`, the associated `client` and `API` event handlers MUST run.")]
+        [Specification("5.2.1", "The `client` MUST provide a function for associating `handler functions` with a particular `provider event type`.")]
+        [Specification("5.2.3", "The `event details` MUST contain the `provider name` associated with the event.")]
+        [Specification("5.2.4", "The `handler function` MUST accept a `event details` parameter.")]
         public async Task Client_Level_Event_Handlers_Should_Be_Registered()
         {
             var fixture = new Fixture();
@@ -208,6 +243,47 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
+        [Specification("5.1.2", "When a `provider` signals the occurrence of a particular `event`, the associated `client` and `API` event handlers MUST run.")]
+        [Specification("5.1.3", "When a `provider` signals the occurrence of a particular `event`, event handlers on clients which are not associated with that provider MUST NOT run.")]
+        [Specification("5.2.1", "The `client` MUST provide a function for associating `handler functions` with a particular `provider event type`.")]
+        [Specification("5.2.3", "The `event details` MUST contain the `provider name` associated with the event.")]
+        [Specification("5.2.4", "The `handler function` MUST accept a `event details` parameter.")]
+        public async Task Client_Level_Event_Handlers_Should_Be_Registered_To_Default_Provider()
+        {
+            var fixture = new Fixture();
+            var eventHandler = Substitute.For<EventHandlerDelegate>();
+            var clientEventHandler = Substitute.For<EventHandlerDelegate>();
+
+            eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
+
+            var myClientWithNoBoundProvider = Api.Instance.GetClient(fixture.Create<string>());
+            var myClientWithBoundProvider = Api.Instance.GetClient(fixture.Create<string>());
+
+            var apiProvider = new TestProvider(fixture.Create<string>());
+            var clientProvider = new TestProvider(fixture.Create<string>());
+
+            // set the default provider on API level, but not specifically to the client
+            await Api.Instance.SetProvider(apiProvider);
+            // set the other provider specifically for the client
+            await Api.Instance.SetProvider(myClientWithBoundProvider.GetMetadata().Name, clientProvider);
+
+            myClientWithNoBoundProvider.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
+            myClientWithBoundProvider.AddHandler(ProviderEventTypes.ProviderReady, clientEventHandler);
+
+            eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == apiProvider.GetMetadata().Name));
+            eventHandler.DidNotReceive().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == clientProvider.GetMetadata().Name));
+
+            clientEventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == clientProvider.GetMetadata().Name));
+            clientEventHandler.DidNotReceive().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == apiProvider.GetMetadata().Name));
+        }
+
+        [Fact]
+        [Specification("5.1.2", "When a `provider` signals the occurrence of a particular `event`, the associated `client` and `API` event handlers MUST run.")]
+        [Specification("5.2.1", "The `client` MUST provide a function for associating `handler functions` with a particular `provider event type`.")]
+        [Specification("5.2.3", "The `event details` MUST contain the `provider name` associated with the event.")]
+        [Specification("5.2.4", "The `handler function` MUST accept a `event details` parameter.")]
+        [Specification("5.3.1", "If the provider's `initialize` function terminates normally, `PROVIDER_READY` handlers MUST run.")]
+        [Specification("5.3.3", "Handlers attached after the provider is already in the associated state, MUST run immediately.")]
         public async Task Client_Level_Event_Handlers_Should_Be_Informed_About_Ready_State_After_Registering()
         {
             var fixture = new Fixture();
@@ -227,6 +303,11 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
+        [Specification("5.1.3", "When a `provider` signals the occurrence of a particular `event`, event handlers on clients which are not associated with that provider MUST NOT run.")]
+        [Specification("5.2.1", "The `client` MUST provide a function for associating `handler functions` with a particular `provider event type`.")]
+        [Specification("5.2.3", "The `event details` MUST contain the `provider name` associated with the event.")]
+        [Specification("5.2.4", "The `handler function` MUST accept a `event details` parameter.")]
+        [Specification("5.2.7", "The `API` and `client` MUST provide a function allowing the removal of event handlers.")]
         public async Task Client_Level_Event_Handlers_Should_Be_Removable()
         {
             var fixture = new Fixture();
