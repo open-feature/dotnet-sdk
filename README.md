@@ -27,7 +27,8 @@
 </a>
   <a href="https://codecov.io/gh/open-feature/dotnet-sdk">
     <img alt="Codecov" src="https://codecov.io/gh/open-feature/dotnet-sdk/branch/main/graph/badge.svg?token=MONAVJBXUJ" />
-  </a>
+  </a><a href="https://app.fossa.com/projects/git%2Bgithub.com%2Fopen-feature%2Fdotnet-sdk?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2Fopen-feature%2Fdotnet-sdk.svg?type=shield"/></a>
+
   <a href="https://www.nuget.org/packages/OpenFeature">
     <img alt="NuGet" src="https://img.shields.io/nuget/vpre/OpenFeature" />
   </a>
@@ -305,3 +306,7 @@ Interested in contributing? Great, we'd love your help! To get started, take a l
 
 Made with [contrib.rocks](https://contrib.rocks).
 <!-- x-hide-in-docs-end -->
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fopen-feature%2Fdotnet-sdk.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fopen-feature%2Fdotnet-sdk?ref=badge_large)
