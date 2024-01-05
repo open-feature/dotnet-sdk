@@ -27,7 +27,7 @@ namespace OpenFeature
 
         internal void AddApiLevelHandler(ProviderEventTypes eventType, EventHandlerDelegate handler)
         {
-            lock(this._lockObj)
+            lock (this._lockObj)
             {
                 if (!this._apiHandlers.TryGetValue(eventType, out var eventHandlers))
                 {
@@ -43,7 +43,7 @@ namespace OpenFeature
 
         internal void RemoveApiLevelHandler(ProviderEventTypes type, EventHandlerDelegate handler)
         {
-            lock(this._lockObj)
+            lock (this._lockObj)
             {
                 if (this._apiHandlers.TryGetValue(type, out var eventHandlers))
                 {
@@ -54,7 +54,7 @@ namespace OpenFeature
 
         internal void AddClientHandler(string client, ProviderEventTypes eventType, EventHandlerDelegate handler)
         {
-            lock(this._lockObj)
+            lock (this._lockObj)
             {
                 // check if there is already a list of handlers for the given client and event type
                 if (!this._clientHandlers.TryGetValue(client, out var registry))
@@ -80,7 +80,7 @@ namespace OpenFeature
 
         internal void RemoveClientHandler(string client, ProviderEventTypes type, EventHandlerDelegate handler)
         {
-            lock(this._lockObj)
+            lock (this._lockObj)
             {
                 if (this._clientHandlers.TryGetValue(client, out var clientEventHandlers))
                 {
@@ -98,7 +98,7 @@ namespace OpenFeature
             {
                 return;
             }
-            lock(this._lockObj)
+            lock (this._lockObj)
             {
                 var oldProvider = this._defaultProvider;
 
@@ -110,7 +110,7 @@ namespace OpenFeature
 
         internal void RegisterClientFeatureProvider(string client, FeatureProvider provider)
         {
-            lock(this._lockObj)
+            lock (this._lockObj)
             {
                 var newProvider = new FeatureProviderReference(provider);
                 FeatureProviderReference oldProvider = null;
@@ -228,7 +228,7 @@ namespace OpenFeature
                 switch (item)
                 {
                     case Event e:
-                        lock(this._lockObj)
+                        lock (this._lockObj)
                         {
                             if (this._apiHandlers.TryGetValue(e.EventPayload.Type, out var eventHandlers))
                             {
