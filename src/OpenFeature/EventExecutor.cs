@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using OpenFeature.Constant;
 using OpenFeature.Model;
 
@@ -196,12 +197,19 @@ namespace OpenFeature
 
             if (message != "")
             {
-                handler(new ProviderEventPayload
+                try
                 {
-                    ProviderName = provider.Provider.GetMetadata().Name,
-                    Type = eventType,
-                    Message = message
-                });
+                    handler.Invoke(new ProviderEventPayload
+                    {
+                        ProviderName = provider.Provider.GetMetadata().Name,
+                        Type = eventType,
+                        Message = message
+                    });
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
             }
         }
 
@@ -244,7 +252,7 @@ namespace OpenFeature
                             {
                                 foreach (var eventHandler in eventHandlers)
                                 {
-                                    eventHandler.Invoke(e.EventPayload);
+                                    this.InvokeEventHandler(eventHandler, e);
                                 }
                             }
 
@@ -259,7 +267,7 @@ namespace OpenFeature
                                         {
                                             foreach (var eventHandler in clientEventHandlers)
                                             {
-                                                eventHandler.Invoke(e.EventPayload);
+                                                this.InvokeEventHandler(eventHandler, e);
                                             }
                                         }
                                     }
@@ -283,7 +291,7 @@ namespace OpenFeature
                                 {
                                     foreach (var eventHandler in clientEventHandlers)
                                     {
-                                        eventHandler.Invoke(e.EventPayload);
+                                        this.InvokeEventHandler(eventHandler, e);
                                     }
                                 }
                             }
@@ -294,6 +302,17 @@ namespace OpenFeature
                         return;
                 }
 
+            }
+        }
+
+        private void InvokeEventHandler(EventHandlerDelegate eventHandler, Event e)
+        {
+            try
+            {
+                eventHandler.Invoke(e.EventPayload);
+            } catch (Exception exc)
+            {
+                Console.WriteLine(exc);
             }
         }
 

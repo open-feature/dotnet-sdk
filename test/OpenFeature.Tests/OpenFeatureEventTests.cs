@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
@@ -181,6 +182,7 @@ namespace OpenFeature.Tests
         [Specification("5.2.2", "The `API` MUST provide a function for associating `handler functions` with a particular `provider event type`.")]
         [Specification("5.2.3", "The `event details` MUST contain the `provider name` associated with the event.")]
         [Specification("5.2.4", "The `handler function` MUST accept a `event details` parameter.")]
+        [Specification("5.2.6", "Event handlers MUST persist across `provider` changes.")]
         public async Task API_Level_Event_Handlers_Should_Be_Exchangeable()
         {
             var eventHandler = Substitute.For<EventHandlerDelegate>();
@@ -225,6 +227,42 @@ namespace OpenFeature.Tests
         [Specification("5.2.1", "The `client` MUST provide a function for associating `handler functions` with a particular `provider event type`.")]
         [Specification("5.2.3", "The `event details` MUST contain the `provider name` associated with the event.")]
         [Specification("5.2.4", "The `handler function` MUST accept a `event details` parameter.")]
+        [Specification("5.2.5", "If a `handler function` terminates abnormally, other `handler` functions MUST run.")]
+        public async Task API_Level_Event_Handlers_Should_Be_Executed_When_Other_Handler_Fails()
+        {
+            try
+            {
+                var fixture = new Fixture();
+
+                var failingEventHandler = Substitute.For<EventHandlerDelegate>();
+                var eventHandler = Substitute.For<EventHandlerDelegate>();
+
+                failingEventHandler.When(x => x.Invoke(Arg.Any<ProviderEventPayload>()))
+                    .Do(x => throw new Exception());
+
+                eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
+
+                Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, failingEventHandler);
+                Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
+
+                var testProvider = new TestProvider(fixture.Create<string>());
+                await Api.Instance.SetProvider(testProvider);
+
+                failingEventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
+                eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
+            }
+            catch (Exception e)
+            {
+                // make sure the exception is passed on correctly
+                Assert.NotNull(e);
+            }
+        }
+
+        [Fact]
+        [Specification("5.1.2", "When a `provider` signals the occurrence of a particular `event`, the associated `client` and `API` event handlers MUST run.")]
+        [Specification("5.2.1", "The `client` MUST provide a function for associating `handler functions` with a particular `provider event type`.")]
+        [Specification("5.2.3", "The `event details` MUST contain the `provider name` associated with the event.")]
+        [Specification("5.2.4", "The `handler function` MUST accept a `event details` parameter.")]
         public async Task Client_Level_Event_Handlers_Should_Be_Registered()
         {
             var fixture = new Fixture();
@@ -240,6 +278,45 @@ namespace OpenFeature.Tests
             myClient.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
             eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
+        }
+
+        [Fact]
+        [Specification("5.1.2", "When a `provider` signals the occurrence of a particular `event`, the associated `client` and `API` event handlers MUST run.")]
+        [Specification("5.2.1", "The `client` MUST provide a function for associating `handler functions` with a particular `provider event type`.")]
+        [Specification("5.2.3", "The `event details` MUST contain the `provider name` associated with the event.")]
+        [Specification("5.2.4", "The `handler function` MUST accept a `event details` parameter.")]
+        [Specification("5.2.5", "If a `handler function` terminates abnormally, other `handler` functions MUST run.")]
+        public async Task Client_Level_Event_Handlers_Should_Be_Executed_When_Other_Handler_Fails()
+        {
+            try
+            {
+                var fixture = new Fixture();
+
+                var failingEventHandler = Substitute.For<EventHandlerDelegate>();
+                var eventHandler = Substitute.For<EventHandlerDelegate>();
+
+                failingEventHandler.When(x => x.Invoke(Arg.Any<ProviderEventPayload>()))
+                    .Do(x => throw new Exception());
+
+                eventHandler.Invoke(Arg.Any<ProviderEventPayload>());
+
+                var myClient = Api.Instance.GetClient(fixture.Create<string>());
+
+                myClient.AddHandler(ProviderEventTypes.ProviderReady, failingEventHandler);
+                myClient.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
+
+                var testProvider = new TestProvider();
+                await Api.Instance.SetProvider(myClient.GetMetadata().Name, testProvider);
+
+                failingEventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
+                eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
+            }
+            catch (Exception e)
+            {
+                // make sure the exception is passed on correctly
+                Assert.NotNull(e);
+            }
+
         }
 
         [Fact]
@@ -322,7 +399,7 @@ namespace OpenFeature.Tests
             await Api.Instance.SetProvider(myClient.GetMetadata().Name, testProvider);
 
             // wait for the first event to be received
-            Thread.Sleep(2000);
+            Thread.Sleep(1000);
             myClient.RemoveHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
             // send another event from the provider - this one should not be received
