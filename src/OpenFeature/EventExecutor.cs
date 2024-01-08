@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Channels;
@@ -110,6 +111,10 @@ namespace OpenFeature
 
         internal void RegisterClientFeatureProvider(string client, FeatureProvider provider)
         {
+            if (provider == null)
+            {
+                return;
+            }
             lock (this._lockObj)
             {
                 var newProvider = new FeatureProviderReference(provider);
@@ -131,8 +136,8 @@ namespace OpenFeature
             if (!this.IsProviderActive(newProvider))
             {
                 this._activeSubscriptions.Add(newProvider);
-                var featureProviderEventProcessing = new Thread(() => this.ProcessFeatureProviderEventsAsync(newProvider));
-                featureProviderEventProcessing.Start();
+                var featureProviderEventProcessing = new Thread(this.ProcessFeatureProviderEventsAsync);
+                featureProviderEventProcessing.Start(newProvider);
             }
 
             if (oldProvider != null && !this.IsProviderBound(oldProvider))
@@ -200,19 +205,24 @@ namespace OpenFeature
             }
         }
 
-        private async void ProcessFeatureProviderEventsAsync(FeatureProviderReference providerRef)
+        private async void ProcessFeatureProviderEventsAsync(object providerRef)
         {
             while (true)
             {
-                var item = await providerRef.Provider.GetEventChannel().Reader.ReadAsync().ConfigureAwait(false);
+                var typedProviderRef = (FeatureProviderReference)providerRef;
+                if (typedProviderRef.Provider.GetEventChannel() == null)
+                {
+                    return;
+                }
+                var item = await typedProviderRef.Provider.GetEventChannel().Reader.ReadAsync().ConfigureAwait(false);
 
                 switch (item)
                 {
                     case ProviderEventPayload eventPayload:
-                        await this.EventChannel.Writer.WriteAsync(new Event { Provider = providerRef, EventPayload = eventPayload }).ConfigureAwait(false);
+                        await this.EventChannel.Writer.WriteAsync(new Event { Provider = typedProviderRef, EventPayload = eventPayload }).ConfigureAwait(false);
                         break;
                     case ShutdownSignal _:
-                        providerRef.ShutdownSemaphore.Release();
+                        typedProviderRef.ShutdownSemaphore.Release();
                         return;
                 }
             }
