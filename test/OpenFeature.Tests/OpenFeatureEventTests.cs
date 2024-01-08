@@ -322,11 +322,11 @@ namespace OpenFeature.Tests
             await Api.Instance.SetProvider(myClient.GetMetadata().Name, testProvider);
 
             // wait for the first event to be received
-            Thread.Sleep(1000);
+            Thread.Sleep(2000);
             myClient.RemoveHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
-            var newTestProvider = new TestProvider();
-            await Api.Instance.SetProvider(myClient.GetMetadata().Name, newTestProvider);
+            // send another event from the provider - this one should not be received
+            testProvider.SendEvent(ProviderEventTypes.ProviderReady);
 
             // wait a bit and make sure we only have received the first event, but nothing after removing the event handler
             Thread.Sleep(1000);
