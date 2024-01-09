@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -214,7 +215,7 @@ namespace OpenFeature
                 }
                 catch (Exception exc)
                 {
-                    Console.WriteLine(exc);
+                    Debug.WriteLine(exc);
                 }
             }
         }
@@ -319,7 +320,7 @@ namespace OpenFeature
             }
             catch (Exception exc)
             {
-                Console.WriteLine(exc);
+                Debug.WriteLine(exc);
             }
         }
 
