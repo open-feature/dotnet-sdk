@@ -316,7 +316,8 @@ namespace OpenFeature
             try
             {
                 eventHandler.Invoke(e.EventPayload);
-            } catch (Exception exc)
+            }
+            catch (Exception exc)
             {
                 Console.WriteLine(exc);
             }
