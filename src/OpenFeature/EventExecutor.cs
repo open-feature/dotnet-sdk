@@ -9,6 +9,9 @@ using OpenFeature.Model;
 
 namespace OpenFeature
 {
+
+    internal delegate Task ShutdownDelegate();
+
     internal class EventExecutor
     {
         private readonly object _lockObj = new object();
@@ -18,11 +21,14 @@ namespace OpenFeature
         private readonly List<FeatureProviderReference> _activeSubscriptions = new List<FeatureProviderReference>();
         private readonly SemaphoreSlim _shutdownSemaphore = new SemaphoreSlim(0);
 
+        private ShutdownDelegate _shutdownDelegate;
+
         private readonly Dictionary<ProviderEventTypes, List<EventHandlerDelegate>> _apiHandlers = new Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>();
         private readonly Dictionary<string, Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>> _clientHandlers = new Dictionary<string, Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>>();
 
         public EventExecutor()
         {
+            this._shutdownDelegate = this.SignalShutdownAsync;
             var eventProcessing = new Thread(this.ProcessEventAsync);
             eventProcessing.Start();
         }
@@ -206,9 +212,9 @@ namespace OpenFeature
                         Message = message
                     });
                 }
-                catch (Exception)
+                catch (Exception exc)
                 {
-                    throw;
+                    Console.WriteLine(exc);
                 }
             }
         }
@@ -316,8 +322,18 @@ namespace OpenFeature
             }
         }
 
+        public async Task Shutdown()
+        {
+            await this._shutdownDelegate().ConfigureAwait(false);
+        }
+
+        internal void SetShutdownDelegate(ShutdownDelegate del)
+        {
+            this._shutdownDelegate = del;
+        }
+
         // Method to signal shutdown
-        public async Task SignalShutdownAsync()
+        private async Task SignalShutdownAsync()
         {
             // Enqueue a shutdown signal
             await this.EventChannel.Writer.WriteAsync(new ShutdownSignal()).ConfigureAwait(false);

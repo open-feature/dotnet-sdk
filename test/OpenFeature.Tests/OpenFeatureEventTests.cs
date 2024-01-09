@@ -34,7 +34,7 @@ namespace OpenFeature.Tests
             eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.Type == ProviderEventTypes.ProviderReady));
 
             // shut down the event executor
-            await eventExecutor.SignalShutdownAsync();
+            await eventExecutor.Shutdown();
 
             // the next event should not be propagated to the event handler
             var newEventPayload = new ProviderEventPayload { Type = ProviderEventTypes.ProviderStale };

@@ -206,7 +206,7 @@ namespace OpenFeature
         public async Task Shutdown()
         {
             await this._repository.Shutdown().ConfigureAwait(false);
-            //await this.EventExecutor.SignalShutdownAsync().ConfigureAwait(false);
+            await this.EventExecutor.Shutdown().ConfigureAwait(false);
         }
 
         /// <inheritdoc />
