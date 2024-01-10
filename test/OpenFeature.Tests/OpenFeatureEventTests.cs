@@ -26,13 +26,16 @@ namespace OpenFeature.Tests
             eventExecutor.AddApiLevelHandler(ProviderEventTypes.ProviderConfigurationChanged, eventHandler);
 
             var eventMetadata = new Dictionary<string, object> { { "foo", "bar" } };
-            var myEvent = new Event { EventPayload = new ProviderEventPayload
+            var myEvent = new Event
             {
-                Type = ProviderEventTypes.ProviderConfigurationChanged,
-                Message = "The provider is ready",
-                EventMetadata = eventMetadata,
-                FlagsChanged = new List<string>{ "flag1", "flag2" }
-            } };
+                EventPayload = new ProviderEventPayload
+                {
+                    Type = ProviderEventTypes.ProviderConfigurationChanged,
+                    Message = "The provider is ready",
+                    EventMetadata = eventMetadata,
+                    FlagsChanged = new List<string> { "flag1", "flag2" }
+                }
+            };
             eventExecutor.EventChannel.Writer.TryWrite(myEvent);
 
             Thread.Sleep(1000);
