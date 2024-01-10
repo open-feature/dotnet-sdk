@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using OpenFeature.Constant;
 using OpenFeature.Model;
 
@@ -27,8 +27,11 @@ namespace OpenFeature
         private readonly Dictionary<ProviderEventTypes, List<EventHandlerDelegate>> _apiHandlers = new Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>();
         private readonly Dictionary<string, Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>> _clientHandlers = new Dictionary<string, Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>>();
 
+        internal ILogger Logger { get; set; }
+
         public EventExecutor()
         {
+            this.Logger = new Logger<EventExecutor>(new NullLoggerFactory());
             this._shutdownDelegate = this.SignalShutdownAsync;
             var eventProcessing = new Thread(this.ProcessEventAsync);
             eventProcessing.Start();
@@ -208,14 +211,14 @@ namespace OpenFeature
                 {
                     handler.Invoke(new ProviderEventPayload
                     {
-                        ProviderName = provider.Provider.GetMetadata().Name,
+                        ProviderName = provider.Provider?.GetMetadata()?.Name,
                         Type = eventType,
                         Message = message
                     });
                 }
                 catch (Exception exc)
                 {
-                    Debug.WriteLine(exc);
+                    this.Logger?.LogError("Error running handler: " + exc);
                 }
             }
         }
@@ -320,7 +323,7 @@ namespace OpenFeature
             }
             catch (Exception exc)
             {
-                Debug.WriteLine(exc);
+                this.Logger?.LogError("Error running handler: " + exc);
             }
         }
 

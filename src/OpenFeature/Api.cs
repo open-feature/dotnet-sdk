@@ -220,5 +220,14 @@ namespace OpenFeature
         {
             this.EventExecutor.RemoveApiLevelHandler(type, handler);
         }
+
+        /// <summary>
+        /// Sets the logger for the API
+        /// </summary>
+        /// <param name="logger">The logger to be used</param>
+        public void SetLogger(ILogger logger)
+        {
+            this.EventExecutor.Logger = logger;
+        }
     }
 }
