@@ -24,7 +24,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Collections.Immutable" Version="[1.7.1, 8.0.0)" />
+    <PackageReference Include="System.Collections.Immutable" Version="[1.7.1,)" />
     <PackageReference Include="System.Threading.Channels" Version="[6.0.0, 8.0.0)" />
   </ItemGroup>
 </Project>
