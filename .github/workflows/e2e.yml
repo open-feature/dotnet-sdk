@@ -10,7 +10,7 @@ on:
     paths-ignore:
     - '**.md'
 
-jobs: 
+jobs:
   e2e-tests:
     runs-on: ubuntu-latest
     services:
@@ -23,7 +23,7 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Setup .NET Core 6.0.x, 7.0.x
+    - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: |
@@ -31,7 +31,7 @@ jobs:
           7.0.x
 
     - name: Initialize Tests
-      run: | 
+      run: |
         git submodule update --init --recursive
         cp test-harness/features/evaluation.feature test/OpenFeature.E2ETests/Features/
 
