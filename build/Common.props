@@ -28,4 +28,8 @@
     <PackageReference Include="System.Collections.Immutable" Version="[1.7.1,)" />
     <PackageReference Include="System.Threading.Channels" Version="[6.0.0,)" />
   </ItemGroup>
+
+  <ItemGroup Condition="'$(OS)' == 'Unix'">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
 </Project>
