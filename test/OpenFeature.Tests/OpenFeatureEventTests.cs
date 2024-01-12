@@ -305,6 +305,8 @@ namespace OpenFeature.Tests
             var testProvider = new TestProvider();
             await Api.Instance.SetProvider(myClient.GetMetadata().Name, testProvider);
 
+            Thread.Sleep(1000);
+
             failingEventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
             eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
         }
