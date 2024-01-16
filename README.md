@@ -96,7 +96,7 @@ public async Task Example()
 | ✅     | [Hooks](#hooks)                 | Add functionality to various stages of the flag evaluation life-cycle.                                                             |
 | ✅     | [Logging](#logging)             | Integrate with popular logging packages.                                                                                           |
 | ✅     | [Named clients](#named-clients) | Utilize multiple providers in a single application.                                                                                |
-| ❌     | [Eventing](#eventing)           | React to state changes in the provider or flag management system.                                                                  |
+| ✅     | [Eventing](#eventing)           | React to state changes in the provider or flag management system.                                                                  |
 | ✅    | [Shutdown](#shutdown)           | Gracefully clean up a provider during application shutdown.                                                                        |
 | ✅     | [Extending](#extending)         | Extend OpenFeature with custom providers and hooks.                                                                                |
 
@@ -165,6 +165,43 @@ client.AddHooks(new ExampleClientHook());
 
 // add a hook for this evaluation only
 var value = await client.GetBooleanValue("boolFlag", false, context, new FlagEvaluationOptions(new ExampleInvocationHook()));
+```
+
+### Eventing
+
+Events allow you to react to state changes in the provider or underlying flag management system, such as flag definition changes,
+provider readiness, or error conditions.
+Initialization events (`PROVIDER_READY` on success, `PROVIDER_ERROR` on failure) are dispatched for every provider.
+Some providers support additional events, such as `PROVIDER_CONFIGURATION_CHANGED`.
+
+Please refer to the documentation of the provider you're using to see what events are supported.
+
+Example usage of an Event handler:
+
+```csharp
+public static void EventHandler(ProviderEventPayload eventDetails)
+{
+    Console.WriteLine(eventDetails.Type);
+}
+```
+
+```csharp
+EventHandlerDelegate callback = EventHandler;
+// add an implementation of the EventHandlerDelegate for the PROVIDER_READY event
+Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, callback);
+```
+
+It is also possible to register an event handler for a specific client, as in the following example:
+
+```csharp
+EventHandlerDelegate callback = EventHandler;
+
+var myClient = Api.Instance.GetClient("my-client");
+
+var provider = new ExampleProvider();
+await Api.Instance.SetProvider(myClient.GetMetadata().Name, provider);
+
+myClient.AddHandler(ProviderEventTypes.ProviderReady, callback);
 ```
 
 ### Logging

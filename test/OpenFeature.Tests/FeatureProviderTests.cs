@@ -19,7 +19,7 @@ namespace OpenFeature.Tests
         {
             var provider = new TestProvider();
 
-            provider.GetMetadata().Name.Should().Be(TestProvider.Name);
+            provider.GetMetadata().Name.Should().Be(TestProvider.DefaultName);
         }
 
         [Fact]

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using OpenFeature.Constant;
 using OpenFeature.Model;
 
 namespace OpenFeature
@@ -13,7 +14,7 @@ namespace OpenFeature
     /// In the absence of a provider the evaluation API uses the "No-op provider", which simply returns the supplied default flag value.
     /// </summary>
     /// <seealso href="https://github.com/open-feature/spec/blob/v0.5.2/specification/sections/01-flag-evaluation.md#1-flag-evaluation-api"/>
-    public sealed class Api
+    public sealed class Api : IEventBus
     {
         private EvaluationContext _evaluationContext = EvaluationContext.Empty;
         private readonly ProviderRepository _repository = new ProviderRepository();
@@ -21,6 +22,8 @@ namespace OpenFeature
 
         /// The reader/writer locks are not disposed because the singleton instance should never be disposed.
         private readonly ReaderWriterLockSlim _evaluationContextLock = new ReaderWriterLockSlim();
+
+        internal readonly EventExecutor EventExecutor = new EventExecutor();
 
 
         /// <summary>
@@ -42,6 +45,7 @@ namespace OpenFeature
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
         public async Task SetProvider(FeatureProvider featureProvider)
         {
+            this.EventExecutor.RegisterDefaultFeatureProvider(featureProvider);
             await this._repository.SetProvider(featureProvider, this.GetContext()).ConfigureAwait(false);
         }
 
@@ -54,6 +58,7 @@ namespace OpenFeature
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
         public async Task SetProvider(string clientName, FeatureProvider featureProvider)
         {
+            this.EventExecutor.RegisterClientFeatureProvider(clientName, featureProvider);
             await this._repository.SetProvider(clientName, featureProvider, this.GetContext()).ConfigureAwait(false);
         }
 
@@ -201,6 +206,28 @@ namespace OpenFeature
         public async Task Shutdown()
         {
             await this._repository.Shutdown().ConfigureAwait(false);
+            await this.EventExecutor.Shutdown().ConfigureAwait(false);
+        }
+
+        /// <inheritdoc />
+        public void AddHandler(ProviderEventTypes type, EventHandlerDelegate handler)
+        {
+            this.EventExecutor.AddApiLevelHandler(type, handler);
+        }
+
+        /// <inheritdoc />
+        public void RemoveHandler(ProviderEventTypes type, EventHandlerDelegate handler)
+        {
+            this.EventExecutor.RemoveApiLevelHandler(type, handler);
+        }
+
+        /// <summary>
+        /// Sets the logger for the API
+        /// </summary>
+        /// <param name="logger">The logger to be used</param>
+        public void SetLogger(ILogger logger)
+        {
+            this.EventExecutor.Logger = logger;
         }
     }
 }

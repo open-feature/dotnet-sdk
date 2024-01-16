@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using OpenFeature.Constant;
 using OpenFeature.Model;
@@ -24,6 +25,11 @@ namespace OpenFeature
         /// </summary>
         /// <returns>Immutable list of hooks</returns>
         public virtual IImmutableList<Hook> GetProviderHooks() => ImmutableList<Hook>.Empty;
+
+        /// <summary>
+        /// The event channel of the provider.
+        /// </summary>
+        protected Channel<object> EventChannel = Channel.CreateBounded<object>(1);
 
         /// <summary>
         /// Metadata describing the provider.
@@ -105,7 +111,7 @@ namespace OpenFeature
         /// <remarks>
         /// <para>
         /// A provider which supports initialization should override this method as well as
-        /// <see cref="FeatureProvider.GetStatus"/>.
+        /// <see cref="GetStatus"/>.
         /// </para>
         /// <para>
         /// The provider should return <see cref="ProviderStatus.Ready"/> or <see cref="ProviderStatus.Error"/> from
@@ -128,5 +134,11 @@ namespace OpenFeature
             // Intentionally left blank.
             return Task.CompletedTask;
         }
+
+        /// <summary>
+        /// Returns the event channel of the provider.
+        /// </summary>
+        /// <returns>The event channel of the provider</returns>
+        public virtual Channel<object> GetEventChannel() => this.EventChannel;
     }
 }

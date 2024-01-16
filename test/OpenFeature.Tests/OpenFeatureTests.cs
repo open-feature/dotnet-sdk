@@ -11,6 +11,11 @@ namespace OpenFeature.Tests
 {
     public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
     {
+        static async Task EmptyShutdown()
+        {
+            await Task.FromResult(0).ConfigureAwait(false);
+        }
+
         [Fact]
         [Specification("1.1.1", "The `API`, and any state it maintains SHOULD exist as a global singleton, even in cases wherein multiple versions of the `API` are present at runtime.")]
         public void OpenFeature_Should_Be_Singleton()
@@ -74,6 +79,9 @@ namespace OpenFeature.Tests
         [Specification("1.6.1", "The API MUST define a mechanism to propagate a shutdown request to active providers.")]
         public async Task OpenFeature_Should_Support_Shutdown()
         {
+            // configure the shutdown method of the event executor to do nothing
+            // to prevent eventing tests from failing
+            Api.Instance.EventExecutor.SetShutdownDelegate(EmptyShutdown);
             var providerA = Substitute.For<FeatureProvider>();
             providerA.GetStatus().Returns(ProviderStatus.NotReady);
 
@@ -96,13 +104,13 @@ namespace OpenFeature.Tests
             var openFeature = Api.Instance;
 
             openFeature.SetProvider(new NoOpFeatureProvider());
-            openFeature.SetProvider(TestProvider.Name, new TestProvider());
+            openFeature.SetProvider(TestProvider.DefaultName, new TestProvider());
 
             var defaultClient = openFeature.GetProviderMetadata();
-            var namedClient = openFeature.GetProviderMetadata(TestProvider.Name);
+            var namedClient = openFeature.GetProviderMetadata(TestProvider.DefaultName);
 
             defaultClient.Name.Should().Be(NoOpProvider.NoOpProviderName);
-            namedClient.Name.Should().Be(TestProvider.Name);
+            namedClient.Name.Should().Be(TestProvider.DefaultName);
         }
 
         [Fact]
@@ -115,7 +123,7 @@ namespace OpenFeature.Tests
 
             var defaultClient = openFeature.GetProviderMetadata();
 
-            defaultClient.Name.Should().Be(TestProvider.Name);
+            defaultClient.Name.Should().Be(TestProvider.DefaultName);
         }
 
         [Fact]

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
+using OpenFeature.Constant;
 using OpenFeature.Model;
 
 namespace OpenFeature.Tests
@@ -36,15 +37,31 @@ namespace OpenFeature.Tests
     {
         private readonly List<Hook> _hooks = new List<Hook>();
 
-        public static string Name => "test-provider";
+        public static string DefaultName = "test-provider";
+
+        public string Name { get; set; }
+
+        private ProviderStatus _status;
 
         public void AddHook(Hook hook) => this._hooks.Add(hook);
 
         public override IImmutableList<Hook> GetProviderHooks() => this._hooks.ToImmutableList();
 
+        public TestProvider()
+        {
+            this._status = ProviderStatus.NotReady;
+            this.Name = DefaultName;
+        }
+
+        public TestProvider(string name)
+        {
+            this._status = ProviderStatus.NotReady;
+            this.Name = name;
+        }
+
         public override Metadata GetMetadata()
         {
-            return new Metadata(Name);
+            return new Metadata(this.Name);
         }
 
         public override Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue,
@@ -75,6 +92,28 @@ namespace OpenFeature.Tests
             EvaluationContext context = null)
         {
             return Task.FromResult(new ResolutionDetails<Value>(flagKey, defaultValue));
+        }
+
+        public override ProviderStatus GetStatus()
+        {
+            return this._status;
+        }
+
+        public void SetStatus(ProviderStatus status)
+        {
+            this._status = status;
+        }
+
+        public override Task Initialize(EvaluationContext context)
+        {
+            this._status = ProviderStatus.Ready;
+            this.EventChannel.Writer.WriteAsync(new ProviderEventPayload { Type = ProviderEventTypes.ProviderReady, ProviderName = this.GetMetadata().Name });
+            return base.Initialize(context);
+        }
+
+        internal void SendEvent(ProviderEventTypes eventType)
+        {
+            this.EventChannel.Writer.WriteAsync(new ProviderEventPayload { Type = eventType, ProviderName = this.GetMetadata().Name });
         }
     }
 }

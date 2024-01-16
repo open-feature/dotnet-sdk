@@ -94,6 +94,18 @@ namespace OpenFeature
         public void AddHooks(Hook hook) => this._hooks.Push(hook);
 
         /// <inheritdoc />
+        public void AddHandler(ProviderEventTypes eventType, EventHandlerDelegate handler)
+        {
+            Api.Instance.EventExecutor.AddClientHandler(this._metadata.Name, eventType, handler);
+        }
+
+        /// <inheritdoc />
+        public void RemoveHandler(ProviderEventTypes type, EventHandlerDelegate handler)
+        {
+            Api.Instance.EventExecutor.RemoveClientHandler(this._metadata.Name, type, handler);
+        }
+
+        /// <inheritdoc />
         public void AddHooks(IEnumerable<Hook> hooks) => this._hooks.PushRange(hooks.ToArray());
 
         /// <inheritdoc />
