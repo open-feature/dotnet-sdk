@@ -18,7 +18,7 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Setup .NET Core 6.0.x, 7.0.x
+    - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: |
@@ -27,7 +27,7 @@ jobs:
 
     - name: Run Tests
       run: dotnet test test/OpenFeature.Tests/ --configuration Release --logger GitHubActions
-  
+
   unit-tests-windows:
     runs-on: windows-latest
     steps:
@@ -35,7 +35,7 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Setup .NET Core 6.0.x, 7.0.x
+    - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: |
