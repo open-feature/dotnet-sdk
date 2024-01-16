@@ -40,4 +40,8 @@
   <PropertyGroup Condition="'$(Deterministic)'=='true'">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)../src/Shared/**" LinkBase="Shared" />
+  </ItemGroup>
 </Project>
