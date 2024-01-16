@@ -14,21 +14,12 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
-  <PropertyGroup Label="Package versions used in this repository">
-    <!--
-      Please sort alphabetically.
-      Refer to https://docs.microsoft.com/nuget/concepts/package-versioning for semver syntax.
-    -->
-    <MicrosoftBclAsyncInterfacesVer>[8.0.0,)</MicrosoftBclAsyncInterfacesVer>
-    <MicrosoftExtensionsLoggerVer>[2.0,)</MicrosoftExtensionsLoggerVer>
-  </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="System.Collections.Immutable" Version="[1.7.1,)" />
-    <PackageReference Include="System.Threading.Channels" Version="[6.0.0,)" />
+    <PackageReference Include="System.Collections.Immutable" />
+    <PackageReference Include="System.Threading.Channels" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(OS)' == 'Unix'">
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="all" />
   </ItemGroup>
 </Project>
