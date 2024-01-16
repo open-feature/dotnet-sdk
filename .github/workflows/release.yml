@@ -42,7 +42,7 @@ jobs:
       - name: Pack
         if: ${{ steps.release.outputs.releases_created }}
         run:  |
-          dotnet pack OpenFeature.proj --configuration Release --no-build -p:PackageID=OpenFeature
+          dotnet pack OpenFeature.proj --configuration Release --no-build
 
       - name: Publish to Nuget
         if: ${{ steps.release.outputs.releases_created }}
