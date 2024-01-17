@@ -75,28 +75,28 @@ namespace OpenFeature.Tests
             var defaultStructureValue = fixture.Create<Value>();
             var emptyFlagOptions = new FlagEvaluationOptions(ImmutableList<Hook>.Empty, ImmutableDictionary<string, object>.Empty);
 
-            await Api.Instance.SetProvider(new NoOpFeatureProvider());
+            await Api.Instance.SetProviderAsync(new NoOpFeatureProvider());
             var client = Api.Instance.GetClient(clientName, clientVersion);
 
-            (await client.GetBooleanValue(flagName, defaultBoolValue)).Should().Be(defaultBoolValue);
-            (await client.GetBooleanValue(flagName, defaultBoolValue, EvaluationContext.Empty)).Should().Be(defaultBoolValue);
-            (await client.GetBooleanValue(flagName, defaultBoolValue, EvaluationContext.Empty, emptyFlagOptions)).Should().Be(defaultBoolValue);
+            (await client.GetBooleanValueAsync(flagName, defaultBoolValue)).Should().Be(defaultBoolValue);
+            (await client.GetBooleanValueAsync(flagName, defaultBoolValue, EvaluationContext.Empty)).Should().Be(defaultBoolValue);
+            (await client.GetBooleanValueAsync(flagName, defaultBoolValue, EvaluationContext.Empty, emptyFlagOptions)).Should().Be(defaultBoolValue);
 
-            (await client.GetIntegerValue(flagName, defaultIntegerValue)).Should().Be(defaultIntegerValue);
-            (await client.GetIntegerValue(flagName, defaultIntegerValue, EvaluationContext.Empty)).Should().Be(defaultIntegerValue);
-            (await client.GetIntegerValue(flagName, defaultIntegerValue, EvaluationContext.Empty, emptyFlagOptions)).Should().Be(defaultIntegerValue);
+            (await client.GetIntegerValueAsync(flagName, defaultIntegerValue)).Should().Be(defaultIntegerValue);
+            (await client.GetIntegerValueAsync(flagName, defaultIntegerValue, EvaluationContext.Empty)).Should().Be(defaultIntegerValue);
+            (await client.GetIntegerValueAsync(flagName, defaultIntegerValue, EvaluationContext.Empty, emptyFlagOptions)).Should().Be(defaultIntegerValue);
 
-            (await client.GetDoubleValue(flagName, defaultDoubleValue)).Should().Be(defaultDoubleValue);
-            (await client.GetDoubleValue(flagName, defaultDoubleValue, EvaluationContext.Empty)).Should().Be(defaultDoubleValue);
-            (await client.GetDoubleValue(flagName, defaultDoubleValue, EvaluationContext.Empty, emptyFlagOptions)).Should().Be(defaultDoubleValue);
+            (await client.GetDoubleValueAsync(flagName, defaultDoubleValue)).Should().Be(defaultDoubleValue);
+            (await client.GetDoubleValueAsync(flagName, defaultDoubleValue, EvaluationContext.Empty)).Should().Be(defaultDoubleValue);
+            (await client.GetDoubleValueAsync(flagName, defaultDoubleValue, EvaluationContext.Empty, emptyFlagOptions)).Should().Be(defaultDoubleValue);
 
-            (await client.GetStringValue(flagName, defaultStringValue)).Should().Be(defaultStringValue);
-            (await client.GetStringValue(flagName, defaultStringValue, EvaluationContext.Empty)).Should().Be(defaultStringValue);
-            (await client.GetStringValue(flagName, defaultStringValue, EvaluationContext.Empty, emptyFlagOptions)).Should().Be(defaultStringValue);
+            (await client.GetStringValueAsync(flagName, defaultStringValue)).Should().Be(defaultStringValue);
+            (await client.GetStringValueAsync(flagName, defaultStringValue, EvaluationContext.Empty)).Should().Be(defaultStringValue);
+            (await client.GetStringValueAsync(flagName, defaultStringValue, EvaluationContext.Empty, emptyFlagOptions)).Should().Be(defaultStringValue);
 
-            (await client.GetObjectValue(flagName, defaultStructureValue)).Should().BeEquivalentTo(defaultStructureValue);
-            (await client.GetObjectValue(flagName, defaultStructureValue, EvaluationContext.Empty)).Should().BeEquivalentTo(defaultStructureValue);
-            (await client.GetObjectValue(flagName, defaultStructureValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(defaultStructureValue);
+            (await client.GetObjectValueAsync(flagName, defaultStructureValue)).Should().BeEquivalentTo(defaultStructureValue);
+            (await client.GetObjectValueAsync(flagName, defaultStructureValue, EvaluationContext.Empty)).Should().BeEquivalentTo(defaultStructureValue);
+            (await client.GetObjectValueAsync(flagName, defaultStructureValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(defaultStructureValue);
         }
 
         [Fact]
@@ -121,33 +121,33 @@ namespace OpenFeature.Tests
             var defaultStructureValue = fixture.Create<Value>();
             var emptyFlagOptions = new FlagEvaluationOptions(ImmutableList<Hook>.Empty, ImmutableDictionary<string, object>.Empty);
 
-            await Api.Instance.SetProvider(new NoOpFeatureProvider());
+            await Api.Instance.SetProviderAsync(new NoOpFeatureProvider());
             var client = Api.Instance.GetClient(clientName, clientVersion);
 
             var boolFlagEvaluationDetails = new FlagEvaluationDetails<bool>(flagName, defaultBoolValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
-            (await client.GetBooleanDetails(flagName, defaultBoolValue)).Should().BeEquivalentTo(boolFlagEvaluationDetails);
-            (await client.GetBooleanDetails(flagName, defaultBoolValue, EvaluationContext.Empty)).Should().BeEquivalentTo(boolFlagEvaluationDetails);
-            (await client.GetBooleanDetails(flagName, defaultBoolValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(boolFlagEvaluationDetails);
+            (await client.GetBooleanDetailsAsync(flagName, defaultBoolValue)).Should().BeEquivalentTo(boolFlagEvaluationDetails);
+            (await client.GetBooleanDetailsAsync(flagName, defaultBoolValue, EvaluationContext.Empty)).Should().BeEquivalentTo(boolFlagEvaluationDetails);
+            (await client.GetBooleanDetailsAsync(flagName, defaultBoolValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(boolFlagEvaluationDetails);
 
             var integerFlagEvaluationDetails = new FlagEvaluationDetails<int>(flagName, defaultIntegerValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
-            (await client.GetIntegerDetails(flagName, defaultIntegerValue)).Should().BeEquivalentTo(integerFlagEvaluationDetails);
-            (await client.GetIntegerDetails(flagName, defaultIntegerValue, EvaluationContext.Empty)).Should().BeEquivalentTo(integerFlagEvaluationDetails);
-            (await client.GetIntegerDetails(flagName, defaultIntegerValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(integerFlagEvaluationDetails);
+            (await client.GetIntegerDetailsAsync(flagName, defaultIntegerValue)).Should().BeEquivalentTo(integerFlagEvaluationDetails);
+            (await client.GetIntegerDetailsAsync(flagName, defaultIntegerValue, EvaluationContext.Empty)).Should().BeEquivalentTo(integerFlagEvaluationDetails);
+            (await client.GetIntegerDetailsAsync(flagName, defaultIntegerValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(integerFlagEvaluationDetails);
 
             var doubleFlagEvaluationDetails = new FlagEvaluationDetails<double>(flagName, defaultDoubleValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
-            (await client.GetDoubleDetails(flagName, defaultDoubleValue)).Should().BeEquivalentTo(doubleFlagEvaluationDetails);
-            (await client.GetDoubleDetails(flagName, defaultDoubleValue, EvaluationContext.Empty)).Should().BeEquivalentTo(doubleFlagEvaluationDetails);
-            (await client.GetDoubleDetails(flagName, defaultDoubleValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(doubleFlagEvaluationDetails);
+            (await client.GetDoubleDetailsAsync(flagName, defaultDoubleValue)).Should().BeEquivalentTo(doubleFlagEvaluationDetails);
+            (await client.GetDoubleDetailsAsync(flagName, defaultDoubleValue, EvaluationContext.Empty)).Should().BeEquivalentTo(doubleFlagEvaluationDetails);
+            (await client.GetDoubleDetailsAsync(flagName, defaultDoubleValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(doubleFlagEvaluationDetails);
 
             var stringFlagEvaluationDetails = new FlagEvaluationDetails<string>(flagName, defaultStringValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
-            (await client.GetStringDetails(flagName, defaultStringValue)).Should().BeEquivalentTo(stringFlagEvaluationDetails);
-            (await client.GetStringDetails(flagName, defaultStringValue, EvaluationContext.Empty)).Should().BeEquivalentTo(stringFlagEvaluationDetails);
-            (await client.GetStringDetails(flagName, defaultStringValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(stringFlagEvaluationDetails);
+            (await client.GetStringDetailsAsync(flagName, defaultStringValue)).Should().BeEquivalentTo(stringFlagEvaluationDetails);
+            (await client.GetStringDetailsAsync(flagName, defaultStringValue, EvaluationContext.Empty)).Should().BeEquivalentTo(stringFlagEvaluationDetails);
+            (await client.GetStringDetailsAsync(flagName, defaultStringValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(stringFlagEvaluationDetails);
 
             var structureFlagEvaluationDetails = new FlagEvaluationDetails<Value>(flagName, defaultStructureValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
-            (await client.GetObjectDetails(flagName, defaultStructureValue)).Should().BeEquivalentTo(structureFlagEvaluationDetails);
-            (await client.GetObjectDetails(flagName, defaultStructureValue, EvaluationContext.Empty)).Should().BeEquivalentTo(structureFlagEvaluationDetails);
-            (await client.GetObjectDetails(flagName, defaultStructureValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(structureFlagEvaluationDetails);
+            (await client.GetObjectDetailsAsync(flagName, defaultStructureValue)).Should().BeEquivalentTo(structureFlagEvaluationDetails);
+            (await client.GetObjectDetailsAsync(flagName, defaultStructureValue, EvaluationContext.Empty)).Should().BeEquivalentTo(structureFlagEvaluationDetails);
+            (await client.GetObjectDetailsAsync(flagName, defaultStructureValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(structureFlagEvaluationDetails);
         }
 
         [Fact]
@@ -168,17 +168,17 @@ namespace OpenFeature.Tests
             var mockedLogger = Substitute.For<ILogger<Api>>();
 
             // This will fail to case a String to TestStructure
-            mockedFeatureProvider.ResolveStructureValue(flagName, defaultValue, Arg.Any<EvaluationContext>()).Throws<InvalidCastException>();
+            mockedFeatureProvider.ResolveStructureValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>()).Throws<InvalidCastException>();
             mockedFeatureProvider.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
             mockedFeatureProvider.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            await Api.Instance.SetProvider(mockedFeatureProvider);
+            await Api.Instance.SetProviderAsync(mockedFeatureProvider);
             var client = Api.Instance.GetClient(clientName, clientVersion, mockedLogger);
 
-            var evaluationDetails = await client.GetObjectDetails(flagName, defaultValue);
+            var evaluationDetails = await client.GetObjectDetailsAsync(flagName, defaultValue);
             evaluationDetails.ErrorType.Should().Be(ErrorType.TypeMismatch);
 
-            _ = mockedFeatureProvider.Received(1).ResolveStructureValue(flagName, defaultValue, Arg.Any<EvaluationContext>());
+            _ = mockedFeatureProvider.Received(1).ResolveStructureValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>());
 
             mockedLogger.Received(1).Log(
                 LogLevel.Error,
@@ -198,16 +198,16 @@ namespace OpenFeature.Tests
             var defaultValue = fixture.Create<bool>();
 
             var featureProviderMock = Substitute.For<FeatureProvider>();
-            featureProviderMock.ResolveBooleanValue(flagName, defaultValue, Arg.Any<EvaluationContext>()).Returns(new ResolutionDetails<bool>(flagName, defaultValue));
+            featureProviderMock.ResolveBooleanValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>()).Returns(new ResolutionDetails<bool>(flagName, defaultValue));
             featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            await Api.Instance.SetProvider(featureProviderMock);
+            await Api.Instance.SetProviderAsync(featureProviderMock);
             var client = Api.Instance.GetClient(clientName, clientVersion);
 
-            (await client.GetBooleanValue(flagName, defaultValue)).Should().Be(defaultValue);
+            (await client.GetBooleanValueAsync(flagName, defaultValue)).Should().Be(defaultValue);
 
-            _ = featureProviderMock.Received(1).ResolveBooleanValue(flagName, defaultValue, Arg.Any<EvaluationContext>());
+            _ = featureProviderMock.Received(1).ResolveBooleanValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>());
         }
 
         [Fact]
@@ -220,16 +220,16 @@ namespace OpenFeature.Tests
             var defaultValue = fixture.Create<string>();
 
             var featureProviderMock = Substitute.For<FeatureProvider>();
-            featureProviderMock.ResolveStringValue(flagName, defaultValue, Arg.Any<EvaluationContext>()).Returns(new ResolutionDetails<string>(flagName, defaultValue));
+            featureProviderMock.ResolveStringValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>()).Returns(new ResolutionDetails<string>(flagName, defaultValue));
             featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            await Api.Instance.SetProvider(featureProviderMock);
+            await Api.Instance.SetProviderAsync(featureProviderMock);
             var client = Api.Instance.GetClient(clientName, clientVersion);
 
-            (await client.GetStringValue(flagName, defaultValue)).Should().Be(defaultValue);
+            (await client.GetStringValueAsync(flagName, defaultValue)).Should().Be(defaultValue);
 
-            _ = featureProviderMock.Received(1).ResolveStringValue(flagName, defaultValue, Arg.Any<EvaluationContext>());
+            _ = featureProviderMock.Received(1).ResolveStringValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>());
         }
 
         [Fact]
@@ -242,16 +242,16 @@ namespace OpenFeature.Tests
             var defaultValue = fixture.Create<int>();
 
             var featureProviderMock = Substitute.For<FeatureProvider>();
-            featureProviderMock.ResolveIntegerValue(flagName, defaultValue, Arg.Any<EvaluationContext>()).Returns(new ResolutionDetails<int>(flagName, defaultValue));
+            featureProviderMock.ResolveIntegerValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>()).Returns(new ResolutionDetails<int>(flagName, defaultValue));
             featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            await Api.Instance.SetProvider(featureProviderMock);
+            await Api.Instance.SetProviderAsync(featureProviderMock);
             var client = Api.Instance.GetClient(clientName, clientVersion);
 
-            (await client.GetIntegerValue(flagName, defaultValue)).Should().Be(defaultValue);
+            (await client.GetIntegerValueAsync(flagName, defaultValue)).Should().Be(defaultValue);
 
-            _ = featureProviderMock.Received(1).ResolveIntegerValue(flagName, defaultValue, Arg.Any<EvaluationContext>());
+            _ = featureProviderMock.Received(1).ResolveIntegerValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>());
         }
 
         [Fact]
@@ -264,16 +264,16 @@ namespace OpenFeature.Tests
             var defaultValue = fixture.Create<double>();
 
             var featureProviderMock = Substitute.For<FeatureProvider>();
-            featureProviderMock.ResolveDoubleValue(flagName, defaultValue, Arg.Any<EvaluationContext>()).Returns(new ResolutionDetails<double>(flagName, defaultValue));
+            featureProviderMock.ResolveDoubleValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>()).Returns(new ResolutionDetails<double>(flagName, defaultValue));
             featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            await Api.Instance.SetProvider(featureProviderMock);
+            await Api.Instance.SetProviderAsync(featureProviderMock);
             var client = Api.Instance.GetClient(clientName, clientVersion);
 
-            (await client.GetDoubleValue(flagName, defaultValue)).Should().Be(defaultValue);
+            (await client.GetDoubleValueAsync(flagName, defaultValue)).Should().Be(defaultValue);
 
-            _ = featureProviderMock.Received(1).ResolveDoubleValue(flagName, defaultValue, Arg.Any<EvaluationContext>());
+            _ = featureProviderMock.Received(1).ResolveDoubleValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>());
         }
 
         [Fact]
@@ -286,16 +286,16 @@ namespace OpenFeature.Tests
             var defaultValue = fixture.Create<Value>();
 
             var featureProviderMock = Substitute.For<FeatureProvider>();
-            featureProviderMock.ResolveStructureValue(flagName, defaultValue, Arg.Any<EvaluationContext>()).Returns(new ResolutionDetails<Value>(flagName, defaultValue));
+            featureProviderMock.ResolveStructureValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>()).Returns(new ResolutionDetails<Value>(flagName, defaultValue));
             featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            await Api.Instance.SetProvider(featureProviderMock);
+            await Api.Instance.SetProviderAsync(featureProviderMock);
             var client = Api.Instance.GetClient(clientName, clientVersion);
 
-            (await client.GetObjectValue(flagName, defaultValue)).Should().Be(defaultValue);
+            (await client.GetObjectValueAsync(flagName, defaultValue)).Should().Be(defaultValue);
 
-            _ = featureProviderMock.Received(1).ResolveStructureValue(flagName, defaultValue, Arg.Any<EvaluationContext>());
+            _ = featureProviderMock.Received(1).ResolveStructureValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>());
         }
 
         [Fact]
@@ -309,18 +309,18 @@ namespace OpenFeature.Tests
             const string testMessage = "Couldn't parse flag data.";
 
             var featureProviderMock = Substitute.For<FeatureProvider>();
-            featureProviderMock.ResolveStructureValue(flagName, defaultValue, Arg.Any<EvaluationContext>()).Returns(Task.FromResult(new ResolutionDetails<Value>(flagName, defaultValue, ErrorType.ParseError, "ERROR", null, testMessage)));
+            featureProviderMock.ResolveStructureValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>()).Returns(Task.FromResult(new ResolutionDetails<Value>(flagName, defaultValue, ErrorType.ParseError, "ERROR", null, testMessage)));
             featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            await Api.Instance.SetProvider(featureProviderMock);
+            await Api.Instance.SetProviderAsync(featureProviderMock);
             var client = Api.Instance.GetClient(clientName, clientVersion);
-            var response = await client.GetObjectDetails(flagName, defaultValue);
+            var response = await client.GetObjectDetailsAsync(flagName, defaultValue);
 
             response.ErrorType.Should().Be(ErrorType.ParseError);
             response.Reason.Should().Be(Reason.Error);
             response.ErrorMessage.Should().Be(testMessage);
-            _ = featureProviderMock.Received(1).ResolveStructureValue(flagName, defaultValue, Arg.Any<EvaluationContext>());
+            _ = featureProviderMock.Received(1).ResolveStructureValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>());
         }
 
         [Fact]
@@ -334,26 +334,26 @@ namespace OpenFeature.Tests
             const string testMessage = "Couldn't parse flag data.";
 
             var featureProviderMock = Substitute.For<FeatureProvider>();
-            featureProviderMock.ResolveStructureValue(flagName, defaultValue, Arg.Any<EvaluationContext>()).Throws(new FeatureProviderException(ErrorType.ParseError, testMessage));
+            featureProviderMock.ResolveStructureValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>()).Throws(new FeatureProviderException(ErrorType.ParseError, testMessage));
             featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            await Api.Instance.SetProvider(featureProviderMock);
+            await Api.Instance.SetProviderAsync(featureProviderMock);
             var client = Api.Instance.GetClient(clientName, clientVersion);
-            var response = await client.GetObjectDetails(flagName, defaultValue);
+            var response = await client.GetObjectDetailsAsync(flagName, defaultValue);
 
             response.ErrorType.Should().Be(ErrorType.ParseError);
             response.Reason.Should().Be(Reason.Error);
             response.ErrorMessage.Should().Be(testMessage);
-            _ = featureProviderMock.Received(1).ResolveStructureValue(flagName, defaultValue, Arg.Any<EvaluationContext>());
+            _ = featureProviderMock.Received(1).ResolveStructureValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>());
         }
 
         [Fact]
         public async Task Should_Use_No_Op_When_Provider_Is_Null()
         {
-            await Api.Instance.SetProvider(null);
+            await Api.Instance.SetProviderAsync(null);
             var client = new FeatureClient("test", "test");
-            (await client.GetIntegerValue("some-key", 12)).Should().Be(12);
+            (await client.GetIntegerValueAsync("some-key", 12)).Should().Be(12);
         }
 
         [Fact]

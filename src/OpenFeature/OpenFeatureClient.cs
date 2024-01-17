@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -36,9 +37,9 @@ namespace OpenFeature
         /// </param>
         /// <typeparam name="T">The type of the resolution method</typeparam>
         /// <returns>A tuple containing a resolution method and the provider it came from.</returns>
-        private (Func<string, T, EvaluationContext, Task<ResolutionDetails<T>>>, FeatureProvider)
+        private (Func<string, T, EvaluationContext, CancellationToken, Task<ResolutionDetails<T>>>, FeatureProvider)
             ExtractProvider<T>(
-                Func<FeatureProvider, Func<string, T, EvaluationContext, Task<ResolutionDetails<T>>>> method)
+                Func<FeatureProvider, Func<string, T, EvaluationContext, CancellationToken, Task<ResolutionDetails<T>>>> method)
         {
             // Alias the provider reference so getting the method and returning the provider are
             // guaranteed to be the same object.
@@ -136,70 +137,71 @@ namespace OpenFeature
         public void ClearHooks() => this._hooks.Clear();
 
         /// <inheritdoc />
-        public async Task<bool> GetBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null,
-            FlagEvaluationOptions config = null) =>
-            (await this.GetBooleanDetails(flagKey, defaultValue, context, config).ConfigureAwait(false)).Value;
+        public async Task<bool> GetBooleanValueAsync(string flagKey, bool defaultValue, EvaluationContext context = null,
+            FlagEvaluationOptions config = null, CancellationToken cancellationToken = default) =>
+            (await this.GetBooleanDetailsAsync(flagKey, defaultValue, context, config, cancellationToken).ConfigureAwait(false)).Value;
 
         /// <inheritdoc />
-        public async Task<FlagEvaluationDetails<bool>> GetBooleanDetails(string flagKey, bool defaultValue,
-            EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(this.ExtractProvider<bool>(provider => provider.ResolveBooleanValue),
+        public async Task<FlagEvaluationDetails<bool>> GetBooleanDetailsAsync(string flagKey, bool defaultValue,
+            EvaluationContext context = null, FlagEvaluationOptions config = null, CancellationToken cancellationToken = default) =>
+            await this.EvaluateFlagAsync(this.ExtractProvider<bool>(provider => provider.ResolveBooleanValueAsync),
                 FlagValueType.Boolean, flagKey,
-                defaultValue, context, config).ConfigureAwait(false);
+                defaultValue, context, config, cancellationToken).ConfigureAwait(false);
 
         /// <inheritdoc />
-        public async Task<string> GetStringValue(string flagKey, string defaultValue, EvaluationContext context = null,
-            FlagEvaluationOptions config = null) =>
-            (await this.GetStringDetails(flagKey, defaultValue, context, config).ConfigureAwait(false)).Value;
+        public async Task<string> GetStringValueAsync(string flagKey, string defaultValue, EvaluationContext context = null,
+            FlagEvaluationOptions config = null, CancellationToken cancellationToken = default) =>
+            (await this.GetStringDetailsAsync(flagKey, defaultValue, context, config, cancellationToken).ConfigureAwait(false)).Value;
 
         /// <inheritdoc />
-        public async Task<FlagEvaluationDetails<string>> GetStringDetails(string flagKey, string defaultValue,
-            EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(this.ExtractProvider<string>(provider => provider.ResolveStringValue),
+        public async Task<FlagEvaluationDetails<string>> GetStringDetailsAsync(string flagKey, string defaultValue,
+            EvaluationContext context = null, FlagEvaluationOptions config = null, CancellationToken cancellationToken = default) =>
+            await this.EvaluateFlagAsync(this.ExtractProvider<string>(provider => provider.ResolveStringValueAsync),
                 FlagValueType.String, flagKey,
-                defaultValue, context, config).ConfigureAwait(false);
+                defaultValue, context, config, cancellationToken).ConfigureAwait(false);
 
         /// <inheritdoc />
-        public async Task<int> GetIntegerValue(string flagKey, int defaultValue, EvaluationContext context = null,
-            FlagEvaluationOptions config = null) =>
-            (await this.GetIntegerDetails(flagKey, defaultValue, context, config).ConfigureAwait(false)).Value;
+        public async Task<int> GetIntegerValueAsync(string flagKey, int defaultValue, EvaluationContext context = null,
+            FlagEvaluationOptions config = null, CancellationToken cancellationToken = default) =>
+            (await this.GetIntegerDetailsAsync(flagKey, defaultValue, context, config, cancellationToken).ConfigureAwait(false)).Value;
 
         /// <inheritdoc />
-        public async Task<FlagEvaluationDetails<int>> GetIntegerDetails(string flagKey, int defaultValue,
-            EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(this.ExtractProvider<int>(provider => provider.ResolveIntegerValue),
+        public async Task<FlagEvaluationDetails<int>> GetIntegerDetailsAsync(string flagKey, int defaultValue,
+            EvaluationContext context = null, FlagEvaluationOptions config = null, CancellationToken cancellationToken = default) =>
+            await this.EvaluateFlagAsync(this.ExtractProvider<int>(provider => provider.ResolveIntegerValueAsync),
                 FlagValueType.Number, flagKey,
-                defaultValue, context, config).ConfigureAwait(false);
+                defaultValue, context, config, cancellationToken).ConfigureAwait(false);
 
         /// <inheritdoc />
-        public async Task<double> GetDoubleValue(string flagKey, double defaultValue,
+        public async Task<double> GetDoubleValueAsync(string flagKey, double defaultValue,
             EvaluationContext context = null,
-            FlagEvaluationOptions config = null) =>
-            (await this.GetDoubleDetails(flagKey, defaultValue, context, config).ConfigureAwait(false)).Value;
+            FlagEvaluationOptions config = null, CancellationToken cancellationToken = default) =>
+            (await this.GetDoubleDetailsAsync(flagKey, defaultValue, context, config, cancellationToken).ConfigureAwait(false)).Value;
 
         /// <inheritdoc />
-        public async Task<FlagEvaluationDetails<double>> GetDoubleDetails(string flagKey, double defaultValue,
-            EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(this.ExtractProvider<double>(provider => provider.ResolveDoubleValue),
+        public async Task<FlagEvaluationDetails<double>> GetDoubleDetailsAsync(string flagKey, double defaultValue,
+            EvaluationContext context = null, FlagEvaluationOptions config = null, CancellationToken cancellationToken = default) =>
+            await this.EvaluateFlagAsync(this.ExtractProvider<double>(provider => provider.ResolveDoubleValueAsync),
                 FlagValueType.Number, flagKey,
-                defaultValue, context, config).ConfigureAwait(false);
+                defaultValue, context, config, cancellationToken).ConfigureAwait(false);
 
         /// <inheritdoc />
-        public async Task<Value> GetObjectValue(string flagKey, Value defaultValue, EvaluationContext context = null,
-            FlagEvaluationOptions config = null) =>
-            (await this.GetObjectDetails(flagKey, defaultValue, context, config).ConfigureAwait(false)).Value;
+        public async Task<Value> GetObjectValueAsync(string flagKey, Value defaultValue, EvaluationContext context = null,
+            FlagEvaluationOptions config = null, CancellationToken cancellationToken = default) =>
+            (await this.GetObjectDetailsAsync(flagKey, defaultValue, context, config, cancellationToken).ConfigureAwait(false)).Value;
 
         /// <inheritdoc />
-        public async Task<FlagEvaluationDetails<Value>> GetObjectDetails(string flagKey, Value defaultValue,
-            EvaluationContext context = null, FlagEvaluationOptions config = null) =>
-            await this.EvaluateFlag(this.ExtractProvider<Value>(provider => provider.ResolveStructureValue),
+        public async Task<FlagEvaluationDetails<Value>> GetObjectDetailsAsync(string flagKey, Value defaultValue,
+            EvaluationContext context = null, FlagEvaluationOptions config = null, CancellationToken cancellationToken = default) =>
+            await this.EvaluateFlagAsync(this.ExtractProvider<Value>(provider => provider.ResolveStructureValueAsync),
                 FlagValueType.Object, flagKey,
-                defaultValue, context, config).ConfigureAwait(false);
+                defaultValue, context, config, cancellationToken).ConfigureAwait(false);
 
-        private async Task<FlagEvaluationDetails<T>> EvaluateFlag<T>(
-            (Func<string, T, EvaluationContext, Task<ResolutionDetails<T>>>, FeatureProvider) providerInfo,
+        private async Task<FlagEvaluationDetails<T>> EvaluateFlagAsync<T>(
+            (Func<string, T, EvaluationContext, CancellationToken, Task<ResolutionDetails<T>>>, FeatureProvider) providerInfo,
             FlagValueType flagValueType, string flagKey, T defaultValue, EvaluationContext context = null,
-            FlagEvaluationOptions options = null)
+            FlagEvaluationOptions options = null,
+            CancellationToken cancellationToken = default)
         {
             var resolveValueDelegate = providerInfo.Item1;
             var provider = providerInfo.Item2;
@@ -242,13 +244,13 @@ namespace OpenFeature
             FlagEvaluationDetails<T> evaluation;
             try
             {
-                var contextFromHooks = await this.TriggerBeforeHooks(allHooks, hookContext, options).ConfigureAwait(false);
+                var contextFromHooks = await this.TriggerBeforeHooksAsync(allHooks, hookContext, options, cancellationToken).ConfigureAwait(false);
 
                 evaluation =
-                    (await resolveValueDelegate.Invoke(flagKey, defaultValue, contextFromHooks.EvaluationContext).ConfigureAwait(false))
+                    (await resolveValueDelegate.Invoke(flagKey, defaultValue, contextFromHooks.EvaluationContext, cancellationToken).ConfigureAwait(false))
                     .ToFlagEvaluationDetails();
 
-                await this.TriggerAfterHooks(allHooksReversed, hookContext, evaluation, options).ConfigureAwait(false);
+                await this.TriggerAfterHooksAsync(allHooksReversed, hookContext, evaluation, options, cancellationToken).ConfigureAwait(false);
             }
             catch (FeatureProviderException ex)
             {
@@ -256,32 +258,32 @@ namespace OpenFeature
                     ex.ErrorType.GetDescription());
                 evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, ex.ErrorType, Reason.Error,
                     string.Empty, ex.Message);
-                await this.TriggerErrorHooks(allHooksReversed, hookContext, ex, options).ConfigureAwait(false);
+                await this.TriggerErrorHooksAsync(allHooksReversed, hookContext, ex, options, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 this._logger.LogError(ex, "Error while evaluating flag {FlagKey}", flagKey);
                 var errorCode = ex is InvalidCastException ? ErrorType.TypeMismatch : ErrorType.General;
                 evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, errorCode, Reason.Error, string.Empty);
-                await this.TriggerErrorHooks(allHooksReversed, hookContext, ex, options).ConfigureAwait(false);
+                await this.TriggerErrorHooksAsync(allHooksReversed, hookContext, ex, options, cancellationToken).ConfigureAwait(false);
             }
             finally
             {
-                await this.TriggerFinallyHooks(allHooksReversed, hookContext, options).ConfigureAwait(false);
+                await this.TriggerFinallyHooksAsync(allHooksReversed, hookContext, options, cancellationToken).ConfigureAwait(false);
             }
 
             return evaluation;
         }
 
-        private async Task<HookContext<T>> TriggerBeforeHooks<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
-            FlagEvaluationOptions options)
+        private async Task<HookContext<T>> TriggerBeforeHooksAsync<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
+            FlagEvaluationOptions options, CancellationToken cancellationToken = default)
         {
             var evalContextBuilder = EvaluationContext.Builder();
             evalContextBuilder.Merge(context.EvaluationContext);
 
             foreach (var hook in hooks)
             {
-                var resp = await hook.Before(context, options?.HookHints).ConfigureAwait(false);
+                var resp = await hook.BeforeAsync(context, options?.HookHints, cancellationToken).ConfigureAwait(false);
                 if (resp != null)
                 {
                     evalContextBuilder.Merge(resp);
@@ -297,23 +299,23 @@ namespace OpenFeature
             return context.WithNewEvaluationContext(evalContextBuilder.Build());
         }
 
-        private async Task TriggerAfterHooks<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
-            FlagEvaluationDetails<T> evaluationDetails, FlagEvaluationOptions options)
+        private async Task TriggerAfterHooksAsync<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
+            FlagEvaluationDetails<T> evaluationDetails, FlagEvaluationOptions options, CancellationToken cancellationToken = default)
         {
             foreach (var hook in hooks)
             {
-                await hook.After(context, evaluationDetails, options?.HookHints).ConfigureAwait(false);
+                await hook.AfterAsync(context, evaluationDetails, options?.HookHints, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        private async Task TriggerErrorHooks<T>(IReadOnlyList<Hook> hooks, HookContext<T> context, Exception exception,
-            FlagEvaluationOptions options)
+        private async Task TriggerErrorHooksAsync<T>(IReadOnlyList<Hook> hooks, HookContext<T> context, Exception exception,
+            FlagEvaluationOptions options, CancellationToken cancellationToken = default)
         {
             foreach (var hook in hooks)
             {
                 try
                 {
-                    await hook.Error(context, exception, options?.HookHints).ConfigureAwait(false);
+                    await hook.ErrorAsync(context, exception, options?.HookHints, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
@@ -322,14 +324,14 @@ namespace OpenFeature
             }
         }
 
-        private async Task TriggerFinallyHooks<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
-            FlagEvaluationOptions options)
+        private async Task TriggerFinallyHooksAsync<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
+            FlagEvaluationOptions options, CancellationToken cancellationToken = default)
         {
             foreach (var hook in hooks)
             {
                 try
                 {
-                    await hook.Finally(context, options?.HookHints).ConfigureAwait(false);
+                    await hook.FinallyAsync(context, options?.HookHints, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
