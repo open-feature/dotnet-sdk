@@ -106,7 +106,26 @@ namespace OpenFeature
         }
 
         /// <inheritdoc />
-        public void AddHooks(IEnumerable<Hook> hooks) => this._hooks.PushRange(hooks.ToArray());
+        public void AddHooks(IEnumerable<Hook> hooks)
+#if NET7_0_OR_GREATER
+            => this._hooks.PushRange(hooks as Hook[] ?? hooks.ToArray());
+#else
+        {
+            // See: https://github.com/dotnet/runtime/issues/62121
+            if (hooks is Hook[] array)
+            {
+                if (array.Length > 0)
+                    this._hooks.PushRange(array);
+
+                return;
+            }
+
+            array = hooks.ToArray();
+
+            if (array.Length > 0)
+                this._hooks.PushRange(array);
+        }
+#endif
 
         /// <inheritdoc />
         public IEnumerable<Hook> GetHooks() => this._hooks.Reverse();
