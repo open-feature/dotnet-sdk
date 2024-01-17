@@ -125,10 +125,10 @@ namespace OpenFeature
         /// the <see cref="GetStatus"/> method after initialization is complete.
         /// </para>
         /// </remarks>
-        public virtual Task InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default)
+        public virtual ValueTask InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default)
         {
             // Intentionally left blank.
-            return Task.CompletedTask;
+            return new ValueTask();
         }
 
         /// <summary>
@@ -137,10 +137,10 @@ namespace OpenFeature
         /// </summary>
         /// <returns>A task that completes when the shutdown process is complete.</returns>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
-        public virtual Task ShutdownAsync(CancellationToken cancellationToken = default)
+        public virtual ValueTask ShutdownAsync(CancellationToken cancellationToken = default)
         {
             // Intentionally left blank.
-            return Task.CompletedTask;
+            return new ValueTask();
         }
 
         /// <summary>

@@ -291,25 +291,25 @@ To satisfy the interface, all methods (`BeforeAsync`/`AfterAsync`/`FinallyAsync`
 ```csharp
 public class MyHook : Hook
 {
-  public Task<EvaluationContext> BeforeAsync<T>(HookContext<T> context,
+  public ValueTask<EvaluationContext> BeforeAsync<T>(HookContext<T> context,
       IReadOnlyDictionary<string, object> hints = null, CancellationToken cancellationToken = default)
   {
     // code to run before flag evaluation
   }
 
-  public virtual Task AfterAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
+  public virtual ValueTask AfterAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
       IReadOnlyDictionary<string, object> hints = null, CancellationToken cancellationToken = default)
   {
     // code to run after successful flag evaluation
   }
 
-  public virtual Task ErrorAsync<T>(HookContext<T> context, Exception error,
+  public virtual ValueTask ErrorAsync<T>(HookContext<T> context, Exception error,
       IReadOnlyDictionary<string, object> hints = null, CancellationToken cancellationToken = default)
   {
     // code to run if there's an error during before hooks or during flag evaluation
   }
 
-  public virtual Task FinallyAsync<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null, CancellationToken cancellationToken = default)
+  public virtual ValueTask FinallyAsync<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null, CancellationToken cancellationToken = default)
   {
     // code to run after all other stages, regardless of success/failure
   }

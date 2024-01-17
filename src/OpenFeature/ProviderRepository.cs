@@ -55,7 +55,7 @@ namespace OpenFeature
         /// </param>
         /// <param name="afterShutdown">called after a provider is shutdown, can be used to remove event handlers</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
-        public async Task SetProviderAsync(
+        public async ValueTask SetProviderAsync(
             FeatureProvider featureProvider,
             EvaluationContext context,
             Action<FeatureProvider> afterSet = null,
@@ -98,7 +98,7 @@ namespace OpenFeature
                 .ConfigureAwait(false);
         }
 
-        private static async Task InitProviderAsync(
+        private static async ValueTask InitProviderAsync(
             FeatureProvider newProvider,
             EvaluationContext context,
             Action<FeatureProvider> afterInitialization,
@@ -148,7 +148,7 @@ namespace OpenFeature
         /// </param>
         /// <param name="afterShutdown">called after a provider is shutdown, can be used to remove event handlers</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
-        public async Task SetProviderAsync(string clientName,
+        public async ValueTask SetProviderAsync(string clientName,
             FeatureProvider featureProvider,
             EvaluationContext context,
             Action<FeatureProvider> afterSet = null,
@@ -198,7 +198,7 @@ namespace OpenFeature
         /// <remarks>
         /// Shutdown the feature provider if it is unused. This must be called within a write lock of the _providersLock.
         /// </remarks>
-        private async Task ShutdownIfUnusedAsync(
+        private async ValueTask ShutdownIfUnusedAsync(
             FeatureProvider targetProvider,
             Action<FeatureProvider> afterShutdown,
             Action<FeatureProvider, Exception> afterError,
@@ -226,7 +226,7 @@ namespace OpenFeature
         /// it would not be meaningful to emit an error.
         /// </para>
         /// </remarks>
-        private static async Task SafeShutdownProviderAsync(FeatureProvider targetProvider,
+        private static async ValueTask SafeShutdownProviderAsync(FeatureProvider targetProvider,
             Action<FeatureProvider> afterShutdown,
             Action<FeatureProvider, Exception> afterError,
             CancellationToken cancellationToken)
@@ -267,7 +267,7 @@ namespace OpenFeature
                 : this.GetProvider();
         }
 
-        public async Task ShutdownAsync(Action<FeatureProvider, Exception> afterError = null, CancellationToken cancellationToken = default)
+        public async ValueTask ShutdownAsync(Action<FeatureProvider, Exception> afterError = null, CancellationToken cancellationToken = default)
         {
             var providers = new HashSet<FeatureProvider>();
             this._providersLock.EnterWriteLock();

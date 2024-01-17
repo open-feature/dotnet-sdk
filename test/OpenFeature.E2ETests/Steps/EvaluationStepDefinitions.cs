@@ -42,7 +42,7 @@ namespace OpenFeature.E2ETests
         {
             _scenarioContext = scenarioContext;
             var flagdProvider = new FlagdProvider();
-            Api.Instance.SetProviderAsync(flagdProvider).Wait();
+            Api.Instance.SetProviderAsync(flagdProvider).GetAwaiter().GetResult();
             client = Api.Instance.GetClient();
         }
 

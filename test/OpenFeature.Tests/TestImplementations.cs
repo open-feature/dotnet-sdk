@@ -12,25 +12,25 @@ namespace OpenFeature.Tests
 
     public class TestHook : Hook
     {
-        public override Task<EvaluationContext> BeforeAsync<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null, CancellationToken cancellationToken = default)
+        public override ValueTask<EvaluationContext> BeforeAsync<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(EvaluationContext.Empty);
+            return new ValueTask<EvaluationContext>(EvaluationContext.Empty);
         }
 
-        public override Task AfterAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
+        public override ValueTask AfterAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
             IReadOnlyDictionary<string, object> hints = null, CancellationToken cancellationToken = default)
         {
-            return Task.CompletedTask;
+            return new ValueTask();
         }
 
-        public override Task ErrorAsync<T>(HookContext<T> context, Exception error, IReadOnlyDictionary<string, object> hints = null, CancellationToken cancellationToken = default)
+        public override ValueTask ErrorAsync<T>(HookContext<T> context, Exception error, IReadOnlyDictionary<string, object> hints = null, CancellationToken cancellationToken = default)
         {
-            return Task.CompletedTask;
+            return new ValueTask();
         }
 
-        public override Task FinallyAsync<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null, CancellationToken cancellationToken = default)
+        public override ValueTask FinallyAsync<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null, CancellationToken cancellationToken = default)
         {
-            return Task.CompletedTask;
+            return new ValueTask();
         }
     }
 
@@ -105,7 +105,7 @@ namespace OpenFeature.Tests
             this._status = status;
         }
 
-        public override async Task InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default)
+        public override async ValueTask InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default)
         {
             this._status = ProviderStatus.Ready;
             await this.EventChannel.Writer.WriteAsync(new ProviderEventPayload { Type = ProviderEventTypes.ProviderReady, ProviderName = this.GetMetadata().Name }, cancellationToken).ConfigureAwait(false);

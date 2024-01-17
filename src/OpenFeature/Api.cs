@@ -44,7 +44,7 @@ namespace OpenFeature
         /// <remarks>The provider cannot be set to null. Attempting to set the provider to null has no effect.</remarks>
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
-        public async Task SetProviderAsync(FeatureProvider featureProvider, CancellationToken cancellationToken = default)
+        public async ValueTask SetProviderAsync(FeatureProvider featureProvider, CancellationToken cancellationToken = default)
         {
             this.EventExecutor.RegisterDefaultFeatureProvider(featureProvider);
             await this._repository.SetProviderAsync(featureProvider, this.GetContext(), cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -58,7 +58,7 @@ namespace OpenFeature
         /// <param name="clientName">Name of client</param>
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
-        public async Task SetProviderAsync(string clientName, FeatureProvider featureProvider, CancellationToken cancellationToken = default)
+        public async ValueTask SetProviderAsync(string clientName, FeatureProvider featureProvider, CancellationToken cancellationToken = default)
         {
             this.EventExecutor.RegisterClientFeatureProvider(clientName, featureProvider);
             await this._repository.SetProviderAsync(clientName, featureProvider, this.GetContext(), cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -225,7 +225,7 @@ namespace OpenFeature
         /// </para>
         /// </summary>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
-        public async Task ShutdownAsync(CancellationToken cancellationToken = default)
+        public async ValueTask ShutdownAsync(CancellationToken cancellationToken = default)
         {
             await this._repository.ShutdownAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
             await this.EventExecutor.ShutdownAsync(cancellationToken).ConfigureAwait(false);

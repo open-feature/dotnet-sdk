@@ -275,7 +275,7 @@ namespace OpenFeature
             return evaluation;
         }
 
-        private async Task<HookContext<T>> TriggerBeforeHooksAsync<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
+        private async ValueTask<HookContext<T>> TriggerBeforeHooksAsync<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
             FlagEvaluationOptions options, CancellationToken cancellationToken = default)
         {
             var evalContextBuilder = EvaluationContext.Builder();
@@ -299,7 +299,7 @@ namespace OpenFeature
             return context.WithNewEvaluationContext(evalContextBuilder.Build());
         }
 
-        private async Task TriggerAfterHooksAsync<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
+        private async ValueTask TriggerAfterHooksAsync<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
             FlagEvaluationDetails<T> evaluationDetails, FlagEvaluationOptions options, CancellationToken cancellationToken = default)
         {
             foreach (var hook in hooks)
@@ -308,7 +308,7 @@ namespace OpenFeature
             }
         }
 
-        private async Task TriggerErrorHooksAsync<T>(IReadOnlyList<Hook> hooks, HookContext<T> context, Exception exception,
+        private async ValueTask TriggerErrorHooksAsync<T>(IReadOnlyList<Hook> hooks, HookContext<T> context, Exception exception,
             FlagEvaluationOptions options, CancellationToken cancellationToken = default)
         {
             foreach (var hook in hooks)
@@ -324,7 +324,7 @@ namespace OpenFeature
             }
         }
 
-        private async Task TriggerFinallyHooksAsync<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
+        private async ValueTask TriggerFinallyHooksAsync<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
             FlagEvaluationOptions options, CancellationToken cancellationToken = default)
         {
             foreach (var hook in hooks)

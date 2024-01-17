@@ -12,10 +12,7 @@ namespace OpenFeature.Tests
 {
     public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
     {
-        static async Task EmptyShutdown(CancellationToken cancellationToken)
-        {
-            await Task.FromResult(0).ConfigureAwait(false);
-        }
+        static ValueTask EmptyShutdown(CancellationToken cancellationToken) => new ValueTask();
 
         [Fact]
         [Specification("1.1.1", "The `API`, and any state it maintains SHOULD exist as a global singleton, even in cases wherein multiple versions of the `API` are present at runtime.")]
@@ -189,7 +186,7 @@ namespace OpenFeature.Tests
         [Specification("1.1.5", "The API MUST provide a function for retrieving the metadata field of the configured `provider`.")]
         public void OpenFeature_Should_Get_Metadata()
         {
-            Api.Instance.SetProviderAsync(new NoOpFeatureProvider()).Wait();
+            Api.Instance.SetProviderAsync(new NoOpFeatureProvider()).GetAwaiter().GetResult();
             var openFeature = Api.Instance;
             var metadata = openFeature.GetProviderMetadata();
 

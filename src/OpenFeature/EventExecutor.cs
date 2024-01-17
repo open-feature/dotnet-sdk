@@ -11,7 +11,7 @@ using OpenFeature.Model;
 namespace OpenFeature
 {
 
-    internal delegate Task ShutdownDelegate(CancellationToken cancellationToken);
+    internal delegate ValueTask ShutdownDelegate(CancellationToken cancellationToken);
 
     internal class EventExecutor
     {
@@ -327,7 +327,7 @@ namespace OpenFeature
             }
         }
 
-        public async Task ShutdownAsync(CancellationToken cancellationToken = default)
+        public async ValueTask ShutdownAsync(CancellationToken cancellationToken = default)
         {
             await this._shutdownDelegate(cancellationToken).ConfigureAwait(false);
         }
@@ -338,7 +338,7 @@ namespace OpenFeature
         }
 
         // Method to signal shutdown
-        private async Task SignalShutdownAsync(CancellationToken cancellationToken)
+        private async ValueTask SignalShutdownAsync(CancellationToken cancellationToken)
         {
             // Enqueue a shutdown signal
             await this.EventChannel.Writer.WriteAsync(new ShutdownSignal(), cancellationToken).ConfigureAwait(false);
