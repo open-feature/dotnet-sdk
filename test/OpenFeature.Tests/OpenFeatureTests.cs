@@ -33,13 +33,13 @@ namespace OpenFeature.Tests
             var providerMockDefault = Substitute.For<FeatureProvider>();
             providerMockDefault.GetStatus().Returns(ProviderStatus.NotReady);
 
-            await Api.Instance.SetProvider(providerMockDefault).ConfigureAwait(false);
+            await Api.Instance.SetProviderAsync(providerMockDefault).ConfigureAwait(false);
             await providerMockDefault.Received(1).Initialize(Api.Instance.GetContext()).ConfigureAwait(false);
 
             var providerMockNamed = Substitute.For<FeatureProvider>();
             providerMockNamed.GetStatus().Returns(ProviderStatus.NotReady);
 
-            await Api.Instance.SetProvider("the-name", providerMockNamed).ConfigureAwait(false);
+            await Api.Instance.SetProviderAsync("the-name", providerMockNamed).ConfigureAwait(false);
             await providerMockNamed.Received(1).Initialize(Api.Instance.GetContext()).ConfigureAwait(false);
         }
 
@@ -51,26 +51,26 @@ namespace OpenFeature.Tests
             var providerA = Substitute.For<FeatureProvider>();
             providerA.GetStatus().Returns(ProviderStatus.NotReady);
 
-            await Api.Instance.SetProvider(providerA).ConfigureAwait(false);
+            await Api.Instance.SetProviderAsync(providerA).ConfigureAwait(false);
             await providerA.Received(1).Initialize(Api.Instance.GetContext()).ConfigureAwait(false);
 
             var providerB = Substitute.For<FeatureProvider>();
             providerB.GetStatus().Returns(ProviderStatus.NotReady);
 
-            await Api.Instance.SetProvider(providerB).ConfigureAwait(false);
+            await Api.Instance.SetProviderAsync(providerB).ConfigureAwait(false);
             await providerB.Received(1).Initialize(Api.Instance.GetContext()).ConfigureAwait(false);
             await providerA.Received(1).Shutdown().ConfigureAwait(false);
 
             var providerC = Substitute.For<FeatureProvider>();
             providerC.GetStatus().Returns(ProviderStatus.NotReady);
 
-            await Api.Instance.SetProvider("named", providerC).ConfigureAwait(false);
+            await Api.Instance.SetProviderAsync("named", providerC).ConfigureAwait(false);
             await providerC.Received(1).Initialize(Api.Instance.GetContext()).ConfigureAwait(false);
 
             var providerD = Substitute.For<FeatureProvider>();
             providerD.GetStatus().Returns(ProviderStatus.NotReady);
 
-            await Api.Instance.SetProvider("named", providerD).ConfigureAwait(false);
+            await Api.Instance.SetProviderAsync("named", providerD).ConfigureAwait(false);
             await providerD.Received(1).Initialize(Api.Instance.GetContext()).ConfigureAwait(false);
             await providerC.Received(1).Shutdown().ConfigureAwait(false);
         }
@@ -88,8 +88,8 @@ namespace OpenFeature.Tests
             var providerB = Substitute.For<FeatureProvider>();
             providerB.GetStatus().Returns(ProviderStatus.NotReady);
 
-            await Api.Instance.SetProvider(providerA).ConfigureAwait(false);
-            await Api.Instance.SetProvider("named", providerB).ConfigureAwait(false);
+            await Api.Instance.SetProviderAsync(providerA).ConfigureAwait(false);
+            await Api.Instance.SetProviderAsync("named", providerB).ConfigureAwait(false);
 
             await Api.Instance.Shutdown().ConfigureAwait(false);
 
@@ -103,8 +103,8 @@ namespace OpenFeature.Tests
         {
             var openFeature = Api.Instance;
 
-            openFeature.SetProvider(new NoOpFeatureProvider());
-            openFeature.SetProvider(TestProvider.DefaultName, new TestProvider());
+            openFeature.SetProviderAsync(new NoOpFeatureProvider());
+            openFeature.SetProviderAsync(TestProvider.DefaultName, new TestProvider());
 
             var defaultClient = openFeature.GetProviderMetadata();
             var namedClient = openFeature.GetProviderMetadata(TestProvider.DefaultName);
@@ -119,7 +119,7 @@ namespace OpenFeature.Tests
         {
             var openFeature = Api.Instance;
 
-            openFeature.SetProvider(new TestProvider());
+            openFeature.SetProviderAsync(new TestProvider());
 
             var defaultClient = openFeature.GetProviderMetadata();
 
@@ -133,8 +133,8 @@ namespace OpenFeature.Tests
             const string name = "new-client";
             var openFeature = Api.Instance;
 
-            openFeature.SetProvider(name, new TestProvider());
-            openFeature.SetProvider(name, new NoOpFeatureProvider());
+            openFeature.SetProviderAsync(name, new TestProvider());
+            openFeature.SetProviderAsync(name, new NoOpFeatureProvider());
 
             openFeature.GetProviderMetadata(name).Name.Should().Be(NoOpProvider.NoOpProviderName);
         }
@@ -146,8 +146,8 @@ namespace OpenFeature.Tests
             var openFeature = Api.Instance;
             var provider = new TestProvider();
 
-            openFeature.SetProvider("a", provider);
-            openFeature.SetProvider("b", provider);
+            openFeature.SetProviderAsync("a", provider);
+            openFeature.SetProviderAsync("b", provider);
 
             var clientA = openFeature.GetProvider("a");
             var clientB = openFeature.GetProvider("b");
@@ -188,7 +188,7 @@ namespace OpenFeature.Tests
         [Specification("1.1.5", "The API MUST provide a function for retrieving the metadata field of the configured `provider`.")]
         public void OpenFeature_Should_Get_Metadata()
         {
-            Api.Instance.SetProvider(new NoOpFeatureProvider()).Wait();
+            Api.Instance.SetProviderAsync(new NoOpFeatureProvider()).Wait();
             var openFeature = Api.Instance;
             var metadata = openFeature.GetProviderMetadata();
 
@@ -238,8 +238,8 @@ namespace OpenFeature.Tests
         {
             var openFeature = Api.Instance;
 
-            openFeature.SetProvider("client1", new TestProvider());
-            openFeature.SetProvider("client2", new NoOpFeatureProvider());
+            openFeature.SetProviderAsync("client1", new TestProvider());
+            openFeature.SetProviderAsync("client2", new NoOpFeatureProvider());
 
             var client1 = openFeature.GetClient("client1");
             var client2 = openFeature.GetClient("client2");
