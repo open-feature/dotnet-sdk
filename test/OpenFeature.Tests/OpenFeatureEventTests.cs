@@ -143,7 +143,9 @@ namespace OpenFeature.Tests
             var eventHandler = Substitute.For<EventHandlerDelegate>();
 
             var testProvider = new TestProvider();
+            #pragma warning disable CS0618 // Type or member is obsolete
             Api.Instance.SetProvider(testProvider);
+            #pragma warning restore CS0618 // Type or member is obsolete
 
             Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
