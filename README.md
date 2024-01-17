@@ -167,6 +167,31 @@ client.AddHooks(new ExampleClientHook());
 var value = await client.GetBooleanValue("boolFlag", false, context, new FlagEvaluationOptions(new ExampleInvocationHook()));
 ```
 
+### Logging
+
+The .NET SDK uses Microsoft.Extensions.Logging. See the [manual](https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line) for complete documentation.
+
+### Named clients
+
+Clients can be given a name.
+A name is a logical identifier that can be used to associate clients with a particular provider.
+If a name has no associated provider, the global provider is used.
+
+```csharp
+// registering the default provider
+await Api.Instance.SetProvider(new LocalProvider());
+
+// registering a named provider
+await Api.Instance.SetProvider("clientForCache", new CachedProvider());
+
+// a client backed by default provider
+FeatureClient clientDefault = Api.Instance.GetClient();
+
+// a client backed by CachedProvider
+FeatureClient clientNamed = Api.Instance.GetClient("clientForCache");
+
+```
+
 ### Eventing
 
 Events allow you to react to state changes in the provider or underlying flag management system, such as flag definition changes,
@@ -203,35 +228,6 @@ await Api.Instance.SetProvider(myClient.GetMetadata().Name, provider);
 
 myClient.AddHandler(ProviderEventTypes.ProviderReady, callback);
 ```
-
-### Logging
-
-The .NET SDK uses Microsoft.Extensions.Logging. See the [manual](https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line) for complete documentation.
-
-### Named clients
-
-Clients can be given a name.
-A name is a logical identifier that can be used to associate clients with a particular provider.
-If a name has no associated provider, the global provider is used.
-
-```csharp
-// registering the default provider
-await Api.Instance.SetProvider(new LocalProvider());
-
-// registering a named provider
-await Api.Instance.SetProvider("clientForCache", new CachedProvider());
-
-// a client backed by default provider
-FeatureClient clientDefault = Api.Instance.GetClient();
-
-// a client backed by CachedProvider
-FeatureClient clientNamed = Api.Instance.GetClient("clientForCache");
-
-```
-
-### Eventing
-
-Events are currently not supported by the .NET SDK. Progress on this feature can be tracked [here](https://github.com/open-feature/dotnet-sdk/issues/126).
 
 ### Shutdown
 
