@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using OpenFeature.Model;
 
@@ -59,8 +60,9 @@ namespace OpenFeature
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
         /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
         /// <returns>Resolved flag value.</returns>
-        Task<bool> GetBooleanValue(string flagKey, bool defaultValue, EvaluationContext? context = null, FlagEvaluationOptions? config = null);
+        Task<bool> GetBooleanValueAsync(string flagKey, bool defaultValue, EvaluationContext? context = null, FlagEvaluationOptions? config = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Resolves a boolean feature flag
@@ -69,8 +71,9 @@ namespace OpenFeature
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
         /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
-        Task<FlagEvaluationDetails<bool>> GetBooleanDetails(string flagKey, bool defaultValue, EvaluationContext? context = null, FlagEvaluationOptions? config = null);
+        Task<FlagEvaluationDetails<bool>> GetBooleanDetailsAsync(string flagKey, bool defaultValue, EvaluationContext? context = null, FlagEvaluationOptions? config = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Resolves a string feature flag
@@ -79,8 +82,9 @@ namespace OpenFeature
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
         /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
         /// <returns>Resolved flag value.</returns>
-        Task<string> GetStringValue(string flagKey, string defaultValue, EvaluationContext? context = null, FlagEvaluationOptions? config = null);
+        Task<string> GetStringValueAsync(string flagKey, string defaultValue, EvaluationContext? context = null, FlagEvaluationOptions? config = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Resolves a string feature flag
@@ -89,8 +93,9 @@ namespace OpenFeature
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
         /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
-        Task<FlagEvaluationDetails<string>> GetStringDetails(string flagKey, string defaultValue, EvaluationContext? context = null, FlagEvaluationOptions? config = null);
+        Task<FlagEvaluationDetails<string>> GetStringDetailsAsync(string flagKey, string defaultValue, EvaluationContext? context = null, FlagEvaluationOptions? config = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Resolves a integer feature flag
@@ -99,8 +104,9 @@ namespace OpenFeature
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
         /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
         /// <returns>Resolved flag value.</returns>
-        Task<int> GetIntegerValue(string flagKey, int defaultValue, EvaluationContext? context = null, FlagEvaluationOptions? config = null);
+        Task<int> GetIntegerValueAsync(string flagKey, int defaultValue, EvaluationContext? context = null, FlagEvaluationOptions? config = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Resolves a integer feature flag
@@ -109,8 +115,9 @@ namespace OpenFeature
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
         /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
-        Task<FlagEvaluationDetails<int>> GetIntegerDetails(string flagKey, int defaultValue, EvaluationContext? context = null, FlagEvaluationOptions? config = null);
+        Task<FlagEvaluationDetails<int>> GetIntegerDetailsAsync(string flagKey, int defaultValue, EvaluationContext? context = null, FlagEvaluationOptions? config = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Resolves a double feature flag
@@ -119,8 +126,9 @@ namespace OpenFeature
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
         /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
         /// <returns>Resolved flag value.</returns>
-        Task<double> GetDoubleValue(string flagKey, double defaultValue, EvaluationContext? context = null, FlagEvaluationOptions? config = null);
+        Task<double> GetDoubleValueAsync(string flagKey, double defaultValue, EvaluationContext? context = null, FlagEvaluationOptions? config = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Resolves a double feature flag
@@ -129,8 +137,9 @@ namespace OpenFeature
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
         /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
-        Task<FlagEvaluationDetails<double>> GetDoubleDetails(string flagKey, double defaultValue, EvaluationContext? context = null, FlagEvaluationOptions? config = null);
+        Task<FlagEvaluationDetails<double>> GetDoubleDetailsAsync(string flagKey, double defaultValue, EvaluationContext? context = null, FlagEvaluationOptions? config = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Resolves a structure object feature flag
@@ -139,8 +148,9 @@ namespace OpenFeature
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
         /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
         /// <returns>Resolved flag value.</returns>
-        Task<Value> GetObjectValue(string flagKey, Value defaultValue, EvaluationContext? context = null, FlagEvaluationOptions? config = null);
+        Task<Value> GetObjectValueAsync(string flagKey, Value defaultValue, EvaluationContext? context = null, FlagEvaluationOptions? config = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Resolves a structure object feature flag
@@ -149,7 +159,8 @@ namespace OpenFeature
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext">Evaluation Context</see></param>
         /// <param name="config"><see cref="EvaluationContext">Flag Evaluation Options</see></param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
         /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
-        Task<FlagEvaluationDetails<Value>> GetObjectDetails(string flagKey, Value defaultValue, EvaluationContext? context = null, FlagEvaluationOptions? config = null);
+        Task<FlagEvaluationDetails<Value>> GetObjectDetailsAsync(string flagKey, Value defaultValue, EvaluationContext? context = null, FlagEvaluationOptions? config = null, CancellationToken cancellationToken = default);
     }
 }

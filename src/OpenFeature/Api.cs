@@ -54,10 +54,11 @@ namespace OpenFeature
         /// </summary>
         /// <remarks>The provider cannot be set to null. Attempting to set the provider to null has no effect.</remarks>
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
-        public async Task SetProviderAsync(FeatureProvider? featureProvider)
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
+        public async ValueTask SetProviderAsync(FeatureProvider featureProvider, CancellationToken cancellationToken = default)
         {
             this._eventExecutor.RegisterDefaultFeatureProvider(featureProvider);
-            await this._repository.SetProvider(featureProvider, this.GetContext()).ConfigureAwait(false);
+            await this._repository.SetProviderAsync(featureProvider, this.GetContext(), cancellationToken: cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -78,14 +79,11 @@ namespace OpenFeature
         /// </summary>
         /// <param name="clientName">Name of client</param>
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
-        public async Task SetProviderAsync(string clientName, FeatureProvider featureProvider)
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
+        public async ValueTask SetProviderAsync(string clientName, FeatureProvider featureProvider, CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrWhiteSpace(clientName))
-            {
-                throw new ArgumentNullException(nameof(clientName));
-            }
             this._eventExecutor.RegisterClientFeatureProvider(clientName, featureProvider);
-            await this._repository.SetProvider(clientName, featureProvider, this.GetContext()).ConfigureAwait(false);
+            await this._repository.SetProviderAsync(clientName, featureProvider, this.GetContext(), cancellationToken: cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -248,18 +246,22 @@ namespace OpenFeature
         /// Once shut down is complete, API is reset and ready to use again.
         /// </para>
         /// </summary>
-        public async Task Shutdown()
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
+        public async ValueTask ShutdownAsync(CancellationToken cancellationToken = default)
         {
-            await using (this._eventExecutor.ConfigureAwait(false))
-            await using (this._repository.ConfigureAwait(false))
-            {
-                this._evaluationContext = EvaluationContext.Empty;
-                this._hooks.Clear();
+            // TODO: conflict
+            // await using (this._eventExecutor.ConfigureAwait(false))
+            // await using (this._repository.ConfigureAwait(false))
+            // {
+            //     this._evaluationContext = EvaluationContext.Empty;
+            //     this._hooks.Clear();
 
-                // TODO: make these lazy to avoid extra allocations on the common cleanup path?
-                this._eventExecutor = new EventExecutor();
-                this._repository = new ProviderRepository();
-            }
+            //     // TODO: make these lazy to avoid extra allocations on the common cleanup path?
+            //     this._eventExecutor = new EventExecutor();
+            //     this._repository = new ProviderRepository();
+            // }
+            // await this._repository.ShutdownAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+            // await this.EventExecutor.ShutdownAsync(cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc />

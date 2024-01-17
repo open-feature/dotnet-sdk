@@ -10,6 +10,8 @@ using OpenFeature.Model;
 
 namespace OpenFeature
 {
+    internal delegate ValueTask ShutdownDelegate(CancellationToken cancellationToken);
+
     internal sealed partial class EventExecutor : IAsyncDisposable
     {
         private readonly object _lockObj = new object();
@@ -317,15 +319,43 @@ namespace OpenFeature
             }
         }
 
-        public async Task Shutdown()
-        {
-            this.EventChannel.Writer.Complete();
-
-            await this.EventChannel.Reader.Completion.ConfigureAwait(false);
-        }
-
         [LoggerMessage(100, LogLevel.Error, "Error running handler")]
         partial void ErrorRunningHandler(Exception exception);
+
+        public async ValueTask ShutdownAsync(CancellationToken cancellationToken = default)
+        {
+            await this._shutdownDelegate(cancellationToken).ConfigureAwait(false);
+        }
+
+        internal void SetShutdownDelegate(ShutdownDelegate del)
+        {
+            this._shutdownDelegate = del;
+        }
+
+        // Method to signal shutdown
+        private async ValueTask SignalShutdownAsync(CancellationToken cancellationToken)
+        {
+            // Enqueue a shutdown signal
+            await this.EventChannel.Writer.WriteAsync(new ShutdownSignal(), cancellationToken).ConfigureAwait(false);
+
+            // Wait for the processing loop to acknowledge the shutdown
+            await this._shutdownSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    internal class ShutdownSignal
+    {
+    }
+
+    internal class FeatureProviderReference
+    {
+        internal readonly SemaphoreSlim ShutdownSemaphore = new SemaphoreSlim(0);
+        internal FeatureProvider Provider { get; }
+
+        public FeatureProviderReference(FeatureProvider provider)
+        {
+            this.Provider = provider;
+        }
     }
 
     internal class Event

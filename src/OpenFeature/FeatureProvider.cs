@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using OpenFeature.Constant;
@@ -43,9 +44,10 @@ namespace OpenFeature
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext"/></param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
-        public abstract Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue,
-            EvaluationContext? context = null);
+        public abstract Task<ResolutionDetails<bool>> ResolveBooleanValueAsync(string flagKey, bool defaultValue,
+            EvaluationContext? context = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Resolves a string feature flag
@@ -53,9 +55,10 @@ namespace OpenFeature
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext"/></param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
-        public abstract Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue,
-            EvaluationContext? context = null);
+        public abstract Task<ResolutionDetails<string>> ResolveStringValueAsync(string flagKey, string defaultValue,
+            EvaluationContext? context = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Resolves a integer feature flag
@@ -63,9 +66,10 @@ namespace OpenFeature
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext"/></param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
-        public abstract Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue,
-            EvaluationContext? context = null);
+        public abstract Task<ResolutionDetails<int>> ResolveIntegerValueAsync(string flagKey, int defaultValue,
+            EvaluationContext? context = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Resolves a double feature flag
@@ -73,9 +77,10 @@ namespace OpenFeature
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext"/></param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
-        public abstract Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue,
-            EvaluationContext? context = null);
+        public abstract Task<ResolutionDetails<double>> ResolveDoubleValueAsync(string flagKey, double defaultValue,
+            EvaluationContext? context = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Resolves a structured feature flag
@@ -83,9 +88,10 @@ namespace OpenFeature
         /// <param name="flagKey">Feature flag key</param>
         /// <param name="defaultValue">Default value</param>
         /// <param name="context"><see cref="EvaluationContext"/></param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
-        public abstract Task<ResolutionDetails<Value>> ResolveStructureValue(string flagKey, Value defaultValue,
-            EvaluationContext? context = null);
+        public abstract Task<ResolutionDetails<Value>> ResolveStructureValueAsync(string flagKey, Value defaultValue,
+            EvaluationContext? context = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get the status of the provider.
@@ -95,7 +101,7 @@ namespace OpenFeature
         /// If a provider does not override this method, then its status will be assumed to be
         /// <see cref="ProviderStatus.Ready"/>. If a provider implements this method, and supports initialization,
         /// then it should start in the <see cref="ProviderStatus.NotReady"/>status . If the status is
-        /// <see cref="ProviderStatus.NotReady"/>, then the Api will call the <see cref="Initialize" /> when the
+        /// <see cref="ProviderStatus.NotReady"/>, then the Api will call the <see cref="InitializeAsync" /> when the
         /// provider is set.
         /// </remarks>
         public virtual ProviderStatus GetStatus() => ProviderStatus.Ready;
@@ -107,6 +113,7 @@ namespace OpenFeature
         /// </para>
         /// </summary>
         /// <param name="context"><see cref="EvaluationContext"/></param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
         /// <returns>A task that completes when the initialization process is complete.</returns>
         /// <remarks>
         /// <para>
@@ -118,10 +125,10 @@ namespace OpenFeature
         /// the <see cref="GetStatus"/> method after initialization is complete.
         /// </para>
         /// </remarks>
-        public virtual Task Initialize(EvaluationContext context)
+        public virtual ValueTask InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default)
         {
             // Intentionally left blank.
-            return Task.CompletedTask;
+            return new ValueTask();
         }
 
         /// <summary>
@@ -129,10 +136,11 @@ namespace OpenFeature
         /// Providers can overwrite this method, if they have special shutdown actions needed.
         /// </summary>
         /// <returns>A task that completes when the shutdown process is complete.</returns>
-        public virtual Task Shutdown()
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
+        public virtual ValueTask ShutdownAsync(CancellationToken cancellationToken = default)
         {
             // Intentionally left blank.
-            return Task.CompletedTask;
+            return new ValueTask();
         }
 
         /// <summary>

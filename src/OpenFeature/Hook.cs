@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using OpenFeature.Model;
 
@@ -26,12 +27,13 @@ namespace OpenFeature
         /// </summary>
         /// <param name="context">Provides context of innovation</param>
         /// <param name="hints">Caller provided data</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
         /// <typeparam name="T">Flag value type (bool|number|string|object)</typeparam>
         /// <returns>Modified EvaluationContext that is used for the flag evaluation</returns>
-        public virtual Task<EvaluationContext> Before<T>(HookContext<T> context,
-            IReadOnlyDictionary<string, object>? hints = null)
+        public virtual ValueTask<EvaluationContext> BeforeAsync<T>(HookContext<T> context,
+            IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(EvaluationContext.Empty);
+            return new ValueTask<EvaluationContext>(EvaluationContext.Empty);
         }
 
         /// <summary>
@@ -40,11 +42,12 @@ namespace OpenFeature
         /// <param name="context">Provides context of innovation</param>
         /// <param name="details">Flag evaluation information</param>
         /// <param name="hints">Caller provided data</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
         /// <typeparam name="T">Flag value type (bool|number|string|object)</typeparam>
-        public virtual Task After<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
-            IReadOnlyDictionary<string, object>? hints = null)
+        public virtual ValueTask AfterAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
+            IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
         {
-            return Task.CompletedTask;
+            return new ValueTask();
         }
 
         /// <summary>
@@ -53,11 +56,12 @@ namespace OpenFeature
         /// <param name="context">Provides context of innovation</param>
         /// <param name="error">Exception representing what went wrong</param>
         /// <param name="hints">Caller provided data</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
         /// <typeparam name="T">Flag value type (bool|number|string|object)</typeparam>
-        public virtual Task Error<T>(HookContext<T> context, Exception error,
-            IReadOnlyDictionary<string, object>? hints = null)
+        public virtual ValueTask ErrorAsync<T>(HookContext<T> context, Exception error,
+            IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
         {
-            return Task.CompletedTask;
+            return new ValueTask();
         }
 
         /// <summary>
@@ -65,10 +69,11 @@ namespace OpenFeature
         /// </summary>
         /// <param name="context">Provides context of innovation</param>
         /// <param name="hints">Caller provided data</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
         /// <typeparam name="T">Flag value type (bool|number|string|object)</typeparam>
-        public virtual Task Finally<T>(HookContext<T> context, IReadOnlyDictionary<string, object>? hints = null)
+        public virtual ValueTask FinallyAsync<T>(HookContext<T> context, IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
         {
-            return Task.CompletedTask;
+            return new ValueTask();
         }
     }
 }
