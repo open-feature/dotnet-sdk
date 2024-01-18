@@ -553,5 +553,12 @@ namespace OpenFeature.Tests
 
             await featureProvider.DidNotReceive().ResolveBooleanValue("test", false, Arg.Any<EvaluationContext>());
         }
+
+        [Fact]
+        public void Add_hooks_should_accept_empty_enumerable()
+        {
+            Api.Instance.ClearHooks();
+            Api.Instance.AddHooks(Enumerable.Empty<Hook>());
+        }
     }
 }
