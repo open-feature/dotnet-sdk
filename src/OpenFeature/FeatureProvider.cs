@@ -29,7 +29,7 @@ namespace OpenFeature
         /// <summary>
         /// The event channel of the provider.
         /// </summary>
-        protected Channel<object> EventChannel = Channel.CreateBounded<object>(1);
+        protected readonly Channel<object> EventChannel = Channel.CreateBounded<object>(1);
 
         /// <summary>
         /// Metadata describing the provider.
