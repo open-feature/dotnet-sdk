@@ -12,7 +12,7 @@ namespace OpenFeature
     /// <summary>
     /// This class manages the collection of providers, both default and named, contained by the API.
     /// </summary>
-    internal class ProviderRepository
+    internal sealed class ProviderRepository
     {
         private FeatureProvider _defaultProvider = new NoOpFeatureProvider();
 

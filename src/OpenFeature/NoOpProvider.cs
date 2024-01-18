@@ -4,7 +4,7 @@ using OpenFeature.Model;
 
 namespace OpenFeature
 {
-    internal class NoOpFeatureProvider : FeatureProvider
+    internal sealed class NoOpFeatureProvider : FeatureProvider
     {
         private readonly Metadata _metadata = new Metadata(NoOpProvider.NoOpProviderName);
 
