@@ -7,7 +7,7 @@ namespace OpenFeature.Model
     /// The hook and hook hints are added to the list of hooks called during the evaluation process
     /// </summary>
     /// <seealso href="https://github.com/open-feature/spec/blob/v0.5.2/specification/types.md#evaluation-options">Flag Evaluation Options</seealso>
-    public class FlagEvaluationOptions
+    public sealed class FlagEvaluationOptions
     {
         /// <summary>
         /// A immutable list of <see cref="Hook"/>

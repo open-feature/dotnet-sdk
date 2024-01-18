@@ -3,7 +3,7 @@ namespace OpenFeature.Model
     /// <summary>
     /// Represents the client metadata
     /// </summary>
-    public class ClientMetadata : Metadata
+    public sealed class ClientMetadata : Metadata
     {
         /// <summary>
         /// Version of the client
