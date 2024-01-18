@@ -99,12 +99,12 @@ namespace OpenFeature.Tests
 
         [Fact]
         [Specification("1.1.3", "The `API` MUST provide a function to bind a given `provider` to one or more client `name`s. If the client-name already has a bound provider, it is overwritten with the new mapping.")]
-        public void OpenFeature_Should_Not_Change_Named_Providers_When_Setting_Default_Provider()
+        public async void OpenFeature_Should_Not_Change_Named_Providers_When_Setting_Default_Provider()
         {
             var openFeature = Api.Instance;
 
-            openFeature.SetProviderAsync(new NoOpFeatureProvider());
-            openFeature.SetProviderAsync(TestProvider.DefaultName, new TestProvider());
+            await openFeature.SetProviderAsync(new NoOpFeatureProvider()).ConfigureAwait(false);
+            await openFeature.SetProviderAsync(TestProvider.DefaultName, new TestProvider()).ConfigureAwait(false);
 
             var defaultClient = openFeature.GetProviderMetadata();
             var namedClient = openFeature.GetProviderMetadata(TestProvider.DefaultName);
@@ -115,11 +115,11 @@ namespace OpenFeature.Tests
 
         [Fact]
         [Specification("1.1.3", "The `API` MUST provide a function to bind a given `provider` to one or more client `name`s. If the client-name already has a bound provider, it is overwritten with the new mapping.")]
-        public void OpenFeature_Should_Set_Default_Provide_When_No_Name_Provided()
+        public async void OpenFeature_Should_Set_Default_Provide_When_No_Name_Provided()
         {
             var openFeature = Api.Instance;
 
-            openFeature.SetProviderAsync(new TestProvider());
+            await openFeature.SetProviderAsync(new TestProvider()).ConfigureAwait(false);
 
             var defaultClient = openFeature.GetProviderMetadata();
 
@@ -128,26 +128,26 @@ namespace OpenFeature.Tests
 
         [Fact]
         [Specification("1.1.3", "The `API` MUST provide a function to bind a given `provider` to one or more client `name`s. If the client-name already has a bound provider, it is overwritten with the new mapping.")]
-        public void OpenFeature_Should_Assign_Provider_To_Existing_Client()
+        public async void OpenFeature_Should_Assign_Provider_To_Existing_Client()
         {
             const string name = "new-client";
             var openFeature = Api.Instance;
 
-            openFeature.SetProviderAsync(name, new TestProvider());
-            openFeature.SetProviderAsync(name, new NoOpFeatureProvider());
+            await openFeature.SetProviderAsync(name, new TestProvider()).ConfigureAwait(true);
+            await openFeature.SetProviderAsync(name, new NoOpFeatureProvider()).ConfigureAwait(true);
 
             openFeature.GetProviderMetadata(name).Name.Should().Be(NoOpProvider.NoOpProviderName);
         }
 
         [Fact]
         [Specification("1.1.3", "The `API` MUST provide a function to bind a given `provider` to one or more client `name`s. If the client-name already has a bound provider, it is overwritten with the new mapping.")]
-        public void OpenFeature_Should_Allow_Multiple_Client_Names_Of_Same_Instance()
+        public async void OpenFeature_Should_Allow_Multiple_Client_Names_Of_Same_Instance()
         {
             var openFeature = Api.Instance;
             var provider = new TestProvider();
 
-            openFeature.SetProviderAsync("a", provider);
-            openFeature.SetProviderAsync("b", provider);
+            await openFeature.SetProviderAsync("a", provider).ConfigureAwait(true);
+            await openFeature.SetProviderAsync("b", provider).ConfigureAwait(true);
 
             var clientA = openFeature.GetProvider("a");
             var clientB = openFeature.GetProvider("b");
@@ -234,12 +234,12 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        public void OpenFeature_Should_Allow_Multiple_Client_Mapping()
+        public async void OpenFeature_Should_Allow_Multiple_Client_Mapping()
         {
             var openFeature = Api.Instance;
 
-            openFeature.SetProviderAsync("client1", new TestProvider());
-            openFeature.SetProviderAsync("client2", new NoOpFeatureProvider());
+            await openFeature.SetProviderAsync("client1", new TestProvider()).ConfigureAwait(true);
+            await openFeature.SetProviderAsync("client2", new NoOpFeatureProvider()).ConfigureAwait(true);
 
             var client1 = openFeature.GetClient("client1");
             var client2 = openFeature.GetClient("client2");

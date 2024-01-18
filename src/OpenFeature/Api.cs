@@ -47,7 +47,7 @@ namespace OpenFeature
         public void SetProvider(FeatureProvider featureProvider)
         {
             this.EventExecutor.RegisterDefaultFeatureProvider(featureProvider);
-            this._repository.SetProvider(featureProvider, this.GetContext()).ConfigureAwait(false);
+            _ = this._repository.SetProvider(featureProvider, this.GetContext());
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace OpenFeature
         public void SetProvider(string clientName, FeatureProvider featureProvider)
         {
             this.EventExecutor.RegisterClientFeatureProvider(clientName, featureProvider);
-            this._repository.SetProvider(clientName, featureProvider, this.GetContext()).ConfigureAwait(false);
+            _ = this._repository.SetProvider(clientName, featureProvider, this.GetContext());
         }
 
         /// <summary>
