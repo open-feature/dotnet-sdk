@@ -94,7 +94,38 @@ namespace OpenFeature
         public void AddHooks(Hook hook) => this._hooks.Push(hook);
 
         /// <inheritdoc />
-        public void AddHooks(IEnumerable<Hook> hooks) => this._hooks.PushRange(hooks.ToArray());
+        public void AddHandler(ProviderEventTypes eventType, EventHandlerDelegate handler)
+        {
+            Api.Instance.EventExecutor.AddClientHandler(this._metadata.Name, eventType, handler);
+        }
+
+        /// <inheritdoc />
+        public void RemoveHandler(ProviderEventTypes type, EventHandlerDelegate handler)
+        {
+            Api.Instance.EventExecutor.RemoveClientHandler(this._metadata.Name, type, handler);
+        }
+
+        /// <inheritdoc />
+        public void AddHooks(IEnumerable<Hook> hooks)
+#if NET7_0_OR_GREATER
+            => this._hooks.PushRange(hooks as Hook[] ?? hooks.ToArray());
+#else
+        {
+            // See: https://github.com/dotnet/runtime/issues/62121
+            if (hooks is Hook[] array)
+            {
+                if (array.Length > 0)
+                    this._hooks.PushRange(array);
+
+                return;
+            }
+
+            array = hooks.ToArray();
+
+            if (array.Length > 0)
+                this._hooks.PushRange(array);
+        }
+#endif
 
         /// <inheritdoc />
         public IEnumerable<Hook> GetHooks() => this._hooks.Reverse();

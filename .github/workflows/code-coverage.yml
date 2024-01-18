@@ -17,14 +17,12 @@ jobs:
       OS: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
-    - name: Setup .NET Core 7.0.x
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '7.0.x'
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
 
     - name: Run Test
       run: dotnet test --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover

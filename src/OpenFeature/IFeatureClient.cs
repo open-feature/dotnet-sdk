@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using OpenFeature.Constant;
 using OpenFeature.Model;
 
 namespace OpenFeature
@@ -7,7 +8,7 @@ namespace OpenFeature
     /// <summary>
     /// Interface used to resolve flags of varying types.
     /// </summary>
-    public interface IFeatureClient
+    public interface IFeatureClient : IEventBus
     {
         /// <summary>
         /// Appends hooks to client

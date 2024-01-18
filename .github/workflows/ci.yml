@@ -14,33 +14,33 @@ jobs:
   unit-tests-linux:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
-    - name: Setup .NET Core 6.0.x, 7.0.x
-      uses: actions/setup-dotnet@v3
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: |
           6.0.x
           7.0.x
 
     - name: Run Tests
-      run: dotnet test test/OpenFeature.Tests/ --configuration Release --logger:"console;verbosity=detailed"
-  
+      run: dotnet test test/OpenFeature.Tests/ --configuration Release --logger GitHubActions
+
   unit-tests-windows:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
-    - name: Setup .NET Core 6.0.x, 7.0.x
-      uses: actions/setup-dotnet@v3
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: |
           6.0.x
           7.0.x
 
     - name: Run Tests
-      run: dotnet test test\OpenFeature.Tests\ --configuration Release --logger:"console;verbosity=detailed"
+      run: dotnet test test\OpenFeature.Tests\ --configuration Release --logger GitHubActions

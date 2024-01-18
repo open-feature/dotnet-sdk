@@ -70,21 +70,21 @@ dotnet add package OpenFeature
 
 ```csharp
 public async Task Example()
-        {
-            // Register your feature flag provider
-            await Api.Instance.SetProvider(new InMemoryProvider());
+{
+    // Register your feature flag provider
+    await Api.Instance.SetProvider(new InMemoryProvider());
 
-            // Create a new client
-            FeatureClient client = Api.Instance.GetClient();
+    // Create a new client
+    FeatureClient client = Api.Instance.GetClient();
 
-            // Evaluate your feature flag
-            bool v2Enabled = await client.GetBooleanValue("v2_enabled", false);
+    // Evaluate your feature flag
+    bool v2Enabled = await client.GetBooleanValue("v2_enabled", false);
 
-            if ( v2Enabled )
-            {
-                //Do some work
-            }
-        }
+    if ( v2Enabled )
+    {
+        //Do some work
+    }
+}
 ```
 
 ## 🌟 Features
@@ -96,7 +96,7 @@ public async Task Example()
 | ✅     | [Hooks](#hooks)                 | Add functionality to various stages of the flag evaluation life-cycle.                                                             |
 | ✅     | [Logging](#logging)             | Integrate with popular logging packages.                                                                                           |
 | ✅     | [Named clients](#named-clients) | Utilize multiple providers in a single application.                                                                                |
-| ❌     | [Eventing](#eventing)           | React to state changes in the provider or flag management system.                                                                  |
+| ✅     | [Eventing](#eventing)           | React to state changes in the provider or flag management system.                                                                  |
 | ✅    | [Shutdown](#shutdown)           | Gracefully clean up a provider during application shutdown.                                                                        |
 | ✅     | [Extending](#extending)         | Extend OpenFeature with custom providers and hooks.                                                                                |
 
@@ -180,11 +180,13 @@ If a name has no associated provider, the global provider is used.
 ```csharp
 // registering the default provider
 await Api.Instance.SetProvider(new LocalProvider());
+
 // registering a named provider
 await Api.Instance.SetProvider("clientForCache", new CachedProvider());
 
 // a client backed by default provider
- FeatureClient clientDefault = Api.Instance.GetClient();
+FeatureClient clientDefault = Api.Instance.GetClient();
+
 // a client backed by CachedProvider
 FeatureClient clientNamed = Api.Instance.GetClient("clientForCache");
 
@@ -192,7 +194,40 @@ FeatureClient clientNamed = Api.Instance.GetClient("clientForCache");
 
 ### Eventing
 
-Events are currently not supported by the .NET SDK. Progress on this feature can be tracked [here](https://github.com/open-feature/dotnet-sdk/issues/126).
+Events allow you to react to state changes in the provider or underlying flag management system, such as flag definition changes,
+provider readiness, or error conditions.
+Initialization events (`PROVIDER_READY` on success, `PROVIDER_ERROR` on failure) are dispatched for every provider.
+Some providers support additional events, such as `PROVIDER_CONFIGURATION_CHANGED`.
+
+Please refer to the documentation of the provider you're using to see what events are supported.
+
+Example usage of an Event handler:
+
+```csharp
+public static void EventHandler(ProviderEventPayload eventDetails)
+{
+    Console.WriteLine(eventDetails.Type);
+}
+```
+
+```csharp
+EventHandlerDelegate callback = EventHandler;
+// add an implementation of the EventHandlerDelegate for the PROVIDER_READY event
+Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, callback);
+```
+
+It is also possible to register an event handler for a specific client, as in the following example:
+
+```csharp
+EventHandlerDelegate callback = EventHandler;
+
+var myClient = Api.Instance.GetClient("my-client");
+
+var provider = new ExampleProvider();
+await Api.Instance.SetProvider(myClient.GetMetadata().Name, provider);
+
+myClient.AddHandler(ProviderEventTypes.ProviderReady, callback);
+```
 
 ### Shutdown
 
@@ -213,37 +248,37 @@ You’ll then need to write the provider by implementing the `FeatureProvider` i
 
 ```csharp
 public class MyProvider : FeatureProvider
+{
+    public override Metadata GetMetadata()
     {
-        public override Metadata GetMetadata()
-        {
-            return new Metadata("My Provider");
-        }
-
-        public override Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null)
-        {
-            // resolve a boolean flag value
-        }
-
-        public override Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue, EvaluationContext context = null)
-        {
-            // resolve a double flag value
-        }
-
-        public override Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue, EvaluationContext context = null)
-        {
-            // resolve an int flag value
-        }
-
-        public override Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue, EvaluationContext context = null)
-        {
-            // resolve a string flag value
-        }
-
-        public override Task<ResolutionDetails<Value>> ResolveStructureValue(string flagKey, Value defaultValue, EvaluationContext context = null)
-        {
-            // resolve an object flag value
-        }
+        return new Metadata("My Provider");
     }
+
+    public override Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null)
+    {
+        // resolve a boolean flag value
+    }
+
+    public override Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue, EvaluationContext context = null)
+    {
+        // resolve a double flag value
+    }
+
+    public override Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue, EvaluationContext context = null)
+    {
+        // resolve an int flag value
+    }
+
+    public override Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue, EvaluationContext context = null)
+    {
+        // resolve a string flag value
+    }
+
+    public override Task<ResolutionDetails<Value>> ResolveStructureValue(string flagKey, Value defaultValue, EvaluationContext context = null)
+    {
+        // resolve an object flag value
+    }
+}
 ```
 
 ### Develop a hook

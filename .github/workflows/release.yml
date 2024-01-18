@@ -17,14 +17,14 @@ jobs:
           token: ${{secrets.GITHUB_TOKEN}}
           default-branch: main
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         if: ${{ steps.release.outputs.releases_created }}
         with:
           fetch-depth: 0
 
-      - name: Setup .NET Core 6.0.x, 7.0.x
+      - name: Setup .NET SDK
         if: ${{ steps.release.outputs.releases_created }}
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
             6.0.x

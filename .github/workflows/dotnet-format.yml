@@ -18,12 +18,10 @@ jobs:
 
     steps:
     - name: Check out code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
-    - name: Setup .NET Core 7.0
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 7.0.x
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
 
     - name: Install format tool
       run: dotnet tool install -g dotnet-format
