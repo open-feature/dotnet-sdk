@@ -43,7 +43,7 @@ namespace OpenFeature.Tests
             eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload == myEvent.EventPayload));
 
             // shut down the event executor
-            await eventExecutor.Shutdown();
+            await eventExecutor.ShutdownAsync();
 
             // the next event should not be propagated to the event handler
             var newEventPayload = new ProviderEventPayload { Type = ProviderEventTypes.ProviderStale };
@@ -70,11 +70,11 @@ namespace OpenFeature.Tests
             Api.Instance.AddHandler(ProviderEventTypes.ProviderStale, eventHandler);
 
             var testProvider = new TestProvider();
-            await Api.Instance.SetProvider(testProvider);
+            await Api.Instance.SetProviderAsync(testProvider);
 
-            testProvider.SendEvent(ProviderEventTypes.ProviderConfigurationChanged);
-            testProvider.SendEvent(ProviderEventTypes.ProviderError);
-            testProvider.SendEvent(ProviderEventTypes.ProviderStale);
+            await testProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged);
+            await testProvider.SendEventAsync(ProviderEventTypes.ProviderError);
+            await testProvider.SendEventAsync(ProviderEventTypes.ProviderStale);
 
             Thread.Sleep(1000);
             eventHandler
@@ -118,7 +118,7 @@ namespace OpenFeature.Tests
             var eventHandler = Substitute.For<EventHandlerDelegate>();
 
             var testProvider = new TestProvider();
-            await Api.Instance.SetProvider(testProvider);
+            await Api.Instance.SetProviderAsync(testProvider);
 
             Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
@@ -143,7 +143,7 @@ namespace OpenFeature.Tests
             var eventHandler = Substitute.For<EventHandlerDelegate>();
 
             var testProvider = new TestProvider();
-            await Api.Instance.SetProvider(testProvider);
+            await Api.Instance.SetProviderAsync(testProvider);
 
             testProvider.SetStatus(ProviderStatus.Error);
 
@@ -169,7 +169,7 @@ namespace OpenFeature.Tests
             var eventHandler = Substitute.For<EventHandlerDelegate>();
 
             var testProvider = new TestProvider();
-            await Api.Instance.SetProvider(testProvider);
+            await Api.Instance.SetProviderAsync(testProvider);
 
             testProvider.SetStatus(ProviderStatus.Stale);
 
@@ -198,14 +198,14 @@ namespace OpenFeature.Tests
             Api.Instance.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, eventHandler);
 
             var testProvider = new TestProvider();
-            await Api.Instance.SetProvider(testProvider);
+            await Api.Instance.SetProviderAsync(testProvider);
 
-            testProvider.SendEvent(ProviderEventTypes.ProviderConfigurationChanged);
+            await testProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged);
 
             var newTestProvider = new TestProvider();
-            await Api.Instance.SetProvider(newTestProvider);
+            await Api.Instance.SetProviderAsync(newTestProvider);
 
-            newTestProvider.SendEvent(ProviderEventTypes.ProviderConfigurationChanged);
+            await newTestProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged);
 
             Thread.Sleep(1000);
             eventHandler.Received(2).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderReady));
@@ -224,13 +224,13 @@ namespace OpenFeature.Tests
             Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
             var testProvider = new TestProvider();
-            await Api.Instance.SetProvider(testProvider);
+            await Api.Instance.SetProviderAsync(testProvider);
 
             Thread.Sleep(1000);
             Api.Instance.RemoveHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
             var newTestProvider = new TestProvider();
-            await Api.Instance.SetProvider(newTestProvider);
+            await Api.Instance.SetProviderAsync(newTestProvider);
 
             eventHandler.Received(1).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
         }
@@ -255,7 +255,7 @@ namespace OpenFeature.Tests
             Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
             var testProvider = new TestProvider(fixture.Create<string>());
-            await Api.Instance.SetProvider(testProvider);
+            await Api.Instance.SetProviderAsync(testProvider);
 
             failingEventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
             eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
@@ -274,7 +274,7 @@ namespace OpenFeature.Tests
             var myClient = Api.Instance.GetClient(fixture.Create<string>());
 
             var testProvider = new TestProvider();
-            await Api.Instance.SetProvider(myClient.GetMetadata().Name, testProvider);
+            await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name, testProvider);
 
             myClient.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
@@ -303,7 +303,7 @@ namespace OpenFeature.Tests
             myClient.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
             var testProvider = new TestProvider();
-            await Api.Instance.SetProvider(myClient.GetMetadata().Name, testProvider);
+            await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name, testProvider);
 
             Thread.Sleep(1000);
 
@@ -330,9 +330,9 @@ namespace OpenFeature.Tests
             var clientProvider = new TestProvider(fixture.Create<string>());
 
             // set the default provider on API level, but not specifically to the client
-            await Api.Instance.SetProvider(apiProvider);
+            await Api.Instance.SetProviderAsync(apiProvider);
             // set the other provider specifically for the client
-            await Api.Instance.SetProvider(myClientWithBoundProvider.GetMetadata().Name, clientProvider);
+            await Api.Instance.SetProviderAsync(myClientWithBoundProvider.GetMetadata().Name, clientProvider);
 
             myClientWithNoBoundProvider.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
             myClientWithBoundProvider.AddHandler(ProviderEventTypes.ProviderReady, clientEventHandler);
@@ -362,11 +362,11 @@ namespace OpenFeature.Tests
             var clientProvider = new TestProvider(fixture.Create<string>());
 
             // set the default provider
-            await Api.Instance.SetProvider(defaultProvider);
+            await Api.Instance.SetProviderAsync(defaultProvider);
 
             client.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, clientEventHandler);
 
-            defaultProvider.SendEvent(ProviderEventTypes.ProviderConfigurationChanged);
+            await defaultProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged);
 
             Thread.Sleep(1000);
 
@@ -374,11 +374,11 @@ namespace OpenFeature.Tests
             clientEventHandler.Received(1).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == defaultProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderConfigurationChanged));
 
             // set the other provider specifically for the client
-            await Api.Instance.SetProvider(client.GetMetadata().Name, clientProvider);
+            await Api.Instance.SetProviderAsync(client.GetMetadata().Name, clientProvider);
 
             // now, send another event for the default handler
-            defaultProvider.SendEvent(ProviderEventTypes.ProviderConfigurationChanged);
-            clientProvider.SendEvent(ProviderEventTypes.ProviderConfigurationChanged);
+            await defaultProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged);
+            await clientProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged);
 
             Thread.Sleep(1000);
 
@@ -403,7 +403,7 @@ namespace OpenFeature.Tests
             var myClient = Api.Instance.GetClient(fixture.Create<string>());
 
             var testProvider = new TestProvider();
-            await Api.Instance.SetProvider(myClient.GetMetadata().Name, testProvider);
+            await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name, testProvider);
 
             // add the event handler after the provider has already transitioned into the ready state
             myClient.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
@@ -428,14 +428,14 @@ namespace OpenFeature.Tests
             myClient.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
             var testProvider = new TestProvider();
-            await Api.Instance.SetProvider(myClient.GetMetadata().Name, testProvider);
+            await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name, testProvider);
 
             // wait for the first event to be received
             Thread.Sleep(1000);
             myClient.RemoveHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
             // send another event from the provider - this one should not be received
-            testProvider.SendEvent(ProviderEventTypes.ProviderReady);
+            await testProvider.SendEventAsync(ProviderEventTypes.ProviderReady);
 
             // wait a bit and make sure we only have received the first event, but nothing after removing the event handler
             Thread.Sleep(1000);

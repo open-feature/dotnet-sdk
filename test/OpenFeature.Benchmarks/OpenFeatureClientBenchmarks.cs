@@ -45,62 +45,62 @@ namespace OpenFeature.Benchmark
 
         [Benchmark]
         public async Task OpenFeatureClient_GetBooleanValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions() =>
-            await _client.GetBooleanValue(_flagName, _defaultBoolValue);
+            await _client.GetBooleanValueAsync(_flagName, _defaultBoolValue);
 
         [Benchmark]
         public async Task OpenFeatureClient_GetBooleanValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions() =>
-            await _client.GetBooleanValue(_flagName, _defaultBoolValue, EvaluationContext.Empty);
+            await _client.GetBooleanValueAsync(_flagName, _defaultBoolValue, EvaluationContext.Empty);
 
         [Benchmark]
         public async Task OpenFeatureClient_GetBooleanValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions() =>
-            await _client.GetBooleanValue(_flagName, _defaultBoolValue, EvaluationContext.Empty, _emptyFlagOptions);
+            await _client.GetBooleanValueAsync(_flagName, _defaultBoolValue, EvaluationContext.Empty, _emptyFlagOptions);
 
         [Benchmark]
         public async Task OpenFeatureClient_GetStringValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions() =>
-            await _client.GetStringValue(_flagName, _defaultStringValue);
+            await _client.GetStringValueAsync(_flagName, _defaultStringValue);
 
         [Benchmark]
         public async Task OpenFeatureClient_GetStringValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions() =>
-            await _client.GetStringValue(_flagName, _defaultStringValue, EvaluationContext.Empty);
+            await _client.GetStringValueAsync(_flagName, _defaultStringValue, EvaluationContext.Empty);
 
         [Benchmark]
         public async Task OpenFeatureClient_GetStringValue_WithoutEvaluationContext_WithEmptyFlagEvaluationOptions() =>
-            await _client.GetStringValue(_flagName, _defaultStringValue, EvaluationContext.Empty, _emptyFlagOptions);
+            await _client.GetStringValueAsync(_flagName, _defaultStringValue, EvaluationContext.Empty, _emptyFlagOptions);
 
         [Benchmark]
         public async Task OpenFeatureClient_GetIntegerValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions() =>
-            await _client.GetIntegerValue(_flagName, _defaultIntegerValue);
+            await _client.GetIntegerValueAsync(_flagName, _defaultIntegerValue);
 
         [Benchmark]
         public async Task OpenFeatureClient_GetIntegerValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions() =>
-            await _client.GetIntegerValue(_flagName, _defaultIntegerValue, EvaluationContext.Empty);
+            await _client.GetIntegerValueAsync(_flagName, _defaultIntegerValue, EvaluationContext.Empty);
 
         [Benchmark]
         public async Task OpenFeatureClient_GetIntegerValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions() =>
-            await _client.GetIntegerValue(_flagName, _defaultIntegerValue, EvaluationContext.Empty, _emptyFlagOptions);
+            await _client.GetIntegerValueAsync(_flagName, _defaultIntegerValue, EvaluationContext.Empty, _emptyFlagOptions);
 
         [Benchmark]
         public async Task OpenFeatureClient_GetDoubleValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions() =>
-            await _client.GetDoubleValue(_flagName, _defaultDoubleValue);
+            await _client.GetDoubleValueAsync(_flagName, _defaultDoubleValue);
 
         [Benchmark]
         public async Task OpenFeatureClient_GetDoubleValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions() =>
-            await _client.GetDoubleValue(_flagName, _defaultDoubleValue, EvaluationContext.Empty);
+            await _client.GetDoubleValueAsync(_flagName, _defaultDoubleValue, EvaluationContext.Empty);
 
         [Benchmark]
         public async Task OpenFeatureClient_GetDoubleValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions() =>
-            await _client.GetDoubleValue(_flagName, _defaultDoubleValue, EvaluationContext.Empty, _emptyFlagOptions);
+            await _client.GetDoubleValueAsync(_flagName, _defaultDoubleValue, EvaluationContext.Empty, _emptyFlagOptions);
 
         [Benchmark]
         public async Task OpenFeatureClient_GetObjectValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions() =>
-            await _client.GetObjectValue(_flagName, _defaultStructureValue);
+            await _client.GetObjectValueAsync(_flagName, _defaultStructureValue);
 
         [Benchmark]
         public async Task OpenFeatureClient_GetObjectValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions() =>
-            await _client.GetObjectValue(_flagName, _defaultStructureValue, EvaluationContext.Empty);
+            await _client.GetObjectValueAsync(_flagName, _defaultStructureValue, EvaluationContext.Empty);
 
         [Benchmark]
         public async Task OpenFeatureClient_GetObjectValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions() =>
-            await _client.GetObjectValue(_flagName, _defaultStructureValue, EvaluationContext.Empty, _emptyFlagOptions);
+            await _client.GetObjectValueAsync(_flagName, _defaultStructureValue, EvaluationContext.Empty, _emptyFlagOptions);
     }
 }
