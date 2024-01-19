@@ -17,9 +17,11 @@ internal class Utils
     {
         using (var cts = CancellationTokenSource.CreateLinkedTokenSource(default(CancellationToken)))
         {
+            
             cts.CancelAfter(timeoutMillis);
 
             var exceptions = new List<Exception>();
+            var message = "AssertUntilAsync timeout reached.";
 
             while (!cts.IsCancellationRequested)
             {
@@ -30,7 +32,7 @@ internal class Utils
                 }
                 catch (TaskCanceledException) when (cts.IsCancellationRequested)
                 {
-                    throw new AggregateException("AssertUntilAsync timeout reached.", exceptions);
+                    throw new AggregateException(message, exceptions);
                 }
                 catch (Exception e)
                 {
@@ -43,9 +45,10 @@ internal class Utils
                 }
                 catch (TaskCanceledException)
                 {
-                    throw new AggregateException("AssertUntilAsync timeout reached.", exceptions);
+                    throw new AggregateException(message, exceptions);
                 }
             }
+            throw new AggregateException(message, exceptions);
         }
     }
 }
