@@ -13,7 +13,7 @@ internal class Utils
     /// <returns></returns>
     public static async Task AssertUntilAsync(Action assertionFunc, int timeoutMillis = 1000, int pollIntervalMillis = 100)
     {
-        Exception lastException;
+        Exception lastException = new TimeoutException("AssertUntilAsync timeout reached.");
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
 
