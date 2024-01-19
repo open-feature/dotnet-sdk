@@ -42,7 +42,7 @@ namespace OpenFeature.E2ETests
         {
             _scenarioContext = scenarioContext;
             var flagdProvider = new FlagdProvider();
-            Api.Instance.SetProvider(flagdProvider).Wait();
+            Api.Instance.SetProviderAsync(flagdProvider).Wait();
             client = Api.Instance.GetClient();
         }
 
@@ -55,7 +55,7 @@ namespace OpenFeature.E2ETests
         [When(@"a boolean flag with key ""(.*)"" is evaluated with default value ""(.*)""")]
         public void Whenabooleanflagwithkeyisevaluatedwithdefaultvalue(string flagKey, bool defaultValue)
         {
-            this.booleanFlagValue = client.GetBooleanValue(flagKey, defaultValue);
+            this.booleanFlagValue = client.GetBooleanValueAsync(flagKey, defaultValue);
         }
 
         [Then(@"the resolved boolean value should be ""(.*)""")]
@@ -67,7 +67,7 @@ namespace OpenFeature.E2ETests
         [When(@"a string flag with key ""(.*)"" is evaluated with default value ""(.*)""")]
         public void Whenastringflagwithkeyisevaluatedwithdefaultvalue(string flagKey, string defaultValue)
         {
-            this.stringFlagValue = client.GetStringValue(flagKey, defaultValue);
+            this.stringFlagValue = client.GetStringValueAsync(flagKey, defaultValue);
         }
 
         [Then(@"the resolved string value should be ""(.*)""")]
@@ -79,7 +79,7 @@ namespace OpenFeature.E2ETests
         [When(@"an integer flag with key ""(.*)"" is evaluated with default value (.*)")]
         public void Whenanintegerflagwithkeyisevaluatedwithdefaultvalue(string flagKey, int defaultValue)
         {
-            this.intFlagValue = client.GetIntegerValue(flagKey, defaultValue);
+            this.intFlagValue = client.GetIntegerValueAsync(flagKey, defaultValue);
         }
 
         [Then(@"the resolved integer value should be (.*)")]
@@ -91,7 +91,7 @@ namespace OpenFeature.E2ETests
         [When(@"a float flag with key ""(.*)"" is evaluated with default value (.*)")]
         public void Whenafloatflagwithkeyisevaluatedwithdefaultvalue(string flagKey, double defaultValue)
         {
-            this.doubleFlagValue = client.GetDoubleValue(flagKey, defaultValue);
+            this.doubleFlagValue = client.GetDoubleValueAsync(flagKey, defaultValue);
         }
 
         [Then(@"the resolved float value should be (.*)")]
@@ -103,7 +103,7 @@ namespace OpenFeature.E2ETests
         [When(@"an object flag with key ""(.*)"" is evaluated with a null default value")]
         public void Whenanobjectflagwithkeyisevaluatedwithanulldefaultvalue(string flagKey)
         {
-            this.objectFlagValue = client.GetObjectValue(flagKey, new Value());
+            this.objectFlagValue = client.GetObjectValueAsync(flagKey, new Value());
         }
 
         [Then(@"the resolved object value should be contain fields ""(.*)"", ""(.*)"", and ""(.*)"", with values ""(.*)"", ""(.*)"" and (.*), respectively")]
@@ -118,7 +118,7 @@ namespace OpenFeature.E2ETests
         [When(@"a boolean flag with key ""(.*)"" is evaluated with details and default value ""(.*)""")]
         public void Whenabooleanflagwithkeyisevaluatedwithdetailsanddefaultvalue(string flagKey, bool defaultValue)
         {
-            this.booleanFlagDetails = client.GetBooleanDetails(flagKey, defaultValue);
+            this.booleanFlagDetails = client.GetBooleanDetailsAsync(flagKey, defaultValue);
         }
 
         [Then(@"the resolved boolean details value should be ""(.*)"", the variant should be ""(.*)"", and the reason should be ""(.*)""")]
@@ -133,7 +133,7 @@ namespace OpenFeature.E2ETests
         [When(@"a string flag with key ""(.*)"" is evaluated with details and default value ""(.*)""")]
         public void Whenastringflagwithkeyisevaluatedwithdetailsanddefaultvalue(string flagKey, string defaultValue)
         {
-            this.stringFlagDetails = client.GetStringDetails(flagKey, defaultValue);
+            this.stringFlagDetails = client.GetStringDetailsAsync(flagKey, defaultValue);
         }
 
         [Then(@"the resolved string details value should be ""(.*)"", the variant should be ""(.*)"", and the reason should be ""(.*)""")]
@@ -148,7 +148,7 @@ namespace OpenFeature.E2ETests
         [When(@"an integer flag with key ""(.*)"" is evaluated with details and default value (.*)")]
         public void Whenanintegerflagwithkeyisevaluatedwithdetailsanddefaultvalue(string flagKey, int defaultValue)
         {
-            this.intFlagDetails = client.GetIntegerDetails(flagKey, defaultValue);
+            this.intFlagDetails = client.GetIntegerDetailsAsync(flagKey, defaultValue);
         }
 
         [Then(@"the resolved integer details value should be (.*), the variant should be ""(.*)"", and the reason should be ""(.*)""")]
@@ -163,7 +163,7 @@ namespace OpenFeature.E2ETests
         [When(@"a float flag with key ""(.*)"" is evaluated with details and default value (.*)")]
         public void Whenafloatflagwithkeyisevaluatedwithdetailsanddefaultvalue(string flagKey, double defaultValue)
         {
-            this.doubleFlagDetails = client.GetDoubleDetails(flagKey, defaultValue);
+            this.doubleFlagDetails = client.GetDoubleDetailsAsync(flagKey, defaultValue);
         }
 
         [Then(@"the resolved float details value should be (.*), the variant should be ""(.*)"", and the reason should be ""(.*)""")]
@@ -178,7 +178,7 @@ namespace OpenFeature.E2ETests
         [When(@"an object flag with key ""(.*)"" is evaluated with details and a null default value")]
         public void Whenanobjectflagwithkeyisevaluatedwithdetailsandanulldefaultvalue(string flagKey)
         {
-            this.objectFlagDetails = client.GetObjectDetails(flagKey, new Value());
+            this.objectFlagDetails = client.GetObjectDetailsAsync(flagKey, new Value());
         }
 
         [Then(@"the resolved object details value should be contain fields ""(.*)"", ""(.*)"", and ""(.*)"", with values ""(.*)"", ""(.*)"" and (.*), respectively")]
@@ -213,7 +213,7 @@ namespace OpenFeature.E2ETests
         {
             contextAwareFlagKey = flagKey;
             contextAwareDefaultValue = defaultValue;
-            contextAwareValue = client.GetStringValue(flagKey, contextAwareDefaultValue, context).Result;
+            contextAwareValue = client.GetStringValueAsync(flagKey, contextAwareDefaultValue, context).Result;
         }
 
         [Then(@"the resolved string response should be ""(.*)""")]
@@ -225,7 +225,7 @@ namespace OpenFeature.E2ETests
         [Then(@"the resolved flag value is ""(.*)"" when the context is empty")]
         public void Giventheresolvedflagvalueiswhenthecontextisempty(string expected)
         {
-            string emptyContextValue = client.GetStringValue(contextAwareFlagKey, contextAwareDefaultValue, new EvaluationContext(new Structure(ImmutableDictionary<string, Value>.Empty))).Result;
+            string emptyContextValue = client.GetStringValueAsync(contextAwareFlagKey, contextAwareDefaultValue, new EvaluationContext(new Structure(ImmutableDictionary<string, Value>.Empty))).Result;
             Assert.Equal(expected, emptyContextValue);
         }
 
@@ -234,7 +234,7 @@ namespace OpenFeature.E2ETests
         {
             this.notFoundFlagKey = flagKey;
             this.notFoundDefaultValue = defaultValue;
-            this.notFoundDetails = client.GetStringDetails(this.notFoundFlagKey, this.notFoundDefaultValue).Result;
+            this.notFoundDetails = client.GetStringDetailsAsync(this.notFoundFlagKey, this.notFoundDefaultValue).Result;
         }
 
         [Then(@"the default string value should be returned")]
@@ -255,7 +255,7 @@ namespace OpenFeature.E2ETests
         {
             this.typeErrorFlagKey = flagKey;
             this.typeErrorDefaultValue = defaultValue;
-            this.typeErrorDetails = client.GetIntegerDetails(this.typeErrorFlagKey, this.typeErrorDefaultValue).Result;
+            this.typeErrorDetails = client.GetIntegerDetailsAsync(this.typeErrorFlagKey, this.typeErrorDefaultValue).Result;
         }
 
         [Then(@"the default integer value should be returned")]
