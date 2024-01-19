@@ -22,7 +22,7 @@ internal class Utils
             try
             {
                 assertionFunc();
-                return;   
+                return;
             }
             catch (Exception e)
             {
