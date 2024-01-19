@@ -8,7 +8,7 @@ namespace OpenFeature.Model
     /// </summary>
     /// <typeparam name="T">Flag value type</typeparam>
     /// <seealso href="https://github.com/open-feature/spec/blob/v0.5.2/specification/types.md#resolution-details"/>
-    public class ResolutionDetails<T>
+    public sealed class ResolutionDetails<T>
     {
         /// <summary>
         /// Feature flag evaluated value
