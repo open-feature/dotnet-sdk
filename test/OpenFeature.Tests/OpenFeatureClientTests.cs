@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Internal;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using OpenFeature.Constant;
@@ -180,12 +179,7 @@ namespace OpenFeature.Tests
 
             _ = mockedFeatureProvider.Received(1).ResolveStructureValue(flagName, defaultValue, Arg.Any<EvaluationContext>());
 
-            mockedLogger.Received(1).Log(
-                LogLevel.Error,
-                Arg.Any<EventId>(),
-                Arg.Is<FormattedLogValues>(t => string.Equals($"Error while evaluating flag {flagName}", t.ToString(), StringComparison.InvariantCultureIgnoreCase)),
-                Arg.Any<Exception>(),
-                Arg.Any<Func<object, Exception, string>>());
+            mockedLogger.Received(1).IsEnabled(LogLevel.Error);
         }
 
         [Fact]

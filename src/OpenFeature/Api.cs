@@ -246,7 +246,7 @@ namespace OpenFeature
         /// <param name="logger">The logger to be used</param>
         public void SetLogger(ILogger logger)
         {
-            this.EventExecutor.Logger = logger;
+            this.EventExecutor.SetLogger(logger);
         }
     }
 }

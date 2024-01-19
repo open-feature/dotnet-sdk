@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>latest</LangVersion>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
   </PropertyGroup>
@@ -19,12 +19,13 @@
       Please sort alphabetically.
       Refer to https://docs.microsoft.com/nuget/concepts/package-versioning for semver syntax.
     -->
-    <MicrosoftExtensionsLoggerVer>[2.0,)</MicrosoftExtensionsLoggerVer>
+    <MicrosoftExtensionsLoggerVer>[8.0.0,)</MicrosoftExtensionsLoggerVer>
     <MicrosoftSourceLinkGitHubPkgVer>[1.0.0,2.0)</MicrosoftSourceLinkGitHubPkgVer>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Collections.Immutable" Version="[1.7.1,)" />
     <PackageReference Include="System.Threading.Channels" Version="[6.0.0,)" />
+    <PackageReference Include="System.ValueTuple" Version="[4.5.0,)" Condition="'$(TargetFramework)' == 'net462'" />
   </ItemGroup>
 </Project>

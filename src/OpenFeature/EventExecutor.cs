@@ -13,7 +13,7 @@ namespace OpenFeature
 
     internal delegate Task ShutdownDelegate();
 
-    internal class EventExecutor
+    internal sealed partial class EventExecutor
     {
         private readonly object _lockObj = new object();
         public readonly Channel<object> EventChannel = Channel.CreateBounded<object>(1);
@@ -27,15 +27,17 @@ namespace OpenFeature
         private readonly Dictionary<ProviderEventTypes, List<EventHandlerDelegate>> _apiHandlers = new Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>();
         private readonly Dictionary<string, Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>> _clientHandlers = new Dictionary<string, Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>>();
 
-        internal ILogger Logger { get; set; }
+        private ILogger _logger;
 
         public EventExecutor()
         {
-            this.Logger = new Logger<EventExecutor>(new NullLoggerFactory());
+            this._logger = NullLogger<EventExecutor>.Instance;
             this._shutdownDelegate = this.SignalShutdownAsync;
             var eventProcessing = new Thread(this.ProcessEventAsync);
             eventProcessing.Start();
         }
+
+        internal void SetLogger(ILogger logger) => this._logger = logger;
 
         internal void AddApiLevelHandler(ProviderEventTypes eventType, EventHandlerDelegate handler)
         {
@@ -218,7 +220,7 @@ namespace OpenFeature
                 }
                 catch (Exception exc)
                 {
-                    this.Logger?.LogError("Error running handler: " + exc);
+                    this.ErrorRunningHandler(exc);
                 }
             }
         }
@@ -323,7 +325,7 @@ namespace OpenFeature
             }
             catch (Exception exc)
             {
-                this.Logger?.LogError("Error running handler: " + exc);
+                this.ErrorRunningHandler(exc);
             }
         }
 
@@ -346,6 +348,9 @@ namespace OpenFeature
             // Wait for the processing loop to acknowledge the shutdown
             await this._shutdownSemaphore.WaitAsync().ConfigureAwait(false);
         }
+
+        [LoggerMessage(100, LogLevel.Error, "Error running handler")]
+        partial void ErrorRunningHandler(Exception exception);
     }
 
     internal class ShutdownSignal
