@@ -11,7 +11,7 @@ namespace OpenFeature.Tests
         [Fact]
         public async void Should_Fail_If_Assertion_Fails()
         {
-            await Assert.ThrowsAnyAsync<Exception>(() => Utils.AssertUntilAsync(() => Assert.True(1.Equals(2)))).ConfigureAwait(false);
+            await Assert.ThrowsAnyAsync<Exception>(() => Utils.AssertUntilAsync(() => Assert.True(1.Equals(2)), 100, 10)).ConfigureAwait(false);
         }
 
         [Fact]
