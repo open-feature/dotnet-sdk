@@ -11,29 +11,37 @@ internal class Utils
     /// <param name="timeoutMillis">Timeout in millis (defaults to 1000)</param>
     /// <param name="pollIntervalMillis">Poll interval (defaults to 100</param>
     /// <returns></returns>
-    public static async Task AssertUntilAsync(Action assertionFunc, int timeoutMillis = 1000, int pollIntervalMillis = 100)
-    {
-        Exception lastException = new TimeoutException("AssertUntilAsync timeout reached.");
-        Stopwatch stopwatch = new Stopwatch();
-        stopwatch.Start();
-
-        do
-        {
-            try
-            {
-                assertionFunc();
-                return;
-            }
-            catch (Exception e)
-            {
-                lastException = e;
-            }
-            finally
-            {
-                await Task.Delay(pollIntervalMillis).ConfigureAwait(false);
-            }
-        }
-        while (stopwatch.Elapsed.TotalMilliseconds < timeoutMillis);
-        throw lastException;
-    }
+  public static async Task AssertUntilAsync(Action<CancellationToken> assertionFunc, int timeoutMillis = 1000, int pollIntervalMillis = 100)
+  {
+      using var cts = CancellationTokenSource.CreateLinkedTokenSource();
+      cts.CancelAfter(timeoutMillis);
+  
+      var exceptions = new List<Exception>();
+  
+      while (!cts.IsCancellationRequested)
+      {
+          try
+          {
+              assertionFunc(cts.Token);
+              return;
+          }
+          catch (TaskCanceledException) when (cts.IsCancellationRequested)
+          {
+              throw new AggregateException("AssertUntilAsync timeout reached.", exceptions);
+          }
+          catch (Exception e)
+          {
+              exceptions.Add(e);
+          }
+  
+          try
+          {
+              await Task.Delay(pollIntervalMillis, cts.Token).ConfigureAwait(false);
+          }
+          catch (TaskCanceledException)
+          {
+              throw new AggregateException("AssertUntilAsync timeout reached.", exceptions);
+          }
+      }
+  }
 }
