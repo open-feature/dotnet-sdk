@@ -17,7 +17,7 @@ internal class Utils
     {
         using (var cts = CancellationTokenSource.CreateLinkedTokenSource(default(CancellationToken)))
         {
-            
+
             cts.CancelAfter(timeoutMillis);
 
             var exceptions = new List<Exception>();
