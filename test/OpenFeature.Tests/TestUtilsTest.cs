@@ -11,13 +11,13 @@ namespace OpenFeature.Tests
         [Fact]
         public async void Should_Fail_If_Assertion_Fails()
         {
-            await Assert.ThrowsAnyAsync<Exception>(() => Utils.AssertUntilAsync(() => Assert.True(1.Equals(2)), 100, 10)).ConfigureAwait(false);
+            await Assert.ThrowsAnyAsync<Exception>(() => Utils.AssertUntilAsync(_ => Assert.True(1.Equals(2)), 100, 10)).ConfigureAwait(false);
         }
 
         [Fact]
         public async void Should_Pass_If_Assertion_Fails()
         {
-            await Utils.AssertUntilAsync(() => Assert.True(1.Equals(1))).ConfigureAwait(false);
+            await Utils.AssertUntilAsync(_ => Assert.True(1.Equals(1))).ConfigureAwait(false);
         }
     }
 }
