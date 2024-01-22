@@ -182,7 +182,7 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        public async void Named_Provider_Provider_Is_Set_Without_Await()
+        public async Task Named_Provider_Provider_Is_Set_Without_Await()
         {
             var repository = new ProviderRepository();
             var provider = new NoOpFeatureProvider();
