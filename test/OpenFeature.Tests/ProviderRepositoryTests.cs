@@ -192,7 +192,7 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        public async void AfterSet_Is_Invoked_For_Setting_Named_Provider()
+        public async Task AfterSet_Is_Invoked_For_Setting_Named_Provider()
         {
             var repository = new ProviderRepository();
             var provider = new NoOpFeatureProvider();
