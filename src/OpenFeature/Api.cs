@@ -44,7 +44,7 @@ namespace OpenFeature
         [Obsolete("Will be removed in later versions; use SetProviderAsync, which can be awaited")]
         public void SetProvider(FeatureProvider featureProvider)
         {
-            this.EventExecutor.RegisterDefaultFeatureProvider(featureProvider);
+            this._eventExecutor.RegisterDefaultFeatureProvider(featureProvider);
             _ = this._repository.SetProvider(featureProvider, this.GetContext());
         }
 
@@ -68,7 +68,7 @@ namespace OpenFeature
         [Obsolete("Will be removed in later versions; use SetProviderAsync, which can be awaited")]
         public void SetProvider(string clientName, FeatureProvider featureProvider)
         {
-            this.EventExecutor.RegisterClientFeatureProvider(clientName, featureProvider);
+            this._eventExecutor.RegisterClientFeatureProvider(clientName, featureProvider);
             _ = this._repository.SetProvider(clientName, featureProvider, this.GetContext());
         }
 
