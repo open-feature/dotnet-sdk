@@ -96,13 +96,13 @@ namespace OpenFeature
         /// <inheritdoc />
         public void AddHandler(ProviderEventTypes eventType, EventHandlerDelegate handler)
         {
-            Api.Instance.EventExecutor.AddClientHandler(this._metadata.Name, eventType, handler);
+            Api.Instance.AddClientHandler(this._metadata.Name, eventType, handler);
         }
 
         /// <inheritdoc />
         public void RemoveHandler(ProviderEventTypes type, EventHandlerDelegate handler)
         {
-            Api.Instance.EventExecutor.RemoveClientHandler(this._metadata.Name, type, handler);
+            Api.Instance.RemoveClientHandler(this._metadata.Name, type, handler);
         }
 
         /// <inheritdoc />

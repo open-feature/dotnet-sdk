@@ -11,11 +11,6 @@ namespace OpenFeature.Tests
 {
     public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
     {
-        static async Task EmptyShutdown()
-        {
-            await Task.FromResult(0).ConfigureAwait(false);
-        }
-
         [Fact]
         [Specification("1.1.1", "The `API`, and any state it maintains SHOULD exist as a global singleton, even in cases wherein multiple versions of the `API` are present at runtime.")]
         public void OpenFeature_Should_Be_Singleton()
@@ -79,9 +74,6 @@ namespace OpenFeature.Tests
         [Specification("1.6.1", "The API MUST define a mechanism to propagate a shutdown request to active providers.")]
         public async Task OpenFeature_Should_Support_Shutdown()
         {
-            // configure the shutdown method of the event executor to do nothing
-            // to prevent eventing tests from failing
-            Api.Instance.EventExecutor.SetShutdownDelegate(EmptyShutdown);
             var providerA = Substitute.For<FeatureProvider>();
             providerA.GetStatus().Returns(ProviderStatus.NotReady);
 

@@ -12,7 +12,7 @@ namespace OpenFeature
     /// <summary>
     /// This class manages the collection of providers, both default and named, contained by the API.
     /// </summary>
-    internal sealed class ProviderRepository
+    internal sealed class ProviderRepository : IAsyncDisposable
     {
         private FeatureProvider _defaultProvider = new NoOpFeatureProvider();
 
@@ -30,6 +30,14 @@ namespace OpenFeature
         /// as it was being added or removed such as two concurrent calls to SetProvider replacing multiple instances
         /// of that provider under different names..
         private readonly ReaderWriterLockSlim _providersLock = new ReaderWriterLockSlim();
+
+        public async ValueTask DisposeAsync()
+        {
+            using (this._providersLock)
+            {
+                await this.Shutdown().ConfigureAwait(false);
+            }
+        }
 
         /// <summary>
         /// Set the default provider

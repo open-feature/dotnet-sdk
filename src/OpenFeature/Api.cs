@@ -18,14 +18,12 @@ namespace OpenFeature
     public sealed class Api : IEventBus
     {
         private EvaluationContext _evaluationContext = EvaluationContext.Empty;
-        private readonly ProviderRepository _repository = new ProviderRepository();
+        private EventExecutor _eventExecutor = new EventExecutor();
+        private ProviderRepository _repository = new ProviderRepository();
         private readonly ConcurrentStack<Hook> _hooks = new ConcurrentStack<Hook>();
 
         /// The reader/writer locks are not disposed because the singleton instance should never be disposed.
         private readonly ReaderWriterLockSlim _evaluationContextLock = new ReaderWriterLockSlim();
-
-        internal readonly EventExecutor EventExecutor = new EventExecutor();
-
 
         /// <summary>
         /// Singleton instance of Api
@@ -58,7 +56,7 @@ namespace OpenFeature
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
         public async Task SetProviderAsync(FeatureProvider featureProvider)
         {
-            this.EventExecutor.RegisterDefaultFeatureProvider(featureProvider);
+            this._eventExecutor.RegisterDefaultFeatureProvider(featureProvider);
             await this._repository.SetProvider(featureProvider, this.GetContext()).ConfigureAwait(false);
         }
 
@@ -82,7 +80,7 @@ namespace OpenFeature
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
         public async Task SetProviderAsync(string clientName, FeatureProvider featureProvider)
         {
-            this.EventExecutor.RegisterClientFeatureProvider(clientName, featureProvider);
+            this._eventExecutor.RegisterClientFeatureProvider(clientName, featureProvider);
             await this._repository.SetProvider(clientName, featureProvider, this.GetContext()).ConfigureAwait(false);
         }
 
@@ -248,20 +246,28 @@ namespace OpenFeature
         /// </summary>
         public async Task Shutdown()
         {
-            await this._repository.Shutdown().ConfigureAwait(false);
-            await this.EventExecutor.Shutdown().ConfigureAwait(false);
+            await using (this._eventExecutor.ConfigureAwait(false))
+            await using (this._repository.ConfigureAwait(false))
+            {
+                this._evaluationContext = EvaluationContext.Empty;
+                this._hooks.Clear();
+
+                // TODO: make these lazy to avoid extra allocations on the common cleanup path?
+                this._eventExecutor = new EventExecutor();
+                this._repository = new ProviderRepository();
+            }
         }
 
         /// <inheritdoc />
         public void AddHandler(ProviderEventTypes type, EventHandlerDelegate handler)
         {
-            this.EventExecutor.AddApiLevelHandler(type, handler);
+            this._eventExecutor.AddApiLevelHandler(type, handler);
         }
 
         /// <inheritdoc />
         public void RemoveHandler(ProviderEventTypes type, EventHandlerDelegate handler)
         {
-            this.EventExecutor.RemoveApiLevelHandler(type, handler);
+            this._eventExecutor.RemoveApiLevelHandler(type, handler);
         }
 
         /// <summary>
@@ -270,7 +276,13 @@ namespace OpenFeature
         /// <param name="logger">The logger to be used</param>
         public void SetLogger(ILogger logger)
         {
-            this.EventExecutor.Logger = logger;
+            this._eventExecutor.Logger = logger;
         }
+
+        internal void AddClientHandler(string client, ProviderEventTypes eventType, EventHandlerDelegate handler)
+            => this._eventExecutor.AddClientHandler(client, eventType, handler);
+
+        internal void RemoveClientHandler(string client, ProviderEventTypes eventType, EventHandlerDelegate handler)
+            => this._eventExecutor.RemoveClientHandler(client, eventType, handler);
     }
 }
