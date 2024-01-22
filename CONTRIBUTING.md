@@ -155,3 +155,38 @@ dotnet restore
 dotnet build --configuration Release --output "./release" --no-restore
 dotnet release/OpenFeature.Benchmarks.dll
 ```
+
+## Consuming pre-release packages
+
+1. Acquire a [GitHub personal access token (PAT)](https://docs.github.com/github/authenticating-to-github/creating-a-personal-access-token) scoped for `read:packages` and verify the permissions:
+   ```console
+   $ gh auth login --scopes read:packages
+
+   ? What account do you want to log into? GitHub.com
+   ? What is your preferred protocol for Git operations? HTTPS
+   ? How would you like to authenticate GitHub CLI? Login with a web browser
+
+   ! First copy your one-time code: ****-****
+   Press Enter to open github.com in your browser...
+
+   ✓ Authentication complete.
+   - gh config set -h github.com git_protocol https
+   ✓ Configured git protocol
+   ✓ Logged in as ********
+   ```
+
+   ```console
+   $ gh auth status
+
+   github.com
+     ✓ Logged in to github.com as ******** (~/.config/gh/hosts.yml)
+     ✓ Git operations for github.com configured to use https protocol.
+     ✓ Token: gho_************************************
+     ✓ Token scopes: gist, read:org, read:packages, repo, workflow
+   ```
+2. Run the following command to configure your local environment to consume packages from GitHub Packages:
+   ```console
+   $ dotnet nuget update source github-open-feature --username $(gh api user --jq .email) --password $(gh auth token) --store-password-in-clear-text
+
+   Package source "github-open-feature" was successfully updated.
+   ```

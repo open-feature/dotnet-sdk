@@ -1,4 +1,4 @@
-name: Test
+name: CI
 
 on:
   push:
@@ -11,44 +11,41 @@ on:
     - '**.md'
 
 jobs:
-  unit-tests-linux:
-    runs-on: ubuntu-latest
+  build:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest ]
+
+    runs-on: ${{ matrix.os }}
+
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
+        submodules: recursive
 
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
+      env:
+        NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         dotnet-version: |
           6.0.x
           7.0.x
+        source-url: https://nuget.pkg.github.com/open-feature/index.json
 
-    - name: Run Tests
-      run: dotnet test test/OpenFeature.Tests/ --configuration Release --logger GitHubActions
+    - name: Restore
+      run: dotnet restore
 
-  unit-tests-windows:
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+    - name: Build
+      run: dotnet build --no-restore
 
-    - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: |
-          6.0.x
-          7.0.x
-
-    - name: Run Tests
-      run: dotnet test test\OpenFeature.Tests\ --configuration Release --logger GitHubActions
+    - name: Test
+      run: dotnet test --no-build --logger GitHubActions
 
   packaging:
-    needs:
-    - unit-tests-linux
-    - unit-tests-windows
+    needs: build
 
     permissions:
       contents: read
@@ -57,14 +54,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        submodules: recursive
 
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
+      env:
+        NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         dotnet-version: |
           6.0.x
           7.0.x
+        source-url: https://nuget.pkg.github.com/open-feature/index.json
 
     - name: Restore
       run: dotnet restore
