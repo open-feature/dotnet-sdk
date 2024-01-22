@@ -21,7 +21,6 @@
     -->
     <MicrosoftBclAsyncInterfacesVer>[8.0.0,)</MicrosoftBclAsyncInterfacesVer>
     <MicrosoftExtensionsLoggerVer>[2.0,)</MicrosoftExtensionsLoggerVer>
-    <MicrosoftSourceLinkGitHubPkgVer>[1.0.0,2.0)</MicrosoftSourceLinkGitHubPkgVer>
   </PropertyGroup>
 
   <ItemGroup>
