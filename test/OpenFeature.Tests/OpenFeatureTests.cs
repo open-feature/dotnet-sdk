@@ -107,7 +107,8 @@ namespace OpenFeature.Tests
 
         [Fact]
         [Specification("1.1.3", "The `API` MUST provide a function to bind a given `provider` to one or more client `name`s. If the client-name already has a bound provider, it is overwritten with the new mapping.")]
-        public async void OpenFeature_Should_Set_Default_Provide_When_No_Name_Provided()
+        public async Task OpenFeature_Should_Set_Default_Provide_When_No_Name_Provided()
+
         {
             var openFeature = Api.Instance;
 
