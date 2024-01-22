@@ -16,7 +16,7 @@ namespace OpenFeature.Tests
     public class ProviderRepositoryTests
     {
         [Fact]
-        public async void Default_Provider_Is_Set_Without_Await()
+        public async Task Default_Provider_Is_Set_Without_Await()
         {
             var repository = new ProviderRepository();
             var provider = new NoOpFeatureProvider();
