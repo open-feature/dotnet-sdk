@@ -121,13 +121,12 @@ namespace OpenFeature.Tests
 
             Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
-            Thread.Sleep(1000);
-            eventHandler
+            await Utils.AssertUntilAsync(_ => eventHandler
                 .Received()
                 .Invoke(
                     Arg.Is<ProviderEventPayload>(
                         payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderReady
-                    ));
+                    )));
         }
 
         [Fact]
