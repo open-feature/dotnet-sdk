@@ -226,7 +226,8 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        public async void OpenFeature_Should_Allow_Multiple_Client_Mapping()
+        public async Task OpenFeature_Should_Allow_Multiple_Client_Mapping()
+
         {
             var openFeature = Api.Instance;
 
