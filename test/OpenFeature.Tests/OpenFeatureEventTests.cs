@@ -136,7 +136,7 @@ namespace OpenFeature.Tests
         [Specification("5.2.4", "The `handler function` MUST accept a `event details` parameter.")]
         [Specification("5.3.1", "If the provider's `initialize` function terminates normally, `PROVIDER_READY` handlers MUST run.")]
         [Specification("5.3.3", "Handlers attached after the provider is already in the associated state, MUST run immediately.")]
-        public async void API_Level_Event_Handlers_Should_Be_Informed_About_Ready_State_After_Registering_Provider_Ready_Sync()
+        public async Task API_Level_Event_Handlers_Should_Be_Informed_About_Ready_State_After_Registering_Provider_Ready_Sync()
         {
             var eventHandler = Substitute.For<EventHandlerDelegate>();
 
