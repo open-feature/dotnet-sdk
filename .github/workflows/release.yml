@@ -7,7 +7,7 @@ on:
 
 jobs:
   release-package:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - uses: google-github-actions/release-please-action@v3
@@ -34,19 +34,10 @@ jobs:
         if: ${{ steps.release.outputs.releases_created }}
         run: dotnet restore
 
-      - name: Build
-        if: ${{ steps.release.outputs.releases_created }}
-        run: |
-          dotnet build --configuration Release --no-restore -p:Deterministic=true
-
       - name: Pack
         if: ${{ steps.release.outputs.releases_created }}
-        run:  |
-          dotnet pack OpenFeature.proj --configuration Release --no-build
+        run: dotnet pack --no-restore
 
       - name: Publish to Nuget
         if: ${{ steps.release.outputs.releases_created }}
-        run: |
-          dotnet nuget push src/OpenFeature/bin/Release/OpenFeature.${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}.nupkg `
-            --api-key ${{secrets.NUGET_TOKEN}} `
-            --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push "src/**/*.nupkg" --api-key "${{ secrets.NUGET_TOKEN }}" --source https://api.nuget.org/v3/index.json
