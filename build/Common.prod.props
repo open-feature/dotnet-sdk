@@ -28,11 +28,4 @@
     <None Include="$(MSBuildThisFileDirectory)openfeature-icon.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 
-  <PropertyGroup Label="SourceLink">
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-  </PropertyGroup>
-
 </Project>
