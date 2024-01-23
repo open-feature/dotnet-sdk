@@ -1,44 +1,22 @@
 <!-- markdownlint-disable MD033 -->
 <!-- x-hide-in-docs-start -->
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/open-feature/community/0e23508c163a6a1ac8c0ced3e4bd78faafe627c7/assets/logo/horizontal/white/openfeature-horizontal-white.svg" />
-    <img align="center" alt="OpenFeature Logo" src="https://raw.githubusercontent.com/open-feature/community/0e23508c163a6a1ac8c0ced3e4bd78faafe627c7/assets/logo/horizontal/black/openfeature-horizontal-black.svg" />
-  </picture>
-</p>
+<!-- NuGet doesn't support most HTML tags. Disabling dark mode support until https://github.com/NuGet/NuGetGallery/issues/8644 is resolved. -->
+![OpenFeature Dark Logo](https://raw.githubusercontent.com/open-feature/community/0e23508c163a6a1ac8c0ced3e4bd78faafe627c7/assets/logo/horizontal/black/openfeature-horizontal-black.svg)
 
-<h2 align="center">OpenFeature .NET SDK</h2>
+## .NET SDK
 
 <!-- x-hide-in-docs-end -->
-<!-- The 'github-badges' class is used in the docs -->
-<p align="center" class="github-badges">
-  <a href="https://github.com/open-feature/spec/releases/tag/v0.5.2">
-    <img alt="Specification" src="https://img.shields.io/static/v1?label=specification&message=v0.5.2&color=yellow&style=for-the-badge" />
-  </a>
-  <!-- x-release-please-start-version -->
+[![Specification](https://img.shields.io/static/v1?label=specification&message=v0.5.2&color=yellow&style=for-the-badge)](https://github.com/open-feature/spec/releases/tag/v0.5.2)
+[![Release](https://img.shields.io/static/v1?label=release&message=v1.4.0&color=blue&style=for-the-badge)](https://github.com/open-feature/dotnet-sdk/releases/tag/v1.4.0) <!-- x-release-please-version -->
 
-  <a href="https://github.com/open-feature/dotnet-sdk/releases/tag/v1.4.0">
-    <img alt="Release" src="https://img.shields.io/static/v1?label=release&message=v1.4.0&color=blue&style=for-the-badge" />
-  </a>
-  <!-- x-release-please-end -->
-  <br/>
-  <a href="https://cloud-native.slack.com/archives/C0344AANLA1">
-    <img alt="Slack" src="https://img.shields.io/badge/slack-%40cncf%2Fopenfeature-brightgreen?style=flat&logo=slack"/>
-</a>
-  <a href="https://codecov.io/gh/open-feature/dotnet-sdk">
-    <img alt="Codecov" src="https://codecov.io/gh/open-feature/dotnet-sdk/branch/main/graph/badge.svg?token=MONAVJBXUJ" />
-  </a>
-  <a href="https://www.nuget.org/packages/OpenFeature">
-    <img alt="NuGet" src="https://img.shields.io/nuget/vpre/OpenFeature" />
-  </a>
-  <a href="https://www.bestpractices.dev/en/projects/6250">
-    <img alt="CII Best Practices" src="https://bestpractices.coreinfrastructure.org/projects/6250/badge" />
 
-  </a>
-</p>
+[![Slack](https://img.shields.io/badge/slack-%40cncf%2Fopenfeature-brightgreen?style=flat&logo=slack)](https://cloud-native.slack.com/archives/C0344AANLA1)
+[![Codecov](https://codecov.io/gh/open-feature/dotnet-sdk/branch/main/graph/badge.svg?token=MONAVJBXUJ)](https://codecov.io/gh/open-feature/dotnet-sdk)
+[![NuGet](https://img.shields.io/nuget/vpre/OpenFeature)](https://www.nuget.org/packages/OpenFeature)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6250/badge)](https://www.bestpractices.dev/en/projects/6250)
 <!-- x-hide-in-docs-start -->
 
-[OpenFeature](https://openfeature.dev) is an open specification that provides a vendor-agnostic, community-driven API for feature flagging that works with your favorite feature flag management tool.
+[OpenFeature](https://openfeature.dev) is an open specification that provides a vendor-agnostic, community-driven API for feature flagging that works with your favorite feature flag management tool or in-house solution.
 
 <!-- x-hide-in-docs-end -->
 
@@ -100,7 +78,7 @@ public async Task Example()
 | ✅    | [Shutdown](#shutdown)           | Gracefully clean up a provider during application shutdown.                                                                        |
 | ✅     | [Extending](#extending)         | Extend OpenFeature with custom providers and hooks.                                                                                |
 
-<sub>Implemented: ✅ | In-progress: ⚠️ | Not implemented yet: ❌</sub>
+_Implemented: ✅ | In-progress: ⚠️ | Not implemented yet: ❌_
 
 ### Providers
 
@@ -334,9 +312,7 @@ Interested in contributing? Great, we'd love your help! To get started, take a l
 
 ### Thanks to everyone who has already contributed
 
-<a href="https://github.com/open-feature/dotnet-sdk/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=open-feature/dotnet-sdk" />
-</a>
+[![Contrib Rocks](https://contrib.rocks/image?repo=open-feature/dotnet-sdk)](https://github.com/open-feature/dotnet-sdk/graphs/contributors)
 
 Made with [contrib.rocks](https://contrib.rocks).
 <!-- x-hide-in-docs-end -->
