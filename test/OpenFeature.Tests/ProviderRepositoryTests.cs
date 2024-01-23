@@ -16,24 +16,24 @@ namespace OpenFeature.Tests
     public class ProviderRepositoryTests
     {
         [Fact]
-        public void Default_Provider_Is_Set_Without_Await()
+        public async Task Default_Provider_Is_Set_Without_Await()
         {
             var repository = new ProviderRepository();
             var provider = new NoOpFeatureProvider();
             var context = new EvaluationContextBuilder().Build();
-            repository.SetProvider(provider, context);
+            await repository.SetProvider(provider, context);
             Assert.Equal(provider, repository.GetProvider());
         }
 
         [Fact]
-        public void AfterSet_Is_Invoked_For_Setting_Default_Provider()
+        public async void AfterSet_Is_Invoked_For_Setting_Default_Provider()
         {
             var repository = new ProviderRepository();
             var provider = new NoOpFeatureProvider();
             var context = new EvaluationContextBuilder().Build();
             var callCount = 0;
             // The setting of the provider is synchronous, so the afterSet should be as well.
-            repository.SetProvider(provider, context, afterSet: (theProvider) =>
+            await repository.SetProvider(provider, context, afterSet: (theProvider) =>
             {
                 callCount++;
                 Assert.Equal(provider, theProvider);
@@ -182,24 +182,24 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        public void Named_Provider_Provider_Is_Set_Without_Await()
+        public async Task Named_Provider_Provider_Is_Set_Without_Await()
         {
             var repository = new ProviderRepository();
             var provider = new NoOpFeatureProvider();
             var context = new EvaluationContextBuilder().Build();
-            repository.SetProvider("the-name", provider, context);
+            await repository.SetProvider("the-name", provider, context);
             Assert.Equal(provider, repository.GetProvider("the-name"));
         }
 
         [Fact]
-        public void AfterSet_Is_Invoked_For_Setting_Named_Provider()
+        public async Task AfterSet_Is_Invoked_For_Setting_Named_Provider()
         {
             var repository = new ProviderRepository();
             var provider = new NoOpFeatureProvider();
             var context = new EvaluationContextBuilder().Build();
             var callCount = 0;
             // The setting of the provider is synchronous, so the afterSet should be as well.
-            repository.SetProvider("the-name", provider, context, afterSet: (theProvider) =>
+            await repository.SetProvider("the-name", provider, context, afterSet: (theProvider) =>
             {
                 callCount++;
                 Assert.Equal(provider, theProvider);

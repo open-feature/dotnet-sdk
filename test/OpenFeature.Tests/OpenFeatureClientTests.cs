@@ -75,7 +75,7 @@ namespace OpenFeature.Tests
             var defaultStructureValue = fixture.Create<Value>();
             var emptyFlagOptions = new FlagEvaluationOptions(ImmutableList<Hook>.Empty, ImmutableDictionary<string, object>.Empty);
 
-            await Api.Instance.SetProvider(new NoOpFeatureProvider());
+            await Api.Instance.SetProviderAsync(new NoOpFeatureProvider());
             var client = Api.Instance.GetClient(clientName, clientVersion);
 
             (await client.GetBooleanValue(flagName, defaultBoolValue)).Should().Be(defaultBoolValue);
@@ -121,7 +121,7 @@ namespace OpenFeature.Tests
             var defaultStructureValue = fixture.Create<Value>();
             var emptyFlagOptions = new FlagEvaluationOptions(ImmutableList<Hook>.Empty, ImmutableDictionary<string, object>.Empty);
 
-            await Api.Instance.SetProvider(new NoOpFeatureProvider());
+            await Api.Instance.SetProviderAsync(new NoOpFeatureProvider());
             var client = Api.Instance.GetClient(clientName, clientVersion);
 
             var boolFlagEvaluationDetails = new FlagEvaluationDetails<bool>(flagName, defaultBoolValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
@@ -172,7 +172,7 @@ namespace OpenFeature.Tests
             mockedFeatureProvider.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
             mockedFeatureProvider.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            await Api.Instance.SetProvider(mockedFeatureProvider);
+            await Api.Instance.SetProviderAsync(mockedFeatureProvider);
             var client = Api.Instance.GetClient(clientName, clientVersion, mockedLogger);
 
             var evaluationDetails = await client.GetObjectDetails(flagName, defaultValue);
@@ -202,7 +202,7 @@ namespace OpenFeature.Tests
             featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            await Api.Instance.SetProvider(featureProviderMock);
+            await Api.Instance.SetProviderAsync(featureProviderMock);
             var client = Api.Instance.GetClient(clientName, clientVersion);
 
             (await client.GetBooleanValue(flagName, defaultValue)).Should().Be(defaultValue);
@@ -224,7 +224,7 @@ namespace OpenFeature.Tests
             featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            await Api.Instance.SetProvider(featureProviderMock);
+            await Api.Instance.SetProviderAsync(featureProviderMock);
             var client = Api.Instance.GetClient(clientName, clientVersion);
 
             (await client.GetStringValue(flagName, defaultValue)).Should().Be(defaultValue);
@@ -246,7 +246,7 @@ namespace OpenFeature.Tests
             featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            await Api.Instance.SetProvider(featureProviderMock);
+            await Api.Instance.SetProviderAsync(featureProviderMock);
             var client = Api.Instance.GetClient(clientName, clientVersion);
 
             (await client.GetIntegerValue(flagName, defaultValue)).Should().Be(defaultValue);
@@ -268,7 +268,7 @@ namespace OpenFeature.Tests
             featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            await Api.Instance.SetProvider(featureProviderMock);
+            await Api.Instance.SetProviderAsync(featureProviderMock);
             var client = Api.Instance.GetClient(clientName, clientVersion);
 
             (await client.GetDoubleValue(flagName, defaultValue)).Should().Be(defaultValue);
@@ -290,7 +290,7 @@ namespace OpenFeature.Tests
             featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            await Api.Instance.SetProvider(featureProviderMock);
+            await Api.Instance.SetProviderAsync(featureProviderMock);
             var client = Api.Instance.GetClient(clientName, clientVersion);
 
             (await client.GetObjectValue(flagName, defaultValue)).Should().Be(defaultValue);
@@ -313,7 +313,7 @@ namespace OpenFeature.Tests
             featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            await Api.Instance.SetProvider(featureProviderMock);
+            await Api.Instance.SetProviderAsync(featureProviderMock);
             var client = Api.Instance.GetClient(clientName, clientVersion);
             var response = await client.GetObjectDetails(flagName, defaultValue);
 
@@ -338,7 +338,7 @@ namespace OpenFeature.Tests
             featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            await Api.Instance.SetProvider(featureProviderMock);
+            await Api.Instance.SetProviderAsync(featureProviderMock);
             var client = Api.Instance.GetClient(clientName, clientVersion);
             var response = await client.GetObjectDetails(flagName, defaultValue);
 
@@ -351,7 +351,7 @@ namespace OpenFeature.Tests
         [Fact]
         public async Task Should_Use_No_Op_When_Provider_Is_Null()
         {
-            await Api.Instance.SetProvider(null);
+            await Api.Instance.SetProviderAsync(null);
             var client = new FeatureClient("test", "test");
             (await client.GetIntegerValue("some-key", 12)).Should().Be(12);
         }
