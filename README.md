@@ -1,7 +1,7 @@
 <!-- markdownlint-disable MD033 -->
 <!-- x-hide-in-docs-start -->
-![OpenFeature Light Logo](https://raw.githubusercontent.com/open-feature/community/0e23508c163a6a1ac8c0ced3e4bd78faafe627c7/assets/logo/horizontal/white/openfeature-horizontal-white.svg#gh-dark-mode-only)
-![OpenFeature Dark Logo](https://raw.githubusercontent.com/open-feature/community/0e23508c163a6a1ac8c0ced3e4bd78faafe627c7/assets/logo/horizontal/black/openfeature-horizontal-black.svg#gh-light-mode-only)
+<!-- NuGet doesn't support most HTML tags. Disabling dark mode support until https://github.com/NuGet/NuGetGallery/issues/8644 is resolved. -->
+![OpenFeature Dark Logo](https://raw.githubusercontent.com/open-feature/community/0e23508c163a6a1ac8c0ced3e4bd78faafe627c7/assets/logo/horizontal/black/openfeature-horizontal-black.svg)
 
 ## .NET SDK
 
