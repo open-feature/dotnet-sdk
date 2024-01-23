@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.4.1](https://github.com/open-feature/dotnet-sdk/compare/v1.4.0...v1.4.1) (2024-01-23)
+
+
+### 📚 Documentation
+
+* add release please tag twice ([b34fe78](https://github.com/open-feature/dotnet-sdk/commit/b34fe78636dfb6b2c334a68c44ae57b72b04acbc))
+* add release please version range ([#201](https://github.com/open-feature/dotnet-sdk/issues/201)) ([aa35e25](https://github.com/open-feature/dotnet-sdk/commit/aa35e253b58755b4e0b75a4b272e5a368cb5566c))
+* fix release please tag ([8b1c9d2](https://github.com/open-feature/dotnet-sdk/commit/8b1c9d2cc26c086dcdb2434ba8646ffc07c3d063))
+* update readme to be pure markdown ([#199](https://github.com/open-feature/dotnet-sdk/issues/199)) ([33db9d9](https://github.com/open-feature/dotnet-sdk/commit/33db9d925478f8249e9fea7465998c8ec8da686b))
+* update release please tags ([8dcb824](https://github.com/open-feature/dotnet-sdk/commit/8dcb824e2b39e14e3b7345cd0d89f7660ca798cd))
+
 ## [1.4.0](https://github.com/open-feature/dotnet-sdk/compare/v1.3.1...v1.4.0) (2024-01-23)
 
 
