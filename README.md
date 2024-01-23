@@ -17,8 +17,8 @@
   </a>
   <!-- x-release-please-start-version -->
 
-  <a href="https://github.com/open-feature/dotnet-sdk/releases/tag/v1.3.1">
-    <img alt="Release" src="https://img.shields.io/static/v1?label=release&message=v1.3.1&color=blue&style=for-the-badge" />
+  <a href="https://github.com/open-feature/dotnet-sdk/releases/tag/v2.0.0">
+    <img alt="Release" src="https://img.shields.io/static/v1?label=release&message=v2.0.0&color=blue&style=for-the-badge" />
   </a>
   <!-- x-release-please-end -->
   <br/>
