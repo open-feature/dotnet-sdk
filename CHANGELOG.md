@@ -1,11 +1,7 @@
 # Changelog
 
-## [2.0.0](https://github.com/open-feature/dotnet-sdk/compare/v1.3.1...v2.0.0) (2024-01-23)
+## [1.4.0](https://github.com/open-feature/dotnet-sdk/compare/v1.3.1...v1.4.0) (2024-01-23)
 
-
-### ⚠ BREAKING CHANGES
-
-* Add support for provider shutdown and status. ([#158](https://github.com/open-feature/dotnet-sdk/issues/158))
 
 ### 🐛 Bug Fixes
 
