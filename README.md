@@ -6,13 +6,13 @@
 ## .NET SDK
 
 <!-- x-hide-in-docs-end -->
-![Specification](https://img.shields.io/static/v1?label=specification&message=v0.5.2&color=yellow&style=for-the-badge)
-![Release](https://img.shields.io/static/v1?label=release&message=v1.4.0&color=blue&style=for-the-badge)
+[![Specification](https://img.shields.io/static/v1?label=specification&message=v0.5.2&color=yellow&style=for-the-badge)](https://github.com/open-feature/spec/releases/tag/v0.5.2)
+[![Release](https://img.shields.io/static/v1?label=release&message=v1.4.0&color=blue&style=for-the-badge)](https://github.com/open-feature/dotnet-sdk/releases/tag/v1.4.0)
 
-![Slack](https://img.shields.io/badge/slack-%40cncf%2Fopenfeature-brightgreen?style=flat&logo=slack)
-![Codecov](https://codecov.io/gh/open-feature/dotnet-sdk/branch/main/graph/badge.svg?token=MONAVJBXUJ)
-![NuGet](https://img.shields.io/nuget/vpre/OpenFeature)
-![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6250/badge)  
+[![Slack](https://img.shields.io/badge/slack-%40cncf%2Fopenfeature-brightgreen?style=flat&logo=slack)](https://cloud-native.slack.com/archives/C0344AANLA1)
+[![Codecov](https://codecov.io/gh/open-feature/dotnet-sdk/branch/main/graph/badge.svg?token=MONAVJBXUJ)](https://codecov.io/gh/open-feature/dotnet-sdk)
+[![NuGet](https://img.shields.io/nuget/vpre/OpenFeature)](https://www.nuget.org/packages/OpenFeature)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6250/badge)](https://www.bestpractices.dev/en/projects/6250)
 <!-- x-hide-in-docs-start -->
 
 [OpenFeature](https://openfeature.dev) is an open specification that provides a vendor-agnostic, community-driven API for feature flagging that works with your favorite feature flag management tool or in-house solution.
@@ -311,7 +311,7 @@ Interested in contributing? Great, we'd love your help! To get started, take a l
 
 ### Thanks to everyone who has already contributed
 
-![Contrib Rocks](https://contrib.rocks/image?repo=open-feature/dotnet-sdk)
+[![Contrib Rocks](https://contrib.rocks/image?repo=open-feature/dotnet-sdk)](https://github.com/open-feature/dotnet-sdk/graphs/contributors)
 
 Made with [contrib.rocks](https://contrib.rocks).
 <!-- x-hide-in-docs-end -->
