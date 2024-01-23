@@ -6,8 +6,8 @@
 ## .NET SDK
 
 <!-- x-hide-in-docs-end -->
-[![Specification](https://img.shields.io/static/v1?label=specification&message=v0.5.2&color=yellow&style=for-the-badge)](https://github.com/open-feature/spec/releases/tag/v0.5.2)
-[![Release](https://img.shields.io/static/v1?label=release&message=v1.4.0&color=blue&style=for-the-badge)](https://github.com/open-feature/dotnet-sdk/releases/tag/v1.4.0) <!-- x-release-please-version --> <!-- x-release-please-version -->
+[![Specification](https://img.shields.io/static/v1?label=specification&message=v0.5.2&color=yellow&style=for-the-badge)](https://github.com/open-feature/spec/releases/tag/v0.5.2) <!-- x-release-please-start-version -->
+ [![Release](https://img.shields.io/static/v1?label=release&message=v1.4.0&color=blue&style=for-the-badge)](https://github.com/open-feature/dotnet-sdk/releases/tag/v1.4.0) <!-- x-release-please-end -->
 
 [![Slack](https://img.shields.io/badge/slack-%40cncf%2Fopenfeature-brightgreen?style=flat&logo=slack)](https://cloud-native.slack.com/archives/C0344AANLA1)
 [![Codecov](https://codecov.io/gh/open-feature/dotnet-sdk/branch/main/graph/badge.svg?token=MONAVJBXUJ)](https://codecov.io/gh/open-feature/dotnet-sdk)
