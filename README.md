@@ -80,7 +80,7 @@ public async Task Example()
 | ✅    | [Shutdown](#shutdown)           | Gracefully clean up a provider during application shutdown.                                                                        |
 | ✅     | [Extending](#extending)         | Extend OpenFeature with custom providers and hooks.                                                                                |
 
-_Implemented: ✅ | In-progress: ⚠️ | Not implemented yet: ❌_
+> Implemented: ✅ | In-progress: ⚠️ | Not implemented yet: ❌
 
 ### Providers
 
