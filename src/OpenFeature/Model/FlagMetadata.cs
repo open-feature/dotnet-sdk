@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 
 #nullable enable
@@ -6,11 +7,15 @@ namespace OpenFeature.Model
 {
     public sealed class FlagMetadata
     {
-        private readonly ImmutableDictionary<string, object> _metadata;
+        private readonly Dictionary<string, object> _metadata;
 
-        public FlagMetadata(ImmutableDictionary<string, object> metadata)
+        public FlagMetadata(Dictionary<string, object> metadata)
         {
             this._metadata = metadata;
+        }
+
+        public FlagMetadata() : this([])
+        {
         }
 
         public string? GetString(string key)
