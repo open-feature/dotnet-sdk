@@ -27,7 +27,7 @@ jobs:
     - name: Run Test
       run: dotnet test --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 
-    - uses: codecov/codecov-action@v3.1.4
+    - uses: codecov/codecov-action@v3.1.5
       with:
         env_vars: OS
         name: Code Coverage for ${{ matrix.os }}
