@@ -25,10 +25,13 @@ jobs:
       - name: Setup .NET SDK
         if: ${{ steps.release.outputs.releases_created }}
         uses: actions/setup-dotnet@v4
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           dotnet-version: |
             6.0.x
             7.0.x
+          source-url: https://nuget.pkg.github.com/open-feature/index.json
 
       - name: Install dependencies
         if: ${{ steps.release.outputs.releases_created }}
