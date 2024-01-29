@@ -7,7 +7,6 @@
   <ItemGroup Label="src">
     <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.0" />
-    <PackageVersion Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" />
     <PackageVersion Include="System.Collections.Immutable" Version="1.7.1" />
     <PackageVersion Include="System.Threading.Channels" Version="6.0.0" />
   </ItemGroup>
@@ -27,6 +26,10 @@
     <PackageVersion Include="SpecFlow.xUnit" Version="3.9.74" />
     <PackageVersion Include="xunit" Version="[2.4.1, 3.0)" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="[2.4.3, 3.0)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(OS)' == 'Unix'">
+    <PackageVersion Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" />
   </ItemGroup>
 
 </Project>
