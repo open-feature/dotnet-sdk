@@ -30,15 +30,10 @@ public sealed class FlagMetadata
 
     public double? GetDouble(string key)
     {
-        return this.GetValue<int>(key);
+        return this.GetValue<double>(key);
     }
 
-    public decimal? GetDecimal(string key)
-    {
-        return this.GetValue<decimal>(key);
-    }
-
-    public T? GetValue<T>(string key) where T : struct
+    private T? GetValue<T>(string key) where T : struct
     {
         var hasValue = this._metadata.TryGetValue(key, out var value);
         if (!hasValue)
