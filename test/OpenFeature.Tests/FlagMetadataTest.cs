@@ -104,5 +104,39 @@ namespace OpenFeature.Tests
             Assert.NotNull(result);
             Assert.Equal(1.2, result);
         }
+
+        [Fact]
+        public void GetString_Should_Return_Null_If_Key_Not_Found()
+        {
+            // Arrange
+            var metadata = new Dictionary<string, object>();
+            var flagMetadata = new FlagMetadata(metadata);
+
+            // Act
+            var result = flagMetadata.GetString("nonexistentKey");
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public void GetString_Should_Return_Value_If_Key_Found()
+        {
+            // Arrange
+            var metadata = new Dictionary<string, object>
+            {
+                {
+                    "stringKey", "11"
+                }
+            };
+            var flagMetadata = new FlagMetadata(metadata);
+
+            // Act
+            var result = flagMetadata.GetString("stringKey");
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal("11", result);
+        }
     }
 }

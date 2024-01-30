@@ -33,6 +33,17 @@ public sealed class FlagMetadata
         return this.GetValue<double>(key);
     }
 
+    public string? GetString(string key)
+    {
+        var hasValue = this._metadata.TryGetValue(key, out var value);
+        if (!hasValue)
+        {
+            return null;
+        }
+
+        return value as string ?? throw new InvalidCastException($"Cannot cast {value?.GetType().ToString() ?? "Nullable"} to {typeof(string)}");
+    }
+
     private T? GetValue<T>(string key) where T : struct
     {
         var hasValue = this._metadata.TryGetValue(key, out var value);
@@ -42,16 +53,5 @@ public sealed class FlagMetadata
         }
 
         return value is T tValue ? tValue : throw new InvalidCastException($"Cannot cast {value?.GetType().ToString() ?? "Nullable"} to {typeof(T)}");
-    }
-
-    public string? GetString(string key)
-    {
-        var hasValue = this._metadata.TryGetValue(key, out var value);
-        if (!hasValue)
-        {
-            return null;
-        }
-
-        return value is string tValue ? tValue : throw new InvalidCastException($"Cannot cast {value?.GetType().ToString() ?? "Nullable"} to {typeof(string)}");
     }
 }
