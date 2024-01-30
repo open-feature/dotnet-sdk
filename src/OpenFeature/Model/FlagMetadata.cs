@@ -41,7 +41,7 @@ public sealed class FlagMetadata
             return null;
         }
 
-        return value as string ?? throw new InvalidCastException($"Cannot cast {value?.GetType().ToString() ?? "Nullable"} to {typeof(string)}");
+        return value as string ?? throw new InvalidCastException($"Cannot cast {value?.GetType()} to {typeof(string)}");
     }
 
     private T? GetValue<T>(string key) where T : struct
@@ -52,6 +52,6 @@ public sealed class FlagMetadata
             return null;
         }
 
-        return value is T tValue ? tValue : throw new InvalidCastException($"Cannot cast {value?.GetType().ToString() ?? "Nullable"} to {typeof(T)}");
+        return value is T tValue ? tValue : throw new InvalidCastException($"Cannot cast {value?.GetType()} to {typeof(T)}");
     }
 }
