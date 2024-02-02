@@ -56,7 +56,6 @@ public abstract class BaseMetadata
     /// </summary>
     /// <param name="key">The key of the value to retrieve.</param>
     /// <returns>The string value associated with the key, or null if the key is not found.</returns>
-    /// <exception cref="InvalidCastException">Thrown when the value cannot be cast to a string.</exception>
     public virtual string? GetString(string key)
     {
         var hasValue = this._metadata.TryGetValue(key, out var value);
@@ -65,7 +64,7 @@ public abstract class BaseMetadata
             return null;
         }
 
-        return value as string ?? throw new InvalidCastException($"Cannot cast {value?.GetType()} to {typeof(string)}");
+        return value as string ?? null;
     }
 
     private T? GetValue<T>(string key) where T : struct
@@ -76,6 +75,6 @@ public abstract class BaseMetadata
             return null;
         }
 
-        return value is T tValue ? tValue : throw new InvalidCastException($"Cannot cast {value?.GetType()} to {typeof(T)}");
+        return value is T tValue ? tValue : null;
     }
 }

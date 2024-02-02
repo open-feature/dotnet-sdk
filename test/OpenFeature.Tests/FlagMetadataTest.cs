@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using OpenFeature.Model;
+using OpenFeature.Tests.Internal;
 using Xunit;
 
 #nullable enable
@@ -9,6 +10,8 @@ namespace OpenFeature.Tests;
 public class FlagMetadataTest
 {
     [Fact]
+    [Specification("1.4.14",
+        "If the `flag metadata` field in the `flag resolution` structure returned by the configured `provider` is set, the `evaluation details` structure's `flag metadata` field MUST contain that value. Otherwise, it MUST contain an empty record.")]
     public void GetBool_Should_Return_Null_If_Key_Not_Found()
     {
         // Arrange
@@ -22,6 +25,8 @@ public class FlagMetadataTest
     }
 
     [Fact]
+    [Specification("1.4.14",
+        "If the `flag metadata` field in the `flag resolution` structure returned by the configured `provider` is set, the `evaluation details` structure's `flag metadata` field MUST contain that value. Otherwise, it MUST contain an empty record.")]
     public void GetBool_Should_Return_Value_If_Key_Found()
     {
         // Arrange
@@ -41,6 +46,8 @@ public class FlagMetadataTest
     }
 
     [Fact]
+    [Specification("1.4.14",
+        "If the `flag metadata` field in the `flag resolution` structure returned by the configured `provider` is set, the `evaluation details` structure's `flag metadata` field MUST contain that value. Otherwise, it MUST contain an empty record.")]
     public void GetBool_Should_Throw_Value_Is_Invalid()
     {
         // Arrange
@@ -61,6 +68,8 @@ public class FlagMetadataTest
     }
 
     [Fact]
+    [Specification("1.4.14",
+        "If the `flag metadata` field in the `flag resolution` structure returned by the configured `provider` is set, the `evaluation details` structure's `flag metadata` field MUST contain that value. Otherwise, it MUST contain an empty record.")]
     public void GetInt_Should_Return_Null_If_Key_Not_Found()
     {
         // Arrange
@@ -74,6 +83,8 @@ public class FlagMetadataTest
     }
 
     [Fact]
+    [Specification("1.4.14",
+        "If the `flag metadata` field in the `flag resolution` structure returned by the configured `provider` is set, the `evaluation details` structure's `flag metadata` field MUST contain that value. Otherwise, it MUST contain an empty record.")]
     public void GetInt_Should_Return_Value_If_Key_Found()
     {
         // Arrange
@@ -94,6 +105,8 @@ public class FlagMetadataTest
     }
 
     [Fact]
+    [Specification("1.4.14",
+        "If the `flag metadata` field in the `flag resolution` structure returned by the configured `provider` is set, the `evaluation details` structure's `flag metadata` field MUST contain that value. Otherwise, it MUST contain an empty record.")]
     public void GetInt_Should_Throw_Value_Is_Invalid()
     {
         // Arrange
@@ -114,6 +127,8 @@ public class FlagMetadataTest
     }
 
     [Fact]
+    [Specification("1.4.14",
+        "If the `flag metadata` field in the `flag resolution` structure returned by the configured `provider` is set, the `evaluation details` structure's `flag metadata` field MUST contain that value. Otherwise, it MUST contain an empty record.")]
     public void GetDouble_Should_Return_Null_If_Key_Not_Found()
     {
         // Arrange
@@ -127,6 +142,8 @@ public class FlagMetadataTest
     }
 
     [Fact]
+    [Specification("1.4.14",
+        "If the `flag metadata` field in the `flag resolution` structure returned by the configured `provider` is set, the `evaluation details` structure's `flag metadata` field MUST contain that value. Otherwise, it MUST contain an empty record.")]
     public void GetDouble_Should_Return_Value_If_Key_Found()
     {
         // Arrange
@@ -147,6 +164,8 @@ public class FlagMetadataTest
     }
 
     [Fact]
+    [Specification("1.4.14",
+        "If the `flag metadata` field in the `flag resolution` structure returned by the configured `provider` is set, the `evaluation details` structure's `flag metadata` field MUST contain that value. Otherwise, it MUST contain an empty record.")]
     public void GetDouble_Should_Throw_Value_Is_Invalid()
     {
         // Arrange
@@ -167,6 +186,8 @@ public class FlagMetadataTest
     }
 
     [Fact]
+    [Specification("1.4.14",
+        "If the `flag metadata` field in the `flag resolution` structure returned by the configured `provider` is set, the `evaluation details` structure's `flag metadata` field MUST contain that value. Otherwise, it MUST contain an empty record.")]
     public void GetString_Should_Return_Null_If_Key_Not_Found()
     {
         // Arrange
@@ -180,6 +201,8 @@ public class FlagMetadataTest
     }
 
     [Fact]
+    [Specification("1.4.14",
+        "If the `flag metadata` field in the `flag resolution` structure returned by the configured `provider` is set, the `evaluation details` structure's `flag metadata` field MUST contain that value. Otherwise, it MUST contain an empty record.")]
     public void GetString_Should_Return_Value_If_Key_Found()
     {
         // Arrange
@@ -200,6 +223,8 @@ public class FlagMetadataTest
     }
 
     [Fact]
+    [Specification("1.4.14",
+        "If the `flag metadata` field in the `flag resolution` structure returned by the configured `provider` is set, the `evaluation details` structure's `flag metadata` field MUST contain that value. Otherwise, it MUST contain an empty record.")]
     public void GetString_Should_Throw_Value_Is_Invalid()
     {
         // Arrange
