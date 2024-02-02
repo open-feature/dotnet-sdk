@@ -14,10 +14,9 @@ public sealed class FlagMetadata : BaseMetadata
     /// <summary>
     /// Constructor for the <see cref="BaseMetadata"/> class.
     /// </summary>
-    public FlagMetadata()
+    public FlagMetadata() : this([])
     {
     }
-
 
     /// <summary>
     /// Constructor for the <see cref="BaseMetadata"/> class.
