@@ -8,6 +8,7 @@ namespace OpenFeature.Model;
 /// <summary>
 /// Represents the metadata associated with a feature flag.
 /// </summary>
+/// <seealso href="https://github.com/open-feature/spec/blob/v0.7.0/specification/types.md#flag-metadata"/>
 public sealed class FlagMetadata : BaseMetadata
 {
     /// <summary>
