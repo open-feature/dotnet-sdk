@@ -61,11 +61,10 @@ public class FlagMetadataTest
         var flagMetadata = new FlagMetadata(metadata);
 
         // Act
-        var exception = Assert.Throws<InvalidCastException>(() => flagMetadata.GetBool("wrongKey"));
+        var result = flagMetadata.GetBool("wrongKey");
 
         // Assert
-        Assert.NotNull(exception);
-        Assert.Equal("Cannot cast System.String to System.Boolean", exception.Message);
+        Assert.Null(result);
     }
 
     [Fact]
@@ -121,11 +120,10 @@ public class FlagMetadataTest
         var flagMetadata = new FlagMetadata(metadata);
 
         // Act
-        var exception = Assert.Throws<InvalidCastException>(() => flagMetadata.GetInt("wrongKey"));
+        var result = flagMetadata.GetInt("wrongKey");
 
         // Assert
-        Assert.NotNull(exception);
-        Assert.Equal("Cannot cast System.String to System.Int32", exception.Message);
+        Assert.Null(result);
     }
 
     [Fact]
@@ -181,11 +179,10 @@ public class FlagMetadataTest
         var flagMetadata = new FlagMetadata(metadata);
 
         // Act
-        var exception = Assert.Throws<InvalidCastException>(() => flagMetadata.GetDouble("wrongKey"));
+        var result = flagMetadata.GetDouble("wrongKey");
 
         // Assert
-        Assert.NotNull(exception);
-        Assert.Equal("Cannot cast System.String to System.Double", exception.Message);
+        Assert.Null(result);
     }
 
     [Fact]
@@ -241,10 +238,9 @@ public class FlagMetadataTest
         var flagMetadata = new FlagMetadata(metadata);
 
         // Act
-        var exception = Assert.Throws<InvalidCastException>(() => flagMetadata.GetString("wrongKey"));
+        var result = flagMetadata.GetString("wrongKey");
 
         // Assert
-        Assert.NotNull(exception);
-        Assert.Equal("Cannot cast System.Object to System.String", exception.Message);
+        Assert.Null(result);
     }
 }
