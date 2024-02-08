@@ -279,7 +279,7 @@ namespace OpenFeature.E2ETests
                         { "off", false }
                     },
                     defaultVariant: "on"
-                )        
+                )
             },
             {
                 "string-flag", new Flag<string>(
@@ -288,7 +288,7 @@ namespace OpenFeature.E2ETests
                         { "parting", "bye" }
                     },
                     defaultVariant: "greeting"
-                )        
+                )
             },
             {
                 "integer-flag", new Flag<int>(
@@ -297,7 +297,7 @@ namespace OpenFeature.E2ETests
                         { "ten", 10 }
                     },
                     defaultVariant: "ten"
-                )        
+                )
             },
             {
                 "float-flag", new Flag<double>(
@@ -306,7 +306,7 @@ namespace OpenFeature.E2ETests
                         { "half", 0.5 }
                     },
                     defaultVariant: "half"
-                )        
+                )
             },
             {
                 "object-flag", new Flag<Value>(
@@ -320,7 +320,7 @@ namespace OpenFeature.E2ETests
                         }
                     },
                     defaultVariant: "template"
-                )        
+                )
             },
             {
                 "context-aware", new Flag<string>(
@@ -338,8 +338,8 @@ namespace OpenFeature.E2ETests
                             return "internal";
                         }
                         else return "external";
-                    } 
-                )        
+                    }
+                )
             },
             {
                 "wrong-flag", new Flag<string>(
@@ -348,7 +348,7 @@ namespace OpenFeature.E2ETests
                         { "two", "dos" }
                     },
                     defaultVariant: "one"
-                )        
+                )
             }
         };
     }

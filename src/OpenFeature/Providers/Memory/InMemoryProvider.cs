@@ -115,9 +115,12 @@ namespace OpenFeature.Providers.Memory
             }
             else
             {
-                if (typeof(Flag<T>).Equals(flag.GetType())) {
+                if (typeof(Flag<T>).Equals(flag.GetType()))
+                {
                     return (flag as Flag<T>).Evaluate(flagKey, defaultValue, context);
-                } else {
+                }
+                else
+                {
                     throw new TypeMismatchException($"flag {flag} not found");
                 }
             }

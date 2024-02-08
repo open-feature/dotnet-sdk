@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using OpenFeature.Constant;
 using OpenFeature.Error;
 using OpenFeature.Model;
-using OpenFeature.Constant;
 using OpenFeature.Providers.Memory;
 using Xunit;
 
@@ -24,13 +24,14 @@ namespace OpenFeature.Tests
                         { "off", false }
                     },
                     defaultVariant: "on"
-                )        
+                )
             }});
 
             // setup client and handler and run initial eval
             await Api.Instance.SetProviderAsync("mem-test", provider).ConfigureAwait(false);
             var client = Api.Instance.GetClient("mem-test");
-            client.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, (details) => {
+            client.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, (details) =>
+            {
                 handlerRuns++;
             });
             Assert.True(await client.GetBooleanValue("boolean-flag", false).ConfigureAwait(false));
@@ -44,7 +45,7 @@ namespace OpenFeature.Tests
                         { "parting", "bye" }
                     },
                     defaultVariant: "greeting"
-                )        
+                )
             }}).ConfigureAwait(false);
 
             // new flag should be present, old gone (defaults), handler run.

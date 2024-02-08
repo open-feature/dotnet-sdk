@@ -5,7 +5,7 @@ using OpenFeature.Error;
 using OpenFeature.Model;
 
 namespace OpenFeature.Providers.Memory
-{   
+{
     /// <summary>
     /// Flag representation for the in-memory provider.
     /// </summary>
