@@ -140,17 +140,17 @@ namespace OpenFeature.Model
         {
             string newTargetingKey = "";
 
-            if (!string.IsNullOrWhitespace(TargetingKey))
+            if (!string.IsNullOrWhiteSpace(TargetingKey))
             {
                 newTargetingKey = TargetingKey;
             }
 
-            if (!string.IsNullOrWhitespace(context.TargetingKey))
+            if (!string.IsNullOrWhiteSpace(context.TargetingKey))
             {
                 newTargetingKey = context.TargetingKey;
             }
 
-            if (!string.IsNullOrWhitespace(newTargetingKey))
+            if (!string.IsNullOrWhiteSpace(newTargetingKey))
             {
                 this.TargetingKey = newTargetingKey;
             }
