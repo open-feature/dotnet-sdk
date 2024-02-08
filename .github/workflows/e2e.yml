@@ -13,11 +13,6 @@ on:
 jobs:
   e2e-tests:
     runs-on: ubuntu-latest
-    services:
-      flagd:
-        image: ghcr.io/open-feature/flagd-testbed:latest
-        ports:
-          - 8013:8013
     steps:
     - uses: actions/checkout@v4
       with:
@@ -36,7 +31,7 @@ jobs:
     - name: Initialize Tests
       run: |
         git submodule update --init --recursive
-        cp test-harness/features/evaluation.feature test/OpenFeature.E2ETests/Features/
+        cp spec/specification/assets/gherkin/evaluation.feature test/OpenFeature.E2ETests/Features/
 
     - name: Run Tests
       run: dotnet test test/OpenFeature.E2ETests/ --configuration Release --logger GitHubActions
