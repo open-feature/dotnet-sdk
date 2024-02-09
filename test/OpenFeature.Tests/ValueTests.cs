@@ -53,7 +53,7 @@ namespace OpenFeature.Tests
             }
             catch (Exception)
             {
-                Assert.True(false, "Expected no exception.");
+                Assert.Fail("Expected no exception.");
             }
         }
 
