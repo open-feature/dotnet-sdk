@@ -17,7 +17,7 @@ namespace OpenFeature.Providers.Memory
     /// <summary>
     /// Flag representation for the in-memory provider.
     /// </summary>
-    public class Flag<T> : Flag
+    public sealed class Flag<T> : Flag
     {
         private Dictionary<string, T> Variants;
         private string DefaultVariant;
