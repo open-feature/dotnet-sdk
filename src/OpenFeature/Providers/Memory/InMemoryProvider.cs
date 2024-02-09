@@ -123,6 +123,8 @@ namespace OpenFeature.Providers.Memory
             }
             else
             {
+                // This check returns False if a floating point flag is evaluated as an integer flag, and vice-versa.
+                // In a production provider, such behavior is probably not desirable; consider supporting conversion.
                 if (typeof(Flag<T>).Equals(flag.GetType()))
                 {
                     return ((Flag<T>)flag).Evaluate(flagKey, defaultValue, context);
