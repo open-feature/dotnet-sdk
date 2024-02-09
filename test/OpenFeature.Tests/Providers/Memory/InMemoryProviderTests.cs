@@ -169,7 +169,7 @@ namespace OpenFeature.Tests
         [Fact]
         public async void EmptyFlags_ShouldWork()
         {
-            var provider = new InMemoryProvider();            
+            var provider = new InMemoryProvider();
             await provider.UpdateFlags().ConfigureAwait(false);
             Assert.Equal("InMemory", provider.GetMetadata().Name);
         }
