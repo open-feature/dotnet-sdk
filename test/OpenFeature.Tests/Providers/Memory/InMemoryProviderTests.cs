@@ -155,6 +155,12 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
+        public async void EmptyFlags_ShouldWork()
+        {
+            var provider = new InMemoryProvider();
+        }
+
+        [Fact]
         public async void MissingFlag_ShouldThrow()
         {
             await Assert.ThrowsAsync<FlagNotFoundException>(() => commonProvider.ResolveBooleanValue("missing-flag", false, EvaluationContext.Empty)).ConfigureAwait(false);

@@ -48,16 +48,23 @@ namespace OpenFeature.Providers.Memory
         /// Updating provider flags configuration, replacing all flags.
         /// </summary>
         /// <param name="flags">the flags to use instead of the previous flags.</param>
-        public async ValueTask UpdateFlags(IDictionary<string, Flag> flags)
+        public async ValueTask UpdateFlags(IDictionary<string, Flag>? flags = null)
         {
-            if (flags is null)
-                throw new ArgumentNullException(nameof(flags));
-            this._flags = new Dictionary<string, Flag>(flags); // shallow copy
+            var changed = this._flags.Keys.ToList();
+            if (flags == null)
+            {
+                this._flags = new Dictionary<string, Flag>();
+            }
+            else
+            {
+                this._flags = new Dictionary<string, Flag>(flags); // shallow copy
+            }
+            changed.AddRange(this._flags.Keys.ToList());
             var @event = new ProviderEventPayload
             {
                 Type = ProviderEventTypes.ProviderConfigurationChanged,
                 ProviderName = _metadata.Name,
-                FlagsChanged = flags.Keys.ToList(), // emit all
+                FlagsChanged = changed, // emit all
                 Message = "flags changed",
             };
             await this.EventChannel.Writer.WriteAsync(@event).ConfigureAwait(false);
