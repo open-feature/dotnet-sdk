@@ -57,7 +57,7 @@ namespace OpenFeature.Providers.Memory
             }
             else
             {
-                string variant = this.ContextEvaluator.Invoke(evaluationContext);
+                var variant = this.ContextEvaluator.Invoke(evaluationContext);
                 this.Variants.TryGetValue(variant, out value);
                 if (value == null)
                 {
