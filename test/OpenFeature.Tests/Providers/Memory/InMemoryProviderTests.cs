@@ -91,6 +91,18 @@ namespace OpenFeature.Tests
                         },
                         defaultVariant: "missing"
                     )
+                },
+                {
+                    "invalid-evaluator-flag", new Flag<bool>(
+                        variants: new Dictionary<string, bool>(){
+                            { "on", true },
+                            { "off", false }
+                        },
+                        defaultVariant: "on",
+                        (context) => {
+                            return "missing";
+                        }
+                    )
                 }
             });
 
@@ -157,8 +169,9 @@ namespace OpenFeature.Tests
         [Fact]
         public async void EmptyFlags_ShouldWork()
         {
-            var provider = new InMemoryProvider();
+            var provider = new InMemoryProvider();            
             await provider.UpdateFlags().ConfigureAwait(false);
+            Assert.Equal("InMemory", provider.GetMetadata().Name);
         }
 
         [Fact]
@@ -174,9 +187,15 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        public async void MissingVariant_ShouldThrow()
+        public async void MissingDefaultVariant_ShouldThrow()
         {
             await Assert.ThrowsAsync<GeneralException>(() => commonProvider.ResolveBooleanValue("invalid-flag", false, EvaluationContext.Empty)).ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async void MissingEvaluatedVariant_ShouldThrow()
+        {
+            await Assert.ThrowsAsync<GeneralException>(() => commonProvider.ResolveBooleanValue("invalid-evaluator-flag", false, EvaluationContext.Empty)).ConfigureAwait(false);
         }
 
         [Fact]

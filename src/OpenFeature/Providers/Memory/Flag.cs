@@ -59,8 +59,7 @@ namespace OpenFeature.Providers.Memory
             else
             {
                 var variant = this.ContextEvaluator.Invoke(evaluationContext ?? EvaluationContext.Empty);
-                this.Variants.TryGetValue(variant, out value);
-                if (value == null)
+                if (!this.Variants.TryGetValue(variant, out value))
                 {
                     throw new GeneralException($"variant {variant} not found");
                 }
