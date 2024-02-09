@@ -32,7 +32,7 @@ namespace OpenFeature.Providers.Memory
         /// Construct a new InMemoryProvider.
         /// </summary>
         /// <param name="flags">dictionary of Flags</param>
-        public InMemoryProvider(IDictionary<string, Flag> flags = null)
+        public InMemoryProvider(IDictionary<string, Flag>? flags = null)
         {
             if (flags == null)
             {
@@ -67,7 +67,7 @@ namespace OpenFeature.Providers.Memory
         public override Task<ResolutionDetails<bool>> ResolveBooleanValue(
             string flagKey,
             bool defaultValue,
-            EvaluationContext context = null)
+            EvaluationContext? context = null)
         {
             return Task.FromResult(Resolve(flagKey, defaultValue, context));
         }
@@ -76,7 +76,7 @@ namespace OpenFeature.Providers.Memory
         public override Task<ResolutionDetails<string>> ResolveStringValue(
             string flagKey,
             string defaultValue,
-            EvaluationContext context = null)
+            EvaluationContext? context = null)
         {
             return Task.FromResult(Resolve(flagKey, defaultValue, context));
         }
@@ -85,7 +85,7 @@ namespace OpenFeature.Providers.Memory
         public override Task<ResolutionDetails<int>> ResolveIntegerValue(
             string flagKey,
             int defaultValue,
-            EvaluationContext context = null)
+            EvaluationContext? context = null)
         {
             return Task.FromResult(Resolve(flagKey, defaultValue, context));
         }
@@ -94,7 +94,7 @@ namespace OpenFeature.Providers.Memory
         public override Task<ResolutionDetails<double>> ResolveDoubleValue(
             string flagKey,
             double defaultValue,
-            EvaluationContext context = null)
+            EvaluationContext? context = null)
         {
             return Task.FromResult(Resolve(flagKey, defaultValue, context));
         }
@@ -103,12 +103,12 @@ namespace OpenFeature.Providers.Memory
         public override Task<ResolutionDetails<Value>> ResolveStructureValue(
             string flagKey,
             Value defaultValue,
-            EvaluationContext context = null)
+            EvaluationContext? context = null)
         {
             return Task.FromResult(Resolve(flagKey, defaultValue, context));
         }
 
-        private ResolutionDetails<T> Resolve<T>(string flagKey, T defaultValue, EvaluationContext context)
+        private ResolutionDetails<T> Resolve<T>(string flagKey, T defaultValue, EvaluationContext? context)
         {
             if (!this._flags.TryGetValue(flagKey, out var flag))
             {
@@ -118,7 +118,7 @@ namespace OpenFeature.Providers.Memory
             {
                 if (typeof(Flag<T>).Equals(flag.GetType()))
                 {
-                    return (flag as Flag<T>).Evaluate(flagKey, defaultValue, context);
+                    return ((Flag<T>)flag).Evaluate(flagKey, defaultValue, context);
                 }
                 else
                 {

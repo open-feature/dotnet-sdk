@@ -10,7 +10,7 @@ namespace OpenFeature.Providers.Memory
     /// <summary>
     /// Flag representation for the in-memory provider.
     /// </summary>
-    public class Flag
+    public interface Flag
     {
 
     }
@@ -22,7 +22,7 @@ namespace OpenFeature.Providers.Memory
     {
         private Dictionary<string, T> Variants;
         private string DefaultVariant;
-        private Func<EvaluationContext, string> ContextEvaluator;
+        private Func<EvaluationContext, string>? ContextEvaluator;
 
         /// <summary>
         /// Flag representation for the in-memory provider.
@@ -30,14 +30,14 @@ namespace OpenFeature.Providers.Memory
         /// <param name="variants">dictionary of variants and their corresponding values</param>
         /// <param name="defaultVariant">default variant (should match 1 key in variants dictionary)</param>
         /// <param name="contextEvaluator">optional context-sensitive evaluation function</param>
-        public Flag(Dictionary<string, T> variants, string defaultVariant, Func<EvaluationContext, string> contextEvaluator = null)
+        public Flag(Dictionary<string, T> variants, string defaultVariant, Func<EvaluationContext, string>? contextEvaluator = null)
         {
             this.Variants = variants;
             this.DefaultVariant = defaultVariant;
             this.ContextEvaluator = contextEvaluator;
         }
 
-        internal ResolutionDetails<T> Evaluate(string flagKey, T defaultValue, EvaluationContext evaluationContext)
+        internal ResolutionDetails<T> Evaluate(string flagKey, T _, EvaluationContext? evaluationContext)
         {
             T value;
             if (this.ContextEvaluator == null)
@@ -58,7 +58,7 @@ namespace OpenFeature.Providers.Memory
             }
             else
             {
-                var variant = this.ContextEvaluator.Invoke(evaluationContext);
+                var variant = this.ContextEvaluator.Invoke(evaluationContext ?? EvaluationContext.Empty);
                 this.Variants.TryGetValue(variant, out value);
                 if (value == null)
                 {

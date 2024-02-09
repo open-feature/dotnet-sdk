@@ -34,4 +34,4 @@ jobs:
         cp spec/specification/assets/gherkin/evaluation.feature test/OpenFeature.E2ETests/Features/
 
     - name: Run Tests
-      run: dotnet test test/OpenFeature.E2ETests/ --configuration Release --logger GitHubActions
+      run: dotnet test test/OpenFeature.E2ETests/ --logger GitHubActions
