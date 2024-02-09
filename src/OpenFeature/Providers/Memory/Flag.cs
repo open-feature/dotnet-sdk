@@ -4,6 +4,7 @@ using OpenFeature.Constant;
 using OpenFeature.Error;
 using OpenFeature.Model;
 
+#nullable enable
 namespace OpenFeature.Providers.Memory
 {
     /// <summary>
