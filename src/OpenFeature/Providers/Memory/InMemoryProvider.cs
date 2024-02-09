@@ -119,7 +119,7 @@ namespace OpenFeature.Providers.Memory
         {
             if (!this._flags.TryGetValue(flagKey, out var flag))
             {
-                throw new FlagNotFoundException($"flag {flag} not found");
+                throw new FlagNotFoundException($"flag {flagKey} not found");
             }
             else
             {
@@ -129,7 +129,7 @@ namespace OpenFeature.Providers.Memory
                 }
                 else
                 {
-                    throw new TypeMismatchException($"flag {flag} not found");
+                    throw new TypeMismatchException($"flag {flagKey} is not of type ${typeof(T)}");
                 }
             }
         }
