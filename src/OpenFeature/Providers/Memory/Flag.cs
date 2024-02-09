@@ -39,7 +39,7 @@ namespace OpenFeature.Providers.Memory
 
         internal ResolutionDetails<T> Evaluate(string flagKey, T _, EvaluationContext? evaluationContext)
         {
-            T value;
+            T? value = default;
             if (this.ContextEvaluator == null)
             {
                 if (this.Variants.TryGetValue(this.DefaultVariant, out value))

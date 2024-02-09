@@ -54,6 +54,22 @@ namespace OpenFeature.Tests
                     )
                 },
                 {
+                    "context-aware", new Flag<string>(
+                        variants: new Dictionary<string, string>(){
+                            { "internal", "INTERNAL" },
+                            { "external", "EXTERNAL" }
+                        },
+                        defaultVariant: "external",
+                        (context) => {
+                            if (context.GetValue("email").AsString.Contains("@faas.com"))
+                            {
+                                return "internal";
+                            }
+                            else return "external";
+                        }
+                    )
+                },
+                {
                     "object-flag", new Flag<Value>(
                         variants: new Dictionary<string, Value>(){
                             { "empty", new Value() },
@@ -66,6 +82,15 @@ namespace OpenFeature.Tests
                         },
                         defaultVariant: "template"
                     )
+                },
+                {
+                    "invalid-flag", new Flag<bool>(
+                        variants: new Dictionary<string, bool>(){
+                            { "on", true },
+                            { "off", false }
+                        },
+                        defaultVariant: "missing"
+                    )
                 }
             });
 
@@ -73,7 +98,7 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        public async void GetBoolean_ShouldEvaluate()
+        public async void GetBoolean_ShouldEvaluateWithReasonAndVariant()
         {
             ResolutionDetails<bool> details = await this.commonProvider.ResolveBooleanValue("boolean-flag", false, EvaluationContext.Empty).ConfigureAwait(false);
             Assert.True(details.Value);
@@ -82,7 +107,7 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        public async void GetString_ShouldEvaluate()
+        public async void GetString_ShouldEvaluateWithReasonAndVariant()
         {
             ResolutionDetails<string> details = await this.commonProvider.ResolveStringValue("string-flag", "nope", EvaluationContext.Empty).ConfigureAwait(false);
             Assert.Equal("hi", details.Value);
@@ -91,7 +116,7 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        public async void GetInt_ShouldEvaluate()
+        public async void GetInt_ShouldEvaluateWithReasonAndVariant()
         {
             ResolutionDetails<int> details = await this.commonProvider.ResolveIntegerValue("integer-flag", 13, EvaluationContext.Empty).ConfigureAwait(false);
             Assert.Equal(10, details.Value);
@@ -100,7 +125,7 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        public async void GetDouble_ShouldEvaluate()
+        public async void GetDouble_ShouldEvaluateWithReasonAndVariant()
         {
             ResolutionDetails<double> details = await this.commonProvider.ResolveDoubleValue("float-flag", 13, EvaluationContext.Empty).ConfigureAwait(false);
             Assert.Equal(0.5, details.Value);
@@ -109,7 +134,7 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        public async void GetStruct_ShouldEvaluate()
+        public async void GetStruct_ShouldEvaluateWithReasonAndVariant()
         {
             ResolutionDetails<Value> details = await this.commonProvider.ResolveStructureValue("object-flag", new Value(), EvaluationContext.Empty).ConfigureAwait(false);
             Assert.Equal(true, details.Value.AsStructure["showImages"].AsBoolean);
@@ -117,6 +142,16 @@ namespace OpenFeature.Tests
             Assert.Equal(100, details.Value.AsStructure["imagesPerPage"].AsInteger);
             Assert.Equal(Reason.Static, details.Reason);
             Assert.Equal("template", details.Variant);
+        }
+
+        [Fact]
+        public async void GetString_ContextSensitive_ShouldEvaluateWithReasonAndVariant()
+        {
+            EvaluationContext context = EvaluationContext.Builder().Set("email", "me@faas.com").Build();
+            ResolutionDetails<string> details = await this.commonProvider.ResolveStringValue("context-aware", "nope", context).ConfigureAwait(false);
+            Assert.Equal("INTERNAL", details.Value);
+            Assert.Equal(Reason.TargetingMatch, details.Reason);
+            Assert.Equal("internal", details.Variant);
         }
 
         [Fact]
@@ -129,6 +164,12 @@ namespace OpenFeature.Tests
         public async void MismatchedFlag_ShouldThrow()
         {
             await Assert.ThrowsAsync<TypeMismatchException>(() => commonProvider.ResolveStringValue("boolean-flag", "nope", EvaluationContext.Empty)).ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async void MissingVariant_ShouldThrow()
+        {
+            await Assert.ThrowsAsync<GeneralException>(() => commonProvider.ResolveBooleanValue("invalid-flag", false, EvaluationContext.Empty)).ConfigureAwait(false);
         }
 
         [Fact]
