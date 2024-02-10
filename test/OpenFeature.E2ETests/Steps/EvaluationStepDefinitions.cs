@@ -204,7 +204,7 @@ namespace OpenFeature.E2ETests
                 .Set(field1, value1)
                 .Set(field2, value2)
                 .Set(field3, value3)
-                .Set(field4, value4).Build();
+                .Set(field4, bool.Parse(value4)).Build();
         }
 
         [When(@"a flag with key ""(.*)"" is evaluated with default value ""(.*)""")]
