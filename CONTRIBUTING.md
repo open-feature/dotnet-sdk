@@ -67,12 +67,6 @@ To be able to run the e2e tests, first we need to initialize the submodule and c
 git submodule update --init --recursive && cp test-harness/features/evaluation.feature test/OpenFeature.E2ETests/Features/
 ```
 
-Afterwards, you need to start flagd locally:
-
-```bash
-docker run -p 8013:8013 ghcr.io/open-feature/flagd-testbed:latest
-```
-
 Now you can run the tests using:
 
 ```bash

@@ -1,0 +1,241 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Threading;
+using OpenFeature.Constant;
+using OpenFeature.Error;
+using OpenFeature.Model;
+using OpenFeature.Providers.Memory;
+using Xunit;
+
+namespace OpenFeature.Tests
+{
+    public class InMemoryProviderTests
+    {
+        private FeatureProvider commonProvider;
+
+        public InMemoryProviderTests()
+        {
+            var provider = new InMemoryProvider(new Dictionary<string, Flag>(){
+                {
+                    "boolean-flag", new Flag<bool>(
+                        variants: new Dictionary<string, bool>(){
+                            { "on", true },
+                            { "off", false }
+                        },
+                        defaultVariant: "on"
+                    )
+                },
+                {
+                    "string-flag", new Flag<string>(
+                        variants: new Dictionary<string, string>(){
+                            { "greeting", "hi" },
+                            { "parting", "bye" }
+                        },
+                        defaultVariant: "greeting"
+                    )
+                },
+                {
+                    "integer-flag", new Flag<int>(
+                        variants: new Dictionary<string, int>(){
+                            { "one", 1 },
+                            { "ten", 10 }
+                        },
+                        defaultVariant: "ten"
+                    )
+                },
+                {
+                    "float-flag", new Flag<double>(
+                        variants: new Dictionary<string, double>(){
+                            { "tenth", 0.1 },
+                            { "half", 0.5 }
+                        },
+                        defaultVariant: "half"
+                    )
+                },
+                {
+                    "context-aware", new Flag<string>(
+                        variants: new Dictionary<string, string>(){
+                            { "internal", "INTERNAL" },
+                            { "external", "EXTERNAL" }
+                        },
+                        defaultVariant: "external",
+                        (context) => {
+                            if (context.GetValue("email").AsString.Contains("@faas.com"))
+                            {
+                                return "internal";
+                            }
+                            else return "external";
+                        }
+                    )
+                },
+                {
+                    "object-flag", new Flag<Value>(
+                        variants: new Dictionary<string, Value>(){
+                            { "empty", new Value() },
+                            { "template", new Value(Structure.Builder()
+                                    .Set("showImages", true)
+                                    .Set("title", "Check out these pics!")
+                                    .Set("imagesPerPage", 100).Build()
+                                )
+                            }
+                        },
+                        defaultVariant: "template"
+                    )
+                },
+                {
+                    "invalid-flag", new Flag<bool>(
+                        variants: new Dictionary<string, bool>(){
+                            { "on", true },
+                            { "off", false }
+                        },
+                        defaultVariant: "missing"
+                    )
+                },
+                {
+                    "invalid-evaluator-flag", new Flag<bool>(
+                        variants: new Dictionary<string, bool>(){
+                            { "on", true },
+                            { "off", false }
+                        },
+                        defaultVariant: "on",
+                        (context) => {
+                            return "missing";
+                        }
+                    )
+                }
+            });
+
+            this.commonProvider = provider;
+        }
+
+        [Fact]
+        public async void GetBoolean_ShouldEvaluateWithReasonAndVariant()
+        {
+            ResolutionDetails<bool> details = await this.commonProvider.ResolveBooleanValue("boolean-flag", false, EvaluationContext.Empty).ConfigureAwait(false);
+            Assert.True(details.Value);
+            Assert.Equal(Reason.Static, details.Reason);
+            Assert.Equal("on", details.Variant);
+        }
+
+        [Fact]
+        public async void GetString_ShouldEvaluateWithReasonAndVariant()
+        {
+            ResolutionDetails<string> details = await this.commonProvider.ResolveStringValue("string-flag", "nope", EvaluationContext.Empty).ConfigureAwait(false);
+            Assert.Equal("hi", details.Value);
+            Assert.Equal(Reason.Static, details.Reason);
+            Assert.Equal("greeting", details.Variant);
+        }
+
+        [Fact]
+        public async void GetInt_ShouldEvaluateWithReasonAndVariant()
+        {
+            ResolutionDetails<int> details = await this.commonProvider.ResolveIntegerValue("integer-flag", 13, EvaluationContext.Empty).ConfigureAwait(false);
+            Assert.Equal(10, details.Value);
+            Assert.Equal(Reason.Static, details.Reason);
+            Assert.Equal("ten", details.Variant);
+        }
+
+        [Fact]
+        public async void GetDouble_ShouldEvaluateWithReasonAndVariant()
+        {
+            ResolutionDetails<double> details = await this.commonProvider.ResolveDoubleValue("float-flag", 13, EvaluationContext.Empty).ConfigureAwait(false);
+            Assert.Equal(0.5, details.Value);
+            Assert.Equal(Reason.Static, details.Reason);
+            Assert.Equal("half", details.Variant);
+        }
+
+        [Fact]
+        public async void GetStruct_ShouldEvaluateWithReasonAndVariant()
+        {
+            ResolutionDetails<Value> details = await this.commonProvider.ResolveStructureValue("object-flag", new Value(), EvaluationContext.Empty).ConfigureAwait(false);
+            Assert.Equal(true, details.Value.AsStructure["showImages"].AsBoolean);
+            Assert.Equal("Check out these pics!", details.Value.AsStructure["title"].AsString);
+            Assert.Equal(100, details.Value.AsStructure["imagesPerPage"].AsInteger);
+            Assert.Equal(Reason.Static, details.Reason);
+            Assert.Equal("template", details.Variant);
+        }
+
+        [Fact]
+        public async void GetString_ContextSensitive_ShouldEvaluateWithReasonAndVariant()
+        {
+            EvaluationContext context = EvaluationContext.Builder().Set("email", "me@faas.com").Build();
+            ResolutionDetails<string> details = await this.commonProvider.ResolveStringValue("context-aware", "nope", context).ConfigureAwait(false);
+            Assert.Equal("INTERNAL", details.Value);
+            Assert.Equal(Reason.TargetingMatch, details.Reason);
+            Assert.Equal("internal", details.Variant);
+        }
+
+        [Fact]
+        public async void EmptyFlags_ShouldWork()
+        {
+            var provider = new InMemoryProvider();
+            await provider.UpdateFlags().ConfigureAwait(false);
+            Assert.Equal("InMemory", provider.GetMetadata().Name);
+        }
+
+        [Fact]
+        public async void MissingFlag_ShouldThrow()
+        {
+            await Assert.ThrowsAsync<FlagNotFoundException>(() => commonProvider.ResolveBooleanValue("missing-flag", false, EvaluationContext.Empty)).ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async void MismatchedFlag_ShouldThrow()
+        {
+            await Assert.ThrowsAsync<TypeMismatchException>(() => commonProvider.ResolveStringValue("boolean-flag", "nope", EvaluationContext.Empty)).ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async void MissingDefaultVariant_ShouldThrow()
+        {
+            await Assert.ThrowsAsync<GeneralException>(() => commonProvider.ResolveBooleanValue("invalid-flag", false, EvaluationContext.Empty)).ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async void MissingEvaluatedVariant_ShouldThrow()
+        {
+            await Assert.ThrowsAsync<GeneralException>(() => commonProvider.ResolveBooleanValue("invalid-evaluator-flag", false, EvaluationContext.Empty)).ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async void PutConfiguration_shouldUpdateConfigAndRunHandlers()
+        {
+            var provider = new InMemoryProvider(new Dictionary<string, Flag>(){
+            {
+                "old-flag", new Flag<bool>(
+                    variants: new Dictionary<string, bool>(){
+                        { "on", true },
+                        { "off", false }
+                    },
+                    defaultVariant: "on"
+                )
+            }});
+
+            ResolutionDetails<bool> details = await provider.ResolveBooleanValue("old-flag", false, EvaluationContext.Empty).ConfigureAwait(false);
+            Assert.True(details.Value);
+
+            // update flags
+            await provider.UpdateFlags(new Dictionary<string, Flag>(){
+            {
+                "new-flag", new Flag<string>(
+                    variants: new Dictionary<string, string>(){
+                        { "greeting", "hi" },
+                        { "parting", "bye" }
+                    },
+                    defaultVariant: "greeting"
+                )
+            }}).ConfigureAwait(false);
+
+            var res = await provider.GetEventChannel().Reader.ReadAsync().ConfigureAwait(false) as ProviderEventPayload;
+            Assert.Equal(ProviderEventTypes.ProviderConfigurationChanged, res.Type);
+
+            await Assert.ThrowsAsync<FlagNotFoundException>(() => provider.ResolveBooleanValue("old-flag", false, EvaluationContext.Empty)).ConfigureAwait(false);
+
+            // new flag should be present, old gone (defaults), handler run.
+            ResolutionDetails<string> detailsAfter = await provider.ResolveStringValue("new-flag", "nope", EvaluationContext.Empty).ConfigureAwait(false);
+            Assert.True(details.Value);
+            Assert.Equal("hi", detailsAfter.Value);
+        }
+    }
+}
