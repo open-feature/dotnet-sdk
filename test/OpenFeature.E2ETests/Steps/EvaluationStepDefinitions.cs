@@ -5,8 +5,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using OpenFeature.Constant;
-using OpenFeature.Contrib.Providers.Flagd;
+using OpenFeature.Extension;
 using OpenFeature.Model;
+using OpenFeature.Providers.Memory;
 using TechTalk.SpecFlow;
 using Xunit;
 
@@ -41,15 +42,14 @@ namespace OpenFeature.E2ETests
         public EvaluationStepDefinitions(ScenarioContext scenarioContext)
         {
             _scenarioContext = scenarioContext;
-            var flagdProvider = new FlagdProvider();
-            Api.Instance.SetProviderAsync(flagdProvider).Wait();
-            client = Api.Instance.GetClient();
         }
 
-        [Given(@"a provider is registered with cache disabled")]
-        public void Givenaproviderisregisteredwithcachedisabled()
+        [Given(@"a provider is registered")]
+        public void GivenAProviderIsRegistered()
         {
-
+            var memProvider = new InMemoryProvider(e2eFlagConfig);
+            Api.Instance.SetProviderAsync(memProvider).Wait();
+            client = Api.Instance.GetClient();
         }
 
         [When(@"a boolean flag with key ""(.*)"" is evaluated with default value ""(.*)""")]
@@ -247,7 +247,7 @@ namespace OpenFeature.E2ETests
         public void Giventhereasonshouldindicateanerrorandtheerrorcodeshouldindicateamissingflagwith(string errorCode)
         {
             Assert.Equal(Reason.Error.ToString(), notFoundDetails.Reason);
-            Assert.Contains(errorCode, notFoundDetails.ErrorMessage);
+            Assert.Equal(errorCode, notFoundDetails.ErrorType.GetDescription());
         }
 
         [When(@"a string flag with key ""(.*)"" is evaluated as an integer, with details and a default value (.*)")]
@@ -268,8 +268,88 @@ namespace OpenFeature.E2ETests
         public void Giventhereasonshouldindicateanerrorandtheerrorcodeshouldindicateatypemismatchwith(string errorCode)
         {
             Assert.Equal(Reason.Error.ToString(), typeErrorDetails.Reason);
-            Assert.Contains(errorCode, this.typeErrorDetails.ErrorMessage);
+            Assert.Equal(errorCode, typeErrorDetails.ErrorType.GetDescription());
         }
 
+        private IDictionary<string, Flag> e2eFlagConfig = new Dictionary<string, Flag>(){
+            {
+                "boolean-flag", new Flag<bool>(
+                    variants: new Dictionary<string, bool>(){
+                        { "on", true },
+                        { "off", false }
+                    },
+                    defaultVariant: "on"
+                )
+            },
+            {
+                "string-flag", new Flag<string>(
+                    variants: new Dictionary<string, string>(){
+                        { "greeting", "hi" },
+                        { "parting", "bye" }
+                    },
+                    defaultVariant: "greeting"
+                )
+            },
+            {
+                "integer-flag", new Flag<int>(
+                    variants: new Dictionary<string, int>(){
+                        { "one", 1 },
+                        { "ten", 10 }
+                    },
+                    defaultVariant: "ten"
+                )
+            },
+            {
+                "float-flag", new Flag<double>(
+                    variants: new Dictionary<string, double>(){
+                        { "tenth", 0.1 },
+                        { "half", 0.5 }
+                    },
+                    defaultVariant: "half"
+                )
+            },
+            {
+                "object-flag", new Flag<Value>(
+                    variants: new Dictionary<string, Value>(){
+                        { "empty", new Value() },
+                        { "template", new Value(Structure.Builder()
+                                .Set("showImages", true)
+                                .Set("title", "Check out these pics!")
+                                .Set("imagesPerPage", 100).Build()
+                            )
+                        }
+                    },
+                    defaultVariant: "template"
+                )
+            },
+            {
+                "context-aware", new Flag<string>(
+                    variants: new Dictionary<string, string>(){
+                        { "internal", "INTERNAL" },
+                        { "external", "EXTERNAL" }
+                    },
+                    defaultVariant: "external",
+                    (context) => {
+                        if (context.GetValue("fn").AsString == "Sulisław"
+                            && context.GetValue("ln").AsString == "Świętopełk"
+                            && context.GetValue("age").AsInteger == 29
+                            && context.GetValue("customer").AsBoolean == false)
+                        {
+                            return "internal";
+                        }
+                        else return "external";
+                    }
+                )
+            },
+            {
+                "wrong-flag", new Flag<string>(
+                    variants: new Dictionary<string, string>(){
+                        { "one", "uno" },
+                        { "two", "dos" }
+                    },
+                    defaultVariant: "one"
+                )
+            }
+        };
     }
 }
