@@ -16,12 +16,40 @@ namespace OpenFeature.Tests
                 .Set("key1", "value1");
             var contextBuilder2 = new EvaluationContextBuilder()
                 .Set("key2", "value2");
-
             var context1 = contextBuilder1.Merge(contextBuilder2.Build()).Build();
 
             Assert.Equal(2, context1.Count);
             Assert.Equal("value1", context1.GetValue("key1").AsString);
             Assert.Equal("value2", context1.GetValue("key2").AsString);
+        }
+
+        [Fact]
+        public void Should_Change_TargetingKey_From_OverridingContext()
+        {
+            var contextBuilder1 = new EvaluationContextBuilder()
+                .Set("key1", "value1")
+                .SetTargetingKey("targeting_key");
+            var contextBuilder2 = new EvaluationContextBuilder()
+                .Set("key2", "value2")
+                .SetTargetingKey("overriding_key");
+
+            var mergeContext = contextBuilder1.Merge(contextBuilder2.Build()).Build();
+
+            Assert.Equal("overriding_key", mergeContext.TargetingKey);
+        }
+
+        [Fact]
+        public void Should_Retain_TargetingKey_When_OverridingContext_TargetingKey_Value_IsEmpty()
+        {
+            var contextBuilder1 = new EvaluationContextBuilder()
+                .Set("key1", "value1")
+                .SetTargetingKey("targeting_key");
+            var contextBuilder2 = new EvaluationContextBuilder()
+                .Set("key2", "value2");
+
+            var mergeContext = contextBuilder1.Merge(contextBuilder2.Build()).Build();
+
+            Assert.Equal("targeting_key", mergeContext.TargetingKey);
         }
 
         [Fact]
@@ -51,6 +79,8 @@ namespace OpenFeature.Tests
             var now = fixture.Create<DateTime>();
             var structure = fixture.Create<Structure>();
             var contextBuilder = new EvaluationContextBuilder()
+                .SetTargetingKey("targeting_key")
+                .Set("targeting_key", "userId")
                 .Set("key1", "value")
                 .Set("key2", 1)
                 .Set("key3", true)
@@ -59,6 +89,11 @@ namespace OpenFeature.Tests
                 .Set("key6", 1.0);
 
             var context = contextBuilder.Build();
+
+            context.TargetingKey.Should().Be("targeting_key");
+            var targetingKeyValue = context.GetValue(context.TargetingKey);
+            targetingKeyValue.IsString.Should().BeTrue();
+            targetingKeyValue.AsString.Should().Be("userId");
 
             var value1 = context.GetValue("key1");
             value1.IsString.Should().BeTrue();
