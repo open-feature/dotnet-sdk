@@ -17,10 +17,6 @@ public abstract class BaseMetadata
         this._metadata = metadata.ToImmutableDictionary();
     }
 
-    internal BaseMetadata() : this([])
-    {
-    }
-
     /// <summary>
     /// Gets the boolean value associated with the specified key.
     /// </summary>
