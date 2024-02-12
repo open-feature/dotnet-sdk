@@ -36,6 +36,7 @@ namespace OpenFeature.Model
         /// <summary>
         /// Metadata information for the event.
         /// </summary>
+        // TODO: This needs to be changed to a EventMetadata object
         public Dictionary<string, object> EventMetadata { get; set; }
     }
 }
