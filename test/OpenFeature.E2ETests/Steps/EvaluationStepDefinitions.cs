@@ -200,12 +200,11 @@ namespace OpenFeature.E2ETests
         [When(@"context contains keys ""(.*)"", ""(.*)"", ""(.*)"", ""(.*)"" with values ""(.*)"", ""(.*)"", (.*), ""(.*)""")]
         public void Whencontextcontainskeyswithvalues(string field1, string field2, string field3, string field4, string value1, string value2, int value3, string value4)
         {
-            var attributes = ImmutableDictionary.CreateBuilder<string, Value>();
-            attributes.Add(field1, new Value(value1));
-            attributes.Add(field2, new Value(value2));
-            attributes.Add(field3, new Value(value3));
-            attributes.Add(field4, new Value(bool.Parse(value4)));
-            this.context = new EvaluationContext(new Structure(attributes));
+            this.context = new EvaluationContextBuilder()
+                .Set(field1, value1)
+                .Set(field2, value2)
+                .Set(field3, value3)
+                .Set(field4, bool.Parse(value4)).Build();
         }
 
         [When(@"a flag with key ""(.*)"" is evaluated with default value ""(.*)""")]
@@ -225,7 +224,7 @@ namespace OpenFeature.E2ETests
         [Then(@"the resolved flag value is ""(.*)"" when the context is empty")]
         public void Giventheresolvedflagvalueiswhenthecontextisempty(string expected)
         {
-            string emptyContextValue = client.GetStringValue(contextAwareFlagKey, contextAwareDefaultValue, new EvaluationContext(new Structure(ImmutableDictionary<string, Value>.Empty))).Result;
+            string emptyContextValue = client.GetStringValue(contextAwareFlagKey, contextAwareDefaultValue, new EvaluationContextBuilder().Build()).Result;
             Assert.Equal(expected, emptyContextValue);
         }
 
