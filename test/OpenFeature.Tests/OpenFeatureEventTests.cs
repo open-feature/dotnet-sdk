@@ -25,12 +25,7 @@ namespace OpenFeature.Tests
 
             eventExecutor.AddApiLevelHandler(ProviderEventTypes.ProviderConfigurationChanged, eventHandler);
 
-            var eventMetadata = new Dictionary<string, object>
-            {
-                {
-                    "foo", "bar"
-                }
-            };
+            var eventMetadata = new ImmutableMetadata(new Dictionary<string, object> { { "foo", "bar" } });
             var myEvent = new Event
             {
                 EventPayload = new ProviderEventPayload
