@@ -14,7 +14,7 @@ public class FlagMetadataTest
     public void GetBool_Should_Return_Null_If_Key_Not_Found()
     {
         // Arrange
-        var flagMetadata = new FlagMetadata();
+        var flagMetadata = new ImmutableMetadata();
 
         // Act
         var result = flagMetadata.GetBool("nonexistentKey");
@@ -36,7 +36,7 @@ public class FlagMetadataTest
                 "boolKey", true
             }
         };
-        var flagMetadata = new FlagMetadata(metadata);
+        var flagMetadata = new ImmutableMetadata(metadata);
 
         // Act
         var result = flagMetadata.GetBool("boolKey");
@@ -57,7 +57,7 @@ public class FlagMetadataTest
                 "wrongKey", "11a"
             }
         };
-        var flagMetadata = new FlagMetadata(metadata);
+        var flagMetadata = new ImmutableMetadata(metadata);
 
         // Act
         var result = flagMetadata.GetBool("wrongKey");
@@ -72,7 +72,7 @@ public class FlagMetadataTest
     public void GetInt_Should_Return_Null_If_Key_Not_Found()
     {
         // Arrange
-        var flagMetadata = new FlagMetadata();
+        var flagMetadata = new ImmutableMetadata();
 
         // Act
         var result = flagMetadata.GetInt("nonexistentKey");
@@ -94,7 +94,7 @@ public class FlagMetadataTest
                 "intKey", 1
             }
         };
-        var flagMetadata = new FlagMetadata(metadata);
+        var flagMetadata = new ImmutableMetadata(metadata);
 
         // Act
         var result = flagMetadata.GetInt("intKey");
@@ -116,7 +116,7 @@ public class FlagMetadataTest
                 "wrongKey", "11a"
             }
         };
-        var flagMetadata = new FlagMetadata(metadata);
+        var flagMetadata = new ImmutableMetadata(metadata);
 
         // Act
         var result = flagMetadata.GetInt("wrongKey");
@@ -131,7 +131,7 @@ public class FlagMetadataTest
     public void GetDouble_Should_Return_Null_If_Key_Not_Found()
     {
         // Arrange
-        var flagMetadata = new FlagMetadata();
+        var flagMetadata = new ImmutableMetadata();
 
         // Act
         var result = flagMetadata.GetDouble("nonexistentKey");
@@ -153,7 +153,7 @@ public class FlagMetadataTest
                 "doubleKey", 1.2
             }
         };
-        var flagMetadata = new FlagMetadata(metadata);
+        var flagMetadata = new ImmutableMetadata(metadata);
 
         // Act
         var result = flagMetadata.GetDouble("doubleKey");
@@ -175,7 +175,7 @@ public class FlagMetadataTest
                 "wrongKey", "11a"
             }
         };
-        var flagMetadata = new FlagMetadata(metadata);
+        var flagMetadata = new ImmutableMetadata(metadata);
 
         // Act
         var result = flagMetadata.GetDouble("wrongKey");
@@ -190,7 +190,7 @@ public class FlagMetadataTest
     public void GetString_Should_Return_Null_If_Key_Not_Found()
     {
         // Arrange
-        var flagMetadata = new FlagMetadata();
+        var flagMetadata = new ImmutableMetadata();
 
         // Act
         var result = flagMetadata.GetString("nonexistentKey");
@@ -212,7 +212,7 @@ public class FlagMetadataTest
                 "stringKey", "11"
             }
         };
-        var flagMetadata = new FlagMetadata(metadata);
+        var flagMetadata = new ImmutableMetadata(metadata);
 
         // Act
         var result = flagMetadata.GetString("stringKey");
@@ -234,7 +234,7 @@ public class FlagMetadataTest
                 "wrongKey", new object()
             }
         };
-        var flagMetadata = new FlagMetadata(metadata);
+        var flagMetadata = new ImmutableMetadata(metadata);
 
         // Act
         var result = flagMetadata.GetString("wrongKey");
