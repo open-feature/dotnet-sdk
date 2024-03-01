@@ -146,7 +146,7 @@ dotnet_diagnostic.IDE0005.severity = error
 dotnet_diagnostic.RS0041.severity = suggestion
 
 # CA2007: Do not directly await a Task
-dotnet_diagnostic.CA2007.severity = errorgit 
+dotnet_diagnostic.CA2007.severity = error
 
 [obj/**.cs]
 generated_code = true
