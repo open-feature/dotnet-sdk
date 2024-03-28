@@ -6,7 +6,7 @@ namespace OpenFeature.Model
     /// <summary>
     /// The EventHandlerDelegate is an implementation of an Event Handler
     /// </summary>
-    public delegate void EventHandlerDelegate(ProviderEventPayload eventDetails);
+    public delegate void EventHandlerDelegate(ProviderEventPayload? eventDetails);
 
     /// <summary>
     /// Contains the payload of an OpenFeature Event.

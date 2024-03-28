@@ -57,7 +57,7 @@ namespace OpenFeature
         }
 
         /// <inheritdoc />
-        public void SetContext(EvaluationContext context)
+        public void SetContext(EvaluationContext? context)
         {
             lock (this._evaluationContextLock)
             {
@@ -274,7 +274,7 @@ namespace OpenFeature
         }
 
         private async Task<HookContext<T>> TriggerBeforeHooks<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
-            FlagEvaluationOptions options)
+            FlagEvaluationOptions? options)
         {
             var evalContextBuilder = EvaluationContext.Builder();
             evalContextBuilder.Merge(context.EvaluationContext);
@@ -298,7 +298,7 @@ namespace OpenFeature
         }
 
         private async Task TriggerAfterHooks<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
-            FlagEvaluationDetails<T> evaluationDetails, FlagEvaluationOptions options)
+            FlagEvaluationDetails<T> evaluationDetails, FlagEvaluationOptions? options)
         {
             foreach (var hook in hooks)
             {
@@ -307,7 +307,7 @@ namespace OpenFeature
         }
 
         private async Task TriggerErrorHooks<T>(IReadOnlyList<Hook> hooks, HookContext<T> context, Exception exception,
-            FlagEvaluationOptions options)
+            FlagEvaluationOptions? options)
         {
             foreach (var hook in hooks)
             {
@@ -323,7 +323,7 @@ namespace OpenFeature
         }
 
         private async Task TriggerFinallyHooks<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
-            FlagEvaluationOptions options)
+            FlagEvaluationOptions? options)
         {
             foreach (var hook in hooks)
             {

@@ -200,7 +200,7 @@ namespace OpenFeature
         /// Sets the global <see cref="EvaluationContext"/>
         /// </summary>
         /// <param name="context">The <see cref="EvaluationContext"/> to set</param>
-        public void SetContext(EvaluationContext context)
+        public void SetContext(EvaluationContext? context)
         {
             this._evaluationContextLock.EnterWriteLock();
             try

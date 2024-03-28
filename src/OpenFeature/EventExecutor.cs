@@ -99,7 +99,7 @@ namespace OpenFeature
             }
         }
 
-        internal void RegisterDefaultFeatureProvider(FeatureProvider provider)
+        internal void RegisterDefaultFeatureProvider(FeatureProvider? provider)
         {
             if (provider == null)
             {
@@ -115,7 +115,7 @@ namespace OpenFeature
             }
         }
 
-        internal void RegisterClientFeatureProvider(string client, FeatureProvider provider)
+        internal void RegisterClientFeatureProvider(string client, FeatureProvider? provider)
         {
             if (provider == null)
             {
@@ -136,7 +136,7 @@ namespace OpenFeature
             }
         }
 
-        private void StartListeningAndShutdownOld(FeatureProvider newProvider, FeatureProvider oldProvider)
+        private void StartListeningAndShutdownOld(FeatureProvider newProvider, FeatureProvider? oldProvider)
         {
             // check if the provider is already active - if not, we need to start listening for its emitted events
             if (!this.IsProviderActive(newProvider))
@@ -174,7 +174,7 @@ namespace OpenFeature
             return this._activeSubscriptions.Contains(providerRef);
         }
 
-        private void EmitOnRegistration(FeatureProvider provider, ProviderEventTypes eventType, EventHandlerDelegate handler)
+        private void EmitOnRegistration(FeatureProvider? provider, ProviderEventTypes eventType, EventHandlerDelegate handler)
         {
             if (provider == null)
             {
@@ -249,7 +249,7 @@ namespace OpenFeature
                     case Event e:
                         lock (this._lockObj)
                         {
-                            if (this._apiHandlers.TryGetValue(e.EventPayload.Type, out var eventHandlers))
+                            if (e.EventPayload?.Type != null && this._apiHandlers.TryGetValue(e.EventPayload.Type, out var eventHandlers))
                             {
                                 foreach (var eventHandler in eventHandlers)
                                 {
@@ -264,7 +264,7 @@ namespace OpenFeature
                                 {
                                     if (this._clientHandlers.TryGetValue(keyAndValue.Key, out var clientRegistry))
                                     {
-                                        if (clientRegistry.TryGetValue(e.EventPayload.Type, out var clientEventHandlers))
+                                        if (e.EventPayload?.Type != null && clientRegistry.TryGetValue(e.EventPayload.Type, out var clientEventHandlers))
                                         {
                                             foreach (var eventHandler in clientEventHandlers)
                                             {
@@ -288,7 +288,7 @@ namespace OpenFeature
                                     // if there is an association for the client to a specific feature provider, then continue
                                     continue;
                                 }
-                                if (keyAndValues.Value.TryGetValue(e.EventPayload.Type, out var clientEventHandlers))
+                                if (e.EventPayload?.Type != null && keyAndValues.Value.TryGetValue(e.EventPayload.Type, out var clientEventHandlers))
                                 {
                                     foreach (var eventHandler in clientEventHandlers)
                                     {

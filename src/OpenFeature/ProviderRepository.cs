@@ -63,7 +63,7 @@ namespace OpenFeature
         /// </param>
         /// <param name="afterShutdown">called after a provider is shutdown, can be used to remove event handlers</param>
         public async Task SetProvider(
-            FeatureProvider featureProvider,
+            FeatureProvider? featureProvider,
             EvaluationContext context,
             Action<FeatureProvider>? afterSet = null,
             Action<FeatureProvider>? afterInitialization = null,
@@ -105,10 +105,10 @@ namespace OpenFeature
         }
 
         private static async Task InitProvider(
-            FeatureProvider newProvider,
+            FeatureProvider? newProvider,
             EvaluationContext context,
-            Action<FeatureProvider> afterInitialization,
-            Action<FeatureProvider, Exception> afterError)
+            Action<FeatureProvider>? afterInitialization,
+            Action<FeatureProvider, Exception>? afterError)
         {
             if (newProvider == null)
             {
@@ -152,8 +152,8 @@ namespace OpenFeature
         /// initialization
         /// </param>
         /// <param name="afterShutdown">called after a provider is shutdown, can be used to remove event handlers</param>
-        public async Task SetProvider(string clientName,
-            FeatureProvider featureProvider,
+        public async Task SetProvider(string? clientName,
+            FeatureProvider? featureProvider,
             EvaluationContext context,
             Action<FeatureProvider>? afterSet = null,
             Action<FeatureProvider>? afterInitialization = null,
@@ -202,16 +202,16 @@ namespace OpenFeature
         /// Shutdown the feature provider if it is unused. This must be called within a write lock of the _providersLock.
         /// </remarks>
         private async Task ShutdownIfUnused(
-            FeatureProvider targetProvider,
-            Action<FeatureProvider> afterShutdown,
-            Action<FeatureProvider, Exception> afterError)
+            FeatureProvider? targetProvider,
+            Action<FeatureProvider>? afterShutdown,
+            Action<FeatureProvider, Exception>? afterError)
         {
             if (ReferenceEquals(this._defaultProvider, targetProvider))
             {
                 return;
             }
 
-            if (this._featureProviders.Values.Contains(targetProvider))
+            if (targetProvider != null && this._featureProviders.Values.Contains(targetProvider))
             {
                 return;
             }
@@ -228,9 +228,9 @@ namespace OpenFeature
         /// it would not be meaningful to emit an error.
         /// </para>
         /// </remarks>
-        private static async Task SafeShutdownProvider(FeatureProvider targetProvider,
-            Action<FeatureProvider> afterShutdown,
-            Action<FeatureProvider, Exception> afterError)
+        private static async Task SafeShutdownProvider(FeatureProvider? targetProvider,
+            Action<FeatureProvider>? afterShutdown,
+            Action<FeatureProvider, Exception>? afterError)
         {
             try
             {
@@ -268,7 +268,7 @@ namespace OpenFeature
                 : this.GetProvider();
         }
 
-        public async Task Shutdown(Action<FeatureProvider, Exception> afterError = null)
+        public async Task Shutdown(Action<FeatureProvider, Exception>? afterError = null)
         {
             var providers = new HashSet<FeatureProvider>();
             this._providersLock.EnterWriteLock();
