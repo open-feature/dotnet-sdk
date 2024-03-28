@@ -31,5 +31,24 @@ namespace OpenFeature.Tests
             ex.Message.Should().Be(message);
             ex.InnerException.Should().BeOfType<ArgumentOutOfRangeException>();
         }
+
+        private enum TestEnum
+        {
+            TestValueWithoutDescription
+        }
+
+        [Fact]
+        public void GetDescription_WhenCalledWithEnumWithoutDescription_ReturnsEnumName()
+        {
+            // Arrange
+            var testEnum = TestEnum.TestValueWithoutDescription;
+            var expectedDescription = "TestValueWithoutDescription";
+
+            // Act
+            var actualDescription = testEnum.GetDescription();
+
+            // Assert
+            Assert.Equal(expectedDescription, actualDescription);
+        }
     }
 }
