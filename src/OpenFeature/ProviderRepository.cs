@@ -232,6 +232,11 @@ namespace OpenFeature
             Action<FeatureProvider>? afterShutdown,
             Action<FeatureProvider, Exception>? afterError)
         {
+            if (targetProvider == null)
+            {
+                return;
+            }
+
             try
             {
                 await targetProvider.Shutdown().ConfigureAwait(false);
