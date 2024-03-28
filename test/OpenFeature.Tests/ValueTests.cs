@@ -129,5 +129,109 @@ namespace OpenFeature.Tests
             Assert.True(value.IsList);
             Assert.Equal(ITEM_VALUE, value.AsList?[0].AsString);
         }
+
+        [Fact]
+        public void Constructor_WhenCalledWithAnotherValue_CopiesInnerValue()
+        {
+            // Arrange
+            var originalValue = new Value("testValue");
+
+            // Act
+            var copiedValue = new Value(originalValue);
+
+            // Assert
+            Assert.Equal(originalValue.AsObject, copiedValue.AsObject);
+        }
+
+        [Fact]
+        public void AsInteger_WhenCalledWithNonIntegerInnerValue_ReturnsNull()
+        {
+            // Arrange
+            var value = new Value("test");
+
+            // Act
+            var actualValue = value.AsInteger;
+
+            // Assert
+            Assert.Null(actualValue);
+        }
+
+        [Fact]
+        public void AsBoolean_WhenCalledWithNonBooleanInnerValue_ReturnsNull()
+        {
+            // Arrange
+            var value = new Value("test");
+
+            // Act
+            var actualValue = value.AsBoolean;
+
+            // Assert
+            Assert.Null(actualValue);
+        }
+
+        [Fact]
+        public void AsDouble_WhenCalledWithNonDoubleInnerValue_ReturnsNull()
+        {
+            // Arrange
+            var value = new Value("test");
+
+            // Act
+            var actualValue = value.AsDouble;
+
+            // Assert
+            Assert.Null(actualValue);
+        }
+
+        [Fact]
+        public void AsString_WhenCalledWithNonStringInnerValue_ReturnsNull()
+        {
+            // Arrange
+            var value = new Value(123);
+
+            // Act
+            var actualValue = value.AsString;
+
+            // Assert
+            Assert.Null(actualValue);
+        }
+
+        [Fact]
+        public void AsStructure_WhenCalledWithNonStructureInnerValue_ReturnsNull()
+        {
+            // Arrange
+            var value = new Value("test");
+
+            // Act
+            var actualValue = value.AsStructure;
+
+            // Assert
+            Assert.Null(actualValue);
+        }
+
+        [Fact]
+        public void AsList_WhenCalledWithNonListInnerValue_ReturnsNull()
+        {
+            // Arrange
+            var value = new Value("test");
+
+            // Act
+            var actualValue = value.AsList;
+
+            // Assert
+            Assert.Null(actualValue);
+        }
+
+        [Fact]
+        public void AsDateTime_WhenCalledWithNonDateTimeInnerValue_ReturnsNull()
+        {
+            // Arrange
+            var value = new Value("test");
+
+            // Act
+            var actualValue = value.AsDateTime;
+
+            // Assert
+            Assert.Null(actualValue);
+        }
     }
 }
