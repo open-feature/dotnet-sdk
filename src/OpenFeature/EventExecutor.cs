@@ -202,14 +202,14 @@ namespace OpenFeature
                 {
                     handler.Invoke(new ProviderEventPayload
                     {
-                        ProviderName = provider.GetMetadata()?.Name,
+                        ProviderName = provider.GetMetadata().Name,
                         Type = eventType,
                         Message = message
                     });
                 }
                 catch (Exception exc)
                 {
-                    this.Logger?.LogError("Error running handler: " + exc);
+                    this.Logger.LogError("Error running handler: " + exc);
                 }
             }
         }
@@ -311,7 +311,7 @@ namespace OpenFeature
             }
             catch (Exception exc)
             {
-                this.Logger?.LogError("Error running handler: " + exc);
+                this.Logger.LogError("Error running handler: " + exc);
             }
         }
 
