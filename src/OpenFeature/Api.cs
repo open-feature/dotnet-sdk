@@ -78,8 +78,12 @@ namespace OpenFeature
         /// </summary>
         /// <param name="clientName">Name of client</param>
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
-        public async Task SetProviderAsync(string? clientName, FeatureProvider featureProvider)
+        public async Task SetProviderAsync(string clientName, FeatureProvider featureProvider)
         {
+            if (string.IsNullOrWhiteSpace(clientName))
+            {
+                throw new ArgumentNullException(nameof(clientName));
+            }
             this._eventExecutor.RegisterClientFeatureProvider(clientName, featureProvider);
             await this._repository.SetProvider(clientName, featureProvider, this.GetContext()).ConfigureAwait(false);
         }

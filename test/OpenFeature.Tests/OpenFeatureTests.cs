@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
@@ -243,6 +244,17 @@ namespace OpenFeature.Tests
 
             (await client1.GetBooleanValue("test", false)).Should().BeTrue();
             (await client2.GetBooleanValue("test", false)).Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task SetProviderAsync_Should_Throw_When_Null_ClientName()
+        {
+            var openFeature = Api.Instance;
+
+            var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => openFeature.SetProviderAsync(null!, new TestProvider()));
+
+            exception.Should().BeOfType<ArgumentNullException>();
+            exception.ParamName.Should().Be("clientName");
         }
     }
 }

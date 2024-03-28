@@ -115,9 +115,9 @@ namespace OpenFeature
             }
         }
 
-        internal void RegisterClientFeatureProvider(string? client, FeatureProvider? provider)
+        internal void RegisterClientFeatureProvider(string client, FeatureProvider? provider)
         {
-            if (provider == null || client == null)
+            if (provider == null)
             {
                 return;
             }
