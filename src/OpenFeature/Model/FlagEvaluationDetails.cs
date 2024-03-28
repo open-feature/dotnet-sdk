@@ -31,7 +31,7 @@ namespace OpenFeature.Model
         /// details.
         /// </para>
         /// </summary>
-        public string ErrorMessage { get; }
+        public string? ErrorMessage { get; }
 
         /// <summary>
         /// Describes the reason for the outcome of the evaluation process
@@ -48,7 +48,7 @@ namespace OpenFeature.Model
         /// <summary>
         /// A structure which supports definition of arbitrary properties, with keys of type string, and values of type boolean, string, or number.
         /// </summary>
-        public FlagMetadata FlagMetadata { get; }
+        public FlagMetadata? FlagMetadata { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FlagEvaluationDetails{T}"/> class.
@@ -61,7 +61,7 @@ namespace OpenFeature.Model
         /// <param name="errorMessage">Error message</param>
         /// <param name="flagMetadata">Flag metadata</param>
         public FlagEvaluationDetails(string flagKey, T value, ErrorType errorType, string reason, string variant,
-            string errorMessage = null, FlagMetadata flagMetadata = null)
+            string? errorMessage = null, FlagMetadata? flagMetadata = null)
         {
             this.Value = value;
             this.FlagKey = flagKey;
