@@ -317,7 +317,7 @@ namespace OpenFeature
                 }
                 catch (Exception e)
                 {
-                    this._logger.LogError(e, "Error while executing Error hook {0}", hook.GetType().Name);
+                    this._logger.LogError(e, "Error while executing Error hook {HookName}", hook.GetType().Name);
                 }
             }
         }
@@ -333,7 +333,7 @@ namespace OpenFeature
                 }
                 catch (Exception e)
                 {
-                    this._logger.LogError(e, "Error while executing Finally hook {0}", hook.GetType().Name);
+                    this._logger.LogError(e, "Error while executing Finally hook {HookName}", hook.GetType().Name);
                 }
             }
         }
