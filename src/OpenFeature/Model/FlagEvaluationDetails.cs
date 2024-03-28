@@ -36,14 +36,14 @@ namespace OpenFeature.Model
         /// <summary>
         /// Describes the reason for the outcome of the evaluation process
         /// </summary>
-        public string Reason { get; }
+        public string? Reason { get; }
 
         /// <summary>
         /// A variant is a semantic identifier for a value. This allows for referral to particular values without
         /// necessarily including the value itself, which may be quite prohibitively large or otherwise unsuitable
         /// in some cases.
         /// </summary>
-        public string Variant { get; }
+        public string? Variant { get; }
 
         /// <summary>
         /// A structure which supports definition of arbitrary properties, with keys of type string, and values of type boolean, string, or number.
@@ -60,7 +60,7 @@ namespace OpenFeature.Model
         /// <param name="variant">Variant</param>
         /// <param name="errorMessage">Error message</param>
         /// <param name="flagMetadata">Flag metadata</param>
-        public FlagEvaluationDetails(string flagKey, T value, ErrorType errorType, string reason, string variant,
+        public FlagEvaluationDetails(string flagKey, T value, ErrorType errorType, string? reason, string? variant,
             string? errorMessage = null, FlagMetadata? flagMetadata = null)
         {
             this.Value = value;
