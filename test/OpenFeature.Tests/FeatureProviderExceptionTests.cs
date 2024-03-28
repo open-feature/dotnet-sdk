@@ -50,5 +50,18 @@ namespace OpenFeature.Tests
             // Assert
             Assert.Equal(expectedDescription, actualDescription);
         }
+
+        [Fact]
+        public void GetDescription_WhenFieldIsNull_ReturnsEnumValueAsString()
+        {
+            // Arrange
+            var testEnum = (TestEnum)999;// This value should not exist in the TestEnum
+
+            // Act
+            var description = testEnum.GetDescription();
+
+            // Assert
+            Assert.Equal(testEnum.ToString(), description);
+        }
     }
 }
