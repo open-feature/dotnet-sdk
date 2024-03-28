@@ -209,7 +209,7 @@ namespace OpenFeature
                 }
                 catch (Exception exc)
                 {
-                    this.Logger.LogError("Error running handler: " + exc);
+                    this.Logger.LogError(exc, "Error running handler");
                 }
             }
         }
@@ -311,7 +311,7 @@ namespace OpenFeature
             }
             catch (Exception exc)
             {
-                this.Logger.LogError("Error running handler: " + exc);
+                this.Logger.LogError(exc, "Error running handler");
             }
         }
 
