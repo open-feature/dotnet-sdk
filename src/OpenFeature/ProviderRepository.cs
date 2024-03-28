@@ -65,10 +65,10 @@ namespace OpenFeature
         public async Task SetProvider(
             FeatureProvider featureProvider,
             EvaluationContext context,
-            Action<FeatureProvider> afterSet = null,
-            Action<FeatureProvider> afterInitialization = null,
-            Action<FeatureProvider, Exception> afterError = null,
-            Action<FeatureProvider> afterShutdown = null)
+            Action<FeatureProvider>? afterSet = null,
+            Action<FeatureProvider>? afterInitialization = null,
+            Action<FeatureProvider, Exception>? afterError = null,
+            Action<FeatureProvider>? afterShutdown = null)
         {
             // Cannot unset the feature provider.
             if (featureProvider == null)
@@ -155,10 +155,10 @@ namespace OpenFeature
         public async Task SetProvider(string clientName,
             FeatureProvider featureProvider,
             EvaluationContext context,
-            Action<FeatureProvider> afterSet = null,
-            Action<FeatureProvider> afterInitialization = null,
-            Action<FeatureProvider, Exception> afterError = null,
-            Action<FeatureProvider> afterShutdown = null)
+            Action<FeatureProvider>? afterSet = null,
+            Action<FeatureProvider>? afterInitialization = null,
+            Action<FeatureProvider, Exception>? afterError = null,
+            Action<FeatureProvider>? afterShutdown = null)
         {
             // Cannot set a provider for a null clientName.
             if (clientName == null)
