@@ -261,9 +261,9 @@ namespace OpenFeature
             }
         }
 
-        public FeatureProvider GetProvider(string clientName)
+        public FeatureProvider GetProvider(string? clientName)
         {
-            if (string.IsNullOrEmpty(clientName))
+            if (clientName == null || string.IsNullOrEmpty(clientName))
             {
                 return this.GetProvider();
             }

@@ -300,7 +300,9 @@ namespace OpenFeature.Tests
             var fixture = new Fixture();
             var eventHandler = Substitute.For<EventHandlerDelegate>();
 
-            var myClient = Api.Instance.GetClient(fixture.Create<string>());
+            var clientName = fixture.Create<string>();
+            var clientVersion = fixture.Create<string>();
+            var myClient = Api.Instance.GetClient(clientName, clientVersion);
 
             var testProvider = new TestProvider();
             await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name, testProvider);
@@ -326,7 +328,9 @@ namespace OpenFeature.Tests
             failingEventHandler.When(x => x.Invoke(Arg.Any<ProviderEventPayload>()))
                 .Do(x => throw new Exception());
 
-            var myClient = Api.Instance.GetClient(fixture.Create<string>());
+            var clientName = fixture.Create<string>();
+            var clientVersion = fixture.Create<string>();
+            var myClient = Api.Instance.GetClient(clientName, clientVersion);
 
             myClient.AddHandler(ProviderEventTypes.ProviderReady, failingEventHandler);
             myClient.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
@@ -354,8 +358,8 @@ namespace OpenFeature.Tests
             var eventHandler = Substitute.For<EventHandlerDelegate>();
             var clientEventHandler = Substitute.For<EventHandlerDelegate>();
 
-            var myClientWithNoBoundProvider = Api.Instance.GetClient(fixture.Create<string>());
-            var myClientWithBoundProvider = Api.Instance.GetClient(fixture.Create<string>());
+            var myClientWithNoBoundProvider = Api.Instance.GetClient(fixture.Create<string>(), fixture.Create<string>());
+            var myClientWithBoundProvider = Api.Instance.GetClient(fixture.Create<string>(), fixture.Create<string>());
 
             var apiProvider = new TestProvider(fixture.Create<string>());
             var clientProvider = new TestProvider(fixture.Create<string>());
@@ -387,7 +391,7 @@ namespace OpenFeature.Tests
             var fixture = new Fixture();
             var clientEventHandler = Substitute.For<EventHandlerDelegate>();
 
-            var client = Api.Instance.GetClient(fixture.Create<string>());
+            var client = Api.Instance.GetClient(fixture.Create<string>(), fixture.Create<string>());
 
             var defaultProvider = new TestProvider(fixture.Create<string>());
             var clientProvider = new TestProvider(fixture.Create<string>());
@@ -433,7 +437,7 @@ namespace OpenFeature.Tests
             var fixture = new Fixture();
             var eventHandler = Substitute.For<EventHandlerDelegate>();
 
-            var myClient = Api.Instance.GetClient(fixture.Create<string>());
+            var myClient = Api.Instance.GetClient(fixture.Create<string>(), fixture.Create<string>());
 
             var testProvider = new TestProvider();
             await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name, testProvider);
@@ -456,7 +460,7 @@ namespace OpenFeature.Tests
 
             var eventHandler = Substitute.For<EventHandlerDelegate>();
 
-            var myClient = Api.Instance.GetClient(fixture.Create<string>());
+            var myClient = Api.Instance.GetClient(fixture.Create<string>(), fixture.Create<string>());
 
             myClient.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 

@@ -42,7 +42,7 @@ namespace OpenFeature
         {
             // Alias the provider reference so getting the method and returning the provider are
             // guaranteed to be the same object.
-            var provider = Api.Instance.GetProvider(this._metadata.Name);
+            var provider = Api.Instance.GetProvider(this._metadata.Name!);
 
             return (method(provider), provider);
         }
@@ -73,7 +73,7 @@ namespace OpenFeature
         /// <param name="logger">Logger used by client</param>
         /// <param name="context">Context given to this client</param>
         /// <exception cref="ArgumentNullException">Throws if any of the required parameters are null</exception>
-        public FeatureClient(string name, string version, ILogger? logger = null, EvaluationContext? context = null)
+        public FeatureClient(string? name, string? version, ILogger? logger = null, EvaluationContext? context = null)
         {
             this._metadata = new ClientMetadata(name, version);
             this._logger = logger ?? new Logger<Api>(new NullLoggerFactory());
@@ -96,13 +96,13 @@ namespace OpenFeature
         /// <inheritdoc />
         public void AddHandler(ProviderEventTypes eventType, EventHandlerDelegate handler)
         {
-            Api.Instance.AddClientHandler(this._metadata.Name, eventType, handler);
+            Api.Instance.AddClientHandler(this._metadata.Name!, eventType, handler);
         }
 
         /// <inheritdoc />
         public void RemoveHandler(ProviderEventTypes type, EventHandlerDelegate handler)
         {
-            Api.Instance.RemoveClientHandler(this._metadata.Name, type, handler);
+            Api.Instance.RemoveClientHandler(this._metadata.Name!, type, handler);
         }
 
         /// <inheritdoc />

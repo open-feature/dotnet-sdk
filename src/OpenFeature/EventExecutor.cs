@@ -115,9 +115,9 @@ namespace OpenFeature
             }
         }
 
-        internal void RegisterClientFeatureProvider(string client, FeatureProvider? provider)
+        internal void RegisterClientFeatureProvider(string? client, FeatureProvider? provider)
         {
-            if (provider == null)
+            if (provider == null || client == null)
             {
                 return;
             }
@@ -260,7 +260,7 @@ namespace OpenFeature
                             // look for client handlers and call invoke method there
                             foreach (var keyAndValue in this._namedProviderReferences)
                             {
-                                if (keyAndValue.Value == e.Provider)
+                                if (keyAndValue.Value == e.Provider && keyAndValue.Key != null)
                                 {
                                     if (this._clientHandlers.TryGetValue(keyAndValue.Key, out var clientRegistry))
                                     {

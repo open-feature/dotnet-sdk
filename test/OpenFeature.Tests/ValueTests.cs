@@ -117,7 +117,7 @@ namespace OpenFeature.Tests
             Structure innerValue = Structure.Builder().Set(INNER_KEY, INNER_VALUE).Build();
             Value value = new Value(innerValue);
             Assert.True(value.IsStructure);
-            Assert.Equal(INNER_VALUE, value.AsStructure.GetValue(INNER_KEY).AsString);
+            Assert.Equal(INNER_VALUE, value.AsStructure?.GetValue(INNER_KEY).AsString);
         }
 
         [Fact]
@@ -127,7 +127,7 @@ namespace OpenFeature.Tests
             IList<Value> innerValue = new List<Value>() { new Value(ITEM_VALUE) };
             Value value = new Value(innerValue);
             Assert.True(value.IsList);
-            Assert.Equal(ITEM_VALUE, value.AsList[0].AsString);
+            Assert.Equal(ITEM_VALUE, value.AsList?[0].AsString);
         }
     }
 }

@@ -195,7 +195,7 @@ namespace OpenFeature.Tests
         [InlineData("client2", null)]
         [InlineData(null, null)]
         [Specification("1.1.6", "The `API` MUST provide a function for creating a `client` which accepts the following options: - name (optional): A logical string identifier for the client.")]
-        public void OpenFeature_Should_Create_Client(string name = null, string version = null)
+        public void OpenFeature_Should_Create_Client(string? name = null, string? version = null)
         {
             var openFeature = Api.Instance;
             var client = openFeature.GetClient(name, version);

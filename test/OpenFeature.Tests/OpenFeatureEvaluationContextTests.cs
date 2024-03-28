@@ -91,7 +91,7 @@ namespace OpenFeature.Tests
             var context = contextBuilder.Build();
 
             context.TargetingKey.Should().Be("targeting_key");
-            var targetingKeyValue = context.GetValue(context.TargetingKey);
+            var targetingKeyValue = context.GetValue(context.TargetingKey!);
             targetingKeyValue.IsString.Should().BeTrue();
             targetingKeyValue.AsString.Should().Be("userId");
 

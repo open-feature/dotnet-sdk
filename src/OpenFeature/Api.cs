@@ -54,7 +54,7 @@ namespace OpenFeature
         /// </summary>
         /// <remarks>The provider cannot be set to null. Attempting to set the provider to null has no effect.</remarks>
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
-        public async Task SetProviderAsync(FeatureProvider featureProvider)
+        public async Task SetProviderAsync(FeatureProvider? featureProvider)
         {
             this._eventExecutor.RegisterDefaultFeatureProvider(featureProvider);
             await this._repository.SetProvider(featureProvider, this.GetContext()).ConfigureAwait(false);
@@ -78,7 +78,7 @@ namespace OpenFeature
         /// </summary>
         /// <param name="clientName">Name of client</param>
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
-        public async Task SetProviderAsync(string clientName, FeatureProvider featureProvider)
+        public async Task SetProviderAsync(string? clientName, FeatureProvider featureProvider)
         {
             this._eventExecutor.RegisterClientFeatureProvider(clientName, featureProvider);
             await this._repository.SetProvider(clientName, featureProvider, this.GetContext()).ConfigureAwait(false);
@@ -138,7 +138,7 @@ namespace OpenFeature
         /// <param name="logger">Logger instance used by client</param>
         /// <param name="context">Context given to this client</param>
         /// <returns><see cref="FeatureClient"/></returns>
-        public FeatureClient GetClient(string name, string version, ILogger? logger = null,
+        public FeatureClient GetClient(string? name = null, string? version = null, ILogger? logger = null,
             EvaluationContext? context = null) =>
             new FeatureClient(name, version, logger, context);
 

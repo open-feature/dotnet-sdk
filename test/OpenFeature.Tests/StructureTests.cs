@@ -76,9 +76,9 @@ namespace OpenFeature.Tests
 
             var structure = Structure.Builder()
                 .Set(KEY, VAL).Build();
-            Value value;
+            Value? value;
             Assert.True(structure.TryGetValue(KEY, out value));
-            Assert.Equal(VAL, value.AsString);
+            Assert.Equal(VAL, value?.AsString);
         }
 
         [Fact]
