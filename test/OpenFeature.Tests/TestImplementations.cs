@@ -11,23 +11,23 @@ namespace OpenFeature.Tests
 
     public class TestHook : Hook
     {
-        public override Task<EvaluationContext> Before<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null)
+        public override Task<EvaluationContext> Before<T>(HookContext<T> context, IReadOnlyDictionary<string, object>? hints = null)
         {
             return Task.FromResult(EvaluationContext.Empty);
         }
 
         public override Task After<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
-            IReadOnlyDictionary<string, object> hints = null)
+            IReadOnlyDictionary<string, object>? hints = null)
         {
             return Task.CompletedTask;
         }
 
-        public override Task Error<T>(HookContext<T> context, Exception error, IReadOnlyDictionary<string, object> hints = null)
+        public override Task Error<T>(HookContext<T> context, Exception error, IReadOnlyDictionary<string, object>? hints = null)
         {
             return Task.CompletedTask;
         }
 
-        public override Task Finally<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null)
+        public override Task Finally<T>(HookContext<T> context, IReadOnlyDictionary<string, object>? hints = null)
         {
             return Task.CompletedTask;
         }
@@ -65,31 +65,31 @@ namespace OpenFeature.Tests
         }
 
         public override Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue,
-            EvaluationContext context = null)
+            EvaluationContext? context = null)
         {
             return Task.FromResult(new ResolutionDetails<bool>(flagKey, !defaultValue));
         }
 
         public override Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue,
-            EvaluationContext context = null)
+            EvaluationContext? context = null)
         {
             return Task.FromResult(new ResolutionDetails<string>(flagKey, defaultValue));
         }
 
         public override Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue,
-            EvaluationContext context = null)
+            EvaluationContext? context = null)
         {
             return Task.FromResult(new ResolutionDetails<int>(flagKey, defaultValue));
         }
 
         public override Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue,
-            EvaluationContext context = null)
+            EvaluationContext? context = null)
         {
             return Task.FromResult(new ResolutionDetails<double>(flagKey, defaultValue));
         }
 
         public override Task<ResolutionDetails<Value>> ResolveStructureValue(string flagKey, Value defaultValue,
-            EvaluationContext context = null)
+            EvaluationContext? context = null)
         {
             return Task.FromResult(new ResolutionDetails<Value>(flagKey, defaultValue));
         }

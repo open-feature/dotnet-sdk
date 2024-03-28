@@ -24,7 +24,7 @@ namespace OpenFeature.Model
         /// </summary>
         /// <param name="hooks">An immutable list of hooks to use during evaluation</param>
         /// <param name="hookHints">Optional - a list of hints that are passed through the hook lifecycle</param>
-        public FlagEvaluationOptions(IImmutableList<Hook> hooks, IImmutableDictionary<string, object> hookHints = null)
+        public FlagEvaluationOptions(IImmutableList<Hook> hooks, IImmutableDictionary<string, object>? hookHints = null)
         {
             this.Hooks = hooks;
             this.HookHints = hookHints ?? ImmutableDictionary<string, object>.Empty;
@@ -35,7 +35,7 @@ namespace OpenFeature.Model
         /// </summary>
         /// <param name="hook">A hook to use during the evaluation</param>
         /// <param name="hookHints">Optional - a list of hints that are passed through the hook lifecycle</param>
-        public FlagEvaluationOptions(Hook hook, ImmutableDictionary<string, object> hookHints = null)
+        public FlagEvaluationOptions(Hook hook, ImmutableDictionary<string, object>? hookHints = null)
         {
             this.Hooks = ImmutableList.Create(hook);
             this.HookHints = hookHints ?? ImmutableDictionary<string, object>.Empty;

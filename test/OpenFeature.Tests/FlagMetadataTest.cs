@@ -3,7 +3,6 @@ using OpenFeature.Model;
 using OpenFeature.Tests.Internal;
 using Xunit;
 
-#nullable enable
 namespace OpenFeature.Tests;
 
 public class FlagMetadataTest

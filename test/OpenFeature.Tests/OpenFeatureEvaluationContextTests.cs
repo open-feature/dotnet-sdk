@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using AutoFixture;
 using FluentAssertions;
 using OpenFeature.Model;
@@ -91,7 +92,7 @@ namespace OpenFeature.Tests
             var context = contextBuilder.Build();
 
             context.TargetingKey.Should().Be("targeting_key");
-            var targetingKeyValue = context.GetValue(context.TargetingKey);
+            var targetingKeyValue = context.GetValue(context.TargetingKey!);
             targetingKeyValue.IsString.Should().BeTrue();
             targetingKeyValue.AsString.Should().Be("userId");
 
@@ -150,6 +151,23 @@ namespace OpenFeature.Tests
             }
 
             context.Count.Should().Be(count);
+        }
+
+        [Fact]
+        public void TryGetValue_WhenCalledWithExistingKey_ReturnsTrueAndExpectedValue()
+        {
+            // Arrange
+            var key = "testKey";
+            var expectedValue = new Value("testValue");
+            var structure = new Structure(new Dictionary<string, Value> { { key, expectedValue } });
+            var evaluationContext = new EvaluationContext("targetingKey", structure);
+
+            // Act
+            var result = evaluationContext.TryGetValue(key, out var actualValue);
+
+            // Assert
+            Assert.True(result);
+            Assert.Equal(expectedValue, actualValue);
         }
     }
 }

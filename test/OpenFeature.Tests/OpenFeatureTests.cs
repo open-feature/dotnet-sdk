@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
@@ -195,7 +196,7 @@ namespace OpenFeature.Tests
         [InlineData("client2", null)]
         [InlineData(null, null)]
         [Specification("1.1.6", "The `API` MUST provide a function for creating a `client` which accepts the following options: - name (optional): A logical string identifier for the client.")]
-        public void OpenFeature_Should_Create_Client(string name = null, string version = null)
+        public void OpenFeature_Should_Create_Client(string? name = null, string? version = null)
         {
             var openFeature = Api.Instance;
             var client = openFeature.GetClient(name, version);
@@ -243,6 +244,17 @@ namespace OpenFeature.Tests
 
             (await client1.GetBooleanValue("test", false)).Should().BeTrue();
             (await client2.GetBooleanValue("test", false)).Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task SetProviderAsync_Should_Throw_When_Null_ClientName()
+        {
+            var openFeature = Api.Instance;
+
+            var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => openFeature.SetProviderAsync(null!, new TestProvider()));
+
+            exception.Should().BeOfType<ArgumentNullException>();
+            exception.ParamName.Should().Be("clientName");
         }
     }
 }

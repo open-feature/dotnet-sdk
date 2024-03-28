@@ -26,11 +26,12 @@ namespace OpenFeature.Tests
         {
             var fixture = new Fixture();
             var clientName = fixture.Create<string>();
+            var clientVersion = fixture.Create<string>();
             var hook1 = Substitute.For<Hook>();
             var hook2 = Substitute.For<Hook>();
             var hook3 = Substitute.For<Hook>();
 
-            var client = Api.Instance.GetClient(clientName);
+            var client = Api.Instance.GetClient(clientName, clientVersion);
 
             client.AddHooks(new[] { hook1, hook2 });
 
@@ -359,9 +360,12 @@ namespace OpenFeature.Tests
         [Fact]
         public void Should_Get_And_Set_Context()
         {
+            var fixture = new Fixture();
+            var clientName = fixture.Create<string>();
+            var clientVersion = fixture.Create<string>();
             var KEY = "key";
             var VAL = 1;
-            FeatureClient client = Api.Instance.GetClient();
+            FeatureClient client = Api.Instance.GetClient(clientName, clientVersion);
             client.SetContext(new EvaluationContextBuilder().Set(KEY, VAL).Build());
             Assert.Equal(VAL, client.GetContext().GetValue(KEY).AsInteger);
         }

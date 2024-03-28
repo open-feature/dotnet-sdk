@@ -15,7 +15,7 @@ namespace OpenFeature.Error
         /// </summary>
         /// <param name="message">Exception message</param>
         /// <param name="innerException">Optional inner exception</param>
-        public ProviderNotReadyException(string message = null, Exception innerException = null)
+        public ProviderNotReadyException(string? message = null, Exception? innerException = null)
             : base(ErrorType.ProviderNotReady, message, innerException)
         {
         }

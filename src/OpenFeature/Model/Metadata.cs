@@ -8,13 +8,13 @@ namespace OpenFeature.Model
         /// <summary>
         /// Gets name of <see cref="Api"/> instance
         /// </summary>
-        public string Name { get; }
+        public string? Name { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Metadata"/> class.
         /// </summary>
         /// <param name="name">Name of <see cref="Api"/> instance</param>
-        public Metadata(string name)
+        public Metadata(string? name)
         {
             this.Name = name;
         }

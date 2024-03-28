@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 
-#nullable enable
 namespace OpenFeature.Model;
 
 /// <summary>

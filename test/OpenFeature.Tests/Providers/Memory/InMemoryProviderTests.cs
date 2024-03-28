@@ -60,7 +60,7 @@ namespace OpenFeature.Tests.Providers.Memory
                         },
                         defaultVariant: "external",
                         (context) => {
-                            if (context.GetValue("email").AsString.Contains("@faas.com"))
+                            if (context.GetValue("email").AsString?.Contains("@faas.com") == true)
                             {
                                 return "internal";
                             }
@@ -148,9 +148,9 @@ namespace OpenFeature.Tests.Providers.Memory
         public async void GetStruct_ShouldEvaluateWithReasonAndVariant()
         {
             ResolutionDetails<Value> details = await this.commonProvider.ResolveStructureValue("object-flag", new Value(), EvaluationContext.Empty);
-            Assert.Equal(true, details.Value.AsStructure["showImages"].AsBoolean);
-            Assert.Equal("Check out these pics!", details.Value.AsStructure["title"].AsString);
-            Assert.Equal(100, details.Value.AsStructure["imagesPerPage"].AsInteger);
+            Assert.Equal(true, details.Value.AsStructure?["showImages"].AsBoolean);
+            Assert.Equal("Check out these pics!", details.Value.AsStructure?["title"].AsString);
+            Assert.Equal(100, details.Value.AsStructure?["imagesPerPage"].AsInteger);
             Assert.Equal(Reason.Static, details.Reason);
             Assert.Equal("template", details.Variant);
         }
@@ -227,7 +227,7 @@ namespace OpenFeature.Tests.Providers.Memory
             }});
 
             var res = await provider.GetEventChannel().Reader.ReadAsync() as ProviderEventPayload;
-            Assert.Equal(ProviderEventTypes.ProviderConfigurationChanged, res.Type);
+            Assert.Equal(ProviderEventTypes.ProviderConfigurationChanged, res?.Type);
 
             await Assert.ThrowsAsync<FlagNotFoundException>(() => provider.ResolveBooleanValue("old-flag", false, EvaluationContext.Empty));
 

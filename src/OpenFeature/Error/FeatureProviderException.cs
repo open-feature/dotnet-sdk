@@ -20,7 +20,7 @@ namespace OpenFeature.Error
         /// <param name="errorType">Common error types <see cref="ErrorType"/></param>
         /// <param name="message">Exception message</param>
         /// <param name="innerException">Optional inner exception</param>
-        public FeatureProviderException(ErrorType errorType, string message = null, Exception innerException = null)
+        public FeatureProviderException(ErrorType errorType, string? message = null, Exception? innerException = null)
             : base(message, innerException)
         {
             this.ErrorType = errorType;

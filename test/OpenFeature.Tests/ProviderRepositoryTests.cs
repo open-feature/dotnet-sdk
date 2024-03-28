@@ -78,14 +78,14 @@ namespace OpenFeature.Tests
             var context = new EvaluationContextBuilder().Build();
             providerMock.When(x => x.Initialize(context)).Throw(new Exception("BAD THINGS"));
             var callCount = 0;
-            Exception receivedError = null;
+            Exception? receivedError = null;
             await repository.SetProvider(providerMock, context, afterError: (theProvider, error) =>
             {
                 Assert.Equal(providerMock, theProvider);
                 callCount++;
                 receivedError = error;
             });
-            Assert.Equal("BAD THINGS", receivedError.Message);
+            Assert.Equal("BAD THINGS", receivedError?.Message);
             Assert.Equal(1, callCount);
         }
 
@@ -170,7 +170,7 @@ namespace OpenFeature.Tests
             var context = new EvaluationContextBuilder().Build();
             await repository.SetProvider(provider1, context);
             var callCount = 0;
-            Exception errorThrown = null;
+            Exception? errorThrown = null;
             await repository.SetProvider(provider2, context, afterError: (provider, ex) =>
             {
                 Assert.Equal(provider, provider1);
@@ -178,7 +178,7 @@ namespace OpenFeature.Tests
                 callCount++;
             });
             Assert.Equal(1, callCount);
-            Assert.Equal("SHUTDOWN ERROR", errorThrown.Message);
+            Assert.Equal("SHUTDOWN ERROR", errorThrown?.Message);
         }
 
         [Fact]
@@ -244,14 +244,14 @@ namespace OpenFeature.Tests
             var context = new EvaluationContextBuilder().Build();
             providerMock.When(x => x.Initialize(context)).Throw(new Exception("BAD THINGS"));
             var callCount = 0;
-            Exception receivedError = null;
+            Exception? receivedError = null;
             await repository.SetProvider("the-provider", providerMock, context, afterError: (theProvider, error) =>
             {
                 Assert.Equal(providerMock, theProvider);
                 callCount++;
                 receivedError = error;
             });
-            Assert.Equal("BAD THINGS", receivedError.Message);
+            Assert.Equal("BAD THINGS", receivedError?.Message);
             Assert.Equal(1, callCount);
         }
 
@@ -337,7 +337,7 @@ namespace OpenFeature.Tests
             var context = new EvaluationContextBuilder().Build();
             await repository.SetProvider("the-name", provider1, context);
             var callCount = 0;
-            Exception errorThrown = null;
+            Exception? errorThrown = null;
             await repository.SetProvider("the-name", provider2, context, afterError: (provider, ex) =>
             {
                 Assert.Equal(provider, provider1);
@@ -345,7 +345,7 @@ namespace OpenFeature.Tests
                 callCount++;
             });
             Assert.Equal(1, callCount);
-            Assert.Equal("SHUTDOWN ERROR", errorThrown.Message);
+            Assert.Equal("SHUTDOWN ERROR", errorThrown?.Message);
         }
 
         [Fact]

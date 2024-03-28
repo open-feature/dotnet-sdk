@@ -14,7 +14,7 @@ namespace OpenFeature.Model
     {
         private readonly StructureBuilder _attributes = Structure.Builder();
 
-        internal string TargetingKey { get; private set; }
+        internal string? TargetingKey { get; private set; }
 
         /// <summary>
         /// Internal to only allow direct creation by <see cref="EvaluationContext.Builder()"/>.
@@ -138,7 +138,7 @@ namespace OpenFeature.Model
         /// <returns>This builder</returns>
         public EvaluationContextBuilder Merge(EvaluationContext context)
         {
-            string newTargetingKey = "";
+            string? newTargetingKey = "";
 
             if (!string.IsNullOrWhiteSpace(TargetingKey))
             {
