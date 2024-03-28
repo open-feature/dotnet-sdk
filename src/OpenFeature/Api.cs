@@ -138,8 +138,8 @@ namespace OpenFeature
         /// <param name="logger">Logger instance used by client</param>
         /// <param name="context">Context given to this client</param>
         /// <returns><see cref="FeatureClient"/></returns>
-        public FeatureClient GetClient(string name = null, string version = null, ILogger logger = null,
-            EvaluationContext context = null) =>
+        public FeatureClient GetClient(string? name = null, string? version = null, ILogger? logger = null,
+            EvaluationContext? context = null) =>
             new FeatureClient(name, version, logger, context);
 
         /// <summary>

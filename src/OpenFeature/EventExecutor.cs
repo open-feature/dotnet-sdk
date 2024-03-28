@@ -14,7 +14,7 @@ namespace OpenFeature
     {
         private readonly object _lockObj = new object();
         public readonly Channel<object> EventChannel = Channel.CreateBounded<object>(1);
-        private FeatureProvider _defaultProvider;
+        private FeatureProvider? _defaultProvider;
         private readonly Dictionary<string, FeatureProvider> _namedProviderReferences = new Dictionary<string, FeatureProvider>();
         private readonly List<FeatureProvider> _activeSubscriptions = new List<FeatureProvider>();
 
@@ -124,7 +124,7 @@ namespace OpenFeature
             lock (this._lockObj)
             {
                 var newProvider = provider;
-                FeatureProvider oldProvider = null;
+                FeatureProvider? oldProvider = null;
                 if (this._namedProviderReferences.TryGetValue(client, out var foundOldProvider))
                 {
                     oldProvider = foundOldProvider;
@@ -325,7 +325,7 @@ namespace OpenFeature
 
     internal class Event
     {
-        internal FeatureProvider Provider { get; set; }
-        internal ProviderEventPayload EventPayload { get; set; }
+        internal FeatureProvider? Provider { get; set; }
+        internal ProviderEventPayload? EventPayload { get; set; }
     }
 }
