@@ -214,10 +214,10 @@ namespace OpenFeature
             }
         }
 
-        private async void ProcessFeatureProviderEventsAsync(object providerRef)
+        private async void ProcessFeatureProviderEventsAsync(object? providerRef)
         {
-            var typedProviderRef = (FeatureProvider)providerRef;
-            if (typedProviderRef.GetEventChannel() is not { Reader: { } reader })
+            var typedProviderRef = (FeatureProvider?)providerRef;
+            if (typedProviderRef?.GetEventChannel() is not { Reader: { } reader })
             {
                 return;
             }
