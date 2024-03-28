@@ -491,5 +491,20 @@ namespace OpenFeature.Tests
                 _ => eventHandler.Received(1).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name))
             );
         }
+
+        [Fact]
+        public void RegisterClientFeatureProvider_WhenCalledWithNullProvider_DoesNotThrowException()
+        {
+            // Arrange
+            var eventExecutor = new EventExecutor();
+            string client = "testClient";
+            FeatureProvider? provider = null;
+
+            // Act
+            var exception = Record.Exception(() => eventExecutor.RegisterClientFeatureProvider(client, provider));
+
+            // Assert
+            Assert.Null(exception);
+        }
     }
 }
