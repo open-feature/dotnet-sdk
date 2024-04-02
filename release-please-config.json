@@ -1,6 +1,7 @@
 {
   "packages": {
     ".": {
+      "release-as": "2.0.0",
       "release-type": "simple",
       "monorepo-tags": false,
       "include-component-in-tag": false,
