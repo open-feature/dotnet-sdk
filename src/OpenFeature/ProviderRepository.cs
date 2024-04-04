@@ -263,10 +263,18 @@ namespace OpenFeature
 
         public FeatureProvider GetProvider(string? clientName)
         {
+#if NET6_0_OR_GREATER
+            if (string.IsNullOrEmpty(clientName))
+            {
+                return this.GetProvider();
+            }
+#else
+            // This is a workaround for the issue in .NET Framework where string.IsNullOrEmpty is not nullable compatible.
             if (clientName == null || string.IsNullOrEmpty(clientName))
             {
                 return this.GetProvider();
             }
+#endif
 
             return this._featureProviders.TryGetValue(clientName, out var featureProvider)
                 ? featureProvider
