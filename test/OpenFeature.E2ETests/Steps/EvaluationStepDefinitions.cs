@@ -12,32 +12,30 @@ namespace OpenFeature.E2ETests
     [Binding]
     public class EvaluationStepDefinitions
     {
-        private readonly ScenarioContext _scenarioContext;
-        private static FeatureClient client;
-        private Task<bool> booleanFlagValue;
-        private Task<string> stringFlagValue;
-        private Task<int> intFlagValue;
-        private Task<double> doubleFlagValue;
-        private Task<Value> objectFlagValue;
-        private Task<FlagEvaluationDetails<bool>> booleanFlagDetails;
-        private Task<FlagEvaluationDetails<string>> stringFlagDetails;
-        private Task<FlagEvaluationDetails<int>> intFlagDetails;
-        private Task<FlagEvaluationDetails<double>> doubleFlagDetails;
-        private Task<FlagEvaluationDetails<Value>> objectFlagDetails;
-        private string contextAwareFlagKey;
-        private string contextAwareDefaultValue;
-        private string contextAwareValue;
-        private EvaluationContext context;
-        private string notFoundFlagKey;
-        private string notFoundDefaultValue;
-        private FlagEvaluationDetails<string> notFoundDetails;
-        private string typeErrorFlagKey;
+        private static FeatureClient? client;
+        private Task<bool>? booleanFlagValue;
+        private Task<string>? stringFlagValue;
+        private Task<int>? intFlagValue;
+        private Task<double>? doubleFlagValue;
+        private Task<Value>? objectFlagValue;
+        private Task<FlagEvaluationDetails<bool>>? booleanFlagDetails;
+        private Task<FlagEvaluationDetails<string>>? stringFlagDetails;
+        private Task<FlagEvaluationDetails<int>>? intFlagDetails;
+        private Task<FlagEvaluationDetails<double>>? doubleFlagDetails;
+        private Task<FlagEvaluationDetails<Value>>? objectFlagDetails;
+        private string? contextAwareFlagKey;
+        private string? contextAwareDefaultValue;
+        private string? contextAwareValue;
+        private EvaluationContext? context;
+        private string? notFoundFlagKey;
+        private string? notFoundDefaultValue;
+        private FlagEvaluationDetails<string>? notFoundDetails;
+        private string? typeErrorFlagKey;
         private int typeErrorDefaultValue;
-        private FlagEvaluationDetails<int> typeErrorDetails;
+        private FlagEvaluationDetails<int>? typeErrorDetails;
 
         public EvaluationStepDefinitions(ScenarioContext scenarioContext)
         {
-            _scenarioContext = scenarioContext;
         }
 
         [Given(@"a provider is registered")]
@@ -45,152 +43,152 @@ namespace OpenFeature.E2ETests
         {
             var memProvider = new InMemoryProvider(e2eFlagConfig);
             Api.Instance.SetProviderAsync(memProvider).Wait();
-            client = Api.Instance.GetClient();
+            client = Api.Instance.GetClient("TestClient", "1.0.0");
         }
 
         [When(@"a boolean flag with key ""(.*)"" is evaluated with default value ""(.*)""")]
         public void Whenabooleanflagwithkeyisevaluatedwithdefaultvalue(string flagKey, bool defaultValue)
         {
-            this.booleanFlagValue = client.GetBooleanValue(flagKey, defaultValue);
+            this.booleanFlagValue = client?.GetBooleanValue(flagKey, defaultValue);
         }
 
         [Then(@"the resolved boolean value should be ""(.*)""")]
         public void Thentheresolvedbooleanvalueshouldbe(bool expectedValue)
         {
-            Assert.Equal(expectedValue, this.booleanFlagValue.Result);
+            Assert.Equal(expectedValue, this.booleanFlagValue?.Result);
         }
 
         [When(@"a string flag with key ""(.*)"" is evaluated with default value ""(.*)""")]
         public void Whenastringflagwithkeyisevaluatedwithdefaultvalue(string flagKey, string defaultValue)
         {
-            this.stringFlagValue = client.GetStringValue(flagKey, defaultValue);
+            this.stringFlagValue = client?.GetStringValue(flagKey, defaultValue);
         }
 
         [Then(@"the resolved string value should be ""(.*)""")]
         public void Thentheresolvedstringvalueshouldbe(string expected)
         {
-            Assert.Equal(expected, this.stringFlagValue.Result);
+            Assert.Equal(expected, this.stringFlagValue?.Result);
         }
 
         [When(@"an integer flag with key ""(.*)"" is evaluated with default value (.*)")]
         public void Whenanintegerflagwithkeyisevaluatedwithdefaultvalue(string flagKey, int defaultValue)
         {
-            this.intFlagValue = client.GetIntegerValue(flagKey, defaultValue);
+            this.intFlagValue = client?.GetIntegerValue(flagKey, defaultValue);
         }
 
         [Then(@"the resolved integer value should be (.*)")]
         public void Thentheresolvedintegervalueshouldbe(int expected)
         {
-            Assert.Equal(expected, this.intFlagValue.Result);
+            Assert.Equal(expected, this.intFlagValue?.Result);
         }
 
         [When(@"a float flag with key ""(.*)"" is evaluated with default value (.*)")]
         public void Whenafloatflagwithkeyisevaluatedwithdefaultvalue(string flagKey, double defaultValue)
         {
-            this.doubleFlagValue = client.GetDoubleValue(flagKey, defaultValue);
+            this.doubleFlagValue = client?.GetDoubleValue(flagKey, defaultValue);
         }
 
         [Then(@"the resolved float value should be (.*)")]
         public void Thentheresolvedfloatvalueshouldbe(double expected)
         {
-            Assert.Equal(expected, this.doubleFlagValue.Result);
+            Assert.Equal(expected, this.doubleFlagValue?.Result);
         }
 
         [When(@"an object flag with key ""(.*)"" is evaluated with a null default value")]
         public void Whenanobjectflagwithkeyisevaluatedwithanulldefaultvalue(string flagKey)
         {
-            this.objectFlagValue = client.GetObjectValue(flagKey, new Value());
+            this.objectFlagValue = client?.GetObjectValue(flagKey, new Value());
         }
 
         [Then(@"the resolved object value should be contain fields ""(.*)"", ""(.*)"", and ""(.*)"", with values ""(.*)"", ""(.*)"" and (.*), respectively")]
         public void Thentheresolvedobjectvalueshouldbecontainfieldsandwithvaluesandrespectively(string boolField, string stringField, string numberField, bool boolValue, string stringValue, int numberValue)
         {
-            Value value = this.objectFlagValue.Result;
-            Assert.Equal(boolValue, value.AsStructure[boolField].AsBoolean);
-            Assert.Equal(stringValue, value.AsStructure[stringField].AsString);
-            Assert.Equal(numberValue, value.AsStructure[numberField].AsInteger);
+            Value? value = this.objectFlagValue?.Result;
+            Assert.Equal(boolValue, value?.AsStructure?[boolField].AsBoolean);
+            Assert.Equal(stringValue, value?.AsStructure?[stringField].AsString);
+            Assert.Equal(numberValue, value?.AsStructure?[numberField].AsInteger);
         }
 
         [When(@"a boolean flag with key ""(.*)"" is evaluated with details and default value ""(.*)""")]
         public void Whenabooleanflagwithkeyisevaluatedwithdetailsanddefaultvalue(string flagKey, bool defaultValue)
         {
-            this.booleanFlagDetails = client.GetBooleanDetails(flagKey, defaultValue);
+            this.booleanFlagDetails = client?.GetBooleanDetails(flagKey, defaultValue);
         }
 
         [Then(@"the resolved boolean details value should be ""(.*)"", the variant should be ""(.*)"", and the reason should be ""(.*)""")]
         public void Thentheresolvedbooleandetailsvalueshouldbethevariantshouldbeandthereasonshouldbe(bool expectedValue, string expectedVariant, string expectedReason)
         {
-            var result = this.booleanFlagDetails.Result;
-            Assert.Equal(expectedValue, result.Value);
-            Assert.Equal(expectedVariant, result.Variant);
-            Assert.Equal(expectedReason, result.Reason);
+            var result = this.booleanFlagDetails?.Result;
+            Assert.Equal(expectedValue, result?.Value);
+            Assert.Equal(expectedVariant, result?.Variant);
+            Assert.Equal(expectedReason, result?.Reason);
         }
 
         [When(@"a string flag with key ""(.*)"" is evaluated with details and default value ""(.*)""")]
         public void Whenastringflagwithkeyisevaluatedwithdetailsanddefaultvalue(string flagKey, string defaultValue)
         {
-            this.stringFlagDetails = client.GetStringDetails(flagKey, defaultValue);
+            this.stringFlagDetails = client?.GetStringDetails(flagKey, defaultValue);
         }
 
         [Then(@"the resolved string details value should be ""(.*)"", the variant should be ""(.*)"", and the reason should be ""(.*)""")]
         public void Thentheresolvedstringdetailsvalueshouldbethevariantshouldbeandthereasonshouldbe(string expectedValue, string expectedVariant, string expectedReason)
         {
-            var result = this.stringFlagDetails.Result;
-            Assert.Equal(expectedValue, result.Value);
-            Assert.Equal(expectedVariant, result.Variant);
-            Assert.Equal(expectedReason, result.Reason);
+            var result = this.stringFlagDetails?.Result;
+            Assert.Equal(expectedValue, result?.Value);
+            Assert.Equal(expectedVariant, result?.Variant);
+            Assert.Equal(expectedReason, result?.Reason);
         }
 
         [When(@"an integer flag with key ""(.*)"" is evaluated with details and default value (.*)")]
         public void Whenanintegerflagwithkeyisevaluatedwithdetailsanddefaultvalue(string flagKey, int defaultValue)
         {
-            this.intFlagDetails = client.GetIntegerDetails(flagKey, defaultValue);
+            this.intFlagDetails = client?.GetIntegerDetails(flagKey, defaultValue);
         }
 
         [Then(@"the resolved integer details value should be (.*), the variant should be ""(.*)"", and the reason should be ""(.*)""")]
         public void Thentheresolvedintegerdetailsvalueshouldbethevariantshouldbeandthereasonshouldbe(int expectedValue, string expectedVariant, string expectedReason)
         {
-            var result = this.intFlagDetails.Result;
-            Assert.Equal(expectedValue, result.Value);
-            Assert.Equal(expectedVariant, result.Variant);
-            Assert.Equal(expectedReason, result.Reason);
+            var result = this.intFlagDetails?.Result;
+            Assert.Equal(expectedValue, result?.Value);
+            Assert.Equal(expectedVariant, result?.Variant);
+            Assert.Equal(expectedReason, result?.Reason);
         }
 
         [When(@"a float flag with key ""(.*)"" is evaluated with details and default value (.*)")]
         public void Whenafloatflagwithkeyisevaluatedwithdetailsanddefaultvalue(string flagKey, double defaultValue)
         {
-            this.doubleFlagDetails = client.GetDoubleDetails(flagKey, defaultValue);
+            this.doubleFlagDetails = client?.GetDoubleDetails(flagKey, defaultValue);
         }
 
         [Then(@"the resolved float details value should be (.*), the variant should be ""(.*)"", and the reason should be ""(.*)""")]
         public void Thentheresolvedfloatdetailsvalueshouldbethevariantshouldbeandthereasonshouldbe(double expectedValue, string expectedVariant, string expectedReason)
         {
-            var result = this.doubleFlagDetails.Result;
-            Assert.Equal(expectedValue, result.Value);
-            Assert.Equal(expectedVariant, result.Variant);
-            Assert.Equal(expectedReason, result.Reason);
+            var result = this.doubleFlagDetails?.Result;
+            Assert.Equal(expectedValue, result?.Value);
+            Assert.Equal(expectedVariant, result?.Variant);
+            Assert.Equal(expectedReason, result?.Reason);
         }
 
         [When(@"an object flag with key ""(.*)"" is evaluated with details and a null default value")]
         public void Whenanobjectflagwithkeyisevaluatedwithdetailsandanulldefaultvalue(string flagKey)
         {
-            this.objectFlagDetails = client.GetObjectDetails(flagKey, new Value());
+            this.objectFlagDetails = client?.GetObjectDetails(flagKey, new Value());
         }
 
         [Then(@"the resolved object details value should be contain fields ""(.*)"", ""(.*)"", and ""(.*)"", with values ""(.*)"", ""(.*)"" and (.*), respectively")]
         public void Thentheresolvedobjectdetailsvalueshouldbecontainfieldsandwithvaluesandrespectively(string boolField, string stringField, string numberField, bool boolValue, string stringValue, int numberValue)
         {
-            Value value = this.objectFlagDetails.Result.Value;
-            Assert.Equal(boolValue, value.AsStructure[boolField].AsBoolean);
-            Assert.Equal(stringValue, value.AsStructure[stringField].AsString);
-            Assert.Equal(numberValue, value.AsStructure[numberField].AsInteger);
+            var value = this.objectFlagDetails?.Result.Value;
+            Assert.Equal(boolValue, value?.AsStructure?[boolField].AsBoolean);
+            Assert.Equal(stringValue, value?.AsStructure?[stringField].AsString);
+            Assert.Equal(numberValue, value?.AsStructure?[numberField].AsInteger);
         }
 
         [Then(@"the variant should be ""(.*)"", and the reason should be ""(.*)""")]
         public void Giventhevariantshouldbeandthereasonshouldbe(string expectedVariant, string expectedReason)
         {
-            Assert.Equal(expectedVariant, this.objectFlagDetails.Result.Variant);
-            Assert.Equal(expectedReason, this.objectFlagDetails.Result.Reason);
+            Assert.Equal(expectedVariant, this.objectFlagDetails?.Result.Variant);
+            Assert.Equal(expectedReason, this.objectFlagDetails?.Result.Reason);
         }
 
         [When(@"context contains keys ""(.*)"", ""(.*)"", ""(.*)"", ""(.*)"" with values ""(.*)"", ""(.*)"", (.*), ""(.*)""")]
@@ -208,7 +206,7 @@ namespace OpenFeature.E2ETests
         {
             contextAwareFlagKey = flagKey;
             contextAwareDefaultValue = defaultValue;
-            contextAwareValue = client.GetStringValue(flagKey, contextAwareDefaultValue, context).Result;
+            contextAwareValue = client?.GetStringValue(flagKey, contextAwareDefaultValue, context)?.Result;
         }
 
         [Then(@"the resolved string response should be ""(.*)""")]
@@ -220,7 +218,7 @@ namespace OpenFeature.E2ETests
         [Then(@"the resolved flag value is ""(.*)"" when the context is empty")]
         public void Giventheresolvedflagvalueiswhenthecontextisempty(string expected)
         {
-            string emptyContextValue = client.GetStringValue(contextAwareFlagKey, contextAwareDefaultValue, new EvaluationContextBuilder().Build()).Result;
+            string? emptyContextValue = client?.GetStringValue(contextAwareFlagKey!, contextAwareDefaultValue!, new EvaluationContextBuilder().Build()).Result;
             Assert.Equal(expected, emptyContextValue);
         }
 
@@ -229,20 +227,20 @@ namespace OpenFeature.E2ETests
         {
             this.notFoundFlagKey = flagKey;
             this.notFoundDefaultValue = defaultValue;
-            this.notFoundDetails = client.GetStringDetails(this.notFoundFlagKey, this.notFoundDefaultValue).Result;
+            this.notFoundDetails = client?.GetStringDetails(this.notFoundFlagKey, this.notFoundDefaultValue).Result;
         }
 
         [Then(@"the default string value should be returned")]
         public void Thenthedefaultstringvalueshouldbereturned()
         {
-            Assert.Equal(this.notFoundDefaultValue, this.notFoundDetails.Value);
+            Assert.Equal(this.notFoundDefaultValue, this.notFoundDetails?.Value);
         }
 
         [Then(@"the reason should indicate an error and the error code should indicate a missing flag with ""(.*)""")]
         public void Giventhereasonshouldindicateanerrorandtheerrorcodeshouldindicateamissingflagwith(string errorCode)
         {
-            Assert.Equal(Reason.Error.ToString(), notFoundDetails.Reason);
-            Assert.Equal(errorCode, notFoundDetails.ErrorType.GetDescription());
+            Assert.Equal(Reason.Error.ToString(), notFoundDetails?.Reason);
+            Assert.Equal(errorCode, notFoundDetails?.ErrorType.GetDescription());
         }
 
         [When(@"a string flag with key ""(.*)"" is evaluated as an integer, with details and a default value (.*)")]
@@ -250,20 +248,20 @@ namespace OpenFeature.E2ETests
         {
             this.typeErrorFlagKey = flagKey;
             this.typeErrorDefaultValue = defaultValue;
-            this.typeErrorDetails = client.GetIntegerDetails(this.typeErrorFlagKey, this.typeErrorDefaultValue).Result;
+            this.typeErrorDetails = client?.GetIntegerDetails(this.typeErrorFlagKey, this.typeErrorDefaultValue).Result;
         }
 
         [Then(@"the default integer value should be returned")]
         public void Thenthedefaultintegervalueshouldbereturned()
         {
-            Assert.Equal(this.typeErrorDefaultValue, this.typeErrorDetails.Value);
+            Assert.Equal(this.typeErrorDefaultValue, this.typeErrorDetails?.Value);
         }
 
         [Then(@"the reason should indicate an error and the error code should indicate a type mismatch with ""(.*)""")]
         public void Giventhereasonshouldindicateanerrorandtheerrorcodeshouldindicateatypemismatchwith(string errorCode)
         {
-            Assert.Equal(Reason.Error.ToString(), typeErrorDetails.Reason);
-            Assert.Equal(errorCode, typeErrorDetails.ErrorType.GetDescription());
+            Assert.Equal(Reason.Error.ToString(), typeErrorDetails?.Reason);
+            Assert.Equal(errorCode, typeErrorDetails?.ErrorType.GetDescription());
         }
 
         private IDictionary<string, Flag> e2eFlagConfig = new Dictionary<string, Flag>(){

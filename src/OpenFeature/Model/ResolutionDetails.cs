@@ -29,25 +29,25 @@ namespace OpenFeature.Model
         /// <summary>
         /// Message containing additional details about an error.
         /// </summary>
-        public string ErrorMessage { get; }
+        public string? ErrorMessage { get; }
 
         /// <summary>
         /// Describes the reason for the outcome of the evaluation process
         /// <see cref="Reason"/>
         /// </summary>
-        public string Reason { get; }
+        public string? Reason { get; }
 
         /// <summary>
         /// A variant is a semantic identifier for a value. This allows for referral to particular values without
         /// necessarily including the value itself, which may be quite prohibitively large or otherwise unsuitable
         /// in some cases.
         /// </summary>
-        public string Variant { get; }
+        public string? Variant { get; }
 
         /// <summary>
         /// A structure which supports definition of arbitrary properties, with keys of type string, and values of type boolean, string, or number.
         /// </summary>
-        public FlagMetadata FlagMetadata { get; }
+        public FlagMetadata? FlagMetadata { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ResolutionDetails{T}"/> class.
@@ -59,8 +59,8 @@ namespace OpenFeature.Model
         /// <param name="variant">Variant</param>
         /// <param name="errorMessage">Error message</param>
         /// <param name="flagMetadata">Flag metadata</param>
-        public ResolutionDetails(string flagKey, T value, ErrorType errorType = ErrorType.None, string reason = null,
-            string variant = null, string errorMessage = null, FlagMetadata flagMetadata = null)
+        public ResolutionDetails(string flagKey, T value, ErrorType errorType = ErrorType.None, string? reason = null,
+            string? variant = null, string? errorMessage = null, FlagMetadata? flagMetadata = null)
         {
             this.Value = value;
             this.FlagKey = flagKey;

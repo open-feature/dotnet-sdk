@@ -62,7 +62,7 @@ namespace OpenFeature.Model
         /// <param name="key">The key of the value to be retrieved</param>
         /// <param name="value">value to be mutated</param>
         /// <returns><see cref="bool"/> indicating the presence of the key.</returns>
-        public bool TryGetValue(string key, out Value value) => this._attributes.TryGetValue(key, out value);
+        public bool TryGetValue(string key, out Value? value) => this._attributes.TryGetValue(key, out value);
 
         /// <summary>
         /// Gets all values as a Dictionary

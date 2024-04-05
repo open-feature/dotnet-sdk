@@ -54,7 +54,7 @@ namespace OpenFeature
         /// </summary>
         /// <remarks>The provider cannot be set to null. Attempting to set the provider to null has no effect.</remarks>
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
-        public async Task SetProviderAsync(FeatureProvider featureProvider)
+        public async Task SetProviderAsync(FeatureProvider? featureProvider)
         {
             this._eventExecutor.RegisterDefaultFeatureProvider(featureProvider);
             await this._repository.SetProvider(featureProvider, this.GetContext()).ConfigureAwait(false);
@@ -80,6 +80,10 @@ namespace OpenFeature
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
         public async Task SetProviderAsync(string clientName, FeatureProvider featureProvider)
         {
+            if (string.IsNullOrWhiteSpace(clientName))
+            {
+                throw new ArgumentNullException(nameof(clientName));
+            }
             this._eventExecutor.RegisterClientFeatureProvider(clientName, featureProvider);
             await this._repository.SetProvider(clientName, featureProvider, this.GetContext()).ConfigureAwait(false);
         }
@@ -138,8 +142,8 @@ namespace OpenFeature
         /// <param name="logger">Logger instance used by client</param>
         /// <param name="context">Context given to this client</param>
         /// <returns><see cref="FeatureClient"/></returns>
-        public FeatureClient GetClient(string name = null, string version = null, ILogger logger = null,
-            EvaluationContext context = null) =>
+        public FeatureClient GetClient(string? name = null, string? version = null, ILogger? logger = null,
+            EvaluationContext? context = null) =>
             new FeatureClient(name, version, logger, context);
 
         /// <summary>
@@ -200,7 +204,7 @@ namespace OpenFeature
         /// Sets the global <see cref="EvaluationContext"/>
         /// </summary>
         /// <param name="context">The <see cref="EvaluationContext"/> to set</param>
-        public void SetContext(EvaluationContext context)
+        public void SetContext(EvaluationContext? context)
         {
             this._evaluationContextLock.EnterWriteLock();
             try

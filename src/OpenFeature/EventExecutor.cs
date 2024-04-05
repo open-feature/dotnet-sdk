@@ -14,7 +14,7 @@ namespace OpenFeature
     {
         private readonly object _lockObj = new object();
         public readonly Channel<object> EventChannel = Channel.CreateBounded<object>(1);
-        private FeatureProvider _defaultProvider;
+        private FeatureProvider? _defaultProvider;
         private readonly Dictionary<string, FeatureProvider> _namedProviderReferences = new Dictionary<string, FeatureProvider>();
         private readonly List<FeatureProvider> _activeSubscriptions = new List<FeatureProvider>();
 
@@ -99,7 +99,7 @@ namespace OpenFeature
             }
         }
 
-        internal void RegisterDefaultFeatureProvider(FeatureProvider provider)
+        internal void RegisterDefaultFeatureProvider(FeatureProvider? provider)
         {
             if (provider == null)
             {
@@ -115,7 +115,7 @@ namespace OpenFeature
             }
         }
 
-        internal void RegisterClientFeatureProvider(string client, FeatureProvider provider)
+        internal void RegisterClientFeatureProvider(string client, FeatureProvider? provider)
         {
             if (provider == null)
             {
@@ -124,7 +124,7 @@ namespace OpenFeature
             lock (this._lockObj)
             {
                 var newProvider = provider;
-                FeatureProvider oldProvider = null;
+                FeatureProvider? oldProvider = null;
                 if (this._namedProviderReferences.TryGetValue(client, out var foundOldProvider))
                 {
                     oldProvider = foundOldProvider;
@@ -136,7 +136,7 @@ namespace OpenFeature
             }
         }
 
-        private void StartListeningAndShutdownOld(FeatureProvider newProvider, FeatureProvider oldProvider)
+        private void StartListeningAndShutdownOld(FeatureProvider newProvider, FeatureProvider? oldProvider)
         {
             // check if the provider is already active - if not, we need to start listening for its emitted events
             if (!this.IsProviderActive(newProvider))
@@ -174,7 +174,7 @@ namespace OpenFeature
             return this._activeSubscriptions.Contains(providerRef);
         }
 
-        private void EmitOnRegistration(FeatureProvider provider, ProviderEventTypes eventType, EventHandlerDelegate handler)
+        private void EmitOnRegistration(FeatureProvider? provider, ProviderEventTypes eventType, EventHandlerDelegate handler)
         {
             if (provider == null)
             {
@@ -202,22 +202,22 @@ namespace OpenFeature
                 {
                     handler.Invoke(new ProviderEventPayload
                     {
-                        ProviderName = provider.GetMetadata()?.Name,
+                        ProviderName = provider.GetMetadata().Name,
                         Type = eventType,
                         Message = message
                     });
                 }
                 catch (Exception exc)
                 {
-                    this.Logger?.LogError("Error running handler: " + exc);
+                    this.Logger.LogError(exc, "Error running handler");
                 }
             }
         }
 
-        private async void ProcessFeatureProviderEventsAsync(object providerRef)
+        private async void ProcessFeatureProviderEventsAsync(object? providerRef)
         {
-            var typedProviderRef = (FeatureProvider)providerRef;
-            if (typedProviderRef.GetEventChannel() is not { Reader: { } reader })
+            var typedProviderRef = (FeatureProvider?)providerRef;
+            if (typedProviderRef?.GetEventChannel() is not { Reader: { } reader })
             {
                 return;
             }
@@ -249,7 +249,7 @@ namespace OpenFeature
                     case Event e:
                         lock (this._lockObj)
                         {
-                            if (this._apiHandlers.TryGetValue(e.EventPayload.Type, out var eventHandlers))
+                            if (e.EventPayload?.Type != null && this._apiHandlers.TryGetValue(e.EventPayload.Type, out var eventHandlers))
                             {
                                 foreach (var eventHandler in eventHandlers)
                                 {
@@ -260,11 +260,11 @@ namespace OpenFeature
                             // look for client handlers and call invoke method there
                             foreach (var keyAndValue in this._namedProviderReferences)
                             {
-                                if (keyAndValue.Value == e.Provider)
+                                if (keyAndValue.Value == e.Provider && keyAndValue.Key != null)
                                 {
                                     if (this._clientHandlers.TryGetValue(keyAndValue.Key, out var clientRegistry))
                                     {
-                                        if (clientRegistry.TryGetValue(e.EventPayload.Type, out var clientEventHandlers))
+                                        if (e.EventPayload?.Type != null && clientRegistry.TryGetValue(e.EventPayload.Type, out var clientEventHandlers))
                                         {
                                             foreach (var eventHandler in clientEventHandlers)
                                             {
@@ -288,7 +288,7 @@ namespace OpenFeature
                                     // if there is an association for the client to a specific feature provider, then continue
                                     continue;
                                 }
-                                if (keyAndValues.Value.TryGetValue(e.EventPayload.Type, out var clientEventHandlers))
+                                if (e.EventPayload?.Type != null && keyAndValues.Value.TryGetValue(e.EventPayload.Type, out var clientEventHandlers))
                                 {
                                     foreach (var eventHandler in clientEventHandlers)
                                     {
@@ -311,7 +311,7 @@ namespace OpenFeature
             }
             catch (Exception exc)
             {
-                this.Logger?.LogError("Error running handler: " + exc);
+                this.Logger.LogError(exc, "Error running handler");
             }
         }
 
@@ -325,7 +325,7 @@ namespace OpenFeature
 
     internal class Event
     {
-        internal FeatureProvider Provider { get; set; }
-        internal ProviderEventPayload EventPayload { get; set; }
+        internal FeatureProvider? Provider { get; set; }
+        internal ProviderEventPayload? EventPayload { get; set; }
     }
 }

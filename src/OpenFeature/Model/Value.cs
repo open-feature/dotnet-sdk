@@ -10,7 +10,7 @@ namespace OpenFeature.Model
     /// </summary>
     public sealed class Value
     {
-        private readonly object _innerValue;
+        private readonly object? _innerValue;
 
         /// <summary>
         /// Creates a Value with the inner value set to null
@@ -136,7 +136,7 @@ namespace OpenFeature.Model
         /// Returns the underlying inner value as an object. Returns null if the inner value is null.
         /// </summary>
         /// <returns>Value as object</returns>
-        public object AsObject => this._innerValue;
+        public object? AsObject => this._innerValue;
 
         /// <summary>
         /// Returns the underlying int value
@@ -164,21 +164,21 @@ namespace OpenFeature.Model
         /// Value will be null if it isn't a string
         /// </summary>
         /// <returns>Value as string</returns>
-        public string AsString => this.IsString ? (string)this._innerValue : null;
+        public string? AsString => this.IsString ? (string?)this._innerValue : null;
 
         /// <summary>
         /// Returns the underlying Structure value
         /// Value will be null if it isn't a Structure
         /// </summary>
         /// <returns>Value as Structure</returns>
-        public Structure AsStructure => this.IsStructure ? (Structure)this._innerValue : null;
+        public Structure? AsStructure => this.IsStructure ? (Structure?)this._innerValue : null;
 
         /// <summary>
         /// Returns the underlying List value
         /// Value will be null if it isn't a List
         /// </summary>
         /// <returns>Value as List</returns>
-        public IImmutableList<Value> AsList => this.IsList ? (IImmutableList<Value>)this._innerValue : null;
+        public IImmutableList<Value>? AsList => this.IsList ? (IImmutableList<Value>?)this._innerValue : null;
 
         /// <summary>
         /// Returns the underlying DateTime value
