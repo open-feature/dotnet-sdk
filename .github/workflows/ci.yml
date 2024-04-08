@@ -33,6 +33,7 @@ jobs:
         dotnet-version: |
           6.0.x
           7.0.x
+          8.0.x
         source-url: https://nuget.pkg.github.com/open-feature/index.json
 
     - name: Restore
@@ -68,6 +69,7 @@ jobs:
         dotnet-version: |
           6.0.x
           7.0.x
+          8.0.x
         source-url: https://nuget.pkg.github.com/open-feature/index.json
 
     - name: Restore
