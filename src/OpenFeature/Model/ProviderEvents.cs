@@ -6,7 +6,7 @@ namespace OpenFeature.Model
     /// <summary>
     /// The EventHandlerDelegate is an implementation of an Event Handler
     /// </summary>
-    public delegate void EventHandlerDelegate(ProviderEventPayload eventDetails);
+    public delegate void EventHandlerDelegate(ProviderEventPayload? eventDetails);
 
     /// <summary>
     /// Contains the payload of an OpenFeature Event.
@@ -16,7 +16,7 @@ namespace OpenFeature.Model
         /// <summary>
         /// Name of the provider.
         /// </summary>
-        public string ProviderName { get; set; }
+        public string? ProviderName { get; set; }
 
         /// <summary>
         /// Type of the event
@@ -26,16 +26,17 @@ namespace OpenFeature.Model
         /// <summary>
         /// A message providing more information about the event.
         /// </summary>
-        public string Message { get; set; }
+        public string? Message { get; set; }
 
         /// <summary>
         /// A List of flags that have been changed.
         /// </summary>
-        public List<string> FlagsChanged { get; set; }
+        public List<string>? FlagsChanged { get; set; }
 
         /// <summary>
         /// Metadata information for the event.
         /// </summary>
-        public Dictionary<string, object> EventMetadata { get; set; }
+        // TODO: This needs to be changed to a EventMetadata object
+        public Dictionary<string, object>? EventMetadata { get; set; }
     }
 }

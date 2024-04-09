@@ -15,7 +15,7 @@ namespace OpenFeature.Error
         /// </summary>
         /// <param name="message">Exception message</param>
         /// <param name="innerException">Optional inner exception</param>
-        public FlagNotFoundException(string message = null, Exception innerException = null)
+        public FlagNotFoundException(string? message = null, Exception? innerException = null)
             : base(ErrorType.FlagNotFound, message, innerException)
         {
         }

@@ -6,8 +6,8 @@ on:
       - main
 
 jobs:
-  release-package:
-    runs-on: windows-latest
+  release-please:
+    runs-on: ubuntu-latest
 
     steps:
       - uses: google-github-actions/release-please-action@v3
@@ -16,37 +16,58 @@ jobs:
           command: manifest
           token: ${{secrets.GITHUB_TOKEN}}
           default-branch: main
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      release_tag_name: ${{ steps.release.outputs.tag_name }}
 
+  release:
+    runs-on: ubuntu-latest
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created }}
+
+    steps:
       - uses: actions/checkout@v4
-        if: ${{ steps.release.outputs.releases_created }}
         with:
           fetch-depth: 0
 
       - name: Setup .NET SDK
-        if: ${{ steps.release.outputs.releases_created }}
         uses: actions/setup-dotnet@v4
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           dotnet-version: |
             6.0.x
             7.0.x
+          source-url: https://nuget.pkg.github.com/open-feature/index.json
 
       - name: Install dependencies
-        if: ${{ steps.release.outputs.releases_created }}
         run: dotnet restore
 
-      - name: Build
-        if: ${{ steps.release.outputs.releases_created }}
-        run: |
-          dotnet build --configuration Release --no-restore -p:Deterministic=true
-
       - name: Pack
-        if: ${{ steps.release.outputs.releases_created }}
-        run:  |
-          dotnet pack OpenFeature.proj --configuration Release --no-build -p:PackageID=OpenFeature
+        run: dotnet pack --no-restore
 
       - name: Publish to Nuget
-        if: ${{ steps.release.outputs.releases_created }}
-        run: |
-          dotnet nuget push src/OpenFeature/bin/Release/OpenFeature.${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}.nupkg `
-            --api-key ${{secrets.NUGET_TOKEN}} `
-            --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push "src/**/*.nupkg" --api-key "${{ secrets.NUGET_TOKEN }}" --source https://api.nuget.org/v3/index.json
+
+  sbom:
+    runs-on: ubuntu-latest
+    needs: release-please
+    continue-on-error: true
+    if: ${{ needs.release-please.outputs.release_created }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install CycloneDX.NET
+        run: dotnet tool install CycloneDX
+
+      - name: Generate .NET BOM
+        run: dotnet CycloneDX --json --exclude-dev -sv "${{ needs.release-please.outputs.release_tag_name }}" ./src/OpenFeature/OpenFeature.csproj
+
+      - name: Attach SBOM to artifact
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run:
+          gh release upload ${{ needs.release-please.outputs.release_tag_name }} bom.json

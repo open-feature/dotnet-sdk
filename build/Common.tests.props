@@ -16,22 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GitHubActionsTestLogger" Version="$(GitHubActionsTestLoggerVer)" />
+    <PackageReference Include="GitHubActionsTestLogger" />
   </ItemGroup>
-
-  <PropertyGroup Label="Package versions used in this repository">
-    <!--
-      Please sort alphabetically.
-      Refer to https://docs.microsoft.com/nuget/concepts/package-versioning for semver syntax.
-    -->
-    <AutoFixtureVer>[4.17.0]</AutoFixtureVer>
-    <BenchmarkDotNetVer>[0.13.1]</BenchmarkDotNetVer>
-    <CoverletCollectorVer>[3.1.2]</CoverletCollectorVer>
-    <FluentAssertionsVer>[6.7.0]</FluentAssertionsVer>
-    <GitHubActionsTestLoggerVer>[2.3.3]</GitHubActionsTestLoggerVer>
-    <MicrosoftNETTestSdkPkgVer>[17.2.0]</MicrosoftNETTestSdkPkgVer>
-    <NSubstituteVer>[5.0.0]</NSubstituteVer>
-    <XUnitRunnerVisualStudioPkgVer>[2.4.3,3.0)</XUnitRunnerVisualStudioPkgVer>
-    <XUnitPkgVer>[2.4.1,3.0)</XUnitPkgVer>
-  </PropertyGroup>
 </Project>

@@ -16,24 +16,24 @@ namespace OpenFeature.Tests
     public class ProviderRepositoryTests
     {
         [Fact]
-        public void Default_Provider_Is_Set_Without_Await()
+        public async Task Default_Provider_Is_Set_Without_Await()
         {
             var repository = new ProviderRepository();
             var provider = new NoOpFeatureProvider();
             var context = new EvaluationContextBuilder().Build();
-            repository.SetProvider(provider, context);
+            await repository.SetProvider(provider, context);
             Assert.Equal(provider, repository.GetProvider());
         }
 
         [Fact]
-        public void AfterSet_Is_Invoked_For_Setting_Default_Provider()
+        public async void AfterSet_Is_Invoked_For_Setting_Default_Provider()
         {
             var repository = new ProviderRepository();
             var provider = new NoOpFeatureProvider();
             var context = new EvaluationContextBuilder().Build();
             var callCount = 0;
             // The setting of the provider is synchronous, so the afterSet should be as well.
-            repository.SetProvider(provider, context, afterSet: (theProvider) =>
+            await repository.SetProvider(provider, context, afterSet: (theProvider) =>
             {
                 callCount++;
                 Assert.Equal(provider, theProvider);
@@ -78,14 +78,14 @@ namespace OpenFeature.Tests
             var context = new EvaluationContextBuilder().Build();
             providerMock.When(x => x.Initialize(context)).Throw(new Exception("BAD THINGS"));
             var callCount = 0;
-            Exception receivedError = null;
+            Exception? receivedError = null;
             await repository.SetProvider(providerMock, context, afterError: (theProvider, error) =>
             {
                 Assert.Equal(providerMock, theProvider);
                 callCount++;
                 receivedError = error;
             });
-            Assert.Equal("BAD THINGS", receivedError.Message);
+            Assert.Equal("BAD THINGS", receivedError?.Message);
             Assert.Equal(1, callCount);
         }
 
@@ -170,7 +170,7 @@ namespace OpenFeature.Tests
             var context = new EvaluationContextBuilder().Build();
             await repository.SetProvider(provider1, context);
             var callCount = 0;
-            Exception errorThrown = null;
+            Exception? errorThrown = null;
             await repository.SetProvider(provider2, context, afterError: (provider, ex) =>
             {
                 Assert.Equal(provider, provider1);
@@ -178,28 +178,28 @@ namespace OpenFeature.Tests
                 callCount++;
             });
             Assert.Equal(1, callCount);
-            Assert.Equal("SHUTDOWN ERROR", errorThrown.Message);
+            Assert.Equal("SHUTDOWN ERROR", errorThrown?.Message);
         }
 
         [Fact]
-        public void Named_Provider_Provider_Is_Set_Without_Await()
+        public async Task Named_Provider_Provider_Is_Set_Without_Await()
         {
             var repository = new ProviderRepository();
             var provider = new NoOpFeatureProvider();
             var context = new EvaluationContextBuilder().Build();
-            repository.SetProvider("the-name", provider, context);
+            await repository.SetProvider("the-name", provider, context);
             Assert.Equal(provider, repository.GetProvider("the-name"));
         }
 
         [Fact]
-        public void AfterSet_Is_Invoked_For_Setting_Named_Provider()
+        public async Task AfterSet_Is_Invoked_For_Setting_Named_Provider()
         {
             var repository = new ProviderRepository();
             var provider = new NoOpFeatureProvider();
             var context = new EvaluationContextBuilder().Build();
             var callCount = 0;
             // The setting of the provider is synchronous, so the afterSet should be as well.
-            repository.SetProvider("the-name", provider, context, afterSet: (theProvider) =>
+            await repository.SetProvider("the-name", provider, context, afterSet: (theProvider) =>
             {
                 callCount++;
                 Assert.Equal(provider, theProvider);
@@ -244,14 +244,14 @@ namespace OpenFeature.Tests
             var context = new EvaluationContextBuilder().Build();
             providerMock.When(x => x.Initialize(context)).Throw(new Exception("BAD THINGS"));
             var callCount = 0;
-            Exception receivedError = null;
+            Exception? receivedError = null;
             await repository.SetProvider("the-provider", providerMock, context, afterError: (theProvider, error) =>
             {
                 Assert.Equal(providerMock, theProvider);
                 callCount++;
                 receivedError = error;
             });
-            Assert.Equal("BAD THINGS", receivedError.Message);
+            Assert.Equal("BAD THINGS", receivedError?.Message);
             Assert.Equal(1, callCount);
         }
 
@@ -337,7 +337,7 @@ namespace OpenFeature.Tests
             var context = new EvaluationContextBuilder().Build();
             await repository.SetProvider("the-name", provider1, context);
             var callCount = 0;
-            Exception errorThrown = null;
+            Exception? errorThrown = null;
             await repository.SetProvider("the-name", provider2, context, afterError: (provider, ex) =>
             {
                 Assert.Equal(provider, provider1);
@@ -345,7 +345,7 @@ namespace OpenFeature.Tests
                 callCount++;
             });
             Assert.Equal(1, callCount);
-            Assert.Equal("SHUTDOWN ERROR", errorThrown.Message);
+            Assert.Equal("SHUTDOWN ERROR", errorThrown?.Message);
         }
 
         [Fact]

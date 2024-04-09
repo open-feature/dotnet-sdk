@@ -42,7 +42,7 @@ namespace OpenFeature
         {
             // Alias the provider reference so getting the method and returning the provider are
             // guaranteed to be the same object.
-            var provider = Api.Instance.GetProvider(this._metadata.Name);
+            var provider = Api.Instance.GetProvider(this._metadata.Name!);
 
             return (method(provider), provider);
         }
@@ -57,7 +57,7 @@ namespace OpenFeature
         }
 
         /// <inheritdoc />
-        public void SetContext(EvaluationContext context)
+        public void SetContext(EvaluationContext? context)
         {
             lock (this._evaluationContextLock)
             {
@@ -73,7 +73,7 @@ namespace OpenFeature
         /// <param name="logger">Logger used by client</param>
         /// <param name="context">Context given to this client</param>
         /// <exception cref="ArgumentNullException">Throws if any of the required parameters are null</exception>
-        public FeatureClient(string name, string version, ILogger logger = null, EvaluationContext context = null)
+        public FeatureClient(string? name, string? version, ILogger? logger = null, EvaluationContext? context = null)
         {
             this._metadata = new ClientMetadata(name, version);
             this._logger = logger ?? NullLogger<FeatureClient>.Instance;
@@ -96,13 +96,13 @@ namespace OpenFeature
         /// <inheritdoc />
         public void AddHandler(ProviderEventTypes eventType, EventHandlerDelegate handler)
         {
-            Api.Instance.EventExecutor.AddClientHandler(this._metadata.Name, eventType, handler);
+            Api.Instance.AddClientHandler(this._metadata.Name!, eventType, handler);
         }
 
         /// <inheritdoc />
         public void RemoveHandler(ProviderEventTypes type, EventHandlerDelegate handler)
         {
-            Api.Instance.EventExecutor.RemoveClientHandler(this._metadata.Name, type, handler);
+            Api.Instance.RemoveClientHandler(this._metadata.Name!, type, handler);
         }
 
         /// <inheritdoc />
@@ -136,70 +136,70 @@ namespace OpenFeature
         public void ClearHooks() => this._hooks.Clear();
 
         /// <inheritdoc />
-        public async Task<bool> GetBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null,
-            FlagEvaluationOptions config = null) =>
+        public async Task<bool> GetBooleanValue(string flagKey, bool defaultValue, EvaluationContext? context = null,
+            FlagEvaluationOptions? config = null) =>
             (await this.GetBooleanDetails(flagKey, defaultValue, context, config).ConfigureAwait(false)).Value;
 
         /// <inheritdoc />
         public async Task<FlagEvaluationDetails<bool>> GetBooleanDetails(string flagKey, bool defaultValue,
-            EvaluationContext context = null, FlagEvaluationOptions config = null) =>
+            EvaluationContext? context = null, FlagEvaluationOptions? config = null) =>
             await this.EvaluateFlag(this.ExtractProvider<bool>(provider => provider.ResolveBooleanValue),
                 FlagValueType.Boolean, flagKey,
                 defaultValue, context, config).ConfigureAwait(false);
 
         /// <inheritdoc />
-        public async Task<string> GetStringValue(string flagKey, string defaultValue, EvaluationContext context = null,
-            FlagEvaluationOptions config = null) =>
+        public async Task<string> GetStringValue(string flagKey, string defaultValue, EvaluationContext? context = null,
+            FlagEvaluationOptions? config = null) =>
             (await this.GetStringDetails(flagKey, defaultValue, context, config).ConfigureAwait(false)).Value;
 
         /// <inheritdoc />
         public async Task<FlagEvaluationDetails<string>> GetStringDetails(string flagKey, string defaultValue,
-            EvaluationContext context = null, FlagEvaluationOptions config = null) =>
+            EvaluationContext? context = null, FlagEvaluationOptions? config = null) =>
             await this.EvaluateFlag(this.ExtractProvider<string>(provider => provider.ResolveStringValue),
                 FlagValueType.String, flagKey,
                 defaultValue, context, config).ConfigureAwait(false);
 
         /// <inheritdoc />
-        public async Task<int> GetIntegerValue(string flagKey, int defaultValue, EvaluationContext context = null,
-            FlagEvaluationOptions config = null) =>
+        public async Task<int> GetIntegerValue(string flagKey, int defaultValue, EvaluationContext? context = null,
+            FlagEvaluationOptions? config = null) =>
             (await this.GetIntegerDetails(flagKey, defaultValue, context, config).ConfigureAwait(false)).Value;
 
         /// <inheritdoc />
         public async Task<FlagEvaluationDetails<int>> GetIntegerDetails(string flagKey, int defaultValue,
-            EvaluationContext context = null, FlagEvaluationOptions config = null) =>
+            EvaluationContext? context = null, FlagEvaluationOptions? config = null) =>
             await this.EvaluateFlag(this.ExtractProvider<int>(provider => provider.ResolveIntegerValue),
                 FlagValueType.Number, flagKey,
                 defaultValue, context, config).ConfigureAwait(false);
 
         /// <inheritdoc />
         public async Task<double> GetDoubleValue(string flagKey, double defaultValue,
-            EvaluationContext context = null,
-            FlagEvaluationOptions config = null) =>
+            EvaluationContext? context = null,
+            FlagEvaluationOptions? config = null) =>
             (await this.GetDoubleDetails(flagKey, defaultValue, context, config).ConfigureAwait(false)).Value;
 
         /// <inheritdoc />
         public async Task<FlagEvaluationDetails<double>> GetDoubleDetails(string flagKey, double defaultValue,
-            EvaluationContext context = null, FlagEvaluationOptions config = null) =>
+            EvaluationContext? context = null, FlagEvaluationOptions? config = null) =>
             await this.EvaluateFlag(this.ExtractProvider<double>(provider => provider.ResolveDoubleValue),
                 FlagValueType.Number, flagKey,
                 defaultValue, context, config).ConfigureAwait(false);
 
         /// <inheritdoc />
-        public async Task<Value> GetObjectValue(string flagKey, Value defaultValue, EvaluationContext context = null,
-            FlagEvaluationOptions config = null) =>
+        public async Task<Value> GetObjectValue(string flagKey, Value defaultValue, EvaluationContext? context = null,
+            FlagEvaluationOptions? config = null) =>
             (await this.GetObjectDetails(flagKey, defaultValue, context, config).ConfigureAwait(false)).Value;
 
         /// <inheritdoc />
         public async Task<FlagEvaluationDetails<Value>> GetObjectDetails(string flagKey, Value defaultValue,
-            EvaluationContext context = null, FlagEvaluationOptions config = null) =>
+            EvaluationContext? context = null, FlagEvaluationOptions? config = null) =>
             await this.EvaluateFlag(this.ExtractProvider<Value>(provider => provider.ResolveStructureValue),
                 FlagValueType.Object, flagKey,
                 defaultValue, context, config).ConfigureAwait(false);
 
         private async Task<FlagEvaluationDetails<T>> EvaluateFlag<T>(
             (Func<string, T, EvaluationContext, Task<ResolutionDetails<T>>>, FeatureProvider) providerInfo,
-            FlagValueType flagValueType, string flagKey, T defaultValue, EvaluationContext context = null,
-            FlagEvaluationOptions options = null)
+            FlagValueType flagValueType, string flagKey, T defaultValue, EvaluationContext? context = null,
+            FlagEvaluationOptions? options = null)
         {
             var resolveValueDelegate = providerInfo.Item1;
             var provider = providerInfo.Item2;
@@ -261,7 +261,7 @@ namespace OpenFeature
             {
                 this.FlagEvaluationError(flagKey, ex);
                 var errorCode = ex is InvalidCastException ? ErrorType.TypeMismatch : ErrorType.General;
-                evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, errorCode, Reason.Error, string.Empty);
+                evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, errorCode, Reason.Error, string.Empty, ex.Message);
                 await this.TriggerErrorHooks(allHooksReversed, hookContext, ex, options).ConfigureAwait(false);
             }
             finally
@@ -273,7 +273,7 @@ namespace OpenFeature
         }
 
         private async Task<HookContext<T>> TriggerBeforeHooks<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
-            FlagEvaluationOptions options)
+            FlagEvaluationOptions? options)
         {
             var evalContextBuilder = EvaluationContext.Builder();
             evalContextBuilder.Merge(context.EvaluationContext);
@@ -296,7 +296,7 @@ namespace OpenFeature
         }
 
         private async Task TriggerAfterHooks<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
-            FlagEvaluationDetails<T> evaluationDetails, FlagEvaluationOptions options)
+            FlagEvaluationDetails<T> evaluationDetails, FlagEvaluationOptions? options)
         {
             foreach (var hook in hooks)
             {
@@ -305,7 +305,7 @@ namespace OpenFeature
         }
 
         private async Task TriggerErrorHooks<T>(IReadOnlyList<Hook> hooks, HookContext<T> context, Exception exception,
-            FlagEvaluationOptions options)
+            FlagEvaluationOptions? options)
         {
             foreach (var hook in hooks)
             {
@@ -321,7 +321,7 @@ namespace OpenFeature
         }
 
         private async Task TriggerFinallyHooks<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
-            FlagEvaluationOptions options)
+            FlagEvaluationOptions? options)
         {
             foreach (var hook in hooks)
             {
@@ -331,7 +331,7 @@ namespace OpenFeature
                 }
                 catch (Exception e)
                 {
-                    this.FinallyHookError(hook.GetType().Name, e);
+                    this._logger.LogError(e, "Error while executing Finally hook {HookName}", hook.GetType().Name);
                 }
             }
         }

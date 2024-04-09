@@ -12,9 +12,11 @@ on:
 
 jobs:
   build-test-report:
-    runs-on: ubuntu-latest
-    env:
-      OS: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest ]
+
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v4
@@ -23,13 +25,19 @@ jobs:
 
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
+      env:
+        NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        dotnet-version: |
+          6.0.x
+          7.0.x
+        source-url: https://nuget.pkg.github.com/open-feature/index.json
 
     - name: Run Test
       run: dotnet test --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 
-    - uses: codecov/codecov-action@v3.1.4
+    - uses: codecov/codecov-action@v3.1.6
       with:
-        env_vars: OS
         name: Code Coverage for ${{ matrix.os }}
         fail_ci_if_error: true
         verbose: true
