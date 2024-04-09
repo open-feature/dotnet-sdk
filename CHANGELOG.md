@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.5.1](https://github.com/open-feature/dotnet-sdk/compare/v1.5.0...v1.5.1) (2024-04-09)
+
+
+### 🐛 Bug Fixes
+
+* Add missing error message when an error occured ([#258](https://github.com/open-feature/dotnet-sdk/issues/258)) ([bd4c6cc](https://github.com/open-feature/dotnet-sdk/commit/bd4c6cc8024dc34a8fcb299216cd4199c54c5956))
+
+
+### 🧹 Chore
+
+* **deps:** Project file cleanup and remove unnecessary dependencies ([#251](https://github.com/open-feature/dotnet-sdk/issues/251)) ([79def47](https://github.com/open-feature/dotnet-sdk/commit/79def47106b19b316b691fa195f7160ddcfb9a41))
+* **deps:** update dependency coverlet.collector to v6.0.2 ([#247](https://github.com/open-feature/dotnet-sdk/issues/247)) ([ab34c16](https://github.com/open-feature/dotnet-sdk/commit/ab34c16b513ddbd0a53e925baaccd088163fbcc8))
+* support v1 publishing ([b4a2409](https://github.com/open-feature/dotnet-sdk/commit/b4a24094a282e0f7cb26c0c70ff7cf09e8e08991))
+
 ## [1.5.0](https://github.com/open-feature/dotnet-sdk/compare/v1.4.1...v1.5.0) (2024-03-12)
 
 
