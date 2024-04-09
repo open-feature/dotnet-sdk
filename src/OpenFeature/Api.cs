@@ -280,7 +280,7 @@ namespace OpenFeature
         /// <param name="logger">The logger to be used</param>
         public void SetLogger(ILogger logger)
         {
-            this._eventExecutor.Logger = logger;
+            this._eventExecutor.SetLogger(logger);
         }
 
         internal void AddClientHandler(string client, ProviderEventTypes eventType, EventHandlerDelegate handler)

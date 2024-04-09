@@ -15,7 +15,7 @@ namespace OpenFeature
     /// <summary>
     ///
     /// </summary>
-    public sealed class FeatureClient : IFeatureClient
+    public sealed partial class FeatureClient : IFeatureClient
     {
         private readonly ClientMetadata _metadata;
         private readonly ConcurrentStack<Hook> _hooks = new ConcurrentStack<Hook>();
@@ -76,7 +76,7 @@ namespace OpenFeature
         public FeatureClient(string? name, string? version, ILogger? logger = null, EvaluationContext? context = null)
         {
             this._metadata = new ClientMetadata(name, version);
-            this._logger = logger ?? new Logger<Api>(new NullLoggerFactory());
+            this._logger = logger ?? NullLogger<FeatureClient>.Instance;
             this._evaluationContext = context ?? EvaluationContext.Empty;
         }
 
@@ -252,15 +252,14 @@ namespace OpenFeature
             }
             catch (FeatureProviderException ex)
             {
-                this._logger.LogError(ex, "Error while evaluating flag {FlagKey}. Error {ErrorType}", flagKey,
-                    ex.ErrorType.GetDescription());
+                this.FlagEvaluationErrorWithDescription(flagKey, ex.ErrorType.GetDescription(), ex);
                 evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, ex.ErrorType, Reason.Error,
                     string.Empty, ex.Message);
                 await this.TriggerErrorHooks(allHooksReversed, hookContext, ex, options).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                this._logger.LogError(ex, "Error while evaluating flag {FlagKey}", flagKey);
+                this.FlagEvaluationError(flagKey, ex);
                 var errorCode = ex is InvalidCastException ? ErrorType.TypeMismatch : ErrorType.General;
                 evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, errorCode, Reason.Error, string.Empty, ex.Message);
                 await this.TriggerErrorHooks(allHooksReversed, hookContext, ex, options).ConfigureAwait(false);
@@ -289,8 +288,7 @@ namespace OpenFeature
                 }
                 else
                 {
-                    this._logger.LogDebug("Hook {HookName} returned null, nothing to merge back into context",
-                        hook.GetType().Name);
+                    this.HookReturnedNull(hook.GetType().Name);
                 }
             }
 
@@ -317,7 +315,7 @@ namespace OpenFeature
                 }
                 catch (Exception e)
                 {
-                    this._logger.LogError(e, "Error while executing Error hook {HookName}", hook.GetType().Name);
+                    this.ErrorHookError(hook.GetType().Name, e);
                 }
             }
         }
@@ -337,5 +335,20 @@ namespace OpenFeature
                 }
             }
         }
+
+        [LoggerMessage(100, LogLevel.Debug, "Hook {HookName} returned null, nothing to merge back into context")]
+        partial void HookReturnedNull(string hookName);
+
+        [LoggerMessage(101, LogLevel.Error, "Error while evaluating flag {FlagKey}")]
+        partial void FlagEvaluationError(string flagKey, Exception exception);
+
+        [LoggerMessage(102, LogLevel.Error, "Error while evaluating flag {FlagKey}: {ErrorType}")]
+        partial void FlagEvaluationErrorWithDescription(string flagKey, string errorType, Exception exception);
+
+        [LoggerMessage(103, LogLevel.Error, "Error while executing Error hook {HookName}")]
+        partial void ErrorHookError(string hookName, Exception exception);
+
+        [LoggerMessage(104, LogLevel.Error, "Error while executing Finally hook {HookName}")]
+        partial void FinallyHookError(string hookName, Exception exception);
     }
 }

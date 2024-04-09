@@ -10,7 +10,7 @@ using OpenFeature.Model;
 
 namespace OpenFeature
 {
-    internal class EventExecutor : IAsyncDisposable
+    internal sealed partial class EventExecutor : IAsyncDisposable
     {
         private readonly object _lockObj = new object();
         public readonly Channel<object> EventChannel = Channel.CreateBounded<object>(1);
@@ -21,16 +21,18 @@ namespace OpenFeature
         private readonly Dictionary<ProviderEventTypes, List<EventHandlerDelegate>> _apiHandlers = new Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>();
         private readonly Dictionary<string, Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>> _clientHandlers = new Dictionary<string, Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>>();
 
-        internal ILogger Logger { get; set; }
+        private ILogger _logger;
 
         public EventExecutor()
         {
-            this.Logger = new Logger<EventExecutor>(new NullLoggerFactory());
+            this._logger = NullLogger<EventExecutor>.Instance;
             var eventProcessing = new Thread(this.ProcessEventAsync);
             eventProcessing.Start();
         }
 
         public ValueTask DisposeAsync() => new(this.Shutdown());
+
+        internal void SetLogger(ILogger logger) => this._logger = logger;
 
         internal void AddApiLevelHandler(ProviderEventTypes eventType, EventHandlerDelegate handler)
         {
@@ -209,7 +211,7 @@ namespace OpenFeature
                 }
                 catch (Exception exc)
                 {
-                    this.Logger.LogError(exc, "Error running handler");
+                    this.ErrorRunningHandler(exc);
                 }
             }
         }
@@ -311,7 +313,7 @@ namespace OpenFeature
             }
             catch (Exception exc)
             {
-                this.Logger.LogError(exc, "Error running handler");
+                this.ErrorRunningHandler(exc);
             }
         }
 
@@ -321,6 +323,9 @@ namespace OpenFeature
 
             await this.EventChannel.Reader.Completion.ConfigureAwait(false);
         }
+
+        [LoggerMessage(100, LogLevel.Error, "Error running handler")]
+        partial void ErrorRunningHandler(Exception exception);
     }
 
     internal class Event
