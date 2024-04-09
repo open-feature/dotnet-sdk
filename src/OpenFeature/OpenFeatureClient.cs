@@ -262,7 +262,7 @@ namespace OpenFeature
             {
                 this._logger.LogError(ex, "Error while evaluating flag {FlagKey}", flagKey);
                 var errorCode = ex is InvalidCastException ? ErrorType.TypeMismatch : ErrorType.General;
-                evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, errorCode, Reason.Error, string.Empty);
+                evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, errorCode, Reason.Error, string.Empty, ex.Message);
                 await this.TriggerErrorHooks(allHooksReversed, hookContext, ex, options).ConfigureAwait(false);
             }
             finally
