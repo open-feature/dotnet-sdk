@@ -16,9 +16,11 @@ namespace OpenFeature.Model
         /// <summary>
         /// Internal constructor used by the builder.
         /// </summary>
+        /// <param name="targetingKey">The targeting key</param>
         /// <param name="content">The content of the context.</param>
-        internal EvaluationContext(Structure content)
+        internal EvaluationContext(string? targetingKey, Structure content)
         {
+            this.TargetingKey = targetingKey;
             this._structure = content;
         }
 
@@ -28,6 +30,7 @@ namespace OpenFeature.Model
         private EvaluationContext()
         {
             this._structure = Structure.Empty;
+            this.TargetingKey = string.Empty;
         }
 
         /// <summary>
@@ -67,7 +70,7 @@ namespace OpenFeature.Model
         /// <exception cref="ArgumentNullException">
         /// Thrown when the key is <see langword="null" />
         /// </exception>
-        public bool TryGetValue(string key, out Value value) => this._structure.TryGetValue(key, out value);
+        public bool TryGetValue(string key, out Value? value) => this._structure.TryGetValue(key, out value);
 
         /// <summary>
         /// Gets all values as a Dictionary
@@ -82,6 +85,11 @@ namespace OpenFeature.Model
         /// Return a count of all values
         /// </summary>
         public int Count => this._structure.Count;
+
+        /// <summary>
+        /// Returns the targeting key for the context.
+        /// </summary>
+        public string? TargetingKey { get; }
 
         /// <summary>
         /// Return an enumerator for all values

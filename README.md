@@ -7,10 +7,10 @@
 
 <!-- x-hide-in-docs-end -->
 
-[![Specification](https://img.shields.io/static/v1?label=specification&message=v0.5.2&color=yellow&style=for-the-badge)](https://github.com/open-feature/spec/releases/tag/v0.5.2)
+[![Specification](https://img.shields.io/static/v1?label=specification&message=v0.7.0&color=yellow&style=for-the-badge)](https://github.com/open-feature/spec/releases/tag/v0.7.0)
 [
-  ![Release](https://img.shields.io/static/v1?label=release&message=v1.4.1&color=blue&style=for-the-badge) <!-- x-release-please-version -->
-](https://github.com/open-feature/dotnet-sdk/releases/tag/v1.4.1) <!-- x-release-please-version -->
+  ![Release](https://img.shields.io/static/v1?label=release&message=v1.5.0&color=blue&style=for-the-badge) <!-- x-release-please-version -->
+](https://github.com/open-feature/dotnet-sdk/releases/tag/v1.5.0) <!-- x-release-please-version -->
 
 [![Slack](https://img.shields.io/badge/slack-%40cncf%2Fopenfeature-brightgreen?style=flat&logo=slack)](https://cloud-native.slack.com/archives/C0344AANLA1)
 [![Codecov](https://codecov.io/gh/open-feature/dotnet-sdk/branch/main/graph/badge.svg?token=MONAVJBXUJ)](https://codecov.io/gh/open-feature/dotnet-sdk)
@@ -130,7 +130,7 @@ bool flagValue = await client.GetBooleanValue("some-flag", false, reqCtx);
 ### Hooks
 
 [Hooks](https://openfeature.dev/docs/reference/concepts/hooks) allow for custom logic to be added at well-defined points of the flag evaluation life-cycle.
-Here is [a complete list of available hooks](https://openfeature.dev/docs/reference/technologies/server/dotnet/).
+Look [here](https://openfeature.dev/ecosystem/?instant_search%5BrefinementList%5D%5Btype%5D%5B0%5D=Hook&instant_search%5BrefinementList%5D%5Bcategory%5D%5B0%5D=Server-side&instant_search%5BrefinementList%5D%5Btechnology%5D%5B0%5D=.NET) for a complete list of available hooks.
 If the hook you're looking for hasn't been created yet, see the [develop a hook](#develop-a-hook) section to learn how to build it yourself.
 
 Once you've added a hook as a dependency, it can be registered at the global, client, or flag invocation level.

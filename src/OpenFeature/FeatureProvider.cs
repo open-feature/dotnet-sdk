@@ -45,7 +45,7 @@ namespace OpenFeature
         /// <param name="context"><see cref="EvaluationContext"/></param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
         public abstract Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue,
-            EvaluationContext context = null);
+            EvaluationContext? context = null);
 
         /// <summary>
         /// Resolves a string feature flag
@@ -55,7 +55,7 @@ namespace OpenFeature
         /// <param name="context"><see cref="EvaluationContext"/></param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
         public abstract Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue,
-            EvaluationContext context = null);
+            EvaluationContext? context = null);
 
         /// <summary>
         /// Resolves a integer feature flag
@@ -65,7 +65,7 @@ namespace OpenFeature
         /// <param name="context"><see cref="EvaluationContext"/></param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
         public abstract Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue,
-            EvaluationContext context = null);
+            EvaluationContext? context = null);
 
         /// <summary>
         /// Resolves a double feature flag
@@ -75,7 +75,7 @@ namespace OpenFeature
         /// <param name="context"><see cref="EvaluationContext"/></param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
         public abstract Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue,
-            EvaluationContext context = null);
+            EvaluationContext? context = null);
 
         /// <summary>
         /// Resolves a structured feature flag
@@ -85,7 +85,7 @@ namespace OpenFeature
         /// <param name="context"><see cref="EvaluationContext"/></param>
         /// <returns><see cref="ResolutionDetails{T}"/></returns>
         public abstract Task<ResolutionDetails<Value>> ResolveStructureValue(string flagKey, Value defaultValue,
-            EvaluationContext context = null);
+            EvaluationContext? context = null);
 
         /// <summary>
         /// Get the status of the provider.

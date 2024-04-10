@@ -76,9 +76,9 @@ namespace OpenFeature.Tests
 
             var structure = Structure.Builder()
                 .Set(KEY, VAL).Build();
-            Value value;
+            Value? value;
             Assert.True(structure.TryGetValue(KEY, out value));
-            Assert.Equal(VAL, value.AsString);
+            Assert.Equal(VAL, value?.AsString);
         }
 
         [Fact]
@@ -89,7 +89,7 @@ namespace OpenFeature.Tests
 
             var structure = Structure.Builder()
                 .Set(KEY, VAL).Build();
-            Assert.Equal(1, structure.Values.Count);
+            Assert.Single(structure.Values);
         }
 
         [Fact]
@@ -100,7 +100,7 @@ namespace OpenFeature.Tests
 
             var structure = Structure.Builder()
                 .Set(KEY, VAL).Build();
-            Assert.Equal(1, structure.Keys.Count);
+            Assert.Single(structure.Keys);
             Assert.Equal(0, structure.Keys.IndexOf(KEY));
         }
 

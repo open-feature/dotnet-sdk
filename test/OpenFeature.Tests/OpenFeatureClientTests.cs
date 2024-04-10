@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Internal;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using OpenFeature.Constant;
@@ -26,11 +25,12 @@ namespace OpenFeature.Tests
         {
             var fixture = new Fixture();
             var clientName = fixture.Create<string>();
+            var clientVersion = fixture.Create<string>();
             var hook1 = Substitute.For<Hook>();
             var hook2 = Substitute.For<Hook>();
             var hook3 = Substitute.For<Hook>();
 
-            var client = Api.Instance.GetClient(clientName);
+            var client = Api.Instance.GetClient(clientName, clientVersion);
 
             client.AddHooks(new[] { hook1, hook2 });
 
@@ -177,15 +177,11 @@ namespace OpenFeature.Tests
 
             var evaluationDetails = await client.GetObjectDetails(flagName, defaultValue);
             evaluationDetails.ErrorType.Should().Be(ErrorType.TypeMismatch);
+            evaluationDetails.ErrorMessage.Should().Be(new InvalidCastException().Message);
 
             _ = mockedFeatureProvider.Received(1).ResolveStructureValue(flagName, defaultValue, Arg.Any<EvaluationContext>());
 
-            mockedLogger.Received(1).Log(
-                LogLevel.Error,
-                Arg.Any<EventId>(),
-                Arg.Is<FormattedLogValues>(t => string.Equals($"Error while evaluating flag {flagName}", t.ToString(), StringComparison.InvariantCultureIgnoreCase)),
-                Arg.Any<Exception>(),
-                Arg.Any<Func<object, Exception, string>>());
+            mockedLogger.Received(1).IsEnabled(LogLevel.Error);
         }
 
         [Fact]
@@ -359,9 +355,12 @@ namespace OpenFeature.Tests
         [Fact]
         public void Should_Get_And_Set_Context()
         {
+            var fixture = new Fixture();
+            var clientName = fixture.Create<string>();
+            var clientVersion = fixture.Create<string>();
             var KEY = "key";
             var VAL = 1;
-            FeatureClient client = Api.Instance.GetClient();
+            FeatureClient client = Api.Instance.GetClient(clientName, clientVersion);
             client.SetContext(new EvaluationContextBuilder().Set(KEY, VAL).Build());
             Assert.Equal(VAL, client.GetContext().GetValue(KEY).AsInteger);
         }

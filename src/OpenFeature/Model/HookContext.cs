@@ -51,12 +51,12 @@ namespace OpenFeature.Model
         /// <param name="providerMetadata">Provider metadata</param>
         /// <param name="evaluationContext">Evaluation context</param>
         /// <exception cref="ArgumentNullException">When any of arguments are null</exception>
-        public HookContext(string flagKey,
+        public HookContext(string? flagKey,
             T defaultValue,
             FlagValueType flagValueType,
-            ClientMetadata clientMetadata,
-            Metadata providerMetadata,
-            EvaluationContext evaluationContext)
+            ClientMetadata? clientMetadata,
+            Metadata? providerMetadata,
+            EvaluationContext? evaluationContext)
         {
             this.FlagKey = flagKey ?? throw new ArgumentNullException(nameof(flagKey));
             this.DefaultValue = defaultValue;

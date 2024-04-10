@@ -15,7 +15,7 @@ namespace OpenFeature.Error
         /// </summary>
         /// <param name="message">Exception message</param>
         /// <param name="innerException">Optional inner exception</param>
-        public InvalidContextException(string message = null, Exception innerException = null)
+        public InvalidContextException(string? message = null, Exception? innerException = null)
             : base(ErrorType.InvalidContext, message, innerException)
         {
         }
