@@ -19,30 +19,31 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        submodules: recursive
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
 
-    - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v4
-      env:
-        NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        dotnet-version: |
-          6.0.x
-          7.0.x
-        source-url: https://nuget.pkg.github.com/open-feature/index.json
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          dotnet-version: |
+            6.0.x
+            7.0.x
+            8.0.x
+          source-url: https://nuget.pkg.github.com/open-feature/index.json
 
-    - name: Restore
-      run: dotnet restore
+      - name: Restore
+        run: dotnet restore
 
-    - name: Build
-      run: dotnet build --no-restore
+      - name: Build
+        run: dotnet build --no-restore
 
-    - name: Test
-      run: dotnet test --no-build --logger GitHubActions
+      - name: Test
+        run: dotnet test --no-build --logger GitHubActions
 
   packaging:
     needs: build
@@ -54,40 +55,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        submodules: recursive
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
 
-    - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v4
-      env:
-        NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        dotnet-version: |
-          6.0.x
-          7.0.x
-        source-url: https://nuget.pkg.github.com/open-feature/index.json
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          dotnet-version: |
+            6.0.x
+            7.0.x
+            8.0.x
+          source-url: https://nuget.pkg.github.com/open-feature/index.json
 
-    - name: Restore
-      run: dotnet restore
+      - name: Restore
+        run: dotnet restore
 
-    - name: Pack NuGet packages (CI versions)
-      if: startsWith(github.ref, 'refs/heads/')
-      run: dotnet pack --no-restore --version-suffix "ci.$(date -u +%Y%m%dT%H%M%S)+sha.${GITHUB_SHA:0:9}"
+      - name: Pack NuGet packages (CI versions)
+        if: startsWith(github.ref, 'refs/heads/')
+        run: dotnet pack --no-restore --version-suffix "ci.$(date -u +%Y%m%dT%H%M%S)+sha.${GITHUB_SHA:0:9}"
 
-    - name: Pack NuGet packages (PR versions)
-      if: startsWith(github.ref, 'refs/pull/')
-      run: dotnet pack --no-restore --version-suffix "pr.$(date -u +%Y%m%dT%H%M%S)+sha.${GITHUB_SHA:0:9}"
+      - name: Pack NuGet packages (PR versions)
+        if: startsWith(github.ref, 'refs/pull/')
+        run: dotnet pack --no-restore --version-suffix "pr.$(date -u +%Y%m%dT%H%M%S)+sha.${GITHUB_SHA:0:9}"
 
-    - name: Publish NuGet packages (base)
-      if: github.event.pull_request.head.repo.fork == false
-      run: dotnet nuget push "src/**/*.nupkg" --api-key "${{ secrets.GITHUB_TOKEN }}" --source https://nuget.pkg.github.com/open-feature/index.json
+      - name: Publish NuGet packages (base)
+        if: github.event.pull_request.head.repo.fork == false
+        run: dotnet nuget push "src/**/*.nupkg" --api-key "${{ secrets.GITHUB_TOKEN }}" --source https://nuget.pkg.github.com/open-feature/index.json
 
-    - name: Publish NuGet packages (fork)
-      if: github.event.pull_request.head.repo.fork == true
-      uses: actions/upload-artifact@v4.3.1
-      with:
-        name: nupkgs
-        path: src/**/*.nupkg
+      - name: Publish NuGet packages (fork)
+        if: github.event.pull_request.head.repo.fork == true
+        uses: actions/upload-artifact@v4.3.1
+        with:
+          name: nupkgs
+          path: src/**/*.nupkg
