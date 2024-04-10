@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 using OpenFeature.Model;
 using Xunit;
 
-namespace OpenFeature.Tests;
+namespace OpenFeature.Extensions.Hosting.Tests;
 
 public sealed class HostingTest
 {

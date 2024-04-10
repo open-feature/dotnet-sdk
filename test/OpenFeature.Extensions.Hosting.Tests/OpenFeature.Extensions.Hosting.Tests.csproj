@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <RootNamespace>OpenFeature</RootNamespace>
+    <RootNamespace>OpenFeature.Extensions.Hosting.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
