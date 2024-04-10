@@ -18,7 +18,9 @@ public sealed class HostingTest
 
         using var app = builder.Build();
 
+#pragma warning disable xUnit1030
         await app.StartAsync().ConfigureAwait(false);
+#pragma warning restore xUnit1030
 
         Assert.Equal(Api.Instance, app.Services.GetRequiredService<Api>());
         Assert.Equal(Api.Instance.GetProviderMetadata().Name, app.Services.GetRequiredService<IFeatureClient>().GetMetadata().Name);
@@ -29,7 +31,9 @@ public sealed class HostingTest
         Assert.Empty(app.Services.GetServices<Hook>());
         Assert.Empty(app.Services.GetServices<FeatureProvider>());
 
+#pragma warning disable xUnit1030
         await app.StopAsync().ConfigureAwait(false);
+#pragma warning restore xUnit1030
     }
 
     [Fact]
@@ -48,7 +52,9 @@ public sealed class HostingTest
         Assert.Equal(Api.Instance, app.Services.GetRequiredService<Api>());
         Assert.Equal("No-op Provider", app.Services.GetRequiredService<Api>().GetProviderMetadata().Name);
 
+#pragma warning disable xUnit1030
         await app.StartAsync().ConfigureAwait(false);
+#pragma warning restore xUnit1030
 
         Assert.Equal(Api.Instance, app.Services.GetRequiredService<Api>());
         Assert.Equal(SomeFeatureProvider.Name, app.Services.GetRequiredService<Api>().GetProviderMetadata().Name);
@@ -60,7 +66,9 @@ public sealed class HostingTest
         Assert.Empty(app.Services.GetServices<Hook>());
         Assert.NotEmpty(app.Services.GetServices<FeatureProvider>());
 
+#pragma warning disable xUnit1030
         await app.StopAsync().ConfigureAwait(false);
+#pragma warning restore xUnit1030
     }
 
     sealed class SomeFeatureProvider : FeatureProvider

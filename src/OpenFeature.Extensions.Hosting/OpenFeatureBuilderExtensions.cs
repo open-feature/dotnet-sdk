@@ -133,7 +133,7 @@ public static class OpenFeatureBuilderExtensions
             var api = services.GetRequiredService<Api>();
 
             return api.GetClient(
-                api.GetProviderMetadata(providerName as string).Name,
+                api.GetProviderMetadata(providerName as string ?? string.Empty).Name,
                 null,
                 services.GetRequiredKeyedService<ILogger>(providerName),
                 services.GetRequiredKeyedService<EvaluationContextBuilder>(providerName).Build());

@@ -17,7 +17,7 @@ public sealed class OpenFeatureHostedService(Api api, IEnumerable<FeatureProvide
     {
         foreach (var provider in this._providers)
         {
-            await this._api.SetProviderAsync(provider.GetMetadata().Name, provider).ConfigureAwait(false);
+            await this._api.SetProviderAsync(provider.GetMetadata().Name ?? string.Empty, provider).ConfigureAwait(false);
 
             if (this._api.GetProviderMetadata() is { Name: "No-op Provider" })
                 await this._api.SetProviderAsync(provider).ConfigureAwait(false);
