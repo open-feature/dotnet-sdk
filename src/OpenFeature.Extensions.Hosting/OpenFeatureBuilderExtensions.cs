@@ -8,17 +8,17 @@ using OpenFeature.Model;
 namespace OpenFeature;
 
 /// <summary>
-///
+/// Contains extension methods for the <see cref="OpenFeatureBuilder"/> class.
 /// </summary>
 public static class OpenFeatureBuilderExtensions
 {
     /// <summary>
-    ///
+    /// This method is used to add a new context to the service collection.
     /// </summary>
-    /// <param name="builder"></param>
-    /// <param name="configure"></param>
+    /// <param name="builder"><see cref="OpenFeatureBuilder"/></param>
+    /// <param name="configure">the desired configuration</param>
     /// <returns>
-    ///
+    /// the <see cref="OpenFeatureBuilder"/> instance
     /// </returns>
     public static OpenFeatureBuilder AddContext(
         this OpenFeatureBuilder builder,
@@ -33,12 +33,12 @@ public static class OpenFeatureBuilderExtensions
     }
 
     /// <summary>
-    ///
+    /// This method is used to add a new context to the service collection.
     /// </summary>
-    /// <param name="builder"></param>
-    /// <param name="configure"></param>
+    /// <param name="builder"><see cref="OpenFeatureBuilder"/></param>
+    /// <param name="configure">the desired configuration</param>
     /// <returns>
-    ///
+    /// the <see cref="OpenFeatureBuilder"/> instance
     /// </returns>
     public static OpenFeatureBuilder AddContext(
         this OpenFeatureBuilder builder,
@@ -53,13 +53,13 @@ public static class OpenFeatureBuilderExtensions
     }
 
     /// <summary>
-    ///
+    /// This method is used to add a new context to the service collection.
     /// </summary>
-    /// <param name="builder"></param>
-    /// <param name="providerName"></param>
-    /// <param name="configure"></param>
+    /// <param name="builder"><see cref="OpenFeatureBuilder"/></param>
+    /// <param name="providerName">the name of the provider</param>
+    /// <param name="configure">the desired configuration</param>
     /// <returns>
-    ///
+    /// the <see cref="OpenFeatureBuilder"/> instance
     /// </returns>
     public static OpenFeatureBuilder AddContext(
         this OpenFeatureBuilder builder,
@@ -82,10 +82,10 @@ public static class OpenFeatureBuilderExtensions
     }
 
     /// <summary>
-    ///
+    /// This method is used to add a new feature client to the service collection.
     /// </summary>
-    /// <param name="builder"></param>
-    /// <param name="providerName"></param>
+    /// <param name="builder"><see cref="OpenFeatureBuilder"/></param>
+    /// <param name="providerName">the name of the provider</param>
     public static void TryAddOpenFeatureClient(this OpenFeatureBuilder builder, string? providerName = null)
     {
         Check.NotNull(builder);

@@ -6,16 +6,17 @@ using OpenFeature;
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
-///
+/// Contains extension methods for the <see cref="IServiceCollection"/> class.
 /// </summary>
 public static class OpenFeatureServiceCollectionExtensions
 {
     /// <summary>
-    ///
+    /// This method is used to add OpenFeature to the service collection.
+    /// OpenFeature will be registered as a singleton.
     /// </summary>
-    /// <param name="services"></param>
-    /// <param name="configure"></param>
-    /// <returns></returns>
+    /// <param name="services"><see cref="IServiceCollection"/></param>
+    /// <param name="configure">the desired configuration</param>
+    /// <returns>the current <see cref="IServiceCollection"/> instance</returns>
     public static IServiceCollection AddOpenFeature(this IServiceCollection services, Action<OpenFeatureBuilder> configure)
     {
         Check.NotNull(services);
@@ -27,10 +28,11 @@ public static class OpenFeatureServiceCollectionExtensions
     }
 
     /// <summary>
-    ///
+    /// This method is used to add OpenFeature to the service collection.
+    /// OpenFeature will be registered as a singleton.
     /// </summary>
-    /// <param name="services"></param>
-    /// <returns></returns>
+    /// <param name="services"><see cref="IServiceCollection"/></param>
+    /// <returns>the current <see cref="IServiceCollection"/> instance</returns>
     public static OpenFeatureBuilder AddOpenFeature(this IServiceCollection services)
     {
         Check.NotNull(services);
