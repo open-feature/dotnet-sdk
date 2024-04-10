@@ -22,9 +22,8 @@ jobs:
 
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
-
-    - name: Install format tool
-      run: dotnet tool install -g dotnet-format
+      with:
+          dotnet-version: 8.0.x
 
     - name: dotnet format
-      run: dotnet-format --folder --check
+      run: dotnet format --verify-no-changes
