@@ -26,4 +26,4 @@ jobs:
           dotnet-version: 8.0.x
 
     - name: dotnet format
-      run: dotnet format --verify-no-changes
+      run: dotnet format --verify-no-changes OpenFeature.sln
