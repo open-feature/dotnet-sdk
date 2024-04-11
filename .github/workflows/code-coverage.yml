@@ -31,13 +31,15 @@ jobs:
         dotnet-version: |
           6.0.x
           7.0.x
+          8.0.x
         source-url: https://nuget.pkg.github.com/open-feature/index.json
 
     - name: Run Test
       run: dotnet test --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 
-    - uses: codecov/codecov-action@v3.1.6
+    - uses: codecov/codecov-action@v4.3.0
       with:
         name: Code Coverage for ${{ matrix.os }}
         fail_ci_if_error: true
         verbose: true
+        token: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
