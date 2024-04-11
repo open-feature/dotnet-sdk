@@ -2,28 +2,22 @@ name: dotnet format
 
 on:
   push:
-    branches: [ main ]
-    paths:
-    - '**.cs'
-    - '.editorconfig'
+    branches: [main]
   pull_request:
-    branches: [ main ]
-    paths:
-    - '**.cs'
-    - '.editorconfig'
+    branches: [main]
 
 jobs:
   check-format:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out code
-      uses: actions/checkout@v4
+      - name: Check out code
+        uses: actions/checkout@v4
 
-    - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v4
-      with:
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
           dotnet-version: 8.0.x
 
-    - name: dotnet format
-      run: dotnet format --verify-no-changes OpenFeature.sln
+      - name: dotnet format
+        run: dotnet format --verify-no-changes OpenFeature.sln
