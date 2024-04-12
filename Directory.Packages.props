@@ -24,8 +24,8 @@
     <PackageVersion Include="SpecFlow" Version="3.9.74" />
     <PackageVersion Include="SpecFlow.Tools.MsBuild.Generation" Version="3.9.74" />
     <PackageVersion Include="SpecFlow.xUnit" Version="3.9.74" />
-    <PackageVersion Include="xunit" Version="2.7.0" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.7" />
+    <PackageVersion Include="xunit" Version="2.7.1" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.8" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(OS)' == 'Unix'">
