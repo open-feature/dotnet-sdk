@@ -1,4 +1,3 @@
-#nullable enable
 // @formatter:off
 // ReSharper disable All
 #if NETCOREAPP3_0_OR_GREATER
