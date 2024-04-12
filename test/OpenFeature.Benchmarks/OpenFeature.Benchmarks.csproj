@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoFixture" Version="$(AutoFixtureVer)" />
-    <PackageReference Include="BenchmarkDotNet" Version="$(BenchmarkDotNetVer)" />
+    <PackageReference Include="AutoFixture" />
+    <PackageReference Include="BenchmarkDotNet" />
   </ItemGroup>
 
   <ItemGroup>

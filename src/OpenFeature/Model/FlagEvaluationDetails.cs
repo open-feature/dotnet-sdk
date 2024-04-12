@@ -6,7 +6,7 @@ namespace OpenFeature.Model
     /// The contract returned to the caller that describes the result of the flag evaluation process.
     /// </summary>
     /// <typeparam name="T">Flag value type</typeparam>
-    /// <seealso href="https://github.com/open-feature/spec/blob/v0.5.2/specification/types.md#evaluation-details"/>
+    /// <seealso href="https://github.com/open-feature/spec/blob/v0.7.0/specification/types.md#evaluation-details"/>
     public sealed class FlagEvaluationDetails<T>
     {
         /// <summary>
@@ -31,19 +31,24 @@ namespace OpenFeature.Model
         /// details.
         /// </para>
         /// </summary>
-        public string ErrorMessage { get; }
+        public string? ErrorMessage { get; }
 
         /// <summary>
         /// Describes the reason for the outcome of the evaluation process
         /// </summary>
-        public string Reason { get; }
+        public string? Reason { get; }
 
         /// <summary>
         /// A variant is a semantic identifier for a value. This allows for referral to particular values without
         /// necessarily including the value itself, which may be quite prohibitively large or otherwise unsuitable
         /// in some cases.
         /// </summary>
-        public string Variant { get; }
+        public string? Variant { get; }
+
+        /// <summary>
+        /// A structure which supports definition of arbitrary properties, with keys of type string, and values of type boolean, string, or number.
+        /// </summary>
+        public FlagMetadata? FlagMetadata { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FlagEvaluationDetails{T}"/> class.
@@ -54,8 +59,9 @@ namespace OpenFeature.Model
         /// <param name="reason">Reason</param>
         /// <param name="variant">Variant</param>
         /// <param name="errorMessage">Error message</param>
-        public FlagEvaluationDetails(string flagKey, T value, ErrorType errorType, string reason, string variant,
-            string errorMessage = null)
+        /// <param name="flagMetadata">Flag metadata</param>
+        public FlagEvaluationDetails(string flagKey, T value, ErrorType errorType, string? reason, string? variant,
+            string? errorMessage = null, FlagMetadata? flagMetadata = null)
         {
             this.Value = value;
             this.FlagKey = flagKey;
@@ -63,6 +69,7 @@ namespace OpenFeature.Model
             this.Reason = reason;
             this.Variant = variant;
             this.ErrorMessage = errorMessage;
+            this.FlagMetadata = flagMetadata;
         }
     }
 }

@@ -13,27 +13,26 @@ on:
 jobs:
   e2e-tests:
     runs-on: ubuntu-latest
-    services:
-      flagd:
-        image: ghcr.io/open-feature/flagd-testbed:latest
-        ports:
-          - 8013:8013
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: |
-          6.0.x
-          7.0.x
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          dotnet-version: |
+            6.0.x
+            7.0.x
+            8.0.x
+          source-url: https://nuget.pkg.github.com/open-feature/index.json
 
-    - name: Initialize Tests
-      run: |
-        git submodule update --init --recursive
-        cp test-harness/features/evaluation.feature test/OpenFeature.E2ETests/Features/
+      - name: Initialize Tests
+        run: |
+          git submodule update --init --recursive
+          cp spec/specification/assets/gherkin/evaluation.feature test/OpenFeature.E2ETests/Features/
 
-    - name: Run Tests
-      run: dotnet test test/OpenFeature.E2ETests/ --configuration Release --logger GitHubActions
+      - name: Run Tests
+        run: dotnet test test/OpenFeature.E2ETests/ --configuration Release --logger GitHubActions

@@ -10,32 +10,29 @@ using OpenFeature.Model;
 
 namespace OpenFeature
 {
-
-    internal delegate Task ShutdownDelegate();
-
-    internal class EventExecutor
+    internal sealed partial class EventExecutor : IAsyncDisposable
     {
         private readonly object _lockObj = new object();
         public readonly Channel<object> EventChannel = Channel.CreateBounded<object>(1);
-        private FeatureProviderReference _defaultProvider;
-        private readonly Dictionary<string, FeatureProviderReference> _namedProviderReferences = new Dictionary<string, FeatureProviderReference>();
-        private readonly List<FeatureProviderReference> _activeSubscriptions = new List<FeatureProviderReference>();
-        private readonly SemaphoreSlim _shutdownSemaphore = new SemaphoreSlim(0);
-
-        private ShutdownDelegate _shutdownDelegate;
+        private FeatureProvider? _defaultProvider;
+        private readonly Dictionary<string, FeatureProvider> _namedProviderReferences = new Dictionary<string, FeatureProvider>();
+        private readonly List<FeatureProvider> _activeSubscriptions = new List<FeatureProvider>();
 
         private readonly Dictionary<ProviderEventTypes, List<EventHandlerDelegate>> _apiHandlers = new Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>();
         private readonly Dictionary<string, Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>> _clientHandlers = new Dictionary<string, Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>>();
 
-        internal ILogger Logger { get; set; }
+        private ILogger _logger;
 
         public EventExecutor()
         {
-            this.Logger = new Logger<EventExecutor>(new NullLoggerFactory());
-            this._shutdownDelegate = this.SignalShutdownAsync;
+            this._logger = NullLogger<EventExecutor>.Instance;
             var eventProcessing = new Thread(this.ProcessEventAsync);
             eventProcessing.Start();
         }
+
+        public ValueTask DisposeAsync() => new(this.Shutdown());
+
+        internal void SetLogger(ILogger logger) => this._logger = logger;
 
         internal void AddApiLevelHandler(ProviderEventTypes eventType, EventHandlerDelegate handler)
         {
@@ -104,7 +101,7 @@ namespace OpenFeature
             }
         }
 
-        internal void RegisterDefaultFeatureProvider(FeatureProvider provider)
+        internal void RegisterDefaultFeatureProvider(FeatureProvider? provider)
         {
             if (provider == null)
             {
@@ -114,13 +111,13 @@ namespace OpenFeature
             {
                 var oldProvider = this._defaultProvider;
 
-                this._defaultProvider = new FeatureProviderReference(provider);
+                this._defaultProvider = provider;
 
                 this.StartListeningAndShutdownOld(this._defaultProvider, oldProvider);
             }
         }
 
-        internal void RegisterClientFeatureProvider(string client, FeatureProvider provider)
+        internal void RegisterClientFeatureProvider(string client, FeatureProvider? provider)
         {
             if (provider == null)
             {
@@ -128,8 +125,8 @@ namespace OpenFeature
             }
             lock (this._lockObj)
             {
-                var newProvider = new FeatureProviderReference(provider);
-                FeatureProviderReference oldProvider = null;
+                var newProvider = provider;
+                FeatureProvider? oldProvider = null;
                 if (this._namedProviderReferences.TryGetValue(client, out var foundOldProvider))
                 {
                     oldProvider = foundOldProvider;
@@ -141,7 +138,7 @@ namespace OpenFeature
             }
         }
 
-        private void StartListeningAndShutdownOld(FeatureProviderReference newProvider, FeatureProviderReference oldProvider)
+        private void StartListeningAndShutdownOld(FeatureProvider newProvider, FeatureProvider? oldProvider)
         {
             // check if the provider is already active - if not, we need to start listening for its emitted events
             if (!this.IsProviderActive(newProvider))
@@ -154,15 +151,11 @@ namespace OpenFeature
             if (oldProvider != null && !this.IsProviderBound(oldProvider))
             {
                 this._activeSubscriptions.Remove(oldProvider);
-                var channel = oldProvider.Provider.GetEventChannel();
-                if (channel != null)
-                {
-                    channel.Writer.WriteAsync(new ShutdownSignal());
-                }
+                oldProvider.GetEventChannel()?.Writer.Complete();
             }
         }
 
-        private bool IsProviderBound(FeatureProviderReference provider)
+        private bool IsProviderBound(FeatureProvider provider)
         {
             if (this._defaultProvider == provider)
             {
@@ -178,18 +171,18 @@ namespace OpenFeature
             return false;
         }
 
-        private bool IsProviderActive(FeatureProviderReference providerRef)
+        private bool IsProviderActive(FeatureProvider providerRef)
         {
             return this._activeSubscriptions.Contains(providerRef);
         }
 
-        private void EmitOnRegistration(FeatureProviderReference provider, ProviderEventTypes eventType, EventHandlerDelegate handler)
+        private void EmitOnRegistration(FeatureProvider? provider, ProviderEventTypes eventType, EventHandlerDelegate handler)
         {
             if (provider == null)
             {
                 return;
             }
-            var status = provider.Provider.GetStatus();
+            var status = provider.GetStatus();
 
             var message = "";
             if (status == ProviderStatus.Ready && eventType == ProviderEventTypes.ProviderReady)
@@ -211,37 +204,36 @@ namespace OpenFeature
                 {
                     handler.Invoke(new ProviderEventPayload
                     {
-                        ProviderName = provider.Provider?.GetMetadata()?.Name,
+                        ProviderName = provider.GetMetadata().Name,
                         Type = eventType,
                         Message = message
                     });
                 }
                 catch (Exception exc)
                 {
-                    this.Logger?.LogError("Error running handler: " + exc);
+                    this.ErrorRunningHandler(exc);
                 }
             }
         }
 
-        private async void ProcessFeatureProviderEventsAsync(object providerRef)
+        private async void ProcessFeatureProviderEventsAsync(object? providerRef)
         {
-            while (true)
+            var typedProviderRef = (FeatureProvider?)providerRef;
+            if (typedProviderRef?.GetEventChannel() is not { Reader: { } reader })
             {
-                var typedProviderRef = (FeatureProviderReference)providerRef;
-                if (typedProviderRef.Provider.GetEventChannel() == null)
-                {
-                    return;
-                }
-                var item = await typedProviderRef.Provider.GetEventChannel().Reader.ReadAsync().ConfigureAwait(false);
+                return;
+            }
+
+            while (await reader.WaitToReadAsync().ConfigureAwait(false))
+            {
+                if (!reader.TryRead(out var item))
+                    continue;
 
                 switch (item)
                 {
                     case ProviderEventPayload eventPayload:
                         await this.EventChannel.Writer.WriteAsync(new Event { Provider = typedProviderRef, EventPayload = eventPayload }).ConfigureAwait(false);
                         break;
-                    case ShutdownSignal _:
-                        typedProviderRef.ShutdownSemaphore.Release();
-                        return;
                 }
             }
         }
@@ -249,16 +241,17 @@ namespace OpenFeature
         // Method to process events
         private async void ProcessEventAsync()
         {
-            while (true)
+            while (await this.EventChannel.Reader.WaitToReadAsync().ConfigureAwait(false))
             {
-                var item = await this.EventChannel.Reader.ReadAsync().ConfigureAwait(false);
+                if (!this.EventChannel.Reader.TryRead(out var item))
+                    continue;
 
                 switch (item)
                 {
                     case Event e:
                         lock (this._lockObj)
                         {
-                            if (this._apiHandlers.TryGetValue(e.EventPayload.Type, out var eventHandlers))
+                            if (e.EventPayload?.Type != null && this._apiHandlers.TryGetValue(e.EventPayload.Type, out var eventHandlers))
                             {
                                 foreach (var eventHandler in eventHandlers)
                                 {
@@ -269,11 +262,11 @@ namespace OpenFeature
                             // look for client handlers and call invoke method there
                             foreach (var keyAndValue in this._namedProviderReferences)
                             {
-                                if (keyAndValue.Value == e.Provider)
+                                if (keyAndValue.Value == e.Provider && keyAndValue.Key != null)
                                 {
                                     if (this._clientHandlers.TryGetValue(keyAndValue.Key, out var clientRegistry))
                                     {
-                                        if (clientRegistry.TryGetValue(e.EventPayload.Type, out var clientEventHandlers))
+                                        if (e.EventPayload?.Type != null && clientRegistry.TryGetValue(e.EventPayload.Type, out var clientEventHandlers))
                                         {
                                             foreach (var eventHandler in clientEventHandlers)
                                             {
@@ -297,7 +290,7 @@ namespace OpenFeature
                                     // if there is an association for the client to a specific feature provider, then continue
                                     continue;
                                 }
-                                if (keyAndValues.Value.TryGetValue(e.EventPayload.Type, out var clientEventHandlers))
+                                if (e.EventPayload?.Type != null && keyAndValues.Value.TryGetValue(e.EventPayload.Type, out var clientEventHandlers))
                                 {
                                     foreach (var eventHandler in clientEventHandlers)
                                     {
@@ -307,9 +300,6 @@ namespace OpenFeature
                             }
                         }
                         break;
-                    case ShutdownSignal _:
-                        this._shutdownSemaphore.Release();
-                        return;
                 }
 
             }
@@ -323,49 +313,24 @@ namespace OpenFeature
             }
             catch (Exception exc)
             {
-                this.Logger?.LogError("Error running handler: " + exc);
+                this.ErrorRunningHandler(exc);
             }
         }
 
         public async Task Shutdown()
         {
-            await this._shutdownDelegate().ConfigureAwait(false);
+            this.EventChannel.Writer.Complete();
+
+            await this.EventChannel.Reader.Completion.ConfigureAwait(false);
         }
 
-        internal void SetShutdownDelegate(ShutdownDelegate del)
-        {
-            this._shutdownDelegate = del;
-        }
-
-        // Method to signal shutdown
-        private async Task SignalShutdownAsync()
-        {
-            // Enqueue a shutdown signal
-            await this.EventChannel.Writer.WriteAsync(new ShutdownSignal()).ConfigureAwait(false);
-
-            // Wait for the processing loop to acknowledge the shutdown
-            await this._shutdownSemaphore.WaitAsync().ConfigureAwait(false);
-        }
-    }
-
-    internal class ShutdownSignal
-    {
-    }
-
-    internal class FeatureProviderReference
-    {
-        internal readonly SemaphoreSlim ShutdownSemaphore = new SemaphoreSlim(0);
-        internal FeatureProvider Provider { get; }
-
-        public FeatureProviderReference(FeatureProvider provider)
-        {
-            this.Provider = provider;
-        }
+        [LoggerMessage(100, LogLevel.Error, "Error running handler")]
+        partial void ErrorRunningHandler(Exception exception);
     }
 
     internal class Event
     {
-        internal FeatureProviderReference Provider { get; set; }
-        internal ProviderEventPayload EventPayload { get; set; }
+        internal FeatureProvider? Provider { get; set; }
+        internal ProviderEventPayload? EventPayload { get; set; }
     }
 }

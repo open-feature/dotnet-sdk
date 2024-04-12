@@ -3,22 +3,61 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenFeature", "src\OpenFeature\OpenFeature.csproj", "{07A6E6BD-FB7E-4B3B-9CBE-65AE9D0EB223}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".", ".", "{E8916D4F-B97E-42D6-8620-ED410A106F94}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+		CONTRIBUTING.md = CONTRIBUTING.md
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		.gitmodules = .gitmodules
+		.release-please-manifest.json = .release-please-manifest.json
+		CHANGELOG.md = CHANGELOG.md
+		CODEOWNERS = CODEOWNERS
+		global.json = global.json
+		LICENSE = LICENSE
+		release-please-config.json = release-please-config.json
+		renovate.json = renovate.json
+		version.txt = version.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".config", ".config", "{9392E03B-4E6B-434C-8553-B859424388B1}"
+	ProjectSection(SolutionItems) = preProject
+		.config\dotnet-tools.json = .config\dotnet-tools.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{2B172AA0-A5A6-4D94-BA1F-B79D59B0C2D8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{C4746B8C-FE19-440B-922C-C2377F906FE8}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\ci.yml = .github\workflows\ci.yml
+		.github\workflows\code-coverage.yml = .github\workflows\code-coverage.yml
+		.github\workflows\codeql-analysis.yml = .github\workflows\codeql-analysis.yml
+		.github\workflows\dotnet-format.yml = .github\workflows\dotnet-format.yml
+		.github\workflows\e2e.yml = .github\workflows\e2e.yml
+		.github\workflows\lint-pr.yml = .github\workflows\lint-pr.yml
+		.github\workflows\release.yml = .github\workflows\release.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ISSUE_TEMPLATE", "ISSUE_TEMPLATE", "{09BAB3A2-E94C-490A-861C-7D1E11BB7024}"
+	ProjectSection(SolutionItems) = preProject
+		.github\ISSUE_TEMPLATE\bug.yaml = .github\ISSUE_TEMPLATE\bug.yaml
+		.github\ISSUE_TEMPLATE\documentation.yaml = .github\ISSUE_TEMPLATE\documentation.yaml
+		.github\ISSUE_TEMPLATE\feature.yaml = .github\ISSUE_TEMPLATE\feature.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".vscode", ".vscode", "{4BB69DB3-9653-4197-9589-37FA6D658CB7}"
+	ProjectSection(SolutionItems) = preProject
+		.vscode\launch.json = .vscode\launch.json
+		.vscode\tasks.json = .vscode\tasks.json
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{72005F60-C2E8-40BF-AE95-893635134D7D}"
 	ProjectSection(SolutionItems) = preProject
-		.github\workflows\code-coverage.yml = .github\workflows\code-coverage.yml
-		.github\workflows\codeql-analysis.yml = .github\workflows\codeql-analysis.yml
 		build\Common.prod.props = build\Common.prod.props
 		build\Common.props = build\Common.props
 		build\Common.tests.props = build\Common.tests.props
-		CONTRIBUTING.md = CONTRIBUTING.md
-		.github\workflows\dotnet-format.yml = .github\workflows\dotnet-format.yml
-		.github\workflows\lint-pr.yml = .github\workflows\lint-pr.yml
-		.github\workflows\linux-ci.yml = .github\workflows\linux-ci.yml
-		README.md = README.md
-		.github\workflows\release.yml = .github\workflows\release.yml
-		.github\workflows\windows-ci.yml = .github\workflows\windows-ci.yml
+		build\openfeature-icon.png = build\openfeature-icon.png
+		build\xunit.runner.json = build\xunit.runner.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C97E9975-E10A-4817-AE2C-4DD69C3C02D4}"
@@ -32,11 +71,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{65FBA159-2
 		test\Directory.Build.props = test\Directory.Build.props
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenFeature", "src\OpenFeature\OpenFeature.csproj", "{07A6E6BD-FB7E-4B3B-9CBE-65AE9D0EB223}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenFeature.Tests", "test\OpenFeature.Tests\OpenFeature.Tests.csproj", "{49BB42BA-10A6-4DA3-A7D5-38C968D57837}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenFeature.Benchmarks", "test\OpenFeature.Benchmarks\OpenFeature.Benchmarks.csproj", "{90E7EAD3-251E-4490-AF78-E758E33518E5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenFeature.E2ETests", "test\OpenFeature.E2ETests\OpenFeature.E2ETests.csproj", "{90E7EAD3-251E-4490-AF78-E758E33518E5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenFeature.E2ETests", "test\OpenFeature.E2ETests\OpenFeature.E2ETests.csproj", "{7398C446-2630-4F8C-9278-4E807720E9E5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -56,6 +97,10 @@ Global
 		{90E7EAD3-251E-4490-AF78-E758E33518E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90E7EAD3-251E-4490-AF78-E758E33518E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90E7EAD3-251E-4490-AF78-E758E33518E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7398C446-2630-4F8C-9278-4E807720E9E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7398C446-2630-4F8C-9278-4E807720E9E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7398C446-2630-4F8C-9278-4E807720E9E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7398C446-2630-4F8C-9278-4E807720E9E5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -64,6 +109,13 @@ Global
 		{07A6E6BD-FB7E-4B3B-9CBE-65AE9D0EB223} = {C97E9975-E10A-4817-AE2C-4DD69C3C02D4}
 		{49BB42BA-10A6-4DA3-A7D5-38C968D57837} = {65FBA159-23E0-4CF9-881B-F78DBFF198E9}
 		{90E7EAD3-251E-4490-AF78-E758E33518E5} = {65FBA159-23E0-4CF9-881B-F78DBFF198E9}
+		{7398C446-2630-4F8C-9278-4E807720E9E5} = {65FBA159-23E0-4CF9-881B-F78DBFF198E9}
+		{C4746B8C-FE19-440B-922C-C2377F906FE8} = {2B172AA0-A5A6-4D94-BA1F-B79D59B0C2D8}
+		{09BAB3A2-E94C-490A-861C-7D1E11BB7024} = {2B172AA0-A5A6-4D94-BA1F-B79D59B0C2D8}
+		{72005F60-C2E8-40BF-AE95-893635134D7D} = {E8916D4F-B97E-42D6-8620-ED410A106F94}
+		{9392E03B-4E6B-434C-8553-B859424388B1} = {E8916D4F-B97E-42D6-8620-ED410A106F94}
+		{2B172AA0-A5A6-4D94-BA1F-B79D59B0C2D8} = {E8916D4F-B97E-42D6-8620-ED410A106F94}
+		{4BB69DB3-9653-4197-9589-37FA6D658CB7} = {E8916D4F-B97E-42D6-8620-ED410A106F94}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {41F01B78-FB06-404F-8AD0-6ED6973F948F}

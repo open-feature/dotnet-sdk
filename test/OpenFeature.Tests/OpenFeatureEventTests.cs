@@ -25,7 +25,12 @@ namespace OpenFeature.Tests
 
             eventExecutor.AddApiLevelHandler(ProviderEventTypes.ProviderConfigurationChanged, eventHandler);
 
-            var eventMetadata = new Dictionary<string, object> { { "foo", "bar" } };
+            var eventMetadata = new Dictionary<string, object>
+            {
+                {
+                    "foo", "bar"
+                }
+            };
             var myEvent = new Event
             {
                 EventPayload = new ProviderEventPayload
@@ -33,7 +38,10 @@ namespace OpenFeature.Tests
                     Type = ProviderEventTypes.ProviderConfigurationChanged,
                     Message = "The provider is ready",
                     EventMetadata = eventMetadata,
-                    FlagsChanged = new List<string> { "flag1", "flag2" }
+                    FlagsChanged = new List<string>
+                    {
+                        "flag1", "flag2"
+                    }
                 }
             };
             eventExecutor.EventChannel.Writer.TryWrite(myEvent);
@@ -46,7 +54,10 @@ namespace OpenFeature.Tests
             await eventExecutor.Shutdown();
 
             // the next event should not be propagated to the event handler
-            var newEventPayload = new ProviderEventPayload { Type = ProviderEventTypes.ProviderStale };
+            var newEventPayload = new ProviderEventPayload
+            {
+                Type = ProviderEventTypes.ProviderStale
+            };
 
             eventExecutor.EventChannel.Writer.TryWrite(newEventPayload);
 
@@ -70,40 +81,39 @@ namespace OpenFeature.Tests
             Api.Instance.AddHandler(ProviderEventTypes.ProviderStale, eventHandler);
 
             var testProvider = new TestProvider();
-            await Api.Instance.SetProvider(testProvider);
+            await Api.Instance.SetProviderAsync(testProvider);
 
             testProvider.SendEvent(ProviderEventTypes.ProviderConfigurationChanged);
             testProvider.SendEvent(ProviderEventTypes.ProviderError);
             testProvider.SendEvent(ProviderEventTypes.ProviderStale);
 
-            Thread.Sleep(1000);
-            eventHandler
+            await Utils.AssertUntilAsync(_ => eventHandler
                 .Received()
                 .Invoke(
                     Arg.Is<ProviderEventPayload>(
                         payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderReady
-                    ));
+                    )));
 
-            eventHandler
+            await Utils.AssertUntilAsync(_ => eventHandler
                 .Received()
                 .Invoke(
                     Arg.Is<ProviderEventPayload>(
                         payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderConfigurationChanged
-                    ));
+                    )));
 
-            eventHandler
+            await Utils.AssertUntilAsync(_ => eventHandler
                 .Received()
                 .Invoke(
                     Arg.Is<ProviderEventPayload>(
                         payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderError
-                    ));
+                    )));
 
-            eventHandler
+            await Utils.AssertUntilAsync(_ => eventHandler
                 .Received()
                 .Invoke(
                     Arg.Is<ProviderEventPayload>(
                         payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderStale
-                    ));
+                    )));
         }
 
         [Fact]
@@ -118,17 +128,42 @@ namespace OpenFeature.Tests
             var eventHandler = Substitute.For<EventHandlerDelegate>();
 
             var testProvider = new TestProvider();
-            await Api.Instance.SetProvider(testProvider);
+            await Api.Instance.SetProviderAsync(testProvider);
 
             Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
-            Thread.Sleep(1000);
-            eventHandler
+            await Utils.AssertUntilAsync(_ => eventHandler
                 .Received()
                 .Invoke(
                     Arg.Is<ProviderEventPayload>(
                         payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderReady
-                    ));
+                    )));
+        }
+
+        [Fact]
+        [Specification("5.1.2", "When a `provider` signals the occurrence of a particular `event`, the associated `client` and `API` event handlers MUST run.")]
+        [Specification("5.2.2", "The `API` MUST provide a function for associating `handler functions` with a particular `provider event type`.")]
+        [Specification("5.2.3", "The `event details` MUST contain the `provider name` associated with the event.")]
+        [Specification("5.2.4", "The `handler function` MUST accept a `event details` parameter.")]
+        [Specification("5.3.1", "If the provider's `initialize` function terminates normally, `PROVIDER_READY` handlers MUST run.")]
+        [Specification("5.3.3", "Handlers attached after the provider is already in the associated state, MUST run immediately.")]
+        public async Task API_Level_Event_Handlers_Should_Be_Informed_About_Ready_State_After_Registering_Provider_Ready_Sync()
+        {
+            var eventHandler = Substitute.For<EventHandlerDelegate>();
+
+            var testProvider = new TestProvider();
+#pragma warning disable CS0618// Type or member is obsolete
+            Api.Instance.SetProvider(testProvider);
+#pragma warning restore CS0618// Type or member is obsolete
+
+            Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
+
+            await Utils.AssertUntilAsync(_ => eventHandler
+                .Received()
+                .Invoke(
+                    Arg.Is<ProviderEventPayload>(
+                        payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderReady
+                    )));
         }
 
         [Fact]
@@ -143,19 +178,18 @@ namespace OpenFeature.Tests
             var eventHandler = Substitute.For<EventHandlerDelegate>();
 
             var testProvider = new TestProvider();
-            await Api.Instance.SetProvider(testProvider);
+            await Api.Instance.SetProviderAsync(testProvider);
 
             testProvider.SetStatus(ProviderStatus.Error);
 
             Api.Instance.AddHandler(ProviderEventTypes.ProviderError, eventHandler);
 
-            Thread.Sleep(1000);
-            eventHandler
+            await Utils.AssertUntilAsync(_ => eventHandler
                 .Received()
                 .Invoke(
                     Arg.Is<ProviderEventPayload>(
                         payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderError
-                    ));
+                    )));
         }
 
         [Fact]
@@ -169,19 +203,18 @@ namespace OpenFeature.Tests
             var eventHandler = Substitute.For<EventHandlerDelegate>();
 
             var testProvider = new TestProvider();
-            await Api.Instance.SetProvider(testProvider);
+            await Api.Instance.SetProviderAsync(testProvider);
 
             testProvider.SetStatus(ProviderStatus.Stale);
 
             Api.Instance.AddHandler(ProviderEventTypes.ProviderStale, eventHandler);
 
-            Thread.Sleep(1000);
-            eventHandler
+            await Utils.AssertUntilAsync(_ => eventHandler
                 .Received()
                 .Invoke(
                     Arg.Is<ProviderEventPayload>(
                         payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderStale
-                    ));
+                    )));
         }
 
         [Fact]
@@ -198,18 +231,21 @@ namespace OpenFeature.Tests
             Api.Instance.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, eventHandler);
 
             var testProvider = new TestProvider();
-            await Api.Instance.SetProvider(testProvider);
+            await Api.Instance.SetProviderAsync(testProvider);
 
             testProvider.SendEvent(ProviderEventTypes.ProviderConfigurationChanged);
 
             var newTestProvider = new TestProvider();
-            await Api.Instance.SetProvider(newTestProvider);
+            await Api.Instance.SetProviderAsync(newTestProvider);
 
             newTestProvider.SendEvent(ProviderEventTypes.ProviderConfigurationChanged);
 
-            Thread.Sleep(1000);
-            eventHandler.Received(2).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderReady));
-            eventHandler.Received(2).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderConfigurationChanged));
+            await Utils.AssertUntilAsync(
+                _ => eventHandler.Received(2).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderReady))
+            );
+            await Utils.AssertUntilAsync(
+                _ => eventHandler.Received(2).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderConfigurationChanged))
+            );
         }
 
         [Fact]
@@ -224,13 +260,13 @@ namespace OpenFeature.Tests
             Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
             var testProvider = new TestProvider();
-            await Api.Instance.SetProvider(testProvider);
+            await Api.Instance.SetProviderAsync(testProvider);
 
             Thread.Sleep(1000);
             Api.Instance.RemoveHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
             var newTestProvider = new TestProvider();
-            await Api.Instance.SetProvider(newTestProvider);
+            await Api.Instance.SetProviderAsync(newTestProvider);
 
             eventHandler.Received(1).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
         }
@@ -255,10 +291,14 @@ namespace OpenFeature.Tests
             Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
             var testProvider = new TestProvider(fixture.Create<string>());
-            await Api.Instance.SetProvider(testProvider);
+            await Api.Instance.SetProviderAsync(testProvider);
 
-            failingEventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
-            eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
+            await Utils.AssertUntilAsync(
+                _ => failingEventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name))
+            );
+            await Utils.AssertUntilAsync(
+                _ => eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name))
+            );
         }
 
         [Fact]
@@ -271,10 +311,12 @@ namespace OpenFeature.Tests
             var fixture = new Fixture();
             var eventHandler = Substitute.For<EventHandlerDelegate>();
 
-            var myClient = Api.Instance.GetClient(fixture.Create<string>());
+            var clientName = fixture.Create<string>();
+            var clientVersion = fixture.Create<string>();
+            var myClient = Api.Instance.GetClient(clientName, clientVersion);
 
             var testProvider = new TestProvider();
-            await Api.Instance.SetProvider(myClient.GetMetadata().Name, testProvider);
+            await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name!, testProvider);
 
             myClient.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
@@ -297,18 +339,22 @@ namespace OpenFeature.Tests
             failingEventHandler.When(x => x.Invoke(Arg.Any<ProviderEventPayload>()))
                 .Do(x => throw new Exception());
 
-            var myClient = Api.Instance.GetClient(fixture.Create<string>());
+            var clientName = fixture.Create<string>();
+            var clientVersion = fixture.Create<string>();
+            var myClient = Api.Instance.GetClient(clientName, clientVersion);
 
             myClient.AddHandler(ProviderEventTypes.ProviderReady, failingEventHandler);
             myClient.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
             var testProvider = new TestProvider();
-            await Api.Instance.SetProvider(myClient.GetMetadata().Name, testProvider);
+            await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name!, testProvider);
 
-            Thread.Sleep(1000);
-
-            failingEventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
-            eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
+            await Utils.AssertUntilAsync(
+                _ => failingEventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name))
+            );
+            await Utils.AssertUntilAsync(
+                _ => eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name))
+            );
         }
 
         [Fact]
@@ -323,16 +369,16 @@ namespace OpenFeature.Tests
             var eventHandler = Substitute.For<EventHandlerDelegate>();
             var clientEventHandler = Substitute.For<EventHandlerDelegate>();
 
-            var myClientWithNoBoundProvider = Api.Instance.GetClient(fixture.Create<string>());
-            var myClientWithBoundProvider = Api.Instance.GetClient(fixture.Create<string>());
+            var myClientWithNoBoundProvider = Api.Instance.GetClient(fixture.Create<string>(), fixture.Create<string>());
+            var myClientWithBoundProvider = Api.Instance.GetClient(fixture.Create<string>(), fixture.Create<string>());
 
             var apiProvider = new TestProvider(fixture.Create<string>());
             var clientProvider = new TestProvider(fixture.Create<string>());
 
             // set the default provider on API level, but not specifically to the client
-            await Api.Instance.SetProvider(apiProvider);
+            await Api.Instance.SetProviderAsync(apiProvider);
             // set the other provider specifically for the client
-            await Api.Instance.SetProvider(myClientWithBoundProvider.GetMetadata().Name, clientProvider);
+            await Api.Instance.SetProviderAsync(myClientWithBoundProvider.GetMetadata().Name!, clientProvider);
 
             myClientWithNoBoundProvider.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
             myClientWithBoundProvider.AddHandler(ProviderEventTypes.ProviderReady, clientEventHandler);
@@ -356,36 +402,40 @@ namespace OpenFeature.Tests
             var fixture = new Fixture();
             var clientEventHandler = Substitute.For<EventHandlerDelegate>();
 
-            var client = Api.Instance.GetClient(fixture.Create<string>());
+            var client = Api.Instance.GetClient(fixture.Create<string>(), fixture.Create<string>());
 
             var defaultProvider = new TestProvider(fixture.Create<string>());
             var clientProvider = new TestProvider(fixture.Create<string>());
 
             // set the default provider
-            await Api.Instance.SetProvider(defaultProvider);
+            await Api.Instance.SetProviderAsync(defaultProvider);
 
             client.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, clientEventHandler);
 
             defaultProvider.SendEvent(ProviderEventTypes.ProviderConfigurationChanged);
 
-            Thread.Sleep(1000);
-
             // verify that the client received the event from the default provider as there is no named provider registered yet
-            clientEventHandler.Received(1).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == defaultProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderConfigurationChanged));
+            await Utils.AssertUntilAsync(
+                _ => clientEventHandler.Received(1)
+                    .Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == defaultProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderConfigurationChanged))
+            );
 
             // set the other provider specifically for the client
-            await Api.Instance.SetProvider(client.GetMetadata().Name, clientProvider);
+            await Api.Instance.SetProviderAsync(client.GetMetadata().Name!, clientProvider);
 
             // now, send another event for the default handler
             defaultProvider.SendEvent(ProviderEventTypes.ProviderConfigurationChanged);
             clientProvider.SendEvent(ProviderEventTypes.ProviderConfigurationChanged);
 
-            Thread.Sleep(1000);
-
             // now the client should have received only the event from the named provider
-            clientEventHandler.Received(1).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == clientProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderConfigurationChanged));
+            await Utils.AssertUntilAsync(
+                _ => clientEventHandler.Received(1).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == clientProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderConfigurationChanged))
+            );
             // for the default provider, the number of received events should stay unchanged
-            clientEventHandler.Received(1).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == defaultProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderConfigurationChanged));
+            await Utils.AssertUntilAsync(
+                _ => clientEventHandler.Received(1)
+                    .Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == defaultProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderConfigurationChanged))
+            );
         }
 
         [Fact]
@@ -400,10 +450,10 @@ namespace OpenFeature.Tests
             var fixture = new Fixture();
             var eventHandler = Substitute.For<EventHandlerDelegate>();
 
-            var myClient = Api.Instance.GetClient(fixture.Create<string>());
+            var myClient = Api.Instance.GetClient(fixture.Create<string>(), fixture.Create<string>());
 
             var testProvider = new TestProvider();
-            await Api.Instance.SetProvider(myClient.GetMetadata().Name, testProvider);
+            await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name!, testProvider);
 
             // add the event handler after the provider has already transitioned into the ready state
             myClient.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
@@ -423,23 +473,38 @@ namespace OpenFeature.Tests
 
             var eventHandler = Substitute.For<EventHandlerDelegate>();
 
-            var myClient = Api.Instance.GetClient(fixture.Create<string>());
+            var myClient = Api.Instance.GetClient(fixture.Create<string>(), fixture.Create<string>());
 
             myClient.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
             var testProvider = new TestProvider();
-            await Api.Instance.SetProvider(myClient.GetMetadata().Name, testProvider);
+            await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name!, testProvider);
 
             // wait for the first event to be received
-            Thread.Sleep(1000);
-            myClient.RemoveHandler(ProviderEventTypes.ProviderReady, eventHandler);
+            await Utils.AssertUntilAsync(_ => myClient.RemoveHandler(ProviderEventTypes.ProviderReady, eventHandler));
 
             // send another event from the provider - this one should not be received
             testProvider.SendEvent(ProviderEventTypes.ProviderReady);
 
             // wait a bit and make sure we only have received the first event, but nothing after removing the event handler
-            Thread.Sleep(1000);
-            eventHandler.Received(1).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
+            await Utils.AssertUntilAsync(
+                _ => eventHandler.Received(1).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name))
+            );
+        }
+
+        [Fact]
+        public void RegisterClientFeatureProvider_WhenCalledWithNullProvider_DoesNotThrowException()
+        {
+            // Arrange
+            var eventExecutor = new EventExecutor();
+            string client = "testClient";
+            FeatureProvider? provider = null;
+
+            // Act
+            var exception = Record.Exception(() => eventExecutor.RegisterClientFeatureProvider(client, provider));
+
+            // Assert
+            Assert.Null(exception);
         }
     }
 }

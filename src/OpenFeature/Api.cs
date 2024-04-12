@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,14 +18,12 @@ namespace OpenFeature
     public sealed class Api : IEventBus
     {
         private EvaluationContext _evaluationContext = EvaluationContext.Empty;
-        private readonly ProviderRepository _repository = new ProviderRepository();
+        private EventExecutor _eventExecutor = new EventExecutor();
+        private ProviderRepository _repository = new ProviderRepository();
         private readonly ConcurrentStack<Hook> _hooks = new ConcurrentStack<Hook>();
 
         /// The reader/writer locks are not disposed because the singleton instance should never be disposed.
         private readonly ReaderWriterLockSlim _evaluationContextLock = new ReaderWriterLockSlim();
-
-        internal readonly EventExecutor EventExecutor = new EventExecutor();
-
 
         /// <summary>
         /// Singleton instance of Api
@@ -38,17 +37,40 @@ namespace OpenFeature
         private Api() { }
 
         /// <summary>
-        /// Sets the feature provider. In order to wait for the provider to be set, and initialization to complete,
+        /// Sets the default feature provider to given clientName without awaiting its initialization.
+        /// </summary>
+        /// <remarks>The provider cannot be set to null. Attempting to set the provider to null has no effect.</remarks>
+        /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
+        [Obsolete("Will be removed in later versions; use SetProviderAsync, which can be awaited")]
+        public void SetProvider(FeatureProvider featureProvider)
+        {
+            this._eventExecutor.RegisterDefaultFeatureProvider(featureProvider);
+            _ = this._repository.SetProvider(featureProvider, this.GetContext());
+        }
+
+        /// <summary>
+        /// Sets the default feature provider. In order to wait for the provider to be set, and initialization to complete,
         /// await the returned task.
         /// </summary>
         /// <remarks>The provider cannot be set to null. Attempting to set the provider to null has no effect.</remarks>
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
-        public async Task SetProvider(FeatureProvider featureProvider)
+        public async Task SetProviderAsync(FeatureProvider? featureProvider)
         {
-            this.EventExecutor.RegisterDefaultFeatureProvider(featureProvider);
+            this._eventExecutor.RegisterDefaultFeatureProvider(featureProvider);
             await this._repository.SetProvider(featureProvider, this.GetContext()).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Sets the feature provider to given clientName without awaiting its initialization.
+        /// </summary>
+        /// <param name="clientName">Name of client</param>
+        /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
+        [Obsolete("Will be removed in later versions; use SetProviderAsync, which can be awaited")]
+        public void SetProvider(string clientName, FeatureProvider featureProvider)
+        {
+            this._eventExecutor.RegisterClientFeatureProvider(clientName, featureProvider);
+            _ = this._repository.SetProvider(clientName, featureProvider, this.GetContext());
+        }
 
         /// <summary>
         /// Sets the feature provider to given clientName. In order to wait for the provider to be set, and
@@ -56,9 +78,13 @@ namespace OpenFeature
         /// </summary>
         /// <param name="clientName">Name of client</param>
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
-        public async Task SetProvider(string clientName, FeatureProvider featureProvider)
+        public async Task SetProviderAsync(string clientName, FeatureProvider featureProvider)
         {
-            this.EventExecutor.RegisterClientFeatureProvider(clientName, featureProvider);
+            if (string.IsNullOrWhiteSpace(clientName))
+            {
+                throw new ArgumentNullException(nameof(clientName));
+            }
+            this._eventExecutor.RegisterClientFeatureProvider(clientName, featureProvider);
             await this._repository.SetProvider(clientName, featureProvider, this.GetContext()).ConfigureAwait(false);
         }
 
@@ -116,8 +142,8 @@ namespace OpenFeature
         /// <param name="logger">Logger instance used by client</param>
         /// <param name="context">Context given to this client</param>
         /// <returns><see cref="FeatureClient"/></returns>
-        public FeatureClient GetClient(string name = null, string version = null, ILogger logger = null,
-            EvaluationContext context = null) =>
+        public FeatureClient GetClient(string? name = null, string? version = null, ILogger? logger = null,
+            EvaluationContext? context = null) =>
             new FeatureClient(name, version, logger, context);
 
         /// <summary>
@@ -178,7 +204,7 @@ namespace OpenFeature
         /// Sets the global <see cref="EvaluationContext"/>
         /// </summary>
         /// <param name="context">The <see cref="EvaluationContext"/> to set</param>
-        public void SetContext(EvaluationContext context)
+        public void SetContext(EvaluationContext? context)
         {
             this._evaluationContextLock.EnterWriteLock();
             try
@@ -224,20 +250,28 @@ namespace OpenFeature
         /// </summary>
         public async Task Shutdown()
         {
-            await this._repository.Shutdown().ConfigureAwait(false);
-            await this.EventExecutor.Shutdown().ConfigureAwait(false);
+            await using (this._eventExecutor.ConfigureAwait(false))
+            await using (this._repository.ConfigureAwait(false))
+            {
+                this._evaluationContext = EvaluationContext.Empty;
+                this._hooks.Clear();
+
+                // TODO: make these lazy to avoid extra allocations on the common cleanup path?
+                this._eventExecutor = new EventExecutor();
+                this._repository = new ProviderRepository();
+            }
         }
 
         /// <inheritdoc />
         public void AddHandler(ProviderEventTypes type, EventHandlerDelegate handler)
         {
-            this.EventExecutor.AddApiLevelHandler(type, handler);
+            this._eventExecutor.AddApiLevelHandler(type, handler);
         }
 
         /// <inheritdoc />
         public void RemoveHandler(ProviderEventTypes type, EventHandlerDelegate handler)
         {
-            this.EventExecutor.RemoveApiLevelHandler(type, handler);
+            this._eventExecutor.RemoveApiLevelHandler(type, handler);
         }
 
         /// <summary>
@@ -246,7 +280,13 @@ namespace OpenFeature
         /// <param name="logger">The logger to be used</param>
         public void SetLogger(ILogger logger)
         {
-            this.EventExecutor.Logger = logger;
+            this._eventExecutor.SetLogger(logger);
         }
+
+        internal void AddClientHandler(string client, ProviderEventTypes eventType, EventHandlerDelegate handler)
+            => this._eventExecutor.AddClientHandler(client, eventType, handler);
+
+        internal void RemoveClientHandler(string client, ProviderEventTypes eventType, EventHandlerDelegate handler)
+            => this._eventExecutor.RemoveClientHandler(client, eventType, handler);
     }
 }

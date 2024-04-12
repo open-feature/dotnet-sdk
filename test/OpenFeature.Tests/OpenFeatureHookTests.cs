@@ -51,7 +51,7 @@ namespace OpenFeature.Tests
             var testProvider = new TestProvider();
             testProvider.AddHook(providerHook);
             Api.Instance.AddHooks(apiHook);
-            await Api.Instance.SetProvider(testProvider);
+            await Api.Instance.SetProviderAsync(testProvider);
             var client = Api.Instance.GetClient(clientName, clientVersion);
             client.AddHooks(clientHook);
 
@@ -197,7 +197,7 @@ namespace OpenFeature.Tests
 
             provider.ResolveBooleanValue(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>()).Returns(new ResolutionDetails<bool>("test", true));
 
-            await Api.Instance.SetProvider(provider);
+            await Api.Instance.SetProviderAsync(provider);
 
             var hook = Substitute.For<Hook>();
             hook.Before(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>()).Returns(hookContext);
@@ -269,7 +269,7 @@ namespace OpenFeature.Tests
             _ = hook.After(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>());
             _ = hook.Finally(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>());
 
-            await Api.Instance.SetProvider(featureProvider);
+            await Api.Instance.SetProviderAsync(featureProvider);
             var client = Api.Instance.GetClient();
             client.AddHooks(hook);
 
@@ -301,7 +301,7 @@ namespace OpenFeature.Tests
             var testProvider = new TestProvider();
             testProvider.AddHook(hook4);
             Api.Instance.AddHooks(hook1);
-            await Api.Instance.SetProvider(testProvider);
+            await Api.Instance.SetProviderAsync(testProvider);
             var client = Api.Instance.GetClient();
             client.AddHooks(hook2);
             await client.GetBooleanValue("test", false, null,
@@ -332,7 +332,7 @@ namespace OpenFeature.Tests
             hook2.Finally(Arg.Any<HookContext<bool>>(), null).Returns(Task.CompletedTask);
             hook1.Finally(Arg.Any<HookContext<bool>>(), null).Throws(new Exception());
 
-            await Api.Instance.SetProvider(featureProvider);
+            await Api.Instance.SetProviderAsync(featureProvider);
             var client = Api.Instance.GetClient();
             client.AddHooks(new[] { hook1, hook2 });
             client.GetHooks().Count().Should().Be(2);
@@ -377,7 +377,7 @@ namespace OpenFeature.Tests
             hook2.Error(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null).Returns(Task.CompletedTask);
             hook1.Error(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null).Returns(Task.CompletedTask);
 
-            await Api.Instance.SetProvider(featureProvider1);
+            await Api.Instance.SetProviderAsync(featureProvider1);
             var client = Api.Instance.GetClient();
             client.AddHooks(new[] { hook1, hook2 });
 
@@ -414,7 +414,7 @@ namespace OpenFeature.Tests
             _ = hook1.Error(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
             _ = hook2.Error(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
 
-            await Api.Instance.SetProvider(featureProvider);
+            await Api.Instance.SetProviderAsync(featureProvider);
             var client = Api.Instance.GetClient();
             client.AddHooks(new[] { hook1, hook2 });
 
@@ -459,7 +459,7 @@ namespace OpenFeature.Tests
             hook.Finally(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
                 .Returns(Task.CompletedTask);
 
-            await Api.Instance.SetProvider(featureProvider);
+            await Api.Instance.SetProviderAsync(featureProvider);
             var client = Api.Instance.GetClient();
 
             await client.GetBooleanValue("test", false, EvaluationContext.Empty, flagOptions);
@@ -537,7 +537,7 @@ namespace OpenFeature.Tests
             hook.Finally(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
                 .Returns(Task.CompletedTask);
 
-            await Api.Instance.SetProvider(featureProvider);
+            await Api.Instance.SetProviderAsync(featureProvider);
             var client = Api.Instance.GetClient();
 
             var resolvedFlag = await client.GetBooleanValue("test", true, config: flagOptions);

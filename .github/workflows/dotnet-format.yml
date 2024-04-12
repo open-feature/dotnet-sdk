@@ -2,29 +2,22 @@ name: dotnet format
 
 on:
   push:
-    branches: [ main ]
-    paths:
-    - '**.cs'
-    - '.editorconfig'
+    branches: [main]
   pull_request:
-    branches: [ main ]
-    paths:
-    - '**.cs'
-    - '.editorconfig'
+    branches: [main]
 
 jobs:
   check-format:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out code
-      uses: actions/checkout@v4
+      - name: Check out code
+        uses: actions/checkout@v4
 
-    - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v4
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
 
-    - name: Install format tool
-      run: dotnet tool install -g dotnet-format
-
-    - name: dotnet format
-      run: dotnet-format --folder --check --exclude src/Shared/
+      - name: dotnet format
+        run: dotnet format --verify-no-changes OpenFeature.sln

@@ -14,10 +14,23 @@ namespace OpenFeature.Model
     {
         private readonly StructureBuilder _attributes = Structure.Builder();
 
+        internal string? TargetingKey { get; private set; }
+
         /// <summary>
         /// Internal to only allow direct creation by <see cref="EvaluationContext.Builder()"/>.
         /// </summary>
         internal EvaluationContextBuilder() { }
+
+        /// <summary>
+        /// Set the targeting key for the context.
+        /// </summary>
+        /// <param name="targetingKey">The targeting key</param>
+        /// <returns>This builder</returns>
+        public EvaluationContextBuilder SetTargetingKey(string targetingKey)
+        {
+            this.TargetingKey = targetingKey;
+            return this;
+        }
 
         /// <summary>
         /// Set the key to the given <see cref="Value"/>.
@@ -125,6 +138,23 @@ namespace OpenFeature.Model
         /// <returns>This builder</returns>
         public EvaluationContextBuilder Merge(EvaluationContext context)
         {
+            string? newTargetingKey = "";
+
+            if (!string.IsNullOrWhiteSpace(TargetingKey))
+            {
+                newTargetingKey = TargetingKey;
+            }
+
+            if (!string.IsNullOrWhiteSpace(context.TargetingKey))
+            {
+                newTargetingKey = context.TargetingKey;
+            }
+
+            if (!string.IsNullOrWhiteSpace(newTargetingKey))
+            {
+                this.TargetingKey = newTargetingKey;
+            }
+
             foreach (var kvp in context)
             {
                 this.Set(kvp.Key, kvp.Value);
@@ -139,7 +169,7 @@ namespace OpenFeature.Model
         /// <returns>An immutable <see cref="EvaluationContext"/></returns>
         public EvaluationContext Build()
         {
-            return new EvaluationContext(this._attributes.Build());
+            return new EvaluationContext(this.TargetingKey, this._attributes.Build());
         }
     }
 }
