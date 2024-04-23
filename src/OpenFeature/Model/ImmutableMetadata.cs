@@ -1,16 +1,31 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
+#nullable enable
 namespace OpenFeature.Model;
 
 /// <summary>
-/// Represents the base class for metadata objects.
+/// Represents immutable metadata associated with feature flags and events.
 /// </summary>
-public abstract class BaseMetadata
+/// <seealso href="https://github.com/open-feature/spec/blob/v0.7.0/specification/types.md#flag-metadata"/>
+/// <seealso href="https://github.com/open-feature/spec/blob/v0.7.0/specification/types.md#event-metadata"/>
+public sealed class ImmutableMetadata
 {
     private readonly ImmutableDictionary<string, object> _metadata;
 
-    internal BaseMetadata(Dictionary<string, object> metadata)
+    /// <summary>
+    /// Constructor for the <see cref="ImmutableMetadata"/> class.
+    /// </summary>
+    public ImmutableMetadata()
+    {
+        this._metadata = ImmutableDictionary<string, object>.Empty;
+    }
+
+    /// <summary>
+    /// Constructor for the <see cref="ImmutableMetadata"/> class.
+    /// </summary>
+    /// <param name="metadata">The dictionary containing the metadata.</param>
+    public ImmutableMetadata(Dictionary<string, object> metadata)
     {
         this._metadata = metadata.ToImmutableDictionary();
     }
@@ -20,7 +35,7 @@ public abstract class BaseMetadata
     /// </summary>
     /// <param name="key">The key of the value to retrieve.</param>
     /// <returns>The boolean value associated with the key, or null if the key is not found.</returns>
-    public virtual bool? GetBool(string key)
+    public bool? GetBool(string key)
     {
         return this.GetValue<bool>(key);
     }
@@ -30,7 +45,7 @@ public abstract class BaseMetadata
     /// </summary>
     /// <param name="key">The key of the value to retrieve.</param>
     /// <returns>The integer value associated with the key, or null if the key is not found.</returns>
-    public virtual int? GetInt(string key)
+    public int? GetInt(string key)
     {
         return this.GetValue<int>(key);
     }
@@ -40,7 +55,7 @@ public abstract class BaseMetadata
     /// </summary>
     /// <param name="key">The key of the value to retrieve.</param>
     /// <returns>The double value associated with the key, or null if the key is not found.</returns>
-    public virtual double? GetDouble(string key)
+    public double? GetDouble(string key)
     {
         return this.GetValue<double>(key);
     }
@@ -50,7 +65,7 @@ public abstract class BaseMetadata
     /// </summary>
     /// <param name="key">The key of the value to retrieve.</param>
     /// <returns>The string value associated with the key, or null if the key is not found.</returns>
-    public virtual string? GetString(string key)
+    public string? GetString(string key)
     {
         var hasValue = this._metadata.TryGetValue(key, out var value);
         if (!hasValue)
