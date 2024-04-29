@@ -47,7 +47,7 @@ namespace OpenFeature.Model
         /// <summary>
         /// A structure which supports definition of arbitrary properties, with keys of type string, and values of type boolean, string, or number.
         /// </summary>
-        public FlagMetadata? FlagMetadata { get; }
+        public ImmutableMetadata? FlagMetadata { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ResolutionDetails{T}"/> class.
@@ -60,7 +60,7 @@ namespace OpenFeature.Model
         /// <param name="errorMessage">Error message</param>
         /// <param name="flagMetadata">Flag metadata</param>
         public ResolutionDetails(string flagKey, T value, ErrorType errorType = ErrorType.None, string? reason = null,
-            string? variant = null, string? errorMessage = null, FlagMetadata? flagMetadata = null)
+            string? variant = null, string? errorMessage = null, ImmutableMetadata? flagMetadata = null)
         {
             this.Value = value;
             this.FlagKey = flagKey;
