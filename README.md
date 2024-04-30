@@ -67,7 +67,7 @@ public async Task Example()
 }
 ```
 
-### DI Usage
+### Dependency Injection Usage
 
 ```csharp
 // Register your feature flag provider
