@@ -52,7 +52,7 @@ dotnet add package OpenFeature
 public async Task Example()
 {
     // Register your feature flag provider
-    await Api.Instance.SetProvider(new InMemoryProvider());
+    Api.Instance.SetProvider(new InMemoryProvider());
 
     // Create a new client
     FeatureClient client = Api.Instance.GetClient();
@@ -65,6 +65,29 @@ public async Task Example()
         //Do some work
     }
 }
+```
+
+### DI Usage
+
+```csharp
+// Register your feature flag provider
+builder.Services.AddOpenFeature(static builder =>
+{
+    builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<FeatureProvider, SomeFeatureProvider>());
+    builder.TryAddOpenFeatureClient(SomeFeatureProvider.Name);
+});
+
+// Inject the client
+app.MapGet("/flag", async ([FromServices]IFeatureClient client) =>
+    {
+        // Evaluate your feature flag
+        var flag = await client.GetBooleanValue("some_flag", true).ConfigureAwait(true);
+
+        if (flag)
+        {
+            // Do some work
+        }
+    })
 ```
 
 ## 🌟 Features
