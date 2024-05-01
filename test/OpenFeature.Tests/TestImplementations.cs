@@ -105,7 +105,7 @@ namespace OpenFeature.Tests
             this._status = status;
         }
 
-        public override async ValueTask InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default)
+        public override async Task InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default)
         {
             this._status = ProviderStatus.Ready;
             await this.EventChannel.Writer.WriteAsync(new ProviderEventPayload { Type = ProviderEventTypes.ProviderReady, ProviderName = this.GetMetadata().Name }, cancellationToken).ConfigureAwait(false);

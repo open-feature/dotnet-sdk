@@ -148,7 +148,7 @@ namespace OpenFeature.Tests
 
             var testProvider = new TestProvider();
 #pragma warning disable CS0618// Type or member is obsolete
-            Api.Instance.SetProvider(testProvider);
+            await Api.Instance.SetProviderAsync(testProvider);
 #pragma warning restore CS0618// Type or member is obsolete
 
             Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);

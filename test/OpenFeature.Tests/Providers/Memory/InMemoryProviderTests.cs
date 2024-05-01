@@ -111,7 +111,7 @@ namespace OpenFeature.Tests.Providers.Memory
         [Fact]
         public async void GetBoolean_ShouldEvaluateWithReasonAndVariant()
         {
-            ResolutionDetails<bool> details = await this.commonProvider.ResolveBooleanValue("boolean-flag", false, EvaluationContext.Empty);
+            ResolutionDetails<bool> details = await this.commonProvider.ResolveBooleanValueAsync("boolean-flag", false, EvaluationContext.Empty);
             Assert.True(details.Value);
             Assert.Equal(Reason.Static, details.Reason);
             Assert.Equal("on", details.Variant);
@@ -120,7 +120,7 @@ namespace OpenFeature.Tests.Providers.Memory
         [Fact]
         public async void GetString_ShouldEvaluateWithReasonAndVariant()
         {
-            ResolutionDetails<string> details = await this.commonProvider.ResolveStringValue("string-flag", "nope", EvaluationContext.Empty);
+            ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("string-flag", "nope", EvaluationContext.Empty);
             Assert.Equal("hi", details.Value);
             Assert.Equal(Reason.Static, details.Reason);
             Assert.Equal("greeting", details.Variant);
@@ -129,7 +129,7 @@ namespace OpenFeature.Tests.Providers.Memory
         [Fact]
         public async void GetInt_ShouldEvaluateWithReasonAndVariant()
         {
-            ResolutionDetails<int> details = await this.commonProvider.ResolveIntegerValue("integer-flag", 13, EvaluationContext.Empty);
+            ResolutionDetails<int> details = await this.commonProvider.ResolveIntegerValueAsync("integer-flag", 13, EvaluationContext.Empty);
             Assert.Equal(10, details.Value);
             Assert.Equal(Reason.Static, details.Reason);
             Assert.Equal("ten", details.Variant);
@@ -138,7 +138,7 @@ namespace OpenFeature.Tests.Providers.Memory
         [Fact]
         public async void GetDouble_ShouldEvaluateWithReasonAndVariant()
         {
-            ResolutionDetails<double> details = await this.commonProvider.ResolveDoubleValue("float-flag", 13, EvaluationContext.Empty);
+            ResolutionDetails<double> details = await this.commonProvider.ResolveDoubleValueAsync("float-flag", 13, EvaluationContext.Empty);
             Assert.Equal(0.5, details.Value);
             Assert.Equal(Reason.Static, details.Reason);
             Assert.Equal("half", details.Variant);
@@ -147,7 +147,7 @@ namespace OpenFeature.Tests.Providers.Memory
         [Fact]
         public async void GetStruct_ShouldEvaluateWithReasonAndVariant()
         {
-            ResolutionDetails<Value> details = await this.commonProvider.ResolveStructureValue("object-flag", new Value(), EvaluationContext.Empty);
+            ResolutionDetails<Value> details = await this.commonProvider.ResolveStructureValueAsync("object-flag", new Value(), EvaluationContext.Empty);
             Assert.Equal(true, details.Value.AsStructure?["showImages"].AsBoolean);
             Assert.Equal("Check out these pics!", details.Value.AsStructure?["title"].AsString);
             Assert.Equal(100, details.Value.AsStructure?["imagesPerPage"].AsInteger);
@@ -159,7 +159,7 @@ namespace OpenFeature.Tests.Providers.Memory
         public async void GetString_ContextSensitive_ShouldEvaluateWithReasonAndVariant()
         {
             EvaluationContext context = EvaluationContext.Builder().Set("email", "me@faas.com").Build();
-            ResolutionDetails<string> details = await this.commonProvider.ResolveStringValue("context-aware", "nope", context);
+            ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("context-aware", "nope", context);
             Assert.Equal("INTERNAL", details.Value);
             Assert.Equal(Reason.TargetingMatch, details.Reason);
             Assert.Equal("internal", details.Variant);
@@ -176,25 +176,25 @@ namespace OpenFeature.Tests.Providers.Memory
         [Fact]
         public async void MissingFlag_ShouldThrow()
         {
-            await Assert.ThrowsAsync<FlagNotFoundException>(() => this.commonProvider.ResolveBooleanValue("missing-flag", false, EvaluationContext.Empty));
+            await Assert.ThrowsAsync<FlagNotFoundException>(() => this.commonProvider.ResolveBooleanValueAsync("missing-flag", false, EvaluationContext.Empty));
         }
 
         [Fact]
         public async void MismatchedFlag_ShouldThrow()
         {
-            await Assert.ThrowsAsync<TypeMismatchException>(() => this.commonProvider.ResolveStringValue("boolean-flag", "nope", EvaluationContext.Empty));
+            await Assert.ThrowsAsync<TypeMismatchException>(() => this.commonProvider.ResolveStringValueAsync("boolean-flag", "nope", EvaluationContext.Empty));
         }
 
         [Fact]
         public async void MissingDefaultVariant_ShouldThrow()
         {
-            await Assert.ThrowsAsync<GeneralException>(() => this.commonProvider.ResolveBooleanValue("invalid-flag", false, EvaluationContext.Empty));
+            await Assert.ThrowsAsync<GeneralException>(() => this.commonProvider.ResolveBooleanValueAsync("invalid-flag", false, EvaluationContext.Empty));
         }
 
         [Fact]
         public async void MissingEvaluatedVariant_ShouldThrow()
         {
-            await Assert.ThrowsAsync<GeneralException>(() => this.commonProvider.ResolveBooleanValue("invalid-evaluator-flag", false, EvaluationContext.Empty));
+            await Assert.ThrowsAsync<GeneralException>(() => this.commonProvider.ResolveBooleanValueAsync("invalid-evaluator-flag", false, EvaluationContext.Empty));
         }
 
         [Fact]
@@ -211,7 +211,7 @@ namespace OpenFeature.Tests.Providers.Memory
                 )
             }});
 
-            ResolutionDetails<bool> details = await provider.ResolveBooleanValue("old-flag", false, EvaluationContext.Empty);
+            ResolutionDetails<bool> details = await provider.ResolveBooleanValueAsync("old-flag", false, EvaluationContext.Empty);
             Assert.True(details.Value);
 
             // update flags
@@ -229,10 +229,10 @@ namespace OpenFeature.Tests.Providers.Memory
             var res = await provider.GetEventChannel().Reader.ReadAsync() as ProviderEventPayload;
             Assert.Equal(ProviderEventTypes.ProviderConfigurationChanged, res?.Type);
 
-            await Assert.ThrowsAsync<FlagNotFoundException>(() => provider.ResolveBooleanValue("old-flag", false, EvaluationContext.Empty));
+            await Assert.ThrowsAsync<FlagNotFoundException>(() => provider.ResolveBooleanValueAsync("old-flag", false, EvaluationContext.Empty));
 
             // new flag should be present, old gone (defaults), handler run.
-            ResolutionDetails<string> detailsAfter = await provider.ResolveStringValue("new-flag", "nope", EvaluationContext.Empty);
+            ResolutionDetails<string> detailsAfter = await provider.ResolveStringValueAsync("new-flag", "nope", EvaluationContext.Empty);
             Assert.True(details.Value);
             Assert.Equal("hi", detailsAfter.Value);
         }

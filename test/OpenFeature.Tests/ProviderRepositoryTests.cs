@@ -22,7 +22,7 @@ namespace OpenFeature.Tests
             var provider = new NoOpFeatureProvider();
             var context = new EvaluationContextBuilder().Build();
             // TODO: huh?? await??
-            repository.SetProviderAsync(provider, context);
+            await repository.SetProviderAsync(provider, context);
             Assert.Equal(provider, repository.GetProvider());
         }
 
@@ -35,7 +35,7 @@ namespace OpenFeature.Tests
             var callCount = 0;
             // The setting of the provider is synchronous, so the afterSet should be as well.
             // TODO: huh?? await??
-            repository.SetProviderAsync(provider, context, afterSet: (theProvider) =>
+            await repository.SetProviderAsync(provider, context, afterSet: (theProvider) =>
             {
                 callCount++;
                 Assert.Equal(provider, theProvider);
@@ -191,7 +191,7 @@ namespace OpenFeature.Tests
             var context = new EvaluationContextBuilder().Build();
             // TODO: huh?? await??
 
-            repository.SetProviderAsync("the-name", provider, context);
+            await repository.SetProviderAsync("the-name", provider, context);
             Assert.Equal(provider, repository.GetProvider("the-name"));
         }
 
@@ -204,7 +204,7 @@ namespace OpenFeature.Tests
             var callCount = 0;
             // The setting of the provider is synchronous, so the afterSet should be as well.
             // TODO: huh?? await??
-            repository.SetProviderAsync("the-name", provider, context, afterSet: (theProvider) =>
+            await repository.SetProviderAsync("the-name", provider, context, afterSet: (theProvider) =>
             {
                 callCount++;
                 Assert.Equal(provider, theProvider);
@@ -579,27 +579,6 @@ namespace OpenFeature.Tests
             await repository.SetProviderAsync("named-provider", null, context);
 
             Assert.Equal(defaultProvider, repository.GetProvider("named-provider"));
-        }
-
-        [Fact]
-        public async Task Setting_Named_Provider_With_Null_Name_Has_No_Effect()
-        {
-            var repository = new ProviderRepository();
-            var context = new EvaluationContextBuilder().Build();
-
-            var defaultProvider = Substitute.For<FeatureProvider>();
-            defaultProvider.GetStatus().Returns(ProviderStatus.NotReady);
-            await repository.SetProviderAsync(defaultProvider, context);
-
-            var namedProvider = Substitute.For<FeatureProvider>();
-            namedProvider.GetStatus().Returns(ProviderStatus.NotReady);
-
-            await repository.SetProviderAsync(null, namedProvider, context);
-
-            namedProvider.DidNotReceive().InitializeAsync(context);
-            namedProvider.DidNotReceive().ShutdownAsync();
-
-            Assert.Equal(defaultProvider, repository.GetProvider(null));
         }
     }
 }

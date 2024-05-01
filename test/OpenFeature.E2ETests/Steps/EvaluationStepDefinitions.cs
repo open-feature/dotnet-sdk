@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 using OpenFeature.Constant;
 using OpenFeature.Extension;
@@ -39,10 +40,10 @@ namespace OpenFeature.E2ETests
         }
 
         [Given(@"a provider is registered")]
-        public void GivenAProviderIsRegistered()
+        public async void GivenAProviderIsRegistered()
         {
             var memProvider = new InMemoryProvider(e2eFlagConfig);
-            Api.Instance.SetProviderAsync(memProvider).Wait();
+            await Api.Instance.SetProviderAsync(memProvider).ConfigureAwait(false);
             client = Api.Instance.GetClient("TestClient", "1.0.0");
         }
 
@@ -218,7 +219,7 @@ namespace OpenFeature.E2ETests
         [Then(@"the resolved flag value is ""(.*)"" when the context is empty")]
         public void Giventheresolvedflagvalueiswhenthecontextisempty(string expected)
         {
-            string? emptyContextValue = client?.GetStringValueAsync(contextAwareFlagKey, contextAwareDefaultValue, new EvaluationContext(new Structure(ImmutableDictionary<string, Value>.Empty))).Result;
+            string? emptyContextValue = client?.GetStringValueAsync(contextAwareFlagKey!, contextAwareDefaultValue!, new EvaluationContext(new Structure(ImmutableDictionary<string, Value>.Empty))).Result;
             Assert.Equal(expected, emptyContextValue);
         }
 

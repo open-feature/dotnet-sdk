@@ -113,7 +113,7 @@ namespace OpenFeature
         /// </para>
         /// </summary>
         /// <param name="context"><see cref="EvaluationContext"/></param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel any async side effects.</param>
         /// <returns>A task that completes when the initialization process is complete.</returns>
         /// <remarks>
         /// <para>
@@ -125,10 +125,10 @@ namespace OpenFeature
         /// the <see cref="GetStatus"/> method after initialization is complete.
         /// </para>
         /// </remarks>
-        public virtual ValueTask InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default)
+        public virtual Task InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default)
         {
             // Intentionally left blank.
-            return new ValueTask();
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -136,11 +136,11 @@ namespace OpenFeature
         /// Providers can overwrite this method, if they have special shutdown actions needed.
         /// </summary>
         /// <returns>A task that completes when the shutdown process is complete.</returns>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
-        public virtual ValueTask ShutdownAsync(CancellationToken cancellationToken = default)
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel any async side effects.</param>
+        public virtual Task ShutdownAsync(CancellationToken cancellationToken = default)
         {
             // Intentionally left blank.
-            return new ValueTask();
+            return Task.CompletedTask;
         }
 
         /// <summary>

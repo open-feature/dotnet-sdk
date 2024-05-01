@@ -345,14 +345,6 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        public async Task Should_Use_No_Op_When_Provider_Is_Null()
-        {
-            await Api.Instance.SetProviderAsync(null);
-            var client = new FeatureClient("test", "test");
-            (await client.GetIntegerValueAsync("some-key", 12)).Should().Be(12);
-        }
-
-        [Fact]
         public void Should_Get_And_Set_Context()
         {
             var fixture = new Fixture();

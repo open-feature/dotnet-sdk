@@ -62,7 +62,7 @@ namespace OpenFeature
         /// initialization
         /// </param>
         /// <param name="afterShutdown">called after a provider is shutdown, can be used to remove event handlers</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel any async side effects.</param>
         public async ValueTask SetProviderAsync(
             FeatureProvider? featureProvider,
             EvaluationContext context,
@@ -155,7 +155,7 @@ namespace OpenFeature
         /// initialization
         /// </param>
         /// <param name="afterShutdown">called after a provider is shutdown, can be used to remove event handlers</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel any async side effects.</param>
         public async ValueTask SetProviderAsync(string clientName,
             FeatureProvider? featureProvider,
             EvaluationContext context,

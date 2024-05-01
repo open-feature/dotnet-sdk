@@ -25,6 +25,16 @@ namespace OpenFeature.Model
         }
 
         /// <summary>
+        /// Internal constructor used by the builder.
+        /// </summary>
+        /// <param name="content">The content of the context.</param>
+        internal EvaluationContext(Structure content)
+        {
+            this.TargetingKey = string.Empty;
+            this._structure = content;
+        }
+
+        /// <summary>
         /// Private constructor for making an empty <see cref="EvaluationContext"/>.
         /// </summary>
         private EvaluationContext()
