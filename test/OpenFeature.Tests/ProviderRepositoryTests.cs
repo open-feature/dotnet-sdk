@@ -21,7 +21,6 @@ namespace OpenFeature.Tests
             var repository = new ProviderRepository();
             var provider = new NoOpFeatureProvider();
             var context = new EvaluationContextBuilder().Build();
-            // TODO: huh?? await??
             await repository.SetProviderAsync(provider, context);
             Assert.Equal(provider, repository.GetProvider());
         }
@@ -34,7 +33,6 @@ namespace OpenFeature.Tests
             var context = new EvaluationContextBuilder().Build();
             var callCount = 0;
             // The setting of the provider is synchronous, so the afterSet should be as well.
-            // TODO: huh?? await??
             await repository.SetProviderAsync(provider, context, afterSet: (theProvider) =>
             {
                 callCount++;
@@ -189,7 +187,6 @@ namespace OpenFeature.Tests
             var repository = new ProviderRepository();
             var provider = new NoOpFeatureProvider();
             var context = new EvaluationContextBuilder().Build();
-            // TODO: huh?? await??
 
             await repository.SetProviderAsync("the-name", provider, context);
             Assert.Equal(provider, repository.GetProvider("the-name"));
@@ -203,7 +200,6 @@ namespace OpenFeature.Tests
             var context = new EvaluationContextBuilder().Build();
             var callCount = 0;
             // The setting of the provider is synchronous, so the afterSet should be as well.
-            // TODO: huh?? await??
             await repository.SetProviderAsync("the-name", provider, context, afterSet: (theProvider) =>
             {
                 callCount++;
@@ -249,7 +245,6 @@ namespace OpenFeature.Tests
             var context = new EvaluationContextBuilder().Build();
             providerMock.When(x => x.InitializeAsync(context)).Throw(new Exception("BAD THINGS"));
             var callCount = 0;
-            // TODO: huh?? await??
             Exception? receivedError = null;
             await repository.SetProviderAsync("the-provider", providerMock, context, afterError: (theProvider, error) =>
             {
@@ -343,7 +338,6 @@ namespace OpenFeature.Tests
             var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync("the-name", provider1, context);
             var callCount = 0;
-            // TODO: huh?? await??
             Exception? errorThrown = null;
             await repository.SetProviderAsync("the-name", provider2, context, afterError: (provider, ex) =>
             {
