@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Threading.Tasks;
 using OpenFeature.Constant;
 using OpenFeature.Extension;
@@ -219,7 +218,7 @@ namespace OpenFeature.E2ETests
         [Then(@"the resolved flag value is ""(.*)"" when the context is empty")]
         public void Giventheresolvedflagvalueiswhenthecontextisempty(string expected)
         {
-            string? emptyContextValue = client?.GetStringValueAsync(contextAwareFlagKey!, contextAwareDefaultValue!, new EvaluationContext(new Structure(ImmutableDictionary<string, Value>.Empty))).Result;
+            string? emptyContextValue = client?.GetStringValueAsync(contextAwareFlagKey!, contextAwareDefaultValue!, EvaluationContext.Empty).Result;
             Assert.Equal(expected, emptyContextValue);
         }
 

@@ -52,7 +52,7 @@ dotnet add package OpenFeature
 public async Task Example()
 {
     // Register your feature flag provider
-    await Api.Instance.SetProvider(new InMemoryProvider());
+    await Api.Instance.SetProviderAsync(new InMemoryProvider());
 
     // Create a new client
     FeatureClient client = Api.Instance.GetClient();

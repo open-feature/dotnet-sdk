@@ -59,6 +59,10 @@ namespace OpenFeature
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel any async side effects.</param>
         public async Task SetProviderAsync(string clientName, FeatureProvider featureProvider, CancellationToken cancellationToken = default)
         {
+            if (string.IsNullOrWhiteSpace(clientName))
+            {
+                throw new ArgumentNullException(nameof(clientName));
+            }
             this._eventExecutor.RegisterClientFeatureProvider(clientName, featureProvider);
             await this._repository.SetProviderAsync(clientName, featureProvider, this.GetContext(), cancellationToken: cancellationToken).ConfigureAwait(false);
         }
