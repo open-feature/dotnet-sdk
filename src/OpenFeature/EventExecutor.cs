@@ -12,7 +12,7 @@ namespace OpenFeature
 {
     internal delegate Task ShutdownDelegate(CancellationToken cancellationToken);
 
-    internal sealed partial class EventExecutor
+    internal sealed partial class EventExecutor : IAsyncDisposable
     {
         private readonly object _lockObj = new object();
         public readonly Channel<object> EventChannel = Channel.CreateBounded<object>(1);
@@ -31,6 +31,8 @@ namespace OpenFeature
             var eventProcessing = new Thread(this.ProcessEventAsync);
             eventProcessing.Start();
         }
+
+        public ValueTask DisposeAsync() => new(this.ShutdownAsync());
 
         internal void SetLogger(ILogger logger) => this._logger = logger;
 
@@ -317,7 +319,7 @@ namespace OpenFeature
             }
         }
 
-        public async Task ShutdownAsync(CancellationToken cancellationToken = default)
+        public async Task ShutdownAsync()
         {
             this.EventChannel.Writer.Complete();
             await this.EventChannel.Reader.Completion.ConfigureAwait(false);
