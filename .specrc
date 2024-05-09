@@ -1,0 +1,5 @@
+[spec]
+file_extension=cs
+multiline_regex=\[Specification\((?P<innards>.*?)\)\]
+number_subregex=([\d.]+)
+text_subregex=,\s+"(.*)"
