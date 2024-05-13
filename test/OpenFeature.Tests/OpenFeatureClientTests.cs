@@ -2,6 +2,7 @@ using System;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
@@ -342,6 +343,43 @@ namespace OpenFeature.Tests
             response.Reason.Should().Be(Reason.Error);
             response.ErrorMessage.Should().Be(testMessage);
             _ = featureProviderMock.Received(1).ResolveStructureValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>());
+        }
+
+        [Fact]
+        public async Task Cancellation_Token_Added_Is_Passed_To_Provider()
+        {
+            var fixture = new Fixture();
+            var clientName = fixture.Create<string>();
+            var clientVersion = fixture.Create<string>();
+            var flagName = fixture.Create<string>();
+            var defaultString = fixture.Create<string>();
+            var cancelledReason = "cancelled";
+
+            var cts = new CancellationTokenSource();
+
+
+            var featureProviderMock = Substitute.For<FeatureProvider>();
+            featureProviderMock.ResolveStringValueAsync(flagName, defaultString, Arg.Any<EvaluationContext>(), Arg.Any<CancellationToken>()).Returns(async args =>
+            {
+                var token = args.ArgAt<CancellationToken>(3);
+                while (!token.IsCancellationRequested)
+                {
+                    await Task.Delay(10); // artificially delay until cancelled
+                }
+                return new ResolutionDetails<string>(flagName, defaultString, ErrorType.None, cancelledReason);
+            });
+            featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
+            featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
+
+            await Api.Instance.SetProviderAsync(clientName, featureProviderMock);
+            var client = Api.Instance.GetClient(clientName, clientVersion);
+            var task = client.GetStringDetailsAsync(flagName, defaultString, EvaluationContext.Empty, null, cts.Token);
+            cts.Cancel(); // cancel before awaiting
+
+            var response = await task;
+            response.Value.Should().Be(defaultString);
+            response.Reason.Should().Be(cancelledReason);
+            _ = featureProviderMock.Received(1).ResolveStringValueAsync(flagName, defaultString, Arg.Any<EvaluationContext>(), cts.Token);
         }
 
         [Fact]

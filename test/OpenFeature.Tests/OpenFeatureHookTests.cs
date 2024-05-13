@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using OpenFeature.Constant;
+using OpenFeature.Error;
 using OpenFeature.Model;
 using OpenFeature.Tests.Internal;
 using Xunit;
@@ -550,6 +552,71 @@ namespace OpenFeature.Tests
                 hook.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
                 hook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
             });
+
+            await featureProvider.DidNotReceive().ResolveBooleanValueAsync("test", false, Arg.Any<EvaluationContext>());
+        }
+
+        [Fact]
+        public async Task Successful_Resolution_Should_Pass_Cancellation_Token()
+        {
+            var featureProvider = Substitute.For<FeatureProvider>();
+            var hook = Substitute.For<Hook>();
+            var cts = new CancellationTokenSource();
+
+            featureProvider.GetMetadata().Returns(new Metadata(null));
+            featureProvider.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
+
+            hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>(), cts.Token).Returns(EvaluationContext.Empty);
+            featureProvider.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>(), cts.Token).Returns(new ResolutionDetails<bool>("test", false));
+            _ = hook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>(), cts.Token);
+            _ = hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>(), cts.Token);
+
+            await Api.Instance.SetProviderAsync(featureProvider);
+            var client = Api.Instance.GetClient();
+            client.AddHooks(hook);
+
+            await client.GetBooleanValueAsync("test", false, EvaluationContext.Empty, null, cts.Token);
+
+            _ = hook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>(), cts.Token);
+            _ = hook.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>(), cts.Token);
+            _ = hook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>(), cts.Token);
+        }
+
+        [Fact]
+        public async Task Failed_Resolution_Should_Pass_Cancellation_Token()
+        {
+            var featureProvider = Substitute.For<FeatureProvider>();
+            var hook = Substitute.For<Hook>();
+            var flagOptions = new FlagEvaluationOptions(hook);
+            var exceptionToThrow = new GeneralException("Fake Exception");
+            var cts = new CancellationTokenSource();
+
+            featureProvider.GetMetadata()
+                .Returns(new Metadata(null));
+
+            featureProvider.GetProviderHooks()
+                .Returns(ImmutableList<Hook>.Empty);
+
+            hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
+                .Returns(EvaluationContext.Empty);
+
+            featureProvider.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>())
+                .Throws(exceptionToThrow);
+
+            hook.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), Arg.Any<ImmutableDictionary<string, object>>())
+                .Returns(new ValueTask());
+
+            hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
+                .Returns(new ValueTask());
+
+            await Api.Instance.SetProviderAsync(featureProvider);
+            var client = Api.Instance.GetClient();
+
+            await client.GetBooleanValueAsync("test", true, EvaluationContext.Empty, flagOptions, cts.Token);
+
+            _ = hook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), cts.Token);
+            _ = hook.Received(1).ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), Arg.Any<ImmutableDictionary<string, object>>(), cts.Token);
+            _ = hook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), cts.Token);
 
             await featureProvider.DidNotReceive().ResolveBooleanValueAsync("test", false, Arg.Any<EvaluationContext>());
         }
