@@ -5,10 +5,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace OpenFeature.Internal;
 
-/// <summary>
-///
-/// </summary>
-public sealed class OpenFeatureHostedService(Api api, IEnumerable<FeatureProvider> providers) : IHostedLifecycleService
+internal sealed class OpenFeatureHostedService(Api api, IEnumerable<FeatureProvider> providers) : IHostedLifecycleService
 {
     readonly Api _api = Check.NotNull(api);
     readonly IEnumerable<FeatureProvider> _providers = Check.NotNull(providers);
