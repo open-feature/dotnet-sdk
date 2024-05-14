@@ -1,6 +1,6 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using OpenFeature.Model;
 using Xunit;
@@ -43,8 +43,9 @@ public sealed class HostingTest
 
         builder.Services.AddOpenFeature(static builder =>
         {
-            builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<FeatureProvider, SomeFeatureProvider>());
-            builder.TryAddOpenFeatureClient(SomeFeatureProvider.Name);
+            builder.AddSomeFeatureProvider();
+            // builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<FeatureProvider, SomeFeatureProvider>());
+            // builder.TryAddOpenFeatureClient(SomeFeatureProvider.Name);
         });
 
         using var app = builder.Build();
@@ -70,26 +71,41 @@ public sealed class HostingTest
         await app.StopAsync().ConfigureAwait(false);
 #pragma warning restore xUnit1030
     }
+}
 
-    sealed class SomeFeatureProvider : FeatureProvider
+sealed class SomeFeatureProvider : FeatureProvider
+{
+    public const string Name = "some_feature_provider";
+
+    public override Metadata GetMetadata() => new(Name);
+
+    public override Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue, EvaluationContext? context = null)
+        => Task.FromResult(new ResolutionDetails<bool>(flagKey, defaultValue));
+
+    public override Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue, EvaluationContext? context = null)
+        => Task.FromResult(new ResolutionDetails<string>(flagKey, defaultValue));
+
+    public override Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue, EvaluationContext? context = null)
+        => Task.FromResult(new ResolutionDetails<int>(flagKey, defaultValue));
+
+    public override Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue, EvaluationContext? context = null)
+        => Task.FromResult(new ResolutionDetails<double>(flagKey, defaultValue));
+
+    public override Task<ResolutionDetails<Value>> ResolveStructureValue(string flagKey, Value defaultValue, EvaluationContext? context = null)
+        => Task.FromResult(new ResolutionDetails<Value>(flagKey, defaultValue));
+}
+
+public static class SomeFeatureProviderExtensions
+{
+    public static OpenFeatureBuilder AddSomeFeatureProvider(this OpenFeatureBuilder builder)
     {
-        public const string Name = "some_feature_provider";
+        if (builder == null)
+        {
+            throw new ArgumentNullException(nameof(builder));
+        }
 
-        public override Metadata GetMetadata() => new(Name);
+        builder.Services.AddSingleton<FeatureProvider, SomeFeatureProvider>();
 
-        public override Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue, EvaluationContext? context = null)
-            => Task.FromResult(new ResolutionDetails<bool>(flagKey, defaultValue));
-
-        public override Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue, EvaluationContext? context = null)
-            => Task.FromResult(new ResolutionDetails<string>(flagKey, defaultValue));
-
-        public override Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue, EvaluationContext? context = null)
-            => Task.FromResult(new ResolutionDetails<int>(flagKey, defaultValue));
-
-        public override Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue, EvaluationContext? context = null)
-            => Task.FromResult(new ResolutionDetails<double>(flagKey, defaultValue));
-
-        public override Task<ResolutionDetails<Value>> ResolveStructureValue(string flagKey, Value defaultValue, EvaluationContext? context = null)
-            => Task.FromResult(new ResolutionDetails<Value>(flagKey, defaultValue));
+        return builder;
     }
 }
