@@ -109,7 +109,7 @@ namespace OpenFeature.Tests.Providers.Memory
         }
 
         [Fact]
-        public async void GetBoolean_ShouldEvaluateWithReasonAndVariant()
+        public async Task GetBoolean_ShouldEvaluateWithReasonAndVariant()
         {
             ResolutionDetails<bool> details = await this.commonProvider.ResolveBooleanValueAsync("boolean-flag", false, EvaluationContext.Empty);
             Assert.True(details.Value);
