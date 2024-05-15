@@ -39,10 +39,10 @@ namespace OpenFeature.E2ETests
         }
 
         [Given(@"a provider is registered")]
-        public async Task GivenAProviderIsRegistered()
+        public void GivenAProviderIsRegistered()
         {
             var memProvider = new InMemoryProvider(e2eFlagConfig);
-            await Api.Instance.SetProviderAsync(memProvider).ConfigureAwait(false);
+            Api.Instance.SetProviderAsync(memProvider).Wait();
             client = Api.Instance.GetClient("TestClient", "1.0.0");
         }
 

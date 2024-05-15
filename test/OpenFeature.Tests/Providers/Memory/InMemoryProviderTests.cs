@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using OpenFeature.Constant;
 using OpenFeature.Error;
 using OpenFeature.Model;
@@ -118,7 +119,7 @@ namespace OpenFeature.Tests.Providers.Memory
         }
 
         [Fact]
-        public async void GetString_ShouldEvaluateWithReasonAndVariant()
+        public async Task GetString_ShouldEvaluateWithReasonAndVariant()
         {
             ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("string-flag", "nope", EvaluationContext.Empty);
             Assert.Equal("hi", details.Value);
@@ -127,7 +128,7 @@ namespace OpenFeature.Tests.Providers.Memory
         }
 
         [Fact]
-        public async void GetInt_ShouldEvaluateWithReasonAndVariant()
+        public async Task GetInt_ShouldEvaluateWithReasonAndVariant()
         {
             ResolutionDetails<int> details = await this.commonProvider.ResolveIntegerValueAsync("integer-flag", 13, EvaluationContext.Empty);
             Assert.Equal(10, details.Value);
@@ -136,7 +137,7 @@ namespace OpenFeature.Tests.Providers.Memory
         }
 
         [Fact]
-        public async void GetDouble_ShouldEvaluateWithReasonAndVariant()
+        public async Task GetDouble_ShouldEvaluateWithReasonAndVariant()
         {
             ResolutionDetails<double> details = await this.commonProvider.ResolveDoubleValueAsync("float-flag", 13, EvaluationContext.Empty);
             Assert.Equal(0.5, details.Value);
@@ -145,7 +146,7 @@ namespace OpenFeature.Tests.Providers.Memory
         }
 
         [Fact]
-        public async void GetStruct_ShouldEvaluateWithReasonAndVariant()
+        public async Task GetStruct_ShouldEvaluateWithReasonAndVariant()
         {
             ResolutionDetails<Value> details = await this.commonProvider.ResolveStructureValueAsync("object-flag", new Value(), EvaluationContext.Empty);
             Assert.Equal(true, details.Value.AsStructure?["showImages"].AsBoolean);
@@ -156,7 +157,7 @@ namespace OpenFeature.Tests.Providers.Memory
         }
 
         [Fact]
-        public async void GetString_ContextSensitive_ShouldEvaluateWithReasonAndVariant()
+        public async Task GetString_ContextSensitive_ShouldEvaluateWithReasonAndVariant()
         {
             EvaluationContext context = EvaluationContext.Builder().Set("email", "me@faas.com").Build();
             ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("context-aware", "nope", context);
@@ -166,7 +167,7 @@ namespace OpenFeature.Tests.Providers.Memory
         }
 
         [Fact]
-        public async void EmptyFlags_ShouldWork()
+        public async Task EmptyFlags_ShouldWork()
         {
             var provider = new InMemoryProvider();
             await provider.UpdateFlags();
@@ -174,31 +175,31 @@ namespace OpenFeature.Tests.Providers.Memory
         }
 
         [Fact]
-        public async void MissingFlag_ShouldThrow()
+        public async Task MissingFlag_ShouldThrow()
         {
             await Assert.ThrowsAsync<FlagNotFoundException>(() => this.commonProvider.ResolveBooleanValueAsync("missing-flag", false, EvaluationContext.Empty));
         }
 
         [Fact]
-        public async void MismatchedFlag_ShouldThrow()
+        public async Task MismatchedFlag_ShouldThrow()
         {
             await Assert.ThrowsAsync<TypeMismatchException>(() => this.commonProvider.ResolveStringValueAsync("boolean-flag", "nope", EvaluationContext.Empty));
         }
 
         [Fact]
-        public async void MissingDefaultVariant_ShouldThrow()
+        public async Task MissingDefaultVariant_ShouldThrow()
         {
             await Assert.ThrowsAsync<GeneralException>(() => this.commonProvider.ResolveBooleanValueAsync("invalid-flag", false, EvaluationContext.Empty));
         }
 
         [Fact]
-        public async void MissingEvaluatedVariant_ShouldThrow()
+        public async Task MissingEvaluatedVariant_ShouldThrow()
         {
             await Assert.ThrowsAsync<GeneralException>(() => this.commonProvider.ResolveBooleanValueAsync("invalid-evaluator-flag", false, EvaluationContext.Empty));
         }
 
         [Fact]
-        public async void PutConfiguration_shouldUpdateConfigAndRunHandlers()
+        public async Task PutConfiguration_shouldUpdateConfigAndRunHandlers()
         {
             var provider = new InMemoryProvider(new Dictionary<string, Flag>(){
             {
