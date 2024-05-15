@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using OpenFeature.Model;
 using Xunit;
@@ -41,11 +42,9 @@ public sealed class HostingTest
     {
         var builder = Host.CreateApplicationBuilder();
 
-        builder.Services.AddOpenFeature(static builder =>
+        builder.Services.AddOpenFeature(b =>
         {
-            builder.AddSomeFeatureProvider();
-            // builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<FeatureProvider, SomeFeatureProvider>());
-            // builder.TryAddOpenFeatureClient(SomeFeatureProvider.Name);
+            b.AddSomeFeatureProvider();
         });
 
         using var app = builder.Build();
@@ -104,8 +103,14 @@ public static class SomeFeatureProviderExtensions
             throw new ArgumentNullException(nameof(builder));
         }
 
-        builder.Services.AddSingleton<FeatureProvider, SomeFeatureProvider>();
+        builder.ProvidersServiceCollection.TryAddEnumerable(ServiceDescriptor.Singleton<FeatureProvider, SomeFeatureProvider>());
+        builder.TryAddOpenFeatureClient(SomeFeatureProvider.Name);
 
         return builder;
+    }
+
+    public static void AddSomeFeatureProvider(this OpenFeatureBuilder builder, Action<OpenFeatureBuilder> configure)
+    {
+        throw new NotImplementedException();
     }
 }
