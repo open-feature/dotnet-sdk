@@ -69,7 +69,7 @@ public static class OpenFeatureBuilderExtensions
         Check.NotNull(builder);
         Check.NotNull(configure);
 
-        builder.ProvidersServiceCollection.AddKeyedSingleton(providerName, (services, key) =>
+        builder.ServiceCollection.AddKeyedSingleton(providerName, (services, key) =>
         {
             var b = EvaluationContext.Builder();
 
@@ -90,9 +90,9 @@ public static class OpenFeatureBuilderExtensions
     {
         Check.NotNull(builder);
 
-        builder.ProvidersServiceCollection.AddHostedService<OpenFeatureHostedService>();
+        builder.ServiceCollection.AddHostedService<OpenFeatureHostedService>();
 
-        builder.ProvidersServiceCollection.TryAddKeyedSingleton(providerName, static (services, providerName) =>
+        builder.ServiceCollection.TryAddKeyedSingleton(providerName, static (services, providerName) =>
         {
             var api = providerName switch
             {
@@ -106,13 +106,13 @@ public static class OpenFeatureBuilderExtensions
             return api;
         });
 
-        builder.ProvidersServiceCollection.TryAddKeyedSingleton(providerName, static (services, providerName) => providerName switch
+        builder.ServiceCollection.TryAddKeyedSingleton(providerName, static (services, providerName) => providerName switch
         {
             null => services.GetRequiredService<ILogger<FeatureClient>>(),
             not null => services.GetRequiredService<ILoggerFactory>().CreateLogger($"OpenFeature.FeatureClient.{providerName}")
         });
 
-        builder.ProvidersServiceCollection.TryAddKeyedTransient(providerName, static (services, providerName) =>
+        builder.ServiceCollection.TryAddKeyedTransient(providerName, static (services, providerName) =>
         {
             var builder = providerName switch
             {
@@ -128,7 +128,7 @@ public static class OpenFeatureBuilderExtensions
             return builder;
         });
 
-        builder.ProvidersServiceCollection.TryAddKeyedTransient<IFeatureClient>(providerName, static (services, providerName) =>
+        builder.ServiceCollection.TryAddKeyedTransient<IFeatureClient>(providerName, static (services, providerName) =>
         {
             var api = services.GetRequiredService<Api>();
 
@@ -140,6 +140,6 @@ public static class OpenFeatureBuilderExtensions
         });
 
         if (providerName is not null)
-            builder.ProvidersServiceCollection.Replace(ServiceDescriptor.Transient(services => services.GetRequiredKeyedService<IFeatureClient>(providerName)));
+            builder.ServiceCollection.Replace(ServiceDescriptor.Transient(services => services.GetRequiredKeyedService<IFeatureClient>(providerName)));
     }
 }
