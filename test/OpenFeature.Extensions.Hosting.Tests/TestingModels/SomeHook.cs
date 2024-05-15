@@ -1,13 +1,9 @@
 using System;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace OpenFeature.Extensions.Hosting.Tests.TestingModels;
 
-public class SomeHook : Hook
-{
-
-}
+public class SomeHook : Hook;
 
 public static class SomeHookExtensions
 {
@@ -18,14 +14,8 @@ public static class SomeHookExtensions
             throw new ArgumentNullException(nameof(builder));
         }
 
-        builder.ServiceCollection.TryAddEnumerable(ServiceDescriptor.Singleton<FeatureProvider, SomeFeatureProvider>());
-        builder.TryAddOpenFeatureClient(SomeFeatureProvider.Name);
+        builder.ServiceCollection.TryAddSingleton<Hook, SomeHook>();
 
         return builder;
-    }
-
-    public static void AddSomeFeatureProvider(this OpenFeatureBuilder builder, Action<OpenFeatureBuilder> configure)
-    {
-        throw new NotImplementedException();
     }
 }
