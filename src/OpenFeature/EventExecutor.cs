@@ -184,7 +184,7 @@ namespace OpenFeature
             {
                 return;
             }
-            var status = provider.GetStatus();
+            var status = provider.Status;
 
             var message = "";
             if (status == ProviderStatus.Ready && eventType == ProviderEventTypes.ProviderReady)
@@ -234,6 +234,7 @@ namespace OpenFeature
                 switch (item)
                 {
                     case ProviderEventPayload eventPayload:
+                        this.UpdateProviderStatus(typedProviderRef, eventPayload);
                         await this.EventChannel.Writer.WriteAsync(new Event { Provider = typedProviderRef, EventPayload = eventPayload }).ConfigureAwait(false);
                         break;
                 }
@@ -304,6 +305,24 @@ namespace OpenFeature
                         break;
                 }
 
+            }
+        }
+
+        // map events to provider status as per spec: https://openfeature.dev/specification/sections/events/#requirement-535
+        private void UpdateProviderStatus(FeatureProvider provider, ProviderEventPayload eventPayload)
+        {
+            switch (eventPayload.Type)
+            {
+                case ProviderEventTypes.ProviderReady:
+                    provider.Status = ProviderStatus.Ready;
+                    break;
+                case ProviderEventTypes.ProviderStale:
+                    provider.Status = ProviderStatus.Stale;
+                    break;
+                case ProviderEventTypes.ProviderError:
+                    provider.Status = eventPayload.errorType == ErrorType.ProviderFatal ? ProviderStatus.Fatal : ProviderStatus.Error;
+                    break;
+                default: break;
             }
         }
 

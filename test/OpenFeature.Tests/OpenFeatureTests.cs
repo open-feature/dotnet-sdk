@@ -28,13 +28,13 @@ namespace OpenFeature.Tests
         public async Task OpenFeature_Should_Initialize_Provider()
         {
             var providerMockDefault = Substitute.For<FeatureProvider>();
-            providerMockDefault.GetStatus().Returns(ProviderStatus.NotReady);
+            providerMockDefault.Status.Returns(ProviderStatus.NotReady);
 
             await Api.Instance.SetProviderAsync(providerMockDefault);
             await providerMockDefault.Received(1).InitializeAsync(Api.Instance.GetContext());
 
             var providerMockNamed = Substitute.For<FeatureProvider>();
-            providerMockNamed.GetStatus().Returns(ProviderStatus.NotReady);
+            providerMockNamed.Status.Returns(ProviderStatus.NotReady);
 
             await Api.Instance.SetProviderAsync("the-name", providerMockNamed);
             await providerMockNamed.Received(1).InitializeAsync(Api.Instance.GetContext());
@@ -46,26 +46,26 @@ namespace OpenFeature.Tests
         public async Task OpenFeature_Should_Shutdown_Unused_Provider()
         {
             var providerA = Substitute.For<FeatureProvider>();
-            providerA.GetStatus().Returns(ProviderStatus.NotReady);
+            providerA.Status.Returns(ProviderStatus.NotReady);
 
             await Api.Instance.SetProviderAsync(providerA);
             await providerA.Received(1).InitializeAsync(Api.Instance.GetContext());
 
             var providerB = Substitute.For<FeatureProvider>();
-            providerB.GetStatus().Returns(ProviderStatus.NotReady);
+            providerB.Status.Returns(ProviderStatus.NotReady);
 
             await Api.Instance.SetProviderAsync(providerB);
             await providerB.Received(1).InitializeAsync(Api.Instance.GetContext());
             await providerA.Received(1).ShutdownAsync();
 
             var providerC = Substitute.For<FeatureProvider>();
-            providerC.GetStatus().Returns(ProviderStatus.NotReady);
+            providerC.Status.Returns(ProviderStatus.NotReady);
 
             await Api.Instance.SetProviderAsync("named", providerC);
             await providerC.Received(1).InitializeAsync(Api.Instance.GetContext());
 
             var providerD = Substitute.For<FeatureProvider>();
-            providerD.GetStatus().Returns(ProviderStatus.NotReady);
+            providerD.Status.Returns(ProviderStatus.NotReady);
 
             await Api.Instance.SetProviderAsync("named", providerD);
             await providerD.Received(1).InitializeAsync(Api.Instance.GetContext());
@@ -77,10 +77,10 @@ namespace OpenFeature.Tests
         public async Task OpenFeature_Should_Support_Shutdown()
         {
             var providerA = Substitute.For<FeatureProvider>();
-            providerA.GetStatus().Returns(ProviderStatus.NotReady);
+            providerA.Status.Returns(ProviderStatus.NotReady);
 
             var providerB = Substitute.For<FeatureProvider>();
-            providerB.GetStatus().Returns(ProviderStatus.NotReady);
+            providerB.Status.Returns(ProviderStatus.NotReady);
 
             await Api.Instance.SetProviderAsync(providerA);
             await Api.Instance.SetProviderAsync("named", providerB);

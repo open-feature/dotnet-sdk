@@ -12,6 +12,7 @@ using NSubstitute.ExceptionExtensions;
 using OpenFeature.Constant;
 using OpenFeature.Error;
 using OpenFeature.Model;
+using OpenFeature.Providers.Memory;
 using OpenFeature.Tests.Internal;
 using Xunit;
 
@@ -183,6 +184,92 @@ namespace OpenFeature.Tests
             _ = mockedFeatureProvider.Received(1).ResolveStructureValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>());
 
             mockedLogger.Received(1).IsEnabled(LogLevel.Error);
+        }
+
+        [Fact]
+        [Specification("1.7.3", "The client's provider status accessor MUST indicate READY if the initialize function of the associated provider terminates normally.")]
+        [Specification("1.7.1", "The client MUST define a provider status accessor which indicates the readiness of the associated provider, with possible values NOT_READY, READY, STALE, ERROR, or FATAL.")]
+        public async Task Provider_Status_Should_Be_Ready_If_Init_Succeeds()
+        {
+            var name = "1.7.3";
+            // provider which succeeds initialization
+            var provider = new TestProvider();
+            FeatureClient client = Api.Instance.GetClient(name);
+            Assert.Equal(ProviderStatus.NotReady, provider.Status);
+            await Api.Instance.SetProviderAsync(name, provider);
+
+            // after init fails fatally, status should be READY
+            Assert.Equal(ProviderStatus.Ready, client.ProviderStatus);
+        }
+
+        [Fact]
+        [Specification("1.7.4", "The client's provider status accessor MUST indicate ERROR if the initialize function of the associated provider terminates abnormally.")]
+        [Specification("1.7.1", "The client MUST define a provider status accessor which indicates the readiness of the associated provider, with possible values NOT_READY, READY, STALE, ERROR, or FATAL.")]
+        public async Task Provider_Status_Should_Be_Error_If_Init_Fails()
+        {
+            var name = "1.7.4";
+            // provider which fails initialization
+            var provider = new TestProvider("some-name", new GeneralException("fake"));
+            FeatureClient client = Api.Instance.GetClient(name);
+            Assert.Equal(ProviderStatus.NotReady, provider.Status);
+            await Api.Instance.SetProviderAsync(name, provider);
+
+            // after init fails fatally, status should be ERROR
+            Assert.Equal(ProviderStatus.Error, client.ProviderStatus);
+        }
+
+        [Fact]
+        [Specification("1.7.5", "The client's provider status accessor MUST indicate FATAL if the initialize function of the associated provider terminates abnormally and indicates error code PROVIDER_FATAL.")]
+        [Specification("1.7.1", "The client MUST define a provider status accessor which indicates the readiness of the associated provider, with possible values NOT_READY, READY, STALE, ERROR, or FATAL.")]
+        public async Task Provider_Status_Should_Be_Fatal_If_Init_Fatal()
+        {
+            var name = "1.7.5";
+            // provider which fails initialization fatally
+            var provider = new TestProvider(name, new ProviderFatalException("fatal"));
+            FeatureClient client = Api.Instance.GetClient(name);
+            Assert.Equal(ProviderStatus.NotReady, provider.Status);
+            await Api.Instance.SetProviderAsync(name, provider);
+
+            // after init fails fatally, status should be FATAL
+            Assert.Equal(ProviderStatus.Fatal, client.ProviderStatus);
+        }
+
+        [Fact]
+        [Specification("1.7.6", "The client MUST default, run error hooks, and indicate an error if flag resolution is attempted while the provider is in NOT_READY.")]
+        public async void Must_Short_Circuit_Not_Ready()
+        {
+            var name = "1.7.6";
+            var defaultStr = "123-default";
+
+            // provider which is never ready (ready after maxValue)
+            var provider = new TestProvider(name, null, int.MaxValue);
+            FeatureClient client = Api.Instance.GetClient(name);
+            Assert.Equal(ProviderStatus.NotReady, provider.Status);
+            _ = Api.Instance.SetProviderAsync(name, provider);
+
+            var details = await client.GetStringDetailsAsync("some-flag", defaultStr);
+            Assert.Equal(defaultStr, details.Value);
+            Assert.Equal(ErrorType.ProviderNotReady, details.ErrorType);
+            Assert.Equal(Reason.Error, details.Reason);
+        }
+
+        [Fact]
+        [Specification("1.7.7", "The client MUST default, run error hooks, and indicate an error if flag resolution is attempted while the provider is in NOT_READY.")]
+        public async void Must_Short_Circuit_Fatal()
+        {
+            var name = "1.7.6";
+            var defaultStr = "456-default";
+
+            // provider which immediately fails fatally
+            var provider = new TestProvider(name, new ProviderFatalException("fake"));
+            FeatureClient client = Api.Instance.GetClient(name);
+            Assert.Equal(ProviderStatus.NotReady, provider.Status);
+            _ = Api.Instance.SetProviderAsync(name, provider);
+
+            var details = await client.GetStringDetailsAsync("some-flag", defaultStr);
+            Assert.Equal(defaultStr, details.Value);
+            Assert.Equal(ErrorType.ProviderFatal, details.ErrorType);
+            Assert.Equal(Reason.Error, details.Reason);
         }
 
         [Fact]

@@ -40,24 +40,30 @@ namespace OpenFeature.Tests
 
         public static string DefaultName = "test-provider";
 
-        public string Name { get; set; }
-
-        private ProviderStatus _status;
+        public string? Name { get; set; }
 
         public void AddHook(Hook hook) => this._hooks.Add(hook);
 
         public override IImmutableList<Hook> GetProviderHooks() => this._hooks.ToImmutableList();
+        private Exception? initException = null;
+        private int initDelay = 0;
 
         public TestProvider()
         {
-            this._status = ProviderStatus.NotReady;
             this.Name = DefaultName;
         }
 
-        public TestProvider(string name)
+        /// <summary>
+        /// A provider used for testing.
+        /// </summary>
+        /// <param name="name">the name of the provider.</param>
+        /// <param name="initException">Optional exception to throw during init.</param>
+        /// <para>
+        public TestProvider(string? name, Exception? initException = null, int initDelay = 0)
         {
-            this._status = ProviderStatus.NotReady;
-            this.Name = name;
+            this.Name = string.IsNullOrEmpty(name) ? DefaultName : name;
+            this.initException = initException;
+            this.initDelay = initDelay;
         }
 
         public override Metadata GetMetadata()
@@ -95,26 +101,23 @@ namespace OpenFeature.Tests
             return Task.FromResult(new ResolutionDetails<Value>(flagKey, defaultValue));
         }
 
-        public override ProviderStatus GetStatus()
-        {
-            return this._status;
-        }
-
-        public void SetStatus(ProviderStatus status)
-        {
-            this._status = status;
-        }
-
         public override async Task InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default)
         {
-            this._status = ProviderStatus.Ready;
-            await this.EventChannel.Writer.WriteAsync(new ProviderEventPayload { Type = ProviderEventTypes.ProviderReady, ProviderName = this.GetMetadata().Name }, cancellationToken).ConfigureAwait(false);
-            await base.InitializeAsync(context, cancellationToken).ConfigureAwait(false);
+            await Task.Delay(initDelay).ConfigureAwait(false);
+            if (initException != null)
+            {
+                throw initException;
+            }
         }
 
         internal ValueTask SendEventAsync(ProviderEventTypes eventType, CancellationToken cancellationToken = default)
         {
-            return this.EventChannel.Writer.WriteAsync(new ProviderEventPayload { Type = eventType, ProviderName = this.GetMetadata().Name }, cancellationToken);
+            return this.EventChannel.Writer.WriteAsync(new ProviderEventPayload { Type = eventType, ProviderName = this.GetMetadata().Name, }, cancellationToken);
+        }
+
+        internal ValueTask SendEventAsync(ProviderEventPayload payload, CancellationToken cancellationToken = default)
+        {
+            return this.EventChannel.Writer.WriteAsync(payload, cancellationToken);
         }
     }
 }
