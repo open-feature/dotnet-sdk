@@ -12,7 +12,6 @@ using NSubstitute.ExceptionExtensions;
 using OpenFeature.Constant;
 using OpenFeature.Error;
 using OpenFeature.Model;
-using OpenFeature.Providers.Memory;
 using OpenFeature.Tests.Internal;
 using Xunit;
 
