@@ -1,5 +1,42 @@
 # Changelog
 
+## [2.0.0](https://github.com/open-feature/dotnet-sdk/compare/v1.5.0...v2.0.0) (2024-06-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* add CancellationTokens, ValueTasks hooks ([#268](https://github.com/open-feature/dotnet-sdk/issues/268))
+* Use same type for flag metadata and event metadata ([#241](https://github.com/open-feature/dotnet-sdk/issues/241))
+* Enable nullable reference types ([#253](https://github.com/open-feature/dotnet-sdk/issues/253))
+
+### 🐛 Bug Fixes
+
+* Add missing error message when an error occurred ([#256](https://github.com/open-feature/dotnet-sdk/issues/256)) ([949d53c](https://github.com/open-feature/dotnet-sdk/commit/949d53cada68bee8e80d113357fa6df8d425d3c1))
+
+
+### ✨ New Features
+
+* add CancellationTokens, ValueTasks hooks ([#268](https://github.com/open-feature/dotnet-sdk/issues/268)) ([33154d2](https://github.com/open-feature/dotnet-sdk/commit/33154d2ed6b0b27f4a86a5fbad440a784a89c881))
+* Use same type for flag metadata and event metadata ([#241](https://github.com/open-feature/dotnet-sdk/issues/241)) ([ac7d7de](https://github.com/open-feature/dotnet-sdk/commit/ac7d7debf50cef08668bcd9457d3f830b8718806))
+
+
+### 🧹 Chore
+
+* **deps:** Project file cleanup and remove unnecessary dependencies ([#251](https://github.com/open-feature/dotnet-sdk/issues/251)) ([79def47](https://github.com/open-feature/dotnet-sdk/commit/79def47106b19b316b691fa195f7160ddcfb9a41))
+* **deps:** update actions/upload-artifact action to v4.3.3 ([#263](https://github.com/open-feature/dotnet-sdk/issues/263)) ([7718649](https://github.com/open-feature/dotnet-sdk/commit/77186495cd3d567b0aabd418f23a65567656b54d))
+* **deps:** update codecov/codecov-action action to v4 ([#227](https://github.com/open-feature/dotnet-sdk/issues/227)) ([11a0333](https://github.com/open-feature/dotnet-sdk/commit/11a03332726f07dd0327d222e6bd6e1843db460c))
+* **deps:** update codecov/codecov-action action to v4.3.1 ([#267](https://github.com/open-feature/dotnet-sdk/issues/267)) ([ff9df59](https://github.com/open-feature/dotnet-sdk/commit/ff9df593400f92c016eee1a45bd7097da008d4dc))
+* **deps:** update dependency coverlet.collector to v6.0.2 ([#247](https://github.com/open-feature/dotnet-sdk/issues/247)) ([ab34c16](https://github.com/open-feature/dotnet-sdk/commit/ab34c16b513ddbd0a53e925baaccd088163fbcc8))
+* **deps:** update dependency coverlet.msbuild to v6.0.2 ([#239](https://github.com/open-feature/dotnet-sdk/issues/239)) ([e654222](https://github.com/open-feature/dotnet-sdk/commit/e6542222827cc25cd5a1acc5af47ce55149c0623))
+* **deps:** update dependency dotnet-sdk to v8.0.204 ([#261](https://github.com/open-feature/dotnet-sdk/issues/261)) ([8f82645](https://github.com/open-feature/dotnet-sdk/commit/8f8264520814a42b7ed2af8f70340e7673259b6f))
+* **deps:** update dependency dotnet-sdk to v8.0.301 ([#271](https://github.com/open-feature/dotnet-sdk/issues/271)) ([acd0385](https://github.com/open-feature/dotnet-sdk/commit/acd0385641e114a16d0ee56e3a143baa7d3c0535))
+* **deps:** update dependency microsoft.net.test.sdk to v17.10.0 ([#273](https://github.com/open-feature/dotnet-sdk/issues/273)) ([581ff81](https://github.com/open-feature/dotnet-sdk/commit/581ff81c7b1840c34840229bf20444c528c64cc6))
+* **deps:** update dotnet monorepo ([#218](https://github.com/open-feature/dotnet-sdk/issues/218)) ([bc8301d](https://github.com/open-feature/dotnet-sdk/commit/bc8301d1c54e0b48ede3235877d969f28d61fb29))
+* **deps:** update xunit-dotnet monorepo ([#262](https://github.com/open-feature/dotnet-sdk/issues/262)) ([43f14cc](https://github.com/open-feature/dotnet-sdk/commit/43f14cca072372ecacec89a949c85f763c1ee7b4))
+* Enable nullable reference types ([#253](https://github.com/open-feature/dotnet-sdk/issues/253)) ([5a5312c](https://github.com/open-feature/dotnet-sdk/commit/5a5312cc082ccd880b65165135e05b4f3b035df7))
+* prompt 2.0 ([9b9c3fd](https://github.com/open-feature/dotnet-sdk/commit/9b9c3fd09c27b191104d7ceaa726b6edd71fcd06))
+* Support for determining spec support for the repo ([#270](https://github.com/open-feature/dotnet-sdk/issues/270)) ([67a1a0a](https://github.com/open-feature/dotnet-sdk/commit/67a1a0aea95ee943976990b1d1782e4061300b50))
+
 ## [1.5.0](https://github.com/open-feature/dotnet-sdk/compare/v1.4.1...v1.5.0) (2024-03-12)
 
 
