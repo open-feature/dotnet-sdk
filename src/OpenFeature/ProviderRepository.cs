@@ -35,7 +35,7 @@ namespace OpenFeature
         {
             using (this._providersLock)
             {
-                await this.Shutdown().ConfigureAwait(false);
+                await this.ShutdownAsync().ConfigureAwait(false);
             }
         }
 
@@ -62,7 +62,7 @@ namespace OpenFeature
         /// initialization
         /// </param>
         /// <param name="afterShutdown">called after a provider is shutdown, can be used to remove event handlers</param>
-        public async Task SetProvider(
+        public async Task SetProviderAsync(
             FeatureProvider? featureProvider,
             EvaluationContext context,
             Action<FeatureProvider>? afterSet = null,
@@ -92,7 +92,7 @@ namespace OpenFeature
                 // We want to allow shutdown to happen concurrently with initialization, and the caller to not
                 // wait for it.
 #pragma warning disable CS4014
-                this.ShutdownIfUnused(oldProvider, afterShutdown, afterError);
+                this.ShutdownIfUnusedAsync(oldProvider, afterShutdown, afterError);
 #pragma warning restore CS4014
             }
             finally
@@ -100,11 +100,11 @@ namespace OpenFeature
                 this._providersLock.ExitWriteLock();
             }
 
-            await InitProvider(this._defaultProvider, context, afterInitialization, afterError)
+            await InitProviderAsync(this._defaultProvider, context, afterInitialization, afterError)
                 .ConfigureAwait(false);
         }
 
-        private static async Task InitProvider(
+        private static async Task InitProviderAsync(
             FeatureProvider? newProvider,
             EvaluationContext context,
             Action<FeatureProvider>? afterInitialization,
@@ -118,7 +118,7 @@ namespace OpenFeature
             {
                 try
                 {
-                    await newProvider.Initialize(context).ConfigureAwait(false);
+                    await newProvider.InitializeAsync(context).ConfigureAwait(false);
                     afterInitialization?.Invoke(newProvider);
                 }
                 catch (Exception ex)
@@ -152,13 +152,15 @@ namespace OpenFeature
         /// initialization
         /// </param>
         /// <param name="afterShutdown">called after a provider is shutdown, can be used to remove event handlers</param>
-        public async Task SetProvider(string? clientName,
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel any async side effects.</param>
+        public async Task SetProviderAsync(string clientName,
             FeatureProvider? featureProvider,
             EvaluationContext context,
             Action<FeatureProvider>? afterSet = null,
             Action<FeatureProvider>? afterInitialization = null,
             Action<FeatureProvider, Exception>? afterError = null,
-            Action<FeatureProvider>? afterShutdown = null)
+            Action<FeatureProvider>? afterShutdown = null,
+            CancellationToken cancellationToken = default)
         {
             // Cannot set a provider for a null clientName.
             if (clientName == null)
@@ -187,7 +189,7 @@ namespace OpenFeature
                 // We want to allow shutdown to happen concurrently with initialization, and the caller to not
                 // wait for it.
 #pragma warning disable CS4014
-                this.ShutdownIfUnused(oldProvider, afterShutdown, afterError);
+                this.ShutdownIfUnusedAsync(oldProvider, afterShutdown, afterError);
 #pragma warning restore CS4014
             }
             finally
@@ -195,13 +197,13 @@ namespace OpenFeature
                 this._providersLock.ExitWriteLock();
             }
 
-            await InitProvider(featureProvider, context, afterInitialization, afterError).ConfigureAwait(false);
+            await InitProviderAsync(featureProvider, context, afterInitialization, afterError).ConfigureAwait(false);
         }
 
         /// <remarks>
         /// Shutdown the feature provider if it is unused. This must be called within a write lock of the _providersLock.
         /// </remarks>
-        private async Task ShutdownIfUnused(
+        private async Task ShutdownIfUnusedAsync(
             FeatureProvider? targetProvider,
             Action<FeatureProvider>? afterShutdown,
             Action<FeatureProvider, Exception>? afterError)
@@ -216,7 +218,7 @@ namespace OpenFeature
                 return;
             }
 
-            await SafeShutdownProvider(targetProvider, afterShutdown, afterError).ConfigureAwait(false);
+            await SafeShutdownProviderAsync(targetProvider, afterShutdown, afterError).ConfigureAwait(false);
         }
 
         /// <remarks>
@@ -228,7 +230,7 @@ namespace OpenFeature
         /// it would not be meaningful to emit an error.
         /// </para>
         /// </remarks>
-        private static async Task SafeShutdownProvider(FeatureProvider? targetProvider,
+        private static async Task SafeShutdownProviderAsync(FeatureProvider? targetProvider,
             Action<FeatureProvider>? afterShutdown,
             Action<FeatureProvider, Exception>? afterError)
         {
@@ -239,7 +241,7 @@ namespace OpenFeature
 
             try
             {
-                await targetProvider.Shutdown().ConfigureAwait(false);
+                await targetProvider.ShutdownAsync().ConfigureAwait(false);
                 afterShutdown?.Invoke(targetProvider);
             }
             catch (Exception ex)
@@ -281,7 +283,7 @@ namespace OpenFeature
                 : this.GetProvider();
         }
 
-        public async Task Shutdown(Action<FeatureProvider, Exception>? afterError = null)
+        public async Task ShutdownAsync(Action<FeatureProvider, Exception>? afterError = null, CancellationToken cancellationToken = default)
         {
             var providers = new HashSet<FeatureProvider>();
             this._providersLock.EnterWriteLock();
@@ -305,7 +307,7 @@ namespace OpenFeature
             foreach (var targetProvider in providers)
             {
                 // We don't need to take any actions after shutdown.
-                await SafeShutdownProvider(targetProvider, null, afterError).ConfigureAwait(false);
+                await SafeShutdownProviderAsync(targetProvider, null, afterError).ConfigureAwait(false);
             }
         }
     }
