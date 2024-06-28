@@ -31,7 +31,7 @@ namespace OpenFeature.Model
         /// <summary>
         /// Optional error associated with the event. 
         /// </summary>
-        public ErrorType? errorType { get; set; }
+        public ErrorType? ErrorType { get; set; }
 
         /// <summary>
         /// A List of flags that have been changed.
