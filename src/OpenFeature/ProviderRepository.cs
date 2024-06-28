@@ -3,6 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using OpenFeature.Constant;
 using OpenFeature.Model;
 
@@ -14,6 +16,8 @@ namespace OpenFeature
     /// </summary>
     internal sealed class ProviderRepository : IAsyncDisposable
     {
+        private ILogger _logger;
+
         private FeatureProvider _defaultProvider = new NoOpFeatureProvider();
 
         private readonly ConcurrentDictionary<string, FeatureProvider> _featureProviders =
@@ -31,6 +35,11 @@ namespace OpenFeature
         /// of that provider under different names..
         private readonly ReaderWriterLockSlim _providersLock = new ReaderWriterLockSlim();
 
+        public ProviderRepository()
+        {
+            this._logger = NullLogger<EventExecutor>.Instance;
+        }
+
         public async ValueTask DisposeAsync()
         {
             using (this._providersLock)
@@ -38,6 +47,8 @@ namespace OpenFeature
                 await this.ShutdownAsync().ConfigureAwait(false);
             }
         }
+
+        internal void SetLogger(ILogger logger) => this._logger = logger;
 
         /// <summary>
         /// Set the default provider
@@ -54,8 +65,8 @@ namespace OpenFeature
         public async Task SetProviderAsync(
             FeatureProvider? featureProvider,
             EvaluationContext context,
-            Action<FeatureProvider>? afterInitSuccess = null,
-            Action<FeatureProvider, Exception>? afterInitError = null)
+            Func<FeatureProvider, Task>? afterInitSuccess = null,
+            Func<FeatureProvider, Exception, Task>? afterInitError = null)
         {
             // Cannot unset the feature provider.
             if (featureProvider == null)
@@ -91,8 +102,8 @@ namespace OpenFeature
         private static async Task InitProviderAsync(
             FeatureProvider? newProvider,
             EvaluationContext context,
-            Action<FeatureProvider>? afterInitialization,
-            Action<FeatureProvider, Exception>? afterError)
+            Func<FeatureProvider, Task>? afterInitialization,
+            Func<FeatureProvider, Exception, Task>? afterError)
         {
             if (newProvider == null)
             {
@@ -103,11 +114,17 @@ namespace OpenFeature
                 try
                 {
                     await newProvider.InitializeAsync(context).ConfigureAwait(false);
-                    afterInitialization?.Invoke(newProvider);
+                    if (afterInitialization != null)
+                    {
+                        await afterInitialization.Invoke(newProvider).ConfigureAwait(false);
+                    }
                 }
                 catch (Exception ex)
                 {
-                    afterError?.Invoke(newProvider, ex);
+                    if (afterError != null)
+                    {
+                        await afterError.Invoke(newProvider, ex).ConfigureAwait(false);
+                    }
                 }
             }
         }
@@ -129,8 +146,8 @@ namespace OpenFeature
         public async Task SetProviderAsync(string? clientName,
             FeatureProvider? featureProvider,
             EvaluationContext context,
-            Action<FeatureProvider>? afterInitSuccess = null,
-            Action<FeatureProvider, Exception>? afterInitError = null,
+            Func<FeatureProvider, Task>? afterInitSuccess = null,
+            Func<FeatureProvider, Exception, Task>? afterInitError = null,
             CancellationToken cancellationToken = default)
         {
             // Cannot set a provider for a null clientName.
@@ -207,8 +224,9 @@ namespace OpenFeature
             {
                 await targetProvider.ShutdownAsync().ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                this._logger.LogError(ex, $"Error shutting down provider: {targetProvider.GetMetadata().Name}");
             }
         }
 

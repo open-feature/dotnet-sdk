@@ -46,7 +46,7 @@ namespace OpenFeature
         public async Task SetProviderAsync(FeatureProvider featureProvider)
         {
             this._eventExecutor.RegisterDefaultFeatureProvider(featureProvider);
-            await this._repository.SetProviderAsync(featureProvider, this.GetContext(), afterInitialization, afterError).ConfigureAwait(false);
+            await this._repository.SetProviderAsync(featureProvider, this.GetContext(), AfterInitialization, AfterError).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace OpenFeature
                 throw new ArgumentNullException(nameof(clientName));
             }
             this._eventExecutor.RegisterClientFeatureProvider(clientName, featureProvider);
-            await this._repository.SetProviderAsync(clientName, featureProvider, this.GetContext(), afterInitialization, afterError).ConfigureAwait(false);
+            await this._repository.SetProviderAsync(clientName, featureProvider, this.GetContext(), AfterInitialization, AfterError).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -258,6 +258,7 @@ namespace OpenFeature
         public void SetLogger(ILogger logger)
         {
             this._eventExecutor.SetLogger(logger);
+            this._repository.SetLogger(logger);
         }
 
         internal void AddClientHandler(string client, ProviderEventTypes eventType, EventHandlerDelegate handler)
@@ -269,8 +270,7 @@ namespace OpenFeature
         /// <summary>
         /// Update the provider state to READY and emit an READY after successful init.
         /// </summary>
-        private void AfterInitialization(FeatureProvider provider)
-
+        private async Task AfterInitialization(FeatureProvider provider)
         {
             provider.Status = ProviderStatus.Ready;
             var eventPayload = new ProviderEventPayload
@@ -280,13 +280,13 @@ namespace OpenFeature
                 ProviderName = provider.GetMetadata().Name,
             };
 
-            this._eventExecutor.EventChannel.Writer.WriteAsync(new Event { Provider = provider, EventPayload = eventPayload });
+            await this._eventExecutor.EventChannel.Writer.WriteAsync(new Event { Provider = provider, EventPayload = eventPayload }).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Update the provider state to ERROR and emit an ERROR after failed init.
         /// </summary>
-        private void AfterError(FeatureProvider provider, Exception ex)
+        private async Task AfterError(FeatureProvider provider, Exception ex)
 
         {
             provider.Status = typeof(ProviderFatalException) == ex.GetType() ? ProviderStatus.Fatal : ProviderStatus.Error;
@@ -297,7 +297,7 @@ namespace OpenFeature
                 ProviderName = provider.GetMetadata()?.Name,
             };
 
-            this._eventExecutor.EventChannel.Writer.WriteAsync(new Event { Provider = provider, EventPayload = eventPayload });
+            await this._eventExecutor.EventChannel.Writer.WriteAsync(new Event { Provider = provider, EventPayload = eventPayload }).ConfigureAwait(false);
         }
     }
 }

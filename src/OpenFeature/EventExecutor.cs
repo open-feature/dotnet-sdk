@@ -320,7 +320,7 @@ namespace OpenFeature
                     provider.Status = ProviderStatus.Stale;
                     break;
                 case ProviderEventTypes.ProviderError:
-                    provider.Status = eventPayload.errorType == ErrorType.ProviderFatal ? ProviderStatus.Fatal : ProviderStatus.Error;
+                    provider.Status = eventPayload.ErrorType == ErrorType.ProviderFatal ? ProviderStatus.Fatal : ProviderStatus.Error;
                     break;
                 default: break;
             }

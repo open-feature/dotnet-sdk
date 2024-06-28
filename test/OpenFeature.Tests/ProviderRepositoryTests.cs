@@ -48,6 +48,7 @@ namespace OpenFeature.Tests
             {
                 Assert.Equal(providerMock, theProvider);
                 callCount++;
+                return Task.CompletedTask;
             });
             Assert.Equal(1, callCount);
         }
@@ -67,6 +68,7 @@ namespace OpenFeature.Tests
                 Assert.Equal(providerMock, theProvider);
                 callCount++;
                 receivedError = error;
+                return Task.CompletedTask;
             });
             Assert.Equal("BAD THINGS", receivedError?.Message);
             Assert.Equal(1, callCount);
@@ -97,7 +99,11 @@ namespace OpenFeature.Tests
             providerMock.Status.Returns(status);
             var context = new EvaluationContextBuilder().Build();
             var callCount = 0;
-            await repository.SetProviderAsync(providerMock, context, afterInitSuccess: provider => { callCount++; });
+            await repository.SetProviderAsync(providerMock, context, afterInitSuccess: provider =>
+            {
+                callCount++;
+                return Task.CompletedTask;
+            });
             Assert.Equal(0, callCount);
         }
 
@@ -153,6 +159,7 @@ namespace OpenFeature.Tests
             {
                 Assert.Equal(providerMock, theProvider);
                 callCount++;
+                return Task.CompletedTask;
             });
             Assert.Equal(1, callCount);
         }
@@ -172,6 +179,7 @@ namespace OpenFeature.Tests
                 Assert.Equal(providerMock, theProvider);
                 callCount++;
                 receivedError = error;
+                return Task.CompletedTask;
             });
             Assert.Equal("BAD THINGS", receivedError?.Message);
             Assert.Equal(1, callCount);
@@ -203,7 +211,11 @@ namespace OpenFeature.Tests
             var context = new EvaluationContextBuilder().Build();
             var callCount = 0;
             await repository.SetProviderAsync("the-name", providerMock, context,
-                afterInitSuccess: provider => { callCount++; });
+                afterInitSuccess: provider =>
+                {
+                    callCount++;
+                    return Task.CompletedTask;
+                });
             Assert.Equal(0, callCount);
         }
 
