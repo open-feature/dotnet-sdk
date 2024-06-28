@@ -286,7 +286,8 @@ namespace OpenFeature
         /// <summary>
         /// Update the provider state to ERROR and emit an ERROR after failed init.
         /// </summary>
-        private void afterError(FeatureProvider provider, Exception ex)
+        private void AfterError(FeatureProvider provider, Exception ex)
+
         {
             provider.Status = typeof(ProviderFatalException) == ex.GetType() ? ProviderStatus.Fatal : ProviderStatus.Error;
             var eventPayload = new ProviderEventPayload
