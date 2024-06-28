@@ -269,7 +269,8 @@ namespace OpenFeature
         /// <summary>
         /// Update the provider state to READY and emit an READY after successful init.
         /// </summary>
-        private void afterInitialization(FeatureProvider provider)
+        private void AfterInitialization(FeatureProvider provider)
+
         {
             provider.Status = ProviderStatus.Ready;
             var eventPayload = new ProviderEventPayload
