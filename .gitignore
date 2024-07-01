@@ -352,3 +352,5 @@ ASALocalRun/
 # integration tests
 test/OpenFeature.E2ETests/Features/evaluation.feature
 test/OpenFeature.E2ETests/Features/evaluation.feature.cs
+cs-report.json
+specification.json

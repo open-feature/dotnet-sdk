@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using OpenFeature.Constant;
 using OpenFeature.Error;
@@ -45,7 +46,7 @@ namespace OpenFeature.Providers.Memory
         /// Updating provider flags configuration, replacing all flags.
         /// </summary>
         /// <param name="flags">the flags to use instead of the previous flags.</param>
-        public async ValueTask UpdateFlags(IDictionary<string, Flag>? flags = null)
+        public async Task UpdateFlags(IDictionary<string, Flag>? flags = null)
         {
             var changed = this._flags.Keys.ToList();
             if (flags == null)
@@ -68,46 +69,31 @@ namespace OpenFeature.Providers.Memory
         }
 
         /// <inheritdoc/>
-        public override Task<ResolutionDetails<bool>> ResolveBooleanValue(
-            string flagKey,
-            bool defaultValue,
-            EvaluationContext? context = null)
+        public override Task<ResolutionDetails<bool>> ResolveBooleanValueAsync(string flagKey, bool defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(Resolve(flagKey, defaultValue, context));
         }
 
         /// <inheritdoc/>
-        public override Task<ResolutionDetails<string>> ResolveStringValue(
-            string flagKey,
-            string defaultValue,
-            EvaluationContext? context = null)
+        public override Task<ResolutionDetails<string>> ResolveStringValueAsync(string flagKey, string defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(Resolve(flagKey, defaultValue, context));
         }
 
         /// <inheritdoc/>
-        public override Task<ResolutionDetails<int>> ResolveIntegerValue(
-            string flagKey,
-            int defaultValue,
-            EvaluationContext? context = null)
+        public override Task<ResolutionDetails<int>> ResolveIntegerValueAsync(string flagKey, int defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(Resolve(flagKey, defaultValue, context));
         }
 
         /// <inheritdoc/>
-        public override Task<ResolutionDetails<double>> ResolveDoubleValue(
-            string flagKey,
-            double defaultValue,
-            EvaluationContext? context = null)
+        public override Task<ResolutionDetails<double>> ResolveDoubleValueAsync(string flagKey, double defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(Resolve(flagKey, defaultValue, context));
         }
 
         /// <inheritdoc/>
-        public override Task<ResolutionDetails<Value>> ResolveStructureValue(
-            string flagKey,
-            Value defaultValue,
-            EvaluationContext? context = null)
+        public override Task<ResolutionDetails<Value>> ResolveStructureValueAsync(string flagKey, Value defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(Resolve(flagKey, defaultValue, context));
         }

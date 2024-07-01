@@ -37,40 +37,17 @@ namespace OpenFeature
         private Api() { }
 
         /// <summary>
-        /// Sets the default feature provider to given clientName without awaiting its initialization.
-        /// </summary>
-        /// <remarks>The provider cannot be set to null. Attempting to set the provider to null has no effect.</remarks>
-        /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
-        [Obsolete("Will be removed in later versions; use SetProviderAsync, which can be awaited")]
-        public void SetProvider(FeatureProvider featureProvider)
-        {
-            this._eventExecutor.RegisterDefaultFeatureProvider(featureProvider);
-            _ = this._repository.SetProvider(featureProvider, this.GetContext());
-        }
-
-        /// <summary>
-        /// Sets the default feature provider. In order to wait for the provider to be set, and initialization to complete,
+        /// Sets the feature provider. In order to wait for the provider to be set, and initialization to complete,
         /// await the returned task.
         /// </summary>
         /// <remarks>The provider cannot be set to null. Attempting to set the provider to null has no effect.</remarks>
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
-        public async Task SetProviderAsync(FeatureProvider? featureProvider)
+        public async Task SetProviderAsync(FeatureProvider featureProvider)
         {
             this._eventExecutor.RegisterDefaultFeatureProvider(featureProvider);
-            await this._repository.SetProvider(featureProvider, this.GetContext()).ConfigureAwait(false);
+            await this._repository.SetProviderAsync(featureProvider, this.GetContext()).ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// Sets the feature provider to given clientName without awaiting its initialization.
-        /// </summary>
-        /// <param name="clientName">Name of client</param>
-        /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
-        [Obsolete("Will be removed in later versions; use SetProviderAsync, which can be awaited")]
-        public void SetProvider(string clientName, FeatureProvider featureProvider)
-        {
-            this._eventExecutor.RegisterClientFeatureProvider(clientName, featureProvider);
-            _ = this._repository.SetProvider(clientName, featureProvider, this.GetContext());
-        }
 
         /// <summary>
         /// Sets the feature provider to given clientName. In order to wait for the provider to be set, and
@@ -85,7 +62,7 @@ namespace OpenFeature
                 throw new ArgumentNullException(nameof(clientName));
             }
             this._eventExecutor.RegisterClientFeatureProvider(clientName, featureProvider);
-            await this._repository.SetProvider(clientName, featureProvider, this.GetContext()).ConfigureAwait(false);
+            await this._repository.SetProviderAsync(clientName, featureProvider, this.GetContext()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -248,7 +225,7 @@ namespace OpenFeature
         /// Once shut down is complete, API is reset and ready to use again.
         /// </para>
         /// </summary>
-        public async Task Shutdown()
+        public async Task ShutdownAsync()
         {
             await using (this._eventExecutor.ConfigureAwait(false))
             await using (this._repository.ConfigureAwait(false))

@@ -52,13 +52,13 @@ dotnet add package OpenFeature
 public async Task Example()
 {
     // Register your feature flag provider
-    Api.Instance.SetProvider(new InMemoryProvider());
+    await Api.Instance.SetProviderAsync(new InMemoryProvider());
 
     // Create a new client
     FeatureClient client = Api.Instance.GetClient();
 
     // Evaluate your feature flag
-    bool v2Enabled = await client.GetBooleanValue("v2_enabled", false);
+    bool v2Enabled = await client.GetBooleanValueAsync("v2_enabled", false);
 
     if ( v2Enabled )
     {
@@ -115,7 +115,7 @@ If the provider you're looking for hasn't been created yet, see the [develop a p
 Once you've added a provider as a dependency, it can be registered with OpenFeature like this:
 
 ```csharp
-await Api.Instance.SetProvider(new MyProvider());
+await Api.Instance.SetProviderAsync(new MyProvider());
 ```
 
 In some situations, it may be beneficial to register multiple providers in the same application.
@@ -146,7 +146,7 @@ builder = EvaluationContext.Builder();
 builder.Set("region", "us-east-1");
 EvaluationContext reqCtx = builder.Build();
 
-bool flagValue = await client.GetBooleanValue("some-flag", false, reqCtx);
+bool flagValue = await client.GetBooleanValuAsync("some-flag", false, reqCtx);
 
 ```
 
@@ -167,7 +167,7 @@ var client = Api.Instance.GetClient();
 client.AddHooks(new ExampleClientHook());
 
 // add a hook for this evaluation only
-var value = await client.GetBooleanValue("boolFlag", false, context, new FlagEvaluationOptions(new ExampleInvocationHook()));
+var value = await client.GetBooleanValueAsync("boolFlag", false, context, new FlagEvaluationOptions(new ExampleInvocationHook()));
 ```
 
 ### Logging
@@ -182,10 +182,10 @@ If a name has no associated provider, the global provider is used.
 
 ```csharp
 // registering the default provider
-await Api.Instance.SetProvider(new LocalProvider());
+await Api.Instance.SetProviderAsync(new LocalProvider());
 
 // registering a named provider
-await Api.Instance.SetProvider("clientForCache", new CachedProvider());
+await Api.Instance.SetProviderAsync("clientForCache", new CachedProvider());
 
 // a client backed by default provider
 FeatureClient clientDefault = Api.Instance.GetClient();
@@ -227,7 +227,7 @@ EventHandlerDelegate callback = EventHandler;
 var myClient = Api.Instance.GetClient("my-client");
 
 var provider = new ExampleProvider();
-await Api.Instance.SetProvider(myClient.GetMetadata().Name, provider);
+await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name, provider);
 
 myClient.AddHandler(ProviderEventTypes.ProviderReady, callback);
 ```
@@ -238,7 +238,7 @@ The OpenFeature API provides a close function to perform a cleanup of all regist
 
 ```csharp
 // Shut down all providers
-await Api.Instance.Shutdown();
+await Api.Instance.ShutdownAsync();
 ```
 
 ## Extending
@@ -257,27 +257,27 @@ public class MyProvider : FeatureProvider
         return new Metadata("My Provider");
     }
 
-    public override Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null)
+    public override Task<ResolutionDetails<bool>> ResolveBooleanValueAsync(string flagKey, bool defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
     {
         // resolve a boolean flag value
     }
 
-    public override Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue, EvaluationContext context = null)
-    {
-        // resolve a double flag value
-    }
-
-    public override Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue, EvaluationContext context = null)
-    {
-        // resolve an int flag value
-    }
-
-    public override Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue, EvaluationContext context = null)
+    public override Task<ResolutionDetails<string>> ResolveStringValueAsync(string flagKey, string defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
     {
         // resolve a string flag value
     }
 
-    public override Task<ResolutionDetails<Value>> ResolveStructureValue(string flagKey, Value defaultValue, EvaluationContext context = null)
+    public override Task<ResolutionDetails<int>> ResolveIntegerValueAsync(string flagKey, int defaultValue, EvaluationContext context = null)
+    {
+        // resolve an int flag value
+    }
+
+    public override Task<ResolutionDetails<double>> ResolveDoubleValueAsync(string flagKey, double defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
+    {
+        // resolve a double flag value
+    }
+
+    public override Task<ResolutionDetails<Value>> ResolveStructureValueAsync(string flagKey, Value defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
     {
         // resolve an object flag value
     }
@@ -294,25 +294,25 @@ To satisfy the interface, all methods (`Before`/`After`/`Finally`/`Error`) need 
 ```csharp
 public class MyHook : Hook
 {
-  public Task<EvaluationContext> Before<T>(HookContext<T> context,
+  public ValueTask<EvaluationContext> BeforeAsync<T>(HookContext<T> context,
       IReadOnlyDictionary<string, object> hints = null)
   {
     // code to run before flag evaluation
   }
 
-  public virtual Task After<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
+  public ValueTask AfterAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
       IReadOnlyDictionary<string, object> hints = null)
   {
     // code to run after successful flag evaluation
   }
 
-  public virtual Task Error<T>(HookContext<T> context, Exception error,
+  public ValueTask ErrorAsync<T>(HookContext<T> context, Exception error,
       IReadOnlyDictionary<string, object> hints = null)
   {
     // code to run if there's an error during before hooks or during flag evaluation
   }
 
-  public virtual Task Finally<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null)
+  public ValueTask FinallyAsync<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null)
   {
     // code to run after all other stages, regardless of success/failure
   }
