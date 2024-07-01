@@ -29,5 +29,5 @@ internal sealed class OpenFeatureHostedService(Api api, IEnumerable<FeatureProvi
 
     Task IHostedService.StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
-    Task IHostedLifecycleService.StoppedAsync(CancellationToken cancellationToken) => this._api.Shutdown();
+    Task IHostedLifecycleService.StoppedAsync(CancellationToken cancellationToken) => this._api.ShutdownAsync();
 }
