@@ -28,4 +28,7 @@
     <None Include="$(MSBuildThisFileDirectory)openfeature-icon.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)../src/Shared/**" LinkBase="Shared" />
+  </ItemGroup>
 </Project>
