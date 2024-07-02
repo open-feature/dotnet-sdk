@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenFeature.Constant;
 using OpenFeature.Model;
 
 namespace OpenFeature
@@ -52,6 +53,12 @@ namespace OpenFeature
         /// </summary>
         /// <returns>Client metadata <see cref="ClientMetadata"/></returns>
         ClientMetadata GetMetadata();
+
+        /// <summary>
+        /// Returns the current status of the associated provider.
+        /// </summary>
+        /// <returns><see cref="ProviderStatus"/></returns>
+        ProviderStatus ProviderStatus { get; }
 
         /// <summary>
         /// Resolves a boolean feature flag

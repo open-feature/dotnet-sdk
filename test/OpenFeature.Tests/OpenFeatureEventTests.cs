@@ -147,9 +147,7 @@ namespace OpenFeature.Tests
             var eventHandler = Substitute.For<EventHandlerDelegate>();
 
             var testProvider = new TestProvider();
-#pragma warning disable CS0618// Type or member is obsolete
             await Api.Instance.SetProviderAsync(testProvider);
-#pragma warning restore CS0618// Type or member is obsolete
 
             Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
@@ -175,7 +173,7 @@ namespace OpenFeature.Tests
             var testProvider = new TestProvider();
             await Api.Instance.SetProviderAsync(testProvider);
 
-            testProvider.SetStatus(ProviderStatus.Error);
+            testProvider.Status = ProviderStatus.Error;
 
             Api.Instance.AddHandler(ProviderEventTypes.ProviderError, eventHandler);
 
@@ -200,7 +198,7 @@ namespace OpenFeature.Tests
             var testProvider = new TestProvider();
             await Api.Instance.SetProviderAsync(testProvider);
 
-            testProvider.SetStatus(ProviderStatus.Stale);
+            testProvider.Status = ProviderStatus.Stale;
 
             Api.Instance.AddHandler(ProviderEventTypes.ProviderStale, eventHandler);
 
@@ -476,7 +474,11 @@ namespace OpenFeature.Tests
             await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name!, testProvider);
 
             // wait for the first event to be received
-            await Utils.AssertUntilAsync(_ => myClient.RemoveHandler(ProviderEventTypes.ProviderReady, eventHandler));
+            await Utils.AssertUntilAsync(
+                _ => eventHandler.Received(1).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name))
+            );
+
+            myClient.RemoveHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
             // send another event from the provider - this one should not be received
             await testProvider.SendEventAsync(ProviderEventTypes.ProviderReady);
@@ -500,6 +502,19 @@ namespace OpenFeature.Tests
 
             // Assert
             Assert.Null(exception);
+        }
+
+        [Theory]
+        [InlineData(ProviderEventTypes.ProviderError, ProviderStatus.Error)]
+        [InlineData(ProviderEventTypes.ProviderReady, ProviderStatus.Ready)]
+        [InlineData(ProviderEventTypes.ProviderStale, ProviderStatus.Stale)]
+        [Specification("5.3.5", "If the provider emits an event, the value of the client's provider status MUST be updated accordingly.")]
+        public async Task Provider_Events_Should_Update_ProviderStatus(ProviderEventTypes type, ProviderStatus status)
+        {
+            var provider = new TestProvider();
+            await Api.Instance.SetProviderAsync("5.3.5", provider);
+            _ = provider.SendEventAsync(type);
+            await Utils.AssertUntilAsync(_ => Assert.True(provider.Status == status));
         }
     }
 }

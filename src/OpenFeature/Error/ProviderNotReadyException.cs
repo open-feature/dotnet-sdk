@@ -5,7 +5,7 @@ using OpenFeature.Constant;
 namespace OpenFeature.Error
 {
     /// <summary>
-    /// Provider has yet been initialized when evaluating a flag.
+    /// Provider has not yet been initialized when evaluating a flag.
     /// </summary>
     [ExcludeFromCodeCoverage]
     public class ProviderNotReadyException : FeatureProviderException

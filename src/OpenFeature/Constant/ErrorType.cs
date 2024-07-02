@@ -47,5 +47,10 @@ namespace OpenFeature.Constant
         /// Context does not contain a targeting key and the provider requires one.
         /// </summary>
         [Description("TARGETING_KEY_MISSING")] TargetingKeyMissing,
+
+        /// <summary>
+        /// The provider has entered an irrecoverable error state.
+        /// </summary>
+        [Description("PROVIDER_FATAL")] ProviderFatal,
     }
 }

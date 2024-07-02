@@ -3,6 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using OpenFeature.Constant;
 using OpenFeature.Model;
 
@@ -14,6 +16,8 @@ namespace OpenFeature
     /// </summary>
     internal sealed class ProviderRepository : IAsyncDisposable
     {
+        private ILogger _logger;
+
         private FeatureProvider _defaultProvider = new NoOpFeatureProvider();
 
         private readonly ConcurrentDictionary<string, FeatureProvider> _featureProviders =
@@ -31,6 +35,11 @@ namespace OpenFeature
         /// of that provider under different names..
         private readonly ReaderWriterLockSlim _providersLock = new ReaderWriterLockSlim();
 
+        public ProviderRepository()
+        {
+            this._logger = NullLogger<EventExecutor>.Instance;
+        }
+
         public async ValueTask DisposeAsync()
         {
             using (this._providersLock)
@@ -39,36 +48,25 @@ namespace OpenFeature
             }
         }
 
+        internal void SetLogger(ILogger logger) => this._logger = logger;
+
         /// <summary>
         /// Set the default provider
         /// </summary>
         /// <param name="featureProvider">the provider to set as the default, passing null has no effect</param>
         /// <param name="context">the context to initialize the provider with</param>
-        /// <param name="afterSet">
-        /// <para>
-        /// Called after the provider is set, but before any actions are taken on it.
-        /// </para>
-        /// This can be used for tasks such as registering event handlers. It should be noted that this can be called
-        /// several times for a single provider. For instance registering a provider with multiple names or as the
-        /// default and named provider.
-        /// <para>
-        /// </para>
-        /// </param>
-        /// <param name="afterInitialization">
+        /// <param name="afterInitSuccess">
         /// called after the provider has initialized successfully, only called if the provider needed initialization
         /// </param>
-        /// <param name="afterError">
+        /// <param name="afterInitError">
         /// called if an error happens during the initialization of the provider, only called if the provider needed
         /// initialization
         /// </param>
-        /// <param name="afterShutdown">called after a provider is shutdown, can be used to remove event handlers</param>
         public async Task SetProviderAsync(
             FeatureProvider? featureProvider,
             EvaluationContext context,
-            Action<FeatureProvider>? afterSet = null,
-            Action<FeatureProvider>? afterInitialization = null,
-            Action<FeatureProvider, Exception>? afterError = null,
-            Action<FeatureProvider>? afterShutdown = null)
+            Func<FeatureProvider, Task>? afterInitSuccess = null,
+            Func<FeatureProvider, Exception, Task>? afterInitError = null)
         {
             // Cannot unset the feature provider.
             if (featureProvider == null)
@@ -88,42 +86,45 @@ namespace OpenFeature
 
                 var oldProvider = this._defaultProvider;
                 this._defaultProvider = featureProvider;
-                afterSet?.Invoke(featureProvider);
                 // We want to allow shutdown to happen concurrently with initialization, and the caller to not
                 // wait for it.
-#pragma warning disable CS4014
-                this.ShutdownIfUnusedAsync(oldProvider, afterShutdown, afterError);
-#pragma warning restore CS4014
+                _ = this.ShutdownIfUnusedAsync(oldProvider);
             }
             finally
             {
                 this._providersLock.ExitWriteLock();
             }
 
-            await InitProviderAsync(this._defaultProvider, context, afterInitialization, afterError)
+            await InitProviderAsync(this._defaultProvider, context, afterInitSuccess, afterInitError)
                 .ConfigureAwait(false);
         }
 
         private static async Task InitProviderAsync(
             FeatureProvider? newProvider,
             EvaluationContext context,
-            Action<FeatureProvider>? afterInitialization,
-            Action<FeatureProvider, Exception>? afterError)
+            Func<FeatureProvider, Task>? afterInitialization,
+            Func<FeatureProvider, Exception, Task>? afterError)
         {
             if (newProvider == null)
             {
                 return;
             }
-            if (newProvider.GetStatus() == ProviderStatus.NotReady)
+            if (newProvider.Status == ProviderStatus.NotReady)
             {
                 try
                 {
                     await newProvider.InitializeAsync(context).ConfigureAwait(false);
-                    afterInitialization?.Invoke(newProvider);
+                    if (afterInitialization != null)
+                    {
+                        await afterInitialization.Invoke(newProvider).ConfigureAwait(false);
+                    }
                 }
                 catch (Exception ex)
                 {
-                    afterError?.Invoke(newProvider, ex);
+                    if (afterError != null)
+                    {
+                        await afterError.Invoke(newProvider, ex).ConfigureAwait(false);
+                    }
                 }
             }
         }
@@ -134,32 +135,19 @@ namespace OpenFeature
         /// <param name="clientName">the name to associate with the provider</param>
         /// <param name="featureProvider">the provider to set as the default, passing null has no effect</param>
         /// <param name="context">the context to initialize the provider with</param>
-        /// <param name="afterSet">
-        /// <para>
-        /// Called after the provider is set, but before any actions are taken on it.
-        /// </para>
-        /// This can be used for tasks such as registering event handlers. It should be noted that this can be called
-        /// several times for a single provider. For instance registering a provider with multiple names or as the
-        /// default and named provider.
-        /// <para>
-        /// </para>
-        /// </param>
-        /// <param name="afterInitialization">
+        /// <param name="afterInitSuccess">
         /// called after the provider has initialized successfully, only called if the provider needed initialization
         /// </param>
-        /// <param name="afterError">
+        /// <param name="afterInitError">
         /// called if an error happens during the initialization of the provider, only called if the provider needed
         /// initialization
         /// </param>
-        /// <param name="afterShutdown">called after a provider is shutdown, can be used to remove event handlers</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel any async side effects.</param>
-        public async Task SetProviderAsync(string clientName,
+        public async Task SetProviderAsync(string? clientName,
             FeatureProvider? featureProvider,
             EvaluationContext context,
-            Action<FeatureProvider>? afterSet = null,
-            Action<FeatureProvider>? afterInitialization = null,
-            Action<FeatureProvider, Exception>? afterError = null,
-            Action<FeatureProvider>? afterShutdown = null,
+            Func<FeatureProvider, Task>? afterInitSuccess = null,
+            Func<FeatureProvider, Exception, Task>? afterInitError = null,
             CancellationToken cancellationToken = default)
         {
             // Cannot set a provider for a null clientName.
@@ -177,7 +165,6 @@ namespace OpenFeature
                 {
                     this._featureProviders.AddOrUpdate(clientName, featureProvider,
                         (key, current) => featureProvider);
-                    afterSet?.Invoke(featureProvider);
                 }
                 else
                 {
@@ -188,25 +175,21 @@ namespace OpenFeature
 
                 // We want to allow shutdown to happen concurrently with initialization, and the caller to not
                 // wait for it.
-#pragma warning disable CS4014
-                this.ShutdownIfUnusedAsync(oldProvider, afterShutdown, afterError);
-#pragma warning restore CS4014
+                _ = this.ShutdownIfUnusedAsync(oldProvider);
             }
             finally
             {
                 this._providersLock.ExitWriteLock();
             }
 
-            await InitProviderAsync(featureProvider, context, afterInitialization, afterError).ConfigureAwait(false);
+            await InitProviderAsync(featureProvider, context, afterInitSuccess, afterInitError).ConfigureAwait(false);
         }
 
         /// <remarks>
         /// Shutdown the feature provider if it is unused. This must be called within a write lock of the _providersLock.
         /// </remarks>
         private async Task ShutdownIfUnusedAsync(
-            FeatureProvider? targetProvider,
-            Action<FeatureProvider>? afterShutdown,
-            Action<FeatureProvider, Exception>? afterError)
+            FeatureProvider? targetProvider)
         {
             if (ReferenceEquals(this._defaultProvider, targetProvider))
             {
@@ -218,7 +201,7 @@ namespace OpenFeature
                 return;
             }
 
-            await SafeShutdownProviderAsync(targetProvider, afterShutdown, afterError).ConfigureAwait(false);
+            await SafeShutdownProviderAsync(targetProvider).ConfigureAwait(false);
         }
 
         /// <remarks>
@@ -230,9 +213,7 @@ namespace OpenFeature
         /// it would not be meaningful to emit an error.
         /// </para>
         /// </remarks>
-        private static async Task SafeShutdownProviderAsync(FeatureProvider? targetProvider,
-            Action<FeatureProvider>? afterShutdown,
-            Action<FeatureProvider, Exception>? afterError)
+        private async Task SafeShutdownProviderAsync(FeatureProvider? targetProvider)
         {
             if (targetProvider == null)
             {
@@ -242,11 +223,10 @@ namespace OpenFeature
             try
             {
                 await targetProvider.ShutdownAsync().ConfigureAwait(false);
-                afterShutdown?.Invoke(targetProvider);
             }
             catch (Exception ex)
             {
-                afterError?.Invoke(targetProvider, ex);
+                this._logger.LogError(ex, $"Error shutting down provider: {targetProvider.GetMetadata().Name}");
             }
         }
 
@@ -307,7 +287,7 @@ namespace OpenFeature
             foreach (var targetProvider in providers)
             {
                 // We don't need to take any actions after shutdown.
-                await SafeShutdownProviderAsync(targetProvider, null, afterError).ConfigureAwait(false);
+                await SafeShutdownProviderAsync(targetProvider).ConfigureAwait(false);
             }
         }
     }
