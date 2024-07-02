@@ -269,7 +269,6 @@ namespace OpenFeature
 
         /// <summary>
         /// Update the provider state to READY and emit a READY event after successful init.
-
         /// </summary>
         private async Task AfterInitialization(FeatureProvider provider)
         {
