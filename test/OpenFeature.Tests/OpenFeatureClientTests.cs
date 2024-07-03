@@ -235,7 +235,7 @@ namespace OpenFeature.Tests
 
         [Fact]
         [Specification("1.7.6", "The client MUST default, run error hooks, and indicate an error if flag resolution is attempted while the provider is in NOT_READY.")]
-        public async void Must_Short_Circuit_Not_Ready()
+        public async Task Must_Short_Circuit_Not_Ready()
         {
             var name = "1.7.6";
             var defaultStr = "123-default";
@@ -254,7 +254,7 @@ namespace OpenFeature.Tests
 
         [Fact]
         [Specification("1.7.7", "The client MUST default, run error hooks, and indicate an error if flag resolution is attempted while the provider is in NOT_READY.")]
-        public async void Must_Short_Circuit_Fatal()
+        public async Task Must_Short_Circuit_Fatal()
         {
             var name = "1.7.6";
             var defaultStr = "456-default";
