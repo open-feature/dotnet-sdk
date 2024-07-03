@@ -26,6 +26,11 @@ namespace OpenFeature.Constant
         /// <summary>
         /// The provider is in an error state and unable to evaluate flags.
         /// </summary>
-        [Description("ERROR")] Error
+        [Description("ERROR")] Error,
+
+        /// <summary>
+        /// The provider has entered an irrecoverable error state.
+        /// </summary>
+        [Description("FATAL")] Fatal,
     }
 }

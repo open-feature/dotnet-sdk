@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 using OpenFeature.Constant;
 using OpenFeature.Model;
 using Xunit;
@@ -26,27 +25,11 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        public async Task AfterSet_Is_Invoked_For_Setting_Default_Provider()
-        {
-            var repository = new ProviderRepository();
-            var provider = new NoOpFeatureProvider();
-            var context = new EvaluationContextBuilder().Build();
-            var callCount = 0;
-            // The setting of the provider is synchronous, so the afterSet should be as well.
-            await repository.SetProviderAsync(provider, context, afterSet: (theProvider) =>
-            {
-                callCount++;
-                Assert.Equal(provider, theProvider);
-            });
-            Assert.Equal(1, callCount);
-        }
-
-        [Fact]
         public async Task Initialization_Provider_Method_Is_Invoked_For_Setting_Default_Provider()
         {
             var repository = new ProviderRepository();
             var providerMock = Substitute.For<FeatureProvider>();
-            providerMock.GetStatus().Returns(ProviderStatus.NotReady);
+            providerMock.Status.Returns(ProviderStatus.NotReady);
             var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync(providerMock, context);
             providerMock.Received(1).InitializeAsync(context);
@@ -58,13 +41,14 @@ namespace OpenFeature.Tests
         {
             var repository = new ProviderRepository();
             var providerMock = Substitute.For<FeatureProvider>();
-            providerMock.GetStatus().Returns(ProviderStatus.NotReady);
+            providerMock.Status.Returns(ProviderStatus.NotReady);
             var context = new EvaluationContextBuilder().Build();
             var callCount = 0;
-            await repository.SetProviderAsync(providerMock, context, afterInitialization: (theProvider) =>
+            await repository.SetProviderAsync(providerMock, context, afterInitSuccess: (theProvider) =>
             {
                 Assert.Equal(providerMock, theProvider);
                 callCount++;
+                return Task.CompletedTask;
             });
             Assert.Equal(1, callCount);
         }
@@ -74,16 +58,17 @@ namespace OpenFeature.Tests
         {
             var repository = new ProviderRepository();
             var providerMock = Substitute.For<FeatureProvider>();
-            providerMock.GetStatus().Returns(ProviderStatus.NotReady);
+            providerMock.Status.Returns(ProviderStatus.NotReady);
             var context = new EvaluationContextBuilder().Build();
             providerMock.When(x => x.InitializeAsync(context)).Throw(new Exception("BAD THINGS"));
             var callCount = 0;
             Exception? receivedError = null;
-            await repository.SetProviderAsync(providerMock, context, afterError: (theProvider, error) =>
+            await repository.SetProviderAsync(providerMock, context, afterInitError: (theProvider, error) =>
             {
                 Assert.Equal(providerMock, theProvider);
                 callCount++;
                 receivedError = error;
+                return Task.CompletedTask;
             });
             Assert.Equal("BAD THINGS", receivedError?.Message);
             Assert.Equal(1, callCount);
@@ -93,11 +78,11 @@ namespace OpenFeature.Tests
         [InlineData(ProviderStatus.Ready)]
         [InlineData(ProviderStatus.Stale)]
         [InlineData(ProviderStatus.Error)]
-        public async Task Initialize_Is_Not_Called_For_Ready_Provider(ProviderStatus status)
+        internal async Task Initialize_Is_Not_Called_For_Ready_Provider(ProviderStatus status)
         {
             var repository = new ProviderRepository();
             var providerMock = Substitute.For<FeatureProvider>();
-            providerMock.GetStatus().Returns(status);
+            providerMock.Status.Returns(status);
             var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync(providerMock, context);
             providerMock.DidNotReceive().InitializeAsync(context);
@@ -107,14 +92,18 @@ namespace OpenFeature.Tests
         [InlineData(ProviderStatus.Ready)]
         [InlineData(ProviderStatus.Stale)]
         [InlineData(ProviderStatus.Error)]
-        public async Task AfterInitialize_Is_Not_Called_For_Ready_Provider(ProviderStatus status)
+        internal async Task AfterInitialize_Is_Not_Called_For_Ready_Provider(ProviderStatus status)
         {
             var repository = new ProviderRepository();
             var providerMock = Substitute.For<FeatureProvider>();
-            providerMock.GetStatus().Returns(status);
+            providerMock.Status.Returns(status);
             var context = new EvaluationContextBuilder().Build();
             var callCount = 0;
-            await repository.SetProviderAsync(providerMock, context, afterInitialization: provider => { callCount++; });
+            await repository.SetProviderAsync(providerMock, context, afterInitSuccess: provider =>
+            {
+                callCount++;
+                return Task.CompletedTask;
+            });
             Assert.Equal(0, callCount);
         }
 
@@ -123,62 +112,16 @@ namespace OpenFeature.Tests
         {
             var repository = new ProviderRepository();
             var provider1 = Substitute.For<FeatureProvider>();
-            provider1.GetStatus().Returns(ProviderStatus.NotReady);
+            provider1.Status.Returns(ProviderStatus.NotReady);
 
             var provider2 = Substitute.For<FeatureProvider>();
-            provider2.GetStatus().Returns(ProviderStatus.NotReady);
+            provider2.Status.Returns(ProviderStatus.NotReady);
 
             var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync(provider1, context);
             await repository.SetProviderAsync(provider2, context);
             provider1.Received(1).ShutdownAsync();
             provider2.DidNotReceive().ShutdownAsync();
-        }
-
-        [Fact]
-        public async Task AfterShutdown_Is_Called_For_Shutdown_Provider()
-        {
-            var repository = new ProviderRepository();
-            var provider1 = Substitute.For<FeatureProvider>();
-            provider1.GetStatus().Returns(ProviderStatus.NotReady);
-
-            var provider2 = Substitute.For<FeatureProvider>();
-            provider2.GetStatus().Returns(ProviderStatus.NotReady);
-
-            var context = new EvaluationContextBuilder().Build();
-            await repository.SetProviderAsync(provider1, context);
-            var callCount = 0;
-            await repository.SetProviderAsync(provider2, context, afterShutdown: provider =>
-            {
-                Assert.Equal(provider, provider1);
-                callCount++;
-            });
-            Assert.Equal(1, callCount);
-        }
-
-        [Fact]
-        public async Task AfterError_Is_Called_For_Shutdown_That_Throws()
-        {
-            var repository = new ProviderRepository();
-            var provider1 = Substitute.For<FeatureProvider>();
-            provider1.ShutdownAsync().Throws(new Exception("SHUTDOWN ERROR"));
-            provider1.GetStatus().Returns(ProviderStatus.NotReady);
-
-            var provider2 = Substitute.For<FeatureProvider>();
-            provider2.GetStatus().Returns(ProviderStatus.NotReady);
-
-            var context = new EvaluationContextBuilder().Build();
-            await repository.SetProviderAsync(provider1, context);
-            var callCount = 0;
-            Exception? errorThrown = null;
-            await repository.SetProviderAsync(provider2, context, afterError: (provider, ex) =>
-            {
-                Assert.Equal(provider, provider1);
-                errorThrown = ex;
-                callCount++;
-            });
-            Assert.Equal(1, callCount);
-            Assert.Equal("SHUTDOWN ERROR", errorThrown?.Message);
         }
 
         [Fact]
@@ -193,27 +136,11 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        public async Task AfterSet_Is_Invoked_For_Setting_Named_Provider()
-        {
-            var repository = new ProviderRepository();
-            var provider = new NoOpFeatureProvider();
-            var context = new EvaluationContextBuilder().Build();
-            var callCount = 0;
-            // The setting of the provider is synchronous, so the afterSet should be as well.
-            await repository.SetProviderAsync("the-name", provider, context, afterSet: (theProvider) =>
-            {
-                callCount++;
-                Assert.Equal(provider, theProvider);
-            });
-            Assert.Equal(1, callCount);
-        }
-
-        [Fact]
         public async Task Initialization_Provider_Method_Is_Invoked_For_Setting_Named_Provider()
         {
             var repository = new ProviderRepository();
             var providerMock = Substitute.For<FeatureProvider>();
-            providerMock.GetStatus().Returns(ProviderStatus.NotReady);
+            providerMock.Status.Returns(ProviderStatus.NotReady);
             var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync("the-name", providerMock, context);
             providerMock.Received(1).InitializeAsync(context);
@@ -225,13 +152,14 @@ namespace OpenFeature.Tests
         {
             var repository = new ProviderRepository();
             var providerMock = Substitute.For<FeatureProvider>();
-            providerMock.GetStatus().Returns(ProviderStatus.NotReady);
+            providerMock.Status.Returns(ProviderStatus.NotReady);
             var context = new EvaluationContextBuilder().Build();
             var callCount = 0;
-            await repository.SetProviderAsync("the-name", providerMock, context, afterInitialization: (theProvider) =>
+            await repository.SetProviderAsync("the-name", providerMock, context, afterInitSuccess: (theProvider) =>
             {
                 Assert.Equal(providerMock, theProvider);
                 callCount++;
+                return Task.CompletedTask;
             });
             Assert.Equal(1, callCount);
         }
@@ -241,16 +169,17 @@ namespace OpenFeature.Tests
         {
             var repository = new ProviderRepository();
             var providerMock = Substitute.For<FeatureProvider>();
-            providerMock.GetStatus().Returns(ProviderStatus.NotReady);
+            providerMock.Status.Returns(ProviderStatus.NotReady);
             var context = new EvaluationContextBuilder().Build();
             providerMock.When(x => x.InitializeAsync(context)).Throw(new Exception("BAD THINGS"));
             var callCount = 0;
             Exception? receivedError = null;
-            await repository.SetProviderAsync("the-provider", providerMock, context, afterError: (theProvider, error) =>
+            await repository.SetProviderAsync("the-provider", providerMock, context, afterInitError: (theProvider, error) =>
             {
                 Assert.Equal(providerMock, theProvider);
                 callCount++;
                 receivedError = error;
+                return Task.CompletedTask;
             });
             Assert.Equal("BAD THINGS", receivedError?.Message);
             Assert.Equal(1, callCount);
@@ -260,11 +189,11 @@ namespace OpenFeature.Tests
         [InlineData(ProviderStatus.Ready)]
         [InlineData(ProviderStatus.Stale)]
         [InlineData(ProviderStatus.Error)]
-        public async Task Initialize_Is_Not_Called_For_Ready_Named_Provider(ProviderStatus status)
+        internal async Task Initialize_Is_Not_Called_For_Ready_Named_Provider(ProviderStatus status)
         {
             var repository = new ProviderRepository();
             var providerMock = Substitute.For<FeatureProvider>();
-            providerMock.GetStatus().Returns(status);
+            providerMock.Status.Returns(status);
             var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync("the-name", providerMock, context);
             providerMock.DidNotReceive().InitializeAsync(context);
@@ -274,15 +203,19 @@ namespace OpenFeature.Tests
         [InlineData(ProviderStatus.Ready)]
         [InlineData(ProviderStatus.Stale)]
         [InlineData(ProviderStatus.Error)]
-        public async Task AfterInitialize_Is_Not_Called_For_Ready_Named_Provider(ProviderStatus status)
+        internal async Task AfterInitialize_Is_Not_Called_For_Ready_Named_Provider(ProviderStatus status)
         {
             var repository = new ProviderRepository();
             var providerMock = Substitute.For<FeatureProvider>();
-            providerMock.GetStatus().Returns(status);
+            providerMock.Status.Returns(status);
             var context = new EvaluationContextBuilder().Build();
             var callCount = 0;
             await repository.SetProviderAsync("the-name", providerMock, context,
-                afterInitialization: provider => { callCount++; });
+                afterInitSuccess: provider =>
+                {
+                    callCount++;
+                    return Task.CompletedTask;
+                });
             Assert.Equal(0, callCount);
         }
 
@@ -291,10 +224,10 @@ namespace OpenFeature.Tests
         {
             var repository = new ProviderRepository();
             var provider1 = Substitute.For<FeatureProvider>();
-            provider1.GetStatus().Returns(ProviderStatus.NotReady);
+            provider1.Status.Returns(ProviderStatus.NotReady);
 
             var provider2 = Substitute.For<FeatureProvider>();
-            provider2.GetStatus().Returns(ProviderStatus.NotReady);
+            provider2.Status.Returns(ProviderStatus.NotReady);
 
             var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync("the-name", provider1, context);
@@ -304,60 +237,14 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        public async Task AfterShutdown_Is_Called_For_Shutdown_Named_Provider()
-        {
-            var repository = new ProviderRepository();
-            var provider1 = Substitute.For<FeatureProvider>();
-            provider1.GetStatus().Returns(ProviderStatus.NotReady);
-
-            var provider2 = Substitute.For<FeatureProvider>();
-            provider2.GetStatus().Returns(ProviderStatus.NotReady);
-
-            var context = new EvaluationContextBuilder().Build();
-            await repository.SetProviderAsync("the-provider", provider1, context);
-            var callCount = 0;
-            await repository.SetProviderAsync("the-provider", provider2, context, afterShutdown: provider =>
-            {
-                Assert.Equal(provider, provider1);
-                callCount++;
-            });
-            Assert.Equal(1, callCount);
-        }
-
-        [Fact]
-        public async Task AfterError_Is_Called_For_Shutdown_Named_Provider_That_Throws()
-        {
-            var repository = new ProviderRepository();
-            var provider1 = Substitute.For<FeatureProvider>();
-            provider1.ShutdownAsync().Throws(new Exception("SHUTDOWN ERROR"));
-            provider1.GetStatus().Returns(ProviderStatus.NotReady);
-
-            var provider2 = Substitute.For<FeatureProvider>();
-            provider2.GetStatus().Returns(ProviderStatus.NotReady);
-
-            var context = new EvaluationContextBuilder().Build();
-            await repository.SetProviderAsync("the-name", provider1, context);
-            var callCount = 0;
-            Exception? errorThrown = null;
-            await repository.SetProviderAsync("the-name", provider2, context, afterError: (provider, ex) =>
-            {
-                Assert.Equal(provider, provider1);
-                errorThrown = ex;
-                callCount++;
-            });
-            Assert.Equal(1, callCount);
-            Assert.Equal("SHUTDOWN ERROR", errorThrown?.Message);
-        }
-
-        [Fact]
         public async Task In_Use_Provider_Named_And_Default_Is_Not_Shutdown()
         {
             var repository = new ProviderRepository();
             var provider1 = Substitute.For<FeatureProvider>();
-            provider1.GetStatus().Returns(ProviderStatus.NotReady);
+            provider1.Status.Returns(ProviderStatus.NotReady);
 
             var provider2 = Substitute.For<FeatureProvider>();
-            provider2.GetStatus().Returns(ProviderStatus.NotReady);
+            provider2.Status.Returns(ProviderStatus.NotReady);
 
             var context = new EvaluationContextBuilder().Build();
 
@@ -374,10 +261,10 @@ namespace OpenFeature.Tests
         {
             var repository = new ProviderRepository();
             var provider1 = Substitute.For<FeatureProvider>();
-            provider1.GetStatus().Returns(ProviderStatus.NotReady);
+            provider1.Status.Returns(ProviderStatus.NotReady);
 
             var provider2 = Substitute.For<FeatureProvider>();
-            provider2.GetStatus().Returns(ProviderStatus.NotReady);
+            provider2.Status.Returns(ProviderStatus.NotReady);
 
             var context = new EvaluationContextBuilder().Build();
 
@@ -394,10 +281,10 @@ namespace OpenFeature.Tests
         {
             var repository = new ProviderRepository();
             var provider1 = Substitute.For<FeatureProvider>();
-            provider1.GetStatus().Returns(ProviderStatus.NotReady);
+            provider1.Status.Returns(ProviderStatus.NotReady);
 
             var provider2 = Substitute.For<FeatureProvider>();
-            provider2.GetStatus().Returns(ProviderStatus.NotReady);
+            provider2.Status.Returns(ProviderStatus.NotReady);
 
             var context = new EvaluationContextBuilder().Build();
 
@@ -415,10 +302,10 @@ namespace OpenFeature.Tests
         {
             var repository = new ProviderRepository();
             var provider1 = Substitute.For<FeatureProvider>();
-            provider1.GetStatus().Returns(ProviderStatus.NotReady);
+            provider1.Status.Returns(ProviderStatus.NotReady);
 
             var provider2 = Substitute.For<FeatureProvider>();
-            provider2.GetStatus().Returns(ProviderStatus.NotReady);
+            provider2.Status.Returns(ProviderStatus.NotReady);
 
             var context = new EvaluationContextBuilder().Build();
 
@@ -434,10 +321,10 @@ namespace OpenFeature.Tests
         {
             var repository = new ProviderRepository();
             var provider1 = Substitute.For<FeatureProvider>();
-            provider1.GetStatus().Returns(ProviderStatus.NotReady);
+            provider1.Status.Returns(ProviderStatus.NotReady);
 
             var provider2 = Substitute.For<FeatureProvider>();
-            provider2.GetStatus().Returns(ProviderStatus.NotReady);
+            provider2.Status.Returns(ProviderStatus.NotReady);
 
             var context = new EvaluationContextBuilder().Build();
 
@@ -452,13 +339,13 @@ namespace OpenFeature.Tests
         {
             var repository = new ProviderRepository();
             var provider1 = Substitute.For<FeatureProvider>();
-            provider1.GetStatus().Returns(ProviderStatus.NotReady);
+            provider1.Status.Returns(ProviderStatus.NotReady);
 
             var provider2 = Substitute.For<FeatureProvider>();
-            provider2.GetStatus().Returns(ProviderStatus.NotReady);
+            provider2.Status.Returns(ProviderStatus.NotReady);
 
             var provider3 = Substitute.For<FeatureProvider>();
-            provider3.GetStatus().Returns(ProviderStatus.NotReady);
+            provider3.Status.Returns(ProviderStatus.NotReady);
 
             var context = new EvaluationContextBuilder().Build();
 
@@ -476,61 +363,11 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        public async Task Errors_During_Shutdown_Propagate()
-        {
-            var repository = new ProviderRepository();
-            var provider1 = Substitute.For<FeatureProvider>();
-            provider1.GetStatus().Returns(ProviderStatus.NotReady);
-            provider1.ShutdownAsync().Throws(new Exception("SHUTDOWN ERROR 1"));
-
-            var provider2 = Substitute.For<FeatureProvider>();
-            provider2.GetStatus().Returns(ProviderStatus.NotReady);
-            provider2.ShutdownAsync().Throws(new Exception("SHUTDOWN ERROR 2"));
-
-            var provider3 = Substitute.For<FeatureProvider>();
-            provider3.GetStatus().Returns(ProviderStatus.NotReady);
-
-            var context = new EvaluationContextBuilder().Build();
-
-            await repository.SetProviderAsync(provider1, context);
-            await repository.SetProviderAsync("provider1", provider1, context);
-            await repository.SetProviderAsync("provider2", provider2, context);
-            await repository.SetProviderAsync("provider2a", provider2, context);
-            await repository.SetProviderAsync("provider3", provider3, context);
-
-            var callCountShutdown1 = 0;
-            var callCountShutdown2 = 0;
-            var totalCallCount = 0;
-            await repository.ShutdownAsync(afterError: (provider, exception) =>
-            {
-                totalCallCount++;
-                if (provider == provider1)
-                {
-                    callCountShutdown1++;
-                    Assert.Equal("SHUTDOWN ERROR 1", exception.Message);
-                }
-
-                if (provider == provider2)
-                {
-                    callCountShutdown2++;
-                    Assert.Equal("SHUTDOWN ERROR 2", exception.Message);
-                }
-            });
-            Assert.Equal(2, totalCallCount);
-            Assert.Equal(1, callCountShutdown1);
-            Assert.Equal(1, callCountShutdown2);
-
-            provider1.Received(1).ShutdownAsync();
-            provider2.Received(1).ShutdownAsync();
-            provider3.Received(1).ShutdownAsync();
-        }
-
-        [Fact]
         public async Task Setting_Same_Default_Provider_Has_No_Effect()
         {
             var repository = new ProviderRepository();
             var provider = Substitute.For<FeatureProvider>();
-            provider.GetStatus().Returns(ProviderStatus.NotReady);
+            provider.Status.Returns(ProviderStatus.NotReady);
             var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync(provider, context);
             await repository.SetProviderAsync(provider, context);
@@ -545,7 +382,7 @@ namespace OpenFeature.Tests
         {
             var repository = new ProviderRepository();
             var provider = Substitute.For<FeatureProvider>();
-            provider.GetStatus().Returns(ProviderStatus.NotReady);
+            provider.Status.Returns(ProviderStatus.NotReady);
             var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync(provider, context);
             await repository.SetProviderAsync(null, context);
@@ -561,10 +398,10 @@ namespace OpenFeature.Tests
             var repository = new ProviderRepository();
 
             var namedProvider = Substitute.For<FeatureProvider>();
-            namedProvider.GetStatus().Returns(ProviderStatus.NotReady);
+            namedProvider.Status.Returns(ProviderStatus.NotReady);
 
             var defaultProvider = Substitute.For<FeatureProvider>();
-            defaultProvider.GetStatus().Returns(ProviderStatus.NotReady);
+            defaultProvider.Status.Returns(ProviderStatus.NotReady);
 
             var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync(defaultProvider, context);

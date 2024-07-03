@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenFeature.Constant;
+using OpenFeature.Error;
 using OpenFeature.Model;
 
 namespace OpenFeature
@@ -37,7 +38,7 @@ namespace OpenFeature
         private Api() { }
 
         /// <summary>
-        /// Sets the feature provider. In order to wait for the provider to be set, and initialization to complete,
+        /// Sets the default feature provider. In order to wait for the provider to be set, and initialization to complete,
         /// await the returned task.
         /// </summary>
         /// <remarks>The provider cannot be set to null. Attempting to set the provider to null has no effect.</remarks>
@@ -45,9 +46,8 @@ namespace OpenFeature
         public async Task SetProviderAsync(FeatureProvider featureProvider)
         {
             this._eventExecutor.RegisterDefaultFeatureProvider(featureProvider);
-            await this._repository.SetProviderAsync(featureProvider, this.GetContext()).ConfigureAwait(false);
+            await this._repository.SetProviderAsync(featureProvider, this.GetContext(), AfterInitialization, AfterError).ConfigureAwait(false);
         }
-
 
         /// <summary>
         /// Sets the feature provider to given clientName. In order to wait for the provider to be set, and
@@ -62,7 +62,7 @@ namespace OpenFeature
                 throw new ArgumentNullException(nameof(clientName));
             }
             this._eventExecutor.RegisterClientFeatureProvider(clientName, featureProvider);
-            await this._repository.SetProviderAsync(clientName, featureProvider, this.GetContext()).ConfigureAwait(false);
+            await this._repository.SetProviderAsync(clientName, featureProvider, this.GetContext(), AfterInitialization, AfterError).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace OpenFeature
         /// <returns><see cref="FeatureClient"/></returns>
         public FeatureClient GetClient(string? name = null, string? version = null, ILogger? logger = null,
             EvaluationContext? context = null) =>
-            new FeatureClient(name, version, logger, context);
+            new FeatureClient(() => _repository.GetProvider(name), name, version, logger, context);
 
         /// <summary>
         /// Appends list of hooks to global hooks list
@@ -258,6 +258,7 @@ namespace OpenFeature
         public void SetLogger(ILogger logger)
         {
             this._eventExecutor.SetLogger(logger);
+            this._repository.SetLogger(logger);
         }
 
         internal void AddClientHandler(string client, ProviderEventTypes eventType, EventHandlerDelegate handler)
@@ -265,5 +266,38 @@ namespace OpenFeature
 
         internal void RemoveClientHandler(string client, ProviderEventTypes eventType, EventHandlerDelegate handler)
             => this._eventExecutor.RemoveClientHandler(client, eventType, handler);
+
+        /// <summary>
+        /// Update the provider state to READY and emit a READY event after successful init.
+        /// </summary>
+        private async Task AfterInitialization(FeatureProvider provider)
+        {
+            provider.Status = ProviderStatus.Ready;
+            var eventPayload = new ProviderEventPayload
+            {
+                Type = ProviderEventTypes.ProviderReady,
+                Message = "Provider initialization complete",
+                ProviderName = provider.GetMetadata().Name,
+            };
+
+            await this._eventExecutor.EventChannel.Writer.WriteAsync(new Event { Provider = provider, EventPayload = eventPayload }).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Update the provider state to ERROR and emit an ERROR after failed init.
+        /// </summary>
+        private async Task AfterError(FeatureProvider provider, Exception ex)
+
+        {
+            provider.Status = typeof(ProviderFatalException) == ex.GetType() ? ProviderStatus.Fatal : ProviderStatus.Error;
+            var eventPayload = new ProviderEventPayload
+            {
+                Type = ProviderEventTypes.ProviderError,
+                Message = $"Provider initialization error: {ex?.Message}",
+                ProviderName = provider.GetMetadata()?.Name,
+            };
+
+            await this._eventExecutor.EventChannel.Writer.WriteAsync(new Event { Provider = provider, EventPayload = eventPayload }).ConfigureAwait(false);
+        }
     }
 }
