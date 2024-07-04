@@ -29,6 +29,11 @@ namespace OpenFeature.Model
         public string? Message { get; set; }
 
         /// <summary>
+        /// Optional error associated with the event. 
+        /// </summary>
+        public ErrorType? ErrorType { get; set; }
+
+        /// <summary>
         /// A List of flags that have been changed.
         /// </summary>
         public List<string>? FlagsChanged { get; set; }

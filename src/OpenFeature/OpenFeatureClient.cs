@@ -21,6 +21,7 @@ namespace OpenFeature
         private readonly ClientMetadata _metadata;
         private readonly ConcurrentStack<Hook> _hooks = new ConcurrentStack<Hook>();
         private readonly ILogger _logger;
+        private readonly Func<FeatureProvider> _providerAccessor;
         private EvaluationContext _evaluationContext;
 
         private readonly object _evaluationContextLock = new object();
@@ -49,6 +50,9 @@ namespace OpenFeature
         }
 
         /// <inheritdoc />
+        public ProviderStatus ProviderStatus => this._providerAccessor.Invoke().Status;
+
+        /// <inheritdoc />
         public EvaluationContext GetContext()
         {
             lock (this._evaluationContextLock)
@@ -69,16 +73,18 @@ namespace OpenFeature
         /// <summary>
         /// Initializes a new instance of the <see cref="FeatureClient"/> class.
         /// </summary>
+        /// <param name="providerAccessor">Function to retrieve current provider</param>
         /// <param name="name">Name of client <see cref="ClientMetadata"/></param>
         /// <param name="version">Version of client <see cref="ClientMetadata"/></param>
         /// <param name="logger">Logger used by client</param>
         /// <param name="context">Context given to this client</param>
         /// <exception cref="ArgumentNullException">Throws if any of the required parameters are null</exception>
-        public FeatureClient(string? name, string? version, ILogger? logger = null, EvaluationContext? context = null)
+        internal FeatureClient(Func<FeatureProvider> providerAccessor, string? name, string? version, ILogger? logger = null, EvaluationContext? context = null)
         {
             this._metadata = new ClientMetadata(name, version);
             this._logger = logger ?? NullLogger<FeatureClient>.Instance;
             this._evaluationContext = context ?? EvaluationContext.Empty;
+            this._providerAccessor = providerAccessor;
         }
 
         /// <inheritdoc />
@@ -245,6 +251,16 @@ namespace OpenFeature
             try
             {
                 var contextFromHooks = await this.TriggerBeforeHooksAsync(allHooks, hookContext, options, cancellationToken).ConfigureAwait(false);
+
+                // short circuit evaluation entirely if provider is in a bad state
+                if (provider.Status == ProviderStatus.NotReady)
+                {
+                    throw new ProviderNotReadyException("Provider has not yet completed initialization.");
+                }
+                else if (provider.Status == ProviderStatus.Fatal)
+                {
+                    throw new ProviderFatalException("Provider is in an irrecoverable error state.");
+                }
 
                 evaluation =
                     (await resolveValueDelegate.Invoke(flagKey, defaultValue, contextFromHooks.EvaluationContext, cancellationToken).ConfigureAwait(false))

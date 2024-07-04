@@ -1,10 +1,12 @@
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using OpenFeature.Constant;
 using OpenFeature.Model;
 
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")] // required to allow NSubstitute mocking of internal methods
 namespace OpenFeature
 {
     /// <summary>
@@ -94,22 +96,17 @@ namespace OpenFeature
             EvaluationContext? context = null, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Get the status of the provider.
+        /// Internally-managed provider status.
+        /// The SDK uses this field to track the status of the provider.
+        /// Not visible outside OpenFeature assembly
         /// </summary>
-        /// <returns>The current <see cref="ProviderStatus"/></returns>
-        /// <remarks>
-        /// If a provider does not override this method, then its status will be assumed to be
-        /// <see cref="ProviderStatus.Ready"/>. If a provider implements this method, and supports initialization,
-        /// then it should start in the <see cref="ProviderStatus.NotReady"/>status . If the status is
-        /// <see cref="ProviderStatus.NotReady"/>, then the Api will call the <see cref="InitializeAsync" /> when the
-        /// provider is set.
-        /// </remarks>
-        public virtual ProviderStatus GetStatus() => ProviderStatus.Ready;
+        internal virtual ProviderStatus Status { get; set; } = ProviderStatus.NotReady;
 
         /// <summary>
         /// <para>
         /// This method is called before a provider is used to evaluate flags. Providers can overwrite this method,
         /// if they have special initialization needed prior being called for flag evaluation.
+        /// When this method completes, the provider will be considered ready for use.
         /// </para>
         /// </summary>
         /// <param name="context"><see cref="EvaluationContext"/></param>
@@ -117,12 +114,7 @@ namespace OpenFeature
         /// <returns>A task that completes when the initialization process is complete.</returns>
         /// <remarks>
         /// <para>
-        /// A provider which supports initialization should override this method as well as
-        /// <see cref="GetStatus"/>.
-        /// </para>
-        /// <para>
-        /// The provider should return <see cref="ProviderStatus.Ready"/> or <see cref="ProviderStatus.Error"/> from
-        /// the <see cref="GetStatus"/> method after initialization is complete.
+        /// Providers not implementing this method will be considered ready immediately.
         /// </para>
         /// </remarks>
         public virtual Task InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default)
