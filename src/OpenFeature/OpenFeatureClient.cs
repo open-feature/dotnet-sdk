@@ -349,7 +349,7 @@ namespace OpenFeature
                 }
                 catch (Exception e)
                 {
-                    this._logger.LogError(e, "Error while executing Finally hook {HookName}", hook.GetType().Name);
+                    this.FinallyHookError(hook.GetType().Name, e);
                 }
             }
         }

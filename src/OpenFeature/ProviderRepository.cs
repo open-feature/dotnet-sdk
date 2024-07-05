@@ -14,9 +14,9 @@ namespace OpenFeature
     /// <summary>
     /// This class manages the collection of providers, both default and named, contained by the API.
     /// </summary>
-    internal sealed class ProviderRepository : IAsyncDisposable
+    internal sealed partial class ProviderRepository : IAsyncDisposable
     {
-        private ILogger _logger;
+        private ILogger _logger = NullLogger<EventExecutor>.Instance;
 
         private FeatureProvider _defaultProvider = new NoOpFeatureProvider();
 
@@ -34,11 +34,6 @@ namespace OpenFeature
         /// as it was being added or removed such as two concurrent calls to SetProvider replacing multiple instances
         /// of that provider under different names..
         private readonly ReaderWriterLockSlim _providersLock = new ReaderWriterLockSlim();
-
-        public ProviderRepository()
-        {
-            this._logger = NullLogger<EventExecutor>.Instance;
-        }
 
         public async ValueTask DisposeAsync()
         {
@@ -226,7 +221,7 @@ namespace OpenFeature
             }
             catch (Exception ex)
             {
-                this._logger.LogError(ex, $"Error shutting down provider: {targetProvider.GetMetadata().Name}");
+                this.ErrorShuttingDownProvider(targetProvider.GetMetadata().Name, ex);
             }
         }
 
@@ -290,5 +285,8 @@ namespace OpenFeature
                 await this.SafeShutdownProviderAsync(targetProvider).ConfigureAwait(false);
             }
         }
+
+        [LoggerMessage(EventId = 105, Level = LogLevel.Error, Message = "Error shutting down provider: {TargetProviderName}`")]
+        partial void ErrorShuttingDownProvider(string? targetProviderName, Exception exception);
     }
 }
