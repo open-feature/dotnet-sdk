@@ -286,14 +286,14 @@ namespace OpenFeature
         /// <summary>
         /// Update the provider state to ERROR and emit an ERROR after failed init.
         /// </summary>
-        private async Task AfterError(FeatureProvider provider, Exception ex)
+        private async Task AfterError(FeatureProvider provider, Exception? ex)
 
         {
-            provider.Status = typeof(ProviderFatalException) == ex.GetType() ? ProviderStatus.Fatal : ProviderStatus.Error;
+            provider.Status = typeof(ProviderFatalException) == ex?.GetType() ? ProviderStatus.Fatal : ProviderStatus.Error;
             var eventPayload = new ProviderEventPayload
             {
                 Type = ProviderEventTypes.ProviderError,
-                Message = $"Provider initialization error: {ex.Message}",
+                Message = $"Provider initialization error: {ex?.Message}",
                 ProviderName = provider.GetMetadata().Name,
             };
 
