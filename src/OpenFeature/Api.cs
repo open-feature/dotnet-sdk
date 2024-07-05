@@ -46,7 +46,7 @@ namespace OpenFeature
         public async Task SetProviderAsync(FeatureProvider featureProvider)
         {
             this._eventExecutor.RegisterDefaultFeatureProvider(featureProvider);
-            await this._repository.SetProviderAsync(featureProvider, this.GetContext(), AfterInitialization, AfterError).ConfigureAwait(false);
+            await this._repository.SetProviderAsync(featureProvider, this.GetContext(), this.AfterInitialization, this.AfterError).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace OpenFeature
                 throw new ArgumentNullException(nameof(clientName));
             }
             this._eventExecutor.RegisterClientFeatureProvider(clientName, featureProvider);
-            await this._repository.SetProviderAsync(clientName, featureProvider, this.GetContext(), AfterInitialization, AfterError).ConfigureAwait(false);
+            await this._repository.SetProviderAsync(clientName, featureProvider, this.GetContext(), this.AfterInitialization, this.AfterError).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace OpenFeature
         /// <returns><see cref="FeatureClient"/></returns>
         public FeatureClient GetClient(string? name = null, string? version = null, ILogger? logger = null,
             EvaluationContext? context = null) =>
-            new FeatureClient(() => _repository.GetProvider(name), name, version, logger, context);
+            new FeatureClient(() => this._repository.GetProvider(name), name, version, logger, context);
 
         /// <summary>
         /// Appends list of hooks to global hooks list

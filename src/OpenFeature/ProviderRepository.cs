@@ -201,7 +201,7 @@ namespace OpenFeature
                 return;
             }
 
-            await SafeShutdownProviderAsync(targetProvider).ConfigureAwait(false);
+            await this.SafeShutdownProviderAsync(targetProvider).ConfigureAwait(false);
         }
 
         /// <remarks>
@@ -287,7 +287,7 @@ namespace OpenFeature
             foreach (var targetProvider in providers)
             {
                 // We don't need to take any actions after shutdown.
-                await SafeShutdownProviderAsync(targetProvider).ConfigureAwait(false);
+                await this.SafeShutdownProviderAsync(targetProvider).ConfigureAwait(false);
             }
         }
     }

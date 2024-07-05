@@ -41,7 +41,7 @@ namespace OpenFeature.E2ETests
         [Given(@"a provider is registered")]
         public void GivenAProviderIsRegistered()
         {
-            var memProvider = new InMemoryProvider(e2eFlagConfig);
+            var memProvider = new InMemoryProvider(this.e2eFlagConfig);
             Api.Instance.SetProviderAsync(memProvider).Wait();
             client = Api.Instance.GetClient("TestClient", "1.0.0");
         }
@@ -204,9 +204,9 @@ namespace OpenFeature.E2ETests
         [When(@"a flag with key ""(.*)"" is evaluated with default value ""(.*)""")]
         public void Givenaflagwithkeyisevaluatedwithdefaultvalue(string flagKey, string defaultValue)
         {
-            contextAwareFlagKey = flagKey;
-            contextAwareDefaultValue = defaultValue;
-            contextAwareValue = client?.GetStringValueAsync(flagKey, contextAwareDefaultValue, context)?.Result;
+            this.contextAwareFlagKey = flagKey;
+            this.contextAwareDefaultValue = defaultValue;
+            this.contextAwareValue = client?.GetStringValueAsync(flagKey, this.contextAwareDefaultValue, this.context)?.Result;
         }
 
         [Then(@"the resolved string response should be ""(.*)""")]
@@ -218,7 +218,7 @@ namespace OpenFeature.E2ETests
         [Then(@"the resolved flag value is ""(.*)"" when the context is empty")]
         public void Giventheresolvedflagvalueiswhenthecontextisempty(string expected)
         {
-            string? emptyContextValue = client?.GetStringValueAsync(contextAwareFlagKey!, contextAwareDefaultValue!, EvaluationContext.Empty).Result;
+            string? emptyContextValue = client?.GetStringValueAsync(this.contextAwareFlagKey!, this.contextAwareDefaultValue!, EvaluationContext.Empty).Result;
             Assert.Equal(expected, emptyContextValue);
         }
 
@@ -239,8 +239,8 @@ namespace OpenFeature.E2ETests
         [Then(@"the reason should indicate an error and the error code should indicate a missing flag with ""(.*)""")]
         public void Giventhereasonshouldindicateanerrorandtheerrorcodeshouldindicateamissingflagwith(string errorCode)
         {
-            Assert.Equal(Reason.Error.ToString(), notFoundDetails?.Reason);
-            Assert.Equal(errorCode, notFoundDetails?.ErrorType.GetDescription());
+            Assert.Equal(Reason.Error.ToString(), this.notFoundDetails?.Reason);
+            Assert.Equal(errorCode, this.notFoundDetails?.ErrorType.GetDescription());
         }
 
         [When(@"a string flag with key ""(.*)"" is evaluated as an integer, with details and a default value (.*)")]
@@ -260,8 +260,8 @@ namespace OpenFeature.E2ETests
         [Then(@"the reason should indicate an error and the error code should indicate a type mismatch with ""(.*)""")]
         public void Giventhereasonshouldindicateanerrorandtheerrorcodeshouldindicateatypemismatchwith(string errorCode)
         {
-            Assert.Equal(Reason.Error.ToString(), typeErrorDetails?.Reason);
-            Assert.Equal(errorCode, typeErrorDetails?.ErrorType.GetDescription());
+            Assert.Equal(Reason.Error.ToString(), this.typeErrorDetails?.Reason);
+            Assert.Equal(errorCode, this.typeErrorDetails?.ErrorType.GetDescription());
         }
 
         private IDictionary<string, Flag> e2eFlagConfig = new Dictionary<string, Flag>(){
