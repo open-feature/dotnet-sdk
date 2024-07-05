@@ -38,7 +38,7 @@ namespace OpenFeature
         /// Metadata describing the provider.
         /// </summary>
         /// <returns><see cref="Metadata"/></returns>
-        public abstract Metadata GetMetadata();
+        public abstract Metadata? GetMetadata();
 
         /// <summary>
         /// Resolves a boolean feature flag

@@ -206,7 +206,7 @@ namespace OpenFeature
                 {
                     handler.Invoke(new ProviderEventPayload
                     {
-                        ProviderName = provider.GetMetadata().Name,
+                        ProviderName = provider.GetMetadata()?.Name,
                         Type = eventType,
                         Message = message
                     });

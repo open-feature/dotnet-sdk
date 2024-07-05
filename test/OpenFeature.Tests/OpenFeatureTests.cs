@@ -103,8 +103,8 @@ namespace OpenFeature.Tests
             var defaultClient = openFeature.GetProviderMetadata();
             var namedClient = openFeature.GetProviderMetadata(TestProvider.DefaultName);
 
-            defaultClient.Name.Should().Be(NoOpProvider.NoOpProviderName);
-            namedClient.Name.Should().Be(TestProvider.DefaultName);
+            defaultClient?.Name.Should().Be(NoOpProvider.NoOpProviderName);
+            namedClient?.Name.Should().Be(TestProvider.DefaultName);
         }
 
         [Fact]
@@ -117,7 +117,7 @@ namespace OpenFeature.Tests
 
             var defaultClient = openFeature.GetProviderMetadata();
 
-            defaultClient.Name.Should().Be(TestProvider.DefaultName);
+            defaultClient?.Name.Should().Be(TestProvider.DefaultName);
         }
 
         [Fact]
@@ -130,7 +130,7 @@ namespace OpenFeature.Tests
             await openFeature.SetProviderAsync(name, new TestProvider());
             await openFeature.SetProviderAsync(name, new NoOpFeatureProvider());
 
-            openFeature.GetProviderMetadata(name).Name.Should().Be(NoOpProvider.NoOpProviderName);
+            openFeature.GetProviderMetadata(name)?.Name.Should().Be(NoOpProvider.NoOpProviderName);
         }
 
         [Fact]
@@ -187,7 +187,7 @@ namespace OpenFeature.Tests
             var metadata = openFeature.GetProviderMetadata();
 
             metadata.Should().NotBeNull();
-            metadata.Name.Should().Be(NoOpProvider.NoOpProviderName);
+            metadata?.Name.Should().Be(NoOpProvider.NoOpProviderName);
         }
 
         [Theory]

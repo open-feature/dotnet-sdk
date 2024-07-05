@@ -221,7 +221,7 @@ namespace OpenFeature
             }
             catch (Exception ex)
             {
-                this.ErrorShuttingDownProvider(targetProvider.GetMetadata().Name, ex);
+                this.ErrorShuttingDownProvider(targetProvider.GetMetadata()?.Name, ex);
             }
         }
 
