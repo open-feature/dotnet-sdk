@@ -9,19 +9,16 @@ namespace OpenFeature.Providers.Memory
     /// <summary>
     /// Flag representation for the in-memory provider.
     /// </summary>
-    public interface Flag
-    {
-
-    }
+    public interface Flag;
 
     /// <summary>
     /// Flag representation for the in-memory provider.
     /// </summary>
     public sealed class Flag<T> : Flag
     {
-        private Dictionary<string, T> Variants;
-        private string DefaultVariant;
-        private Func<EvaluationContext, string>? ContextEvaluator;
+        private readonly Dictionary<string, T> _variants;
+        private readonly string _defaultVariant;
+        private readonly Func<EvaluationContext, string>? _contextEvaluator;
 
         /// <summary>
         /// Flag representation for the in-memory provider.
@@ -31,34 +28,34 @@ namespace OpenFeature.Providers.Memory
         /// <param name="contextEvaluator">optional context-sensitive evaluation function</param>
         public Flag(Dictionary<string, T> variants, string defaultVariant, Func<EvaluationContext, string>? contextEvaluator = null)
         {
-            this.Variants = variants;
-            this.DefaultVariant = defaultVariant;
-            this.ContextEvaluator = contextEvaluator;
+            this._variants = variants;
+            this._defaultVariant = defaultVariant;
+            this._contextEvaluator = contextEvaluator;
         }
 
         internal ResolutionDetails<T> Evaluate(string flagKey, T _, EvaluationContext? evaluationContext)
         {
-            T? value = default;
-            if (this.ContextEvaluator == null)
+            T? value;
+            if (this._contextEvaluator == null)
             {
-                if (this.Variants.TryGetValue(this.DefaultVariant, out value))
+                if (this._variants.TryGetValue(this._defaultVariant, out value))
                 {
                     return new ResolutionDetails<T>(
                         flagKey,
                         value,
-                        variant: this.DefaultVariant,
+                        variant: this._defaultVariant,
                         reason: Reason.Static
                     );
                 }
                 else
                 {
-                    throw new GeneralException($"variant {this.DefaultVariant} not found");
+                    throw new GeneralException($"variant {this._defaultVariant} not found");
                 }
             }
             else
             {
-                var variant = this.ContextEvaluator.Invoke(evaluationContext ?? EvaluationContext.Empty);
-                if (!this.Variants.TryGetValue(variant, out value))
+                var variant = this._contextEvaluator.Invoke(evaluationContext ?? EvaluationContext.Empty);
+                if (!this._variants.TryGetValue(variant, out value))
                 {
                     throw new GeneralException($"variant {variant} not found");
                 }

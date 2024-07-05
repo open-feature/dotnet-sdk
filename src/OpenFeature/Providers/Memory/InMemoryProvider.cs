@@ -104,19 +104,15 @@ namespace OpenFeature.Providers.Memory
             {
                 throw new FlagNotFoundException($"flag {flagKey} not found");
             }
-            else
+
+            // This check returns False if a floating point flag is evaluated as an integer flag, and vice-versa.
+            // In a production provider, such behavior is probably not desirable; consider supporting conversion.
+            if (flag is Flag<T> value)
             {
-                // This check returns False if a floating point flag is evaluated as an integer flag, and vice-versa.
-                // In a production provider, such behavior is probably not desirable; consider supporting conversion.
-                if (typeof(Flag<T>).Equals(flag.GetType()))
-                {
-                    return ((Flag<T>)flag).Evaluate(flagKey, defaultValue, context);
-                }
-                else
-                {
-                    throw new TypeMismatchException($"flag {flagKey} is not of type ${typeof(T)}");
-                }
+                return value.Evaluate(flagKey, defaultValue, context);
             }
+
+            throw new TypeMismatchException($"flag {flagKey} is not of type ${typeof(T)}");
         }
     }
 }

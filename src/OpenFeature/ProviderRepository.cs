@@ -26,13 +26,13 @@ namespace OpenFeature
         /// The reader/writer locks is not disposed because the singleton instance should never be disposed.
         ///
         /// Mutations of the _defaultProvider or _featureProviders are done within this lock even though
-        /// _featureProvider is a concurrent collection. This is for a couple reasons, the first is that
+        /// _featureProvider is a concurrent collection. This is for a couple of reasons, the first is that
         /// a provider should only be shutdown if it is not in use, and it could be in use as either a named or
         /// default provider.
         ///
-        /// The second is that a concurrent collection doesn't provide any ordering so we could check a provider
+        /// The second is that a concurrent collection doesn't provide any ordering, so we could check a provider
         /// as it was being added or removed such as two concurrent calls to SetProvider replacing multiple instances
-        /// of that provider under different names..
+        /// of that provider under different names.
         private readonly ReaderWriterLockSlim _providersLock = new ReaderWriterLockSlim();
 
         public async ValueTask DisposeAsync()
@@ -204,7 +204,7 @@ namespace OpenFeature
         /// Shut down the provider and capture any exceptions thrown.
         /// </para>
         /// <para>
-        /// The provider is set either to a name or default before the old provider it shutdown, so
+        /// The provider is set either to a name or default before the old provider it shut down, so
         /// it would not be meaningful to emit an error.
         /// </para>
         /// </remarks>

@@ -32,7 +32,7 @@ namespace OpenFeature
         public static Api Instance { get; } = new Api();
 
         // Explicit static constructor to tell C# compiler
-        // not to mark type as beforefieldinit
+        // not to mark type as beforeFieldInit
         // IE Lazy way of ensuring this is thread safe without using locks
         static Api() { }
         private Api() { }
@@ -293,8 +293,8 @@ namespace OpenFeature
             var eventPayload = new ProviderEventPayload
             {
                 Type = ProviderEventTypes.ProviderError,
-                Message = $"Provider initialization error: {ex?.Message}",
-                ProviderName = provider.GetMetadata()?.Name,
+                Message = $"Provider initialization error: {ex.Message}",
+                ProviderName = provider.GetMetadata().Name,
             };
 
             await this._eventExecutor.EventChannel.Writer.WriteAsync(new Event { Provider = provider, EventPayload = eventPayload }).ConfigureAwait(false);

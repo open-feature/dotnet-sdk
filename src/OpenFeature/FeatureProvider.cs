@@ -11,14 +11,14 @@ namespace OpenFeature
 {
     /// <summary>
     /// The provider interface describes the abstraction layer for a feature flag provider.
-    /// A provider acts as the translates layer between the generic feature flag structure to a target feature flag system.
+    /// A provider acts as it translates layer between the generic feature flag structure to a target feature flag system.
     /// </summary>
     /// <seealso href="https://github.com/open-feature/spec/blob/v0.5.2/specification/sections/02-providers.md">Provider specification</seealso>
     public abstract class FeatureProvider
     {
         /// <summary>
-        /// Gets a immutable list of hooks that belong to the provider.
-        /// By default return a empty list
+        /// Gets an immutable list of hooks that belong to the provider.
+        /// By default, return an empty list
         ///
         /// Executed in the order of hooks
         /// before: API, Client, Invocation, Provider
