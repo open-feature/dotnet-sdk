@@ -103,10 +103,10 @@ namespace OpenFeature.Tests
 
         public override async Task InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default)
         {
-            await Task.Delay(initDelay).ConfigureAwait(false);
-            if (initException != null)
+            await Task.Delay(this.initDelay).ConfigureAwait(false);
+            if (this.initException != null)
             {
-                throw initException;
+                throw this.initException;
             }
         }
 

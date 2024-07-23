@@ -32,7 +32,7 @@ namespace OpenFeature
         public static Api Instance { get; } = new Api();
 
         // Explicit static constructor to tell C# compiler
-        // not to mark type as beforefieldinit
+        // not to mark type as beforeFieldInit
         // IE Lazy way of ensuring this is thread safe without using locks
         static Api() { }
         private Api() { }
@@ -46,7 +46,7 @@ namespace OpenFeature
         public async Task SetProviderAsync(FeatureProvider featureProvider)
         {
             this._eventExecutor.RegisterDefaultFeatureProvider(featureProvider);
-            await this._repository.SetProviderAsync(featureProvider, this.GetContext(), AfterInitialization, AfterError).ConfigureAwait(false);
+            await this._repository.SetProviderAsync(featureProvider, this.GetContext(), this.AfterInitialization, this.AfterError).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace OpenFeature
                 throw new ArgumentNullException(nameof(clientName));
             }
             this._eventExecutor.RegisterClientFeatureProvider(clientName, featureProvider);
-            await this._repository.SetProviderAsync(clientName, featureProvider, this.GetContext(), AfterInitialization, AfterError).ConfigureAwait(false);
+            await this._repository.SetProviderAsync(clientName, featureProvider, this.GetContext(), this.AfterInitialization, this.AfterError).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace OpenFeature
         /// </para>
         /// </summary>
         /// <returns><see cref="ClientMetadata"/></returns>
-        public Metadata GetProviderMetadata() => this.GetProvider().GetMetadata();
+        public Metadata? GetProviderMetadata() => this.GetProvider().GetMetadata();
 
         /// <summary>
         /// Gets providers metadata assigned to the given clientName. If the clientName has no provider
@@ -109,7 +109,7 @@ namespace OpenFeature
         /// </summary>
         /// <param name="clientName">Name of client</param>
         /// <returns>Metadata assigned to provider</returns>
-        public Metadata GetProviderMetadata(string clientName) => this.GetProvider(clientName).GetMetadata();
+        public Metadata? GetProviderMetadata(string clientName) => this.GetProvider(clientName).GetMetadata();
 
         /// <summary>
         /// Create a new instance of <see cref="FeatureClient"/> using the current provider
@@ -121,7 +121,7 @@ namespace OpenFeature
         /// <returns><see cref="FeatureClient"/></returns>
         public FeatureClient GetClient(string? name = null, string? version = null, ILogger? logger = null,
             EvaluationContext? context = null) =>
-            new FeatureClient(() => _repository.GetProvider(name), name, version, logger, context);
+            new FeatureClient(() => this._repository.GetProvider(name), name, version, logger, context);
 
         /// <summary>
         /// Appends list of hooks to global hooks list
@@ -277,7 +277,7 @@ namespace OpenFeature
             {
                 Type = ProviderEventTypes.ProviderReady,
                 Message = "Provider initialization complete",
-                ProviderName = provider.GetMetadata().Name,
+                ProviderName = provider.GetMetadata()?.Name,
             };
 
             await this._eventExecutor.EventChannel.Writer.WriteAsync(new Event { Provider = provider, EventPayload = eventPayload }).ConfigureAwait(false);
@@ -286,10 +286,9 @@ namespace OpenFeature
         /// <summary>
         /// Update the provider state to ERROR and emit an ERROR after failed init.
         /// </summary>
-        private async Task AfterError(FeatureProvider provider, Exception ex)
-
+        private async Task AfterError(FeatureProvider provider, Exception? ex)
         {
-            provider.Status = typeof(ProviderFatalException) == ex.GetType() ? ProviderStatus.Fatal : ProviderStatus.Error;
+            provider.Status = typeof(ProviderFatalException) == ex?.GetType() ? ProviderStatus.Fatal : ProviderStatus.Error;
             var eventPayload = new ProviderEventPayload
             {
                 Type = ProviderEventTypes.ProviderError,

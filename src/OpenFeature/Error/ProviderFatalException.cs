@@ -4,7 +4,7 @@ using OpenFeature.Constant;
 
 namespace OpenFeature.Error
 {
-    /// <summary> the
+    /// <summary>
     /// An exception that signals the provider has entered an irrecoverable error state.
     /// </summary>
     [ExcludeFromCodeCoverage]
