@@ -10,12 +10,12 @@ namespace OpenFeature.Model
     public sealed class FlagEvaluationOptions
     {
         /// <summary>
-        /// A immutable list of <see cref="Hook"/>
+        /// An immutable list of <see cref="Hook"/>
         /// </summary>
         public IImmutableList<Hook> Hooks { get; }
 
         /// <summary>
-        /// A immutable dictionary of hook hints
+        /// An immutable dictionary of hook hints
         /// </summary>
         public IImmutableDictionary<string, object> HookHints { get; }
 

@@ -14,9 +14,9 @@ namespace OpenFeature
     /// <summary>
     /// This class manages the collection of providers, both default and named, contained by the API.
     /// </summary>
-    internal sealed class ProviderRepository : IAsyncDisposable
+    internal sealed partial class ProviderRepository : IAsyncDisposable
     {
-        private ILogger _logger;
+        private ILogger _logger = NullLogger<EventExecutor>.Instance;
 
         private FeatureProvider _defaultProvider = new NoOpFeatureProvider();
 
@@ -26,19 +26,14 @@ namespace OpenFeature
         /// The reader/writer locks is not disposed because the singleton instance should never be disposed.
         ///
         /// Mutations of the _defaultProvider or _featureProviders are done within this lock even though
-        /// _featureProvider is a concurrent collection. This is for a couple reasons, the first is that
+        /// _featureProvider is a concurrent collection. This is for a couple of reasons, the first is that
         /// a provider should only be shutdown if it is not in use, and it could be in use as either a named or
         /// default provider.
         ///
-        /// The second is that a concurrent collection doesn't provide any ordering so we could check a provider
+        /// The second is that a concurrent collection doesn't provide any ordering, so we could check a provider
         /// as it was being added or removed such as two concurrent calls to SetProvider replacing multiple instances
-        /// of that provider under different names..
+        /// of that provider under different names.
         private readonly ReaderWriterLockSlim _providersLock = new ReaderWriterLockSlim();
-
-        public ProviderRepository()
-        {
-            this._logger = NullLogger<EventExecutor>.Instance;
-        }
 
         public async ValueTask DisposeAsync()
         {
@@ -201,7 +196,7 @@ namespace OpenFeature
                 return;
             }
 
-            await SafeShutdownProviderAsync(targetProvider).ConfigureAwait(false);
+            await this.SafeShutdownProviderAsync(targetProvider).ConfigureAwait(false);
         }
 
         /// <remarks>
@@ -209,7 +204,7 @@ namespace OpenFeature
         /// Shut down the provider and capture any exceptions thrown.
         /// </para>
         /// <para>
-        /// The provider is set either to a name or default before the old provider it shutdown, so
+        /// The provider is set either to a name or default before the old provider it shut down, so
         /// it would not be meaningful to emit an error.
         /// </para>
         /// </remarks>
@@ -226,7 +221,7 @@ namespace OpenFeature
             }
             catch (Exception ex)
             {
-                this._logger.LogError(ex, $"Error shutting down provider: {targetProvider.GetMetadata().Name}");
+                this.ErrorShuttingDownProvider(targetProvider.GetMetadata()?.Name, ex);
             }
         }
 
@@ -287,8 +282,11 @@ namespace OpenFeature
             foreach (var targetProvider in providers)
             {
                 // We don't need to take any actions after shutdown.
-                await SafeShutdownProviderAsync(targetProvider).ConfigureAwait(false);
+                await this.SafeShutdownProviderAsync(targetProvider).ConfigureAwait(false);
             }
         }
+
+        [LoggerMessage(EventId = 105, Level = LogLevel.Error, Message = "Error shutting down provider: {TargetProviderName}`")]
+        partial void ErrorShuttingDownProvider(string? targetProviderName, Exception exception);
     }
 }

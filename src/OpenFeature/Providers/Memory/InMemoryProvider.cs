@@ -61,7 +61,7 @@ namespace OpenFeature.Providers.Memory
             var @event = new ProviderEventPayload
             {
                 Type = ProviderEventTypes.ProviderConfigurationChanged,
-                ProviderName = _metadata.Name,
+                ProviderName = this._metadata.Name,
                 FlagsChanged = changed, // emit all
                 Message = "flags changed",
             };
@@ -71,31 +71,31 @@ namespace OpenFeature.Providers.Memory
         /// <inheritdoc/>
         public override Task<ResolutionDetails<bool>> ResolveBooleanValueAsync(string flagKey, bool defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(Resolve(flagKey, defaultValue, context));
+            return Task.FromResult(this.Resolve(flagKey, defaultValue, context));
         }
 
         /// <inheritdoc/>
         public override Task<ResolutionDetails<string>> ResolveStringValueAsync(string flagKey, string defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(Resolve(flagKey, defaultValue, context));
+            return Task.FromResult(this.Resolve(flagKey, defaultValue, context));
         }
 
         /// <inheritdoc/>
         public override Task<ResolutionDetails<int>> ResolveIntegerValueAsync(string flagKey, int defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(Resolve(flagKey, defaultValue, context));
+            return Task.FromResult(this.Resolve(flagKey, defaultValue, context));
         }
 
         /// <inheritdoc/>
         public override Task<ResolutionDetails<double>> ResolveDoubleValueAsync(string flagKey, double defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(Resolve(flagKey, defaultValue, context));
+            return Task.FromResult(this.Resolve(flagKey, defaultValue, context));
         }
 
         /// <inheritdoc/>
         public override Task<ResolutionDetails<Value>> ResolveStructureValueAsync(string flagKey, Value defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(Resolve(flagKey, defaultValue, context));
+            return Task.FromResult(this.Resolve(flagKey, defaultValue, context));
         }
 
         private ResolutionDetails<T> Resolve<T>(string flagKey, T defaultValue, EvaluationContext? context)
@@ -104,19 +104,15 @@ namespace OpenFeature.Providers.Memory
             {
                 throw new FlagNotFoundException($"flag {flagKey} not found");
             }
-            else
+
+            // This check returns False if a floating point flag is evaluated as an integer flag, and vice-versa.
+            // In a production provider, such behavior is probably not desirable; consider supporting conversion.
+            if (flag is Flag<T> value)
             {
-                // This check returns False if a floating point flag is evaluated as an integer flag, and vice-versa.
-                // In a production provider, such behavior is probably not desirable; consider supporting conversion.
-                if (typeof(Flag<T>).Equals(flag.GetType()))
-                {
-                    return ((Flag<T>)flag).Evaluate(flagKey, defaultValue, context);
-                }
-                else
-                {
-                    throw new TypeMismatchException($"flag {flagKey} is not of type ${typeof(T)}");
-                }
+                return value.Evaluate(flagKey, defaultValue, context);
             }
+
+            throw new TypeMismatchException($"flag {flagKey} is not of type ${typeof(T)}");
         }
     }
 }

@@ -206,7 +206,7 @@ namespace OpenFeature
                 {
                     handler.Invoke(new ProviderEventPayload
                     {
-                        ProviderName = provider.GetMetadata().Name,
+                        ProviderName = provider.GetMetadata()?.Name,
                         Type = eventType,
                         Message = message
                     });
@@ -322,6 +322,7 @@ namespace OpenFeature
                 case ProviderEventTypes.ProviderError:
                     provider.Status = eventPayload.ErrorType == ErrorType.ProviderFatal ? ProviderStatus.Fatal : ProviderStatus.Error;
                     break;
+                case ProviderEventTypes.ProviderConfigurationChanged:
                 default: break;
             }
         }

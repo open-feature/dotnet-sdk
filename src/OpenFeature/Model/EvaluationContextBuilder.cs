@@ -140,9 +140,9 @@ namespace OpenFeature.Model
         {
             string? newTargetingKey = "";
 
-            if (!string.IsNullOrWhiteSpace(TargetingKey))
+            if (!string.IsNullOrWhiteSpace(this.TargetingKey))
             {
-                newTargetingKey = TargetingKey;
+                newTargetingKey = this.TargetingKey;
             }
 
             if (!string.IsNullOrWhiteSpace(context.TargetingKey))

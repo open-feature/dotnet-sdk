@@ -9,42 +9,42 @@ namespace OpenFeature.Constant
         /// <summary>
         /// Use when the flag is matched based on the evaluation context user data
         /// </summary>
-        public static string TargetingMatch = "TARGETING_MATCH";
+        public const string TargetingMatch = "TARGETING_MATCH";
 
         /// <summary>
         /// Use when the flag is matched based on a split rule in the feature flag provider
         /// </summary>
-        public static string Split = "SPLIT";
+        public const string Split = "SPLIT";
 
         /// <summary>
         /// Use when the flag is disabled in the feature flag provider
         /// </summary>
-        public static string Disabled = "DISABLED";
+        public const string Disabled = "DISABLED";
 
         /// <summary>
         /// Default reason when evaluating flag
         /// </summary>
-        public static string Default = "DEFAULT";
+        public const string Default = "DEFAULT";
 
         /// <summary>
         /// The resolved value is static (no dynamic evaluation)
         /// </summary>
-        public static string Static = "STATIC";
+        public const string Static = "STATIC";
 
         /// <summary>
         /// The resolved value was retrieved from cache
         /// </summary>
-        public static string Cached = "CACHED";
+        public const string Cached = "CACHED";
 
         /// <summary>
         /// Use when an unknown reason is encountered when evaluating flag.
         /// An example of this is if the feature provider returns a reason that is not defined in the spec
         /// </summary>
-        public static string Unknown = "UNKNOWN";
+        public const string Unknown = "UNKNOWN";
 
         /// <summary>
         /// Use this flag when abnormal execution is encountered.
         /// </summary>
-        public static string Error = "ERROR";
+        public const string Error = "ERROR";
     }
 }

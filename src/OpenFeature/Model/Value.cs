@@ -139,49 +139,49 @@ namespace OpenFeature.Model
         public object? AsObject => this._innerValue;
 
         /// <summary>
-        /// Returns the underlying int value
-        /// Value will be null if it isn't a integer
+        /// Returns the underlying int value.
+        /// Value will be null if it isn't an integer
         /// </summary>
         /// <returns>Value as int</returns>
-        public int? AsInteger => this.IsNumber ? (int?)Convert.ToInt32((double?)this._innerValue) : null;
+        public int? AsInteger => this.IsNumber ? Convert.ToInt32((double?)this._innerValue) : null;
 
         /// <summary>
-        /// Returns the underlying bool value
+        /// Returns the underlying bool value.
         /// Value will be null if it isn't a bool
         /// </summary>
         /// <returns>Value as bool</returns>
         public bool? AsBoolean => this.IsBoolean ? (bool?)this._innerValue : null;
 
         /// <summary>
-        /// Returns the underlying double value
+        /// Returns the underlying double value.
         /// Value will be null if it isn't a double
         /// </summary>
         /// <returns>Value as int</returns>
         public double? AsDouble => this.IsNumber ? (double?)this._innerValue : null;
 
         /// <summary>
-        /// Returns the underlying string value
+        /// Returns the underlying string value.
         /// Value will be null if it isn't a string
         /// </summary>
         /// <returns>Value as string</returns>
         public string? AsString => this.IsString ? (string?)this._innerValue : null;
 
         /// <summary>
-        /// Returns the underlying Structure value
+        /// Returns the underlying Structure value.
         /// Value will be null if it isn't a Structure
         /// </summary>
         /// <returns>Value as Structure</returns>
         public Structure? AsStructure => this.IsStructure ? (Structure?)this._innerValue : null;
 
         /// <summary>
-        /// Returns the underlying List value
+        /// Returns the underlying List value.
         /// Value will be null if it isn't a List
         /// </summary>
         /// <returns>Value as List</returns>
         public IImmutableList<Value>? AsList => this.IsList ? (IImmutableList<Value>?)this._innerValue : null;
 
         /// <summary>
-        /// Returns the underlying DateTime value
+        /// Returns the underlying DateTime value.
         /// Value will be null if it isn't a DateTime
         /// </summary>
         /// <returns>Value as DateTime</returns>

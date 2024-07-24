@@ -212,11 +212,8 @@ namespace OpenFeature
             var resolveValueDelegate = providerInfo.Item1;
             var provider = providerInfo.Item2;
 
-            // New up a evaluation context if one was not provided.
-            if (context == null)
-            {
-                context = EvaluationContext.Empty;
-            }
+            // New up an evaluation context if one was not provided.
+            context ??= EvaluationContext.Empty;
 
             // merge api, client, and invocation context.
             var evaluationContext = Api.Instance.GetContext();
@@ -349,7 +346,7 @@ namespace OpenFeature
                 }
                 catch (Exception e)
                 {
-                    this._logger.LogError(e, "Error while executing Finally hook {HookName}", hook.GetType().Name);
+                    this.FinallyHookError(hook.GetType().Name, e);
                 }
             }
         }
