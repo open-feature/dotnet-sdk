@@ -23,7 +23,7 @@ public sealed class HostingTest
 #pragma warning restore xUnit1030
 
         Assert.Equal(Api.Instance, app.Services.GetRequiredService<Api>());
-        Assert.Equal(Api.Instance.GetProviderMetadata().Name,
+        Assert.Equal(Api.Instance.GetProviderMetadata()?.Name,
             app.Services.GetRequiredService<IFeatureClient>().GetMetadata().Name);
 
         Assert.Empty(Api.Instance.GetContext().AsDictionary());
@@ -50,14 +50,14 @@ public sealed class HostingTest
         using var app = builder.Build();
 
         Assert.Equal(Api.Instance, app.Services.GetRequiredService<Api>());
-        Assert.Equal("No-op Provider", app.Services.GetRequiredService<Api>().GetProviderMetadata().Name);
+        Assert.Equal("No-op Provider", app.Services.GetRequiredService<Api>().GetProviderMetadata()?.Name);
 
 #pragma warning disable xUnit1030
         await app.StartAsync().ConfigureAwait(false);
 #pragma warning restore xUnit1030
 
         Assert.Equal(Api.Instance, app.Services.GetRequiredService<Api>());
-        Assert.Equal(SomeFeatureProvider.Name, app.Services.GetRequiredService<Api>().GetProviderMetadata().Name);
+        Assert.Equal(SomeFeatureProvider.Name, app.Services.GetRequiredService<Api>().GetProviderMetadata()?.Name);
         Assert.Equal(SomeFeatureProvider.Name, app.Services.GetRequiredService<IFeatureClient>().GetMetadata().Name);
 
         Assert.Empty(Api.Instance.GetContext().AsDictionary());
@@ -85,14 +85,14 @@ public sealed class HostingTest
         using var app = builder.Build();
 
         Assert.Equal(Api.Instance, app.Services.GetRequiredService<Api>());
-        Assert.Equal("No-op Provider", app.Services.GetRequiredService<Api>().GetProviderMetadata().Name);
+        Assert.Equal("No-op Provider", app.Services.GetRequiredService<Api>().GetProviderMetadata()?.Name);
 
 #pragma warning disable xUnit1030
         await app.StartAsync().ConfigureAwait(false);
 #pragma warning restore xUnit1030
 
         Assert.Equal(Api.Instance, app.Services.GetRequiredService<Api>());
-        Assert.Equal(SomeFeatureProvider.Name, app.Services.GetRequiredService<Api>().GetProviderMetadata().Name);
+        Assert.Equal(SomeFeatureProvider.Name, app.Services.GetRequiredService<Api>().GetProviderMetadata()?.Name);
         Assert.Equal(SomeFeatureProvider.Name, app.Services.GetRequiredService<IFeatureClient>().GetMetadata().Name);
         Assert.NotEmpty(app.Services.GetServices<Hook>());
 
