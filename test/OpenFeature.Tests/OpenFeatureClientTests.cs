@@ -178,6 +178,7 @@ namespace OpenFeature.Tests
 
             var evaluationDetails = await client.GetObjectDetails(flagName, defaultValue);
             evaluationDetails.ErrorType.Should().Be(ErrorType.TypeMismatch);
+            evaluationDetails.ErrorMessage.Should().Be(new InvalidCastException().Message);
 
             _ = mockedFeatureProvider.Received(1).ResolveStructureValue(flagName, defaultValue, Arg.Any<EvaluationContext>());
 

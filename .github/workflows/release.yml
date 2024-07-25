@@ -3,7 +3,7 @@ name: Run Release Release
 on:
   push:
     branches:
-      - main
+      - v1
 
 jobs:
   release-please:
@@ -15,7 +15,7 @@ jobs:
         with:
           command: manifest
           token: ${{secrets.GITHUB_TOKEN}}
-          default-branch: main
+          default-branch: v1
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       release_tag_name: ${{ steps.release.outputs.tag_name }}
