@@ -497,7 +497,7 @@ namespace OpenFeature.Tests
             var flagData = fixture
                 .CreateMany<KeyValuePair<string, object>>(10)
                 .ToDictionary(x => x.Key, x => x.Value);
-            var flagMetadata = new FlagMetadata(flagData);
+            var flagMetadata = new ImmutableMetadata(flagData);
 
             var expected = new ResolutionDetails<bool>(flagName, boolValue, errorType, reason, variant, errorMessage, flagMetadata);
             var result = expected.ToFlagEvaluationDetails();
