@@ -11,6 +11,7 @@ using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using OpenFeature.Constant;
 using OpenFeature.Error;
+using OpenFeature.Extension;
 using OpenFeature.Model;
 using OpenFeature.Tests.Internal;
 using Xunit;
@@ -364,6 +365,24 @@ namespace OpenFeature.Tests
             FeatureClient client = Api.Instance.GetClient();
             client.SetContext(new EvaluationContextBuilder().Set(KEY, VAL).Build());
             Assert.Equal(VAL, client.GetContext().GetValue(KEY).AsInteger);
+        }
+
+        [Fact]
+        public void ToFlagEvaluationDetails_Should_Convert_All_Properties()
+        {
+            var fixture = new Fixture();
+            var flagName = fixture.Create<string>();
+            var boolValue = fixture.Create<bool>();
+            var errorType = fixture.Create<ErrorType>();
+            var reason = fixture.Create<string>();
+            var variant = fixture.Create<string>();
+            var errorMessage = fixture.Create<string>();
+            var flagMetadata = fixture.Create<FlagMetadata>();
+
+            var expected = new ResolutionDetails<bool>(flagName, boolValue, errorType, reason, variant, errorMessage, flagMetadata);
+            var result = expected.ToFlagEvaluationDetails();
+
+            result.Should().BeEquivalentTo(expected);
         }
     }
 }
