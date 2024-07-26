@@ -18,6 +18,10 @@ namespace OpenFeature.Model
 
         private readonly Structure _structure;
 
+        /// <summary>
+        /// Internal constructor used by the builder.
+        /// </summary>
+        /// <param name="content"></param>
         internal EvaluationContext(Structure content)
         {
             this._structure = content;
