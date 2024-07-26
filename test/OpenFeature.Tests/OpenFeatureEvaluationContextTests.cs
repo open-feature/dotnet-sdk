@@ -171,23 +171,6 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        public void GetValueOnTargetingKeySetWithStructure_Equals_TargetingKey()
-        {
-            // Arrange
-            var value = "my_targeting_key";
-            var evaluationContext = EvaluationContext.Builder().Set(EvaluationContext.TargetingKeyIndex, new Value(value)).Build();
-
-            // Act
-            var result = evaluationContext.TryGetValue(EvaluationContext.TargetingKeyIndex, out var actualValue);
-            var targetingKeyvalue = evaluationContext.TargetingKey;
-
-            // Assert
-            Assert.True(result);
-            Assert.Equal(value, actualValue?.AsString);
-            Assert.Equal(value, targetingKeyvalue);
-        }
-
-        [Fact]
         public void GetValueOnTargetingKeySetWithTargetingKey_Equals_TargetingKey()
         {
             // Arrange
@@ -195,13 +178,46 @@ namespace OpenFeature.Tests
             var evaluationContext = EvaluationContext.Builder().SetTargetingKey(value).Build();
 
             // Act
-            var result = evaluationContext.TryGetValue(EvaluationContext.TargetingKeyIndex, out var actualValue);
-            var targetingKeyvalue = evaluationContext.TargetingKey;
+            var result = evaluationContext.TryGetValue(EvaluationContext.TargetingKeyIndex, out var actualFromStructure);
+            var actualFromTargetingKey = evaluationContext.TargetingKey;
 
             // Assert
             Assert.True(result);
-            Assert.Equal(value, actualValue?.AsString);
-            Assert.Equal(value, targetingKeyvalue);
+            Assert.Equal(value, actualFromStructure?.AsString);
+            Assert.Equal(value, actualFromTargetingKey);
+        }
+
+        [Fact]
+        public void GetValueOnTargetingKeySetWithStructure_Equals_TargetingKey()
+        {
+            // Arrange
+            var value = "my_targeting_key";
+            var evaluationContext = EvaluationContext.Builder().Set(EvaluationContext.TargetingKeyIndex, new Value(value)).Build();
+
+            // Act
+            var result = evaluationContext.TryGetValue(EvaluationContext.TargetingKeyIndex, out var actualFromStructure);
+            var actualFromTargetingKey = evaluationContext.TargetingKey;
+
+            // Assert
+            Assert.True(result);
+            Assert.Equal(value, actualFromStructure?.AsString);
+            Assert.Equal(value, actualFromTargetingKey);
+        }
+
+        [Fact]
+        public void GetValueOnTargetingKeySetWithNonStringValue_Equals_Null()
+        {
+            // Arrange
+            var evaluationContext = EvaluationContext.Builder().Set(EvaluationContext.TargetingKeyIndex, new Value(1)).Build();
+
+            // Act
+            var result = evaluationContext.TryGetValue(EvaluationContext.TargetingKeyIndex, out var actualFromStructure);
+            var actualFromTargetingKey = evaluationContext.TargetingKey;
+
+            // Assert
+            Assert.True(result);
+            Assert.Null(actualFromStructure?.AsString);
+            Assert.Null(actualFromTargetingKey);
         }
     }
 }
