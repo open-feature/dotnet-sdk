@@ -136,23 +136,6 @@ namespace OpenFeature.Model
         /// <returns>This builder</returns>
         public EvaluationContextBuilder Merge(EvaluationContext context)
         {
-            // string? newTargetingKey = "";
-
-            // if (!string.IsNullOrWhiteSpace(this.TargetingKey))
-            // {
-            //     newTargetingKey = this.TargetingKey;
-            // }
-
-            // if (!string.IsNullOrWhiteSpace(context.TargetingKey))
-            // {
-            //     newTargetingKey = context.TargetingKey;
-            // }
-
-            // if (!string.IsNullOrWhiteSpace(newTargetingKey))
-            // {
-            //     this.TargetingKey = newTargetingKey;
-            // }
-
             foreach (var kvp in context)
             {
                 this.Set(kvp.Key, kvp.Value);
