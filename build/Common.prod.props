@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <VersionNumber>1.5.1</VersionNumber> <!--x-release-please-version -->
+    <VersionNumber>1.5.2</VersionNumber> <!--x-release-please-version -->
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/open-feature/dotnet-sdk</RepositoryUrl>
     <Description>OpenFeature is an open standard for feature flag management, created to support a robust feature flag ecosystem using cloud native technologies. OpenFeature will provide a unified API and SDK, and a developer-first, cloud-native implementation, with extensibility for open source and commercial offerings.</Description>
