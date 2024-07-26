@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.2](https://github.com/open-feature/dotnet-sdk/compare/v1.5.1...v1.5.2) (2024-07-26)
+
+
+### 🐛 Bug Fixes
+
+* [backport] Should map metadata when converting from ResolutionDetails to FlagEvaluationDetails ([#285](https://github.com/open-feature/dotnet-sdk/issues/285)) ([d6d1d94](https://github.com/open-feature/dotnet-sdk/commit/d6d1d9402d7ace5caff0ef4210eb3a6eb56527e8))
+
 ## [1.5.1](https://github.com/open-feature/dotnet-sdk/compare/v1.5.0...v1.5.1) (2024-04-09)
 
 
