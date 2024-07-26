@@ -160,7 +160,7 @@ namespace OpenFeature.Tests
             var key = "testKey";
             var expectedValue = new Value("testValue");
             var structure = new Structure(new Dictionary<string, Value> { { key, expectedValue } });
-            var evaluationContext = new EvaluationContext("targetingKey", structure);
+            var evaluationContext = new EvaluationContext(structure);
 
             // Act
             var result = evaluationContext.TryGetValue(key, out var actualValue);
@@ -168,6 +168,24 @@ namespace OpenFeature.Tests
             // Assert
             Assert.True(result);
             Assert.Equal(expectedValue, actualValue);
+        }
+
+        [Fact]
+        public void GetValueOnTargetingKey_Equals_TargetingKey()
+        {
+            // Arrange
+            var value = "my_targeting_key";
+            var structure = new Structure(new Dictionary<string, Value> { { EvaluationContext.TargetingKeyIndex, new Value(value) } });
+            var evaluationContext = new EvaluationContext(structure);
+
+            // Act
+            var result = evaluationContext.TryGetValue(EvaluationContext.TargetingKeyIndex, out var actualValue);
+            var targetingKeyvalue = evaluationContext.TargetingKey;
+
+            // Assert
+            Assert.True(result);
+            Assert.Equal(value, actualValue?.AsString);
+            Assert.Equal(value, targetingKeyvalue);
         }
     }
 }

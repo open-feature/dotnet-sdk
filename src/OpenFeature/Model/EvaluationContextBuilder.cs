@@ -14,8 +14,6 @@ namespace OpenFeature.Model
     {
         private readonly StructureBuilder _attributes = Structure.Builder();
 
-        internal string? TargetingKey { get; private set; }
-
         /// <summary>
         /// Internal to only allow direct creation by <see cref="EvaluationContext.Builder()"/>.
         /// </summary>
@@ -28,7 +26,7 @@ namespace OpenFeature.Model
         /// <returns>This builder</returns>
         public EvaluationContextBuilder SetTargetingKey(string targetingKey)
         {
-            this.TargetingKey = targetingKey;
+            this._attributes.Set(EvaluationContext.TargetingKeyIndex, targetingKey);
             return this;
         }
 
@@ -138,22 +136,22 @@ namespace OpenFeature.Model
         /// <returns>This builder</returns>
         public EvaluationContextBuilder Merge(EvaluationContext context)
         {
-            string? newTargetingKey = "";
+            // string? newTargetingKey = "";
 
-            if (!string.IsNullOrWhiteSpace(this.TargetingKey))
-            {
-                newTargetingKey = this.TargetingKey;
-            }
+            // if (!string.IsNullOrWhiteSpace(this.TargetingKey))
+            // {
+            //     newTargetingKey = this.TargetingKey;
+            // }
 
-            if (!string.IsNullOrWhiteSpace(context.TargetingKey))
-            {
-                newTargetingKey = context.TargetingKey;
-            }
+            // if (!string.IsNullOrWhiteSpace(context.TargetingKey))
+            // {
+            //     newTargetingKey = context.TargetingKey;
+            // }
 
-            if (!string.IsNullOrWhiteSpace(newTargetingKey))
-            {
-                this.TargetingKey = newTargetingKey;
-            }
+            // if (!string.IsNullOrWhiteSpace(newTargetingKey))
+            // {
+            //     this.TargetingKey = newTargetingKey;
+            // }
 
             foreach (var kvp in context)
             {
@@ -169,7 +167,7 @@ namespace OpenFeature.Model
         /// <returns>An immutable <see cref="EvaluationContext"/></returns>
         public EvaluationContext Build()
         {
-            return new EvaluationContext(this.TargetingKey, this._attributes.Build());
+            return new EvaluationContext(this._attributes.Build());
         }
     }
 }
