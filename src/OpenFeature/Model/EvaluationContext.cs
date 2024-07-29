@@ -11,18 +11,23 @@ namespace OpenFeature.Model
     /// <seealso href="https://github.com/open-feature/spec/blob/v0.5.2/specification/sections/03-evaluation-context.md">Evaluation context</seealso>
     public sealed class EvaluationContext
     {
+        /// <summary>
+        /// The index for the "targeting key" property when the EvaluationContext is serialized or expressed as a dictionary.
+        /// </summary>
+        internal const string TargetingKeyIndex = "targetingKey";
+
+
         private readonly Structure _structure;
 
         /// <summary>
         /// Internal constructor used by the builder.
         /// </summary>
-        /// <param name="targetingKey">The targeting key</param>
-        /// <param name="content">The content of the context.</param>
-        internal EvaluationContext(string targetingKey, Structure content)
+        /// <param name="content"></param>
+        internal EvaluationContext(Structure content)
         {
-            this.TargetingKey = targetingKey;
             this._structure = content;
         }
+
 
         /// <summary>
         /// Private constructor for making an empty <see cref="EvaluationContext"/>.
@@ -30,7 +35,6 @@ namespace OpenFeature.Model
         private EvaluationContext()
         {
             this._structure = Structure.Empty;
-            this.TargetingKey = string.Empty;
         }
 
         /// <summary>
@@ -89,7 +93,14 @@ namespace OpenFeature.Model
         /// <summary>
         /// Returns the targeting key for the context.
         /// </summary>
-        public string TargetingKey { get; }
+        public string TargetingKey
+        {
+            get
+            {
+                this._structure.TryGetValue(TargetingKeyIndex, out Value targetingKey);
+                return targetingKey?.AsString;
+            }
+        }
 
         /// <summary>
         /// Return an enumerator for all values
