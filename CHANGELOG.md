@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/open-feature/dotnet-sdk/compare/v1.5.2...v1.6.0) (2024-07-29)
+
+
+### ✨ New Features
+
+* back targetingKey with internal map ([#288](https://github.com/open-feature/dotnet-sdk/issues/288)) ([0224bde](https://github.com/open-feature/dotnet-sdk/commit/0224bde447ccf3f8c94f49eb741f41569d7210e2))
+
 ## [1.5.2](https://github.com/open-feature/dotnet-sdk/compare/v1.5.1...v1.5.2) (2024-07-26)
 
 
