@@ -14,7 +14,8 @@ namespace OpenFeature.Model
         /// <summary>
         /// The index for the "targeting key" property when the EvaluationContext is serialized or expressed as a dictionary.
         /// </summary>
-        public readonly static string TargetingKeyIndex = "targetingKey";
+        internal const string TargetingKeyIndex = "targetingKey";
+
 
         private readonly Structure _structure;
 
