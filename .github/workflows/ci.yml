@@ -32,7 +32,6 @@ jobs:
         with:
           dotnet-version: |
             6.0.x
-            7.0.x
             8.0.x
           source-url: https://nuget.pkg.github.com/open-feature/index.json
 
@@ -68,7 +67,6 @@ jobs:
         with:
           dotnet-version: |
             6.0.x
-            7.0.x
             8.0.x
           source-url: https://nuget.pkg.github.com/open-feature/index.json
 
@@ -89,7 +87,7 @@ jobs:
 
       - name: Publish NuGet packages (fork)
         if: github.event.pull_request.head.repo.fork == true
-        uses: actions/upload-artifact@v4.3.3
+        uses: actions/upload-artifact@v4.3.4
         with:
           name: nupkgs
           path: src/**/*.nupkg
