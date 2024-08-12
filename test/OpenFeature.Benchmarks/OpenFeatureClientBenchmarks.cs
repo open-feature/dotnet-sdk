@@ -16,7 +16,7 @@ namespace OpenFeature.Benchmark
     [SuppressMessage("Reliability", "CA2007:Consider calling ConfigureAwait on the awaited task")]
     public class OpenFeatureClientBenchmarks
     {
-        private readonly string _clientName;
+        private readonly string _domain;
         private readonly string _clientVersion;
         private readonly string _flagName;
         private readonly bool _defaultBoolValue;
@@ -30,7 +30,7 @@ namespace OpenFeature.Benchmark
         public OpenFeatureClientBenchmarks()
         {
             var fixture = new Fixture();
-            this._clientName = fixture.Create<string>();
+            this._domain = fixture.Create<string>();
             this._clientVersion = fixture.Create<string>();
             this._flagName = fixture.Create<string>();
             this._defaultBoolValue = fixture.Create<bool>();
@@ -40,7 +40,7 @@ namespace OpenFeature.Benchmark
             this._defaultStructureValue = fixture.Create<Value>();
             this._emptyFlagOptions = new FlagEvaluationOptions(ImmutableList<Hook>.Empty, ImmutableDictionary<string, object>.Empty);
 
-            this._client = Api.Instance.GetClient(this._clientName, this._clientVersion);
+            this._client = Api.Instance.GetClient(this._domain, this._clientVersion);
         }
 
         [Benchmark]

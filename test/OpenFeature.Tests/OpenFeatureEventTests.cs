@@ -304,9 +304,9 @@ namespace OpenFeature.Tests
             var fixture = new Fixture();
             var eventHandler = Substitute.For<EventHandlerDelegate>();
 
-            var clientName = fixture.Create<string>();
+            var domain = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
-            var myClient = Api.Instance.GetClient(clientName, clientVersion);
+            var myClient = Api.Instance.GetClient(domain, clientVersion);
 
             var testProvider = new TestProvider();
             await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name!, testProvider);
@@ -332,9 +332,9 @@ namespace OpenFeature.Tests
             failingEventHandler.When(x => x.Invoke(Arg.Any<ProviderEventPayload>()))
                 .Do(x => throw new Exception());
 
-            var clientName = fixture.Create<string>();
+            var domain = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
-            var myClient = Api.Instance.GetClient(clientName, clientVersion);
+            var myClient = Api.Instance.GetClient(domain, clientVersion);
 
             myClient.AddHandler(ProviderEventTypes.ProviderReady, failingEventHandler);
             myClient.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
