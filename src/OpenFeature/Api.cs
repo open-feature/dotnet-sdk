@@ -108,7 +108,8 @@ namespace OpenFeature
         /// Gets providers metadata assigned to the given domain. If the domain has no provider
         /// assigned to it the default provider will be returned
         /// </summary>
-        /// <param name="domain">Name of client</param>
+        /// <param name="domain">An identifier which logically binds clients with providers</param>
+
         /// <returns>Metadata assigned to provider</returns>
         public Metadata? GetProviderMetadata(string domain) => this.GetProvider(domain).GetMetadata();
 
