@@ -50,19 +50,19 @@ namespace OpenFeature
         }
 
         /// <summary>
-        /// Sets the feature provider to given clientName. In order to wait for the provider to be set, and
+        /// Binds the feature provider to the given domain. In order to wait for the provider to be set, and
         /// initialization to complete, await the returned task.
         /// </summary>
-        /// <param name="clientName">Name of client</param>
+        /// <param name="domain">An identifier which logically binds clients with providers</param>
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
-        public async Task SetProviderAsync(string clientName, FeatureProvider featureProvider)
+        public async Task SetProviderAsync(string domain, FeatureProvider featureProvider)
         {
-            if (string.IsNullOrWhiteSpace(clientName))
+            if (string.IsNullOrWhiteSpace(domain))
             {
-                throw new ArgumentNullException(nameof(clientName));
+                throw new ArgumentNullException(nameof(domain));
             }
-            this._eventExecutor.RegisterClientFeatureProvider(clientName, featureProvider);
-            await this._repository.SetProviderAsync(clientName, featureProvider, this.GetContext(), this.AfterInitialization, this.AfterError).ConfigureAwait(false);
+            this._eventExecutor.RegisterClientFeatureProvider(domain, featureProvider);
+            await this._repository.SetProviderAsync(domain, featureProvider, this.GetContext(), this.AfterInitialization, this.AfterError).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -82,14 +82,15 @@ namespace OpenFeature
         }
 
         /// <summary>
-        /// Gets the feature provider with given clientName
+        /// Gets the feature provider with given domain
         /// </summary>
-        /// <param name="clientName">Name of client</param>
-        /// <returns>A provider associated with the given clientName, if clientName is empty or doesn't
+        /// <param name="domain">An identifier which logically binds clients with providers</param>
+
+        /// <returns>A provider associated with the given domain, if domain is empty or doesn't
         /// have a corresponding provider the default provider will be returned</returns>
-        public FeatureProvider GetProvider(string clientName)
+        public FeatureProvider GetProvider(string domain)
         {
-            return this._repository.GetProvider(clientName);
+            return this._repository.GetProvider(domain);
         }
 
         /// <summary>
@@ -104,12 +105,13 @@ namespace OpenFeature
         public Metadata? GetProviderMetadata() => this.GetProvider().GetMetadata();
 
         /// <summary>
-        /// Gets providers metadata assigned to the given clientName. If the clientName has no provider
+        /// Gets providers metadata assigned to the given domain. If the domain has no provider
         /// assigned to it the default provider will be returned
         /// </summary>
-        /// <param name="clientName">Name of client</param>
+        /// <param name="domain">An identifier which logically binds clients with providers</param>
+
         /// <returns>Metadata assigned to provider</returns>
-        public Metadata? GetProviderMetadata(string clientName) => this.GetProvider(clientName).GetMetadata();
+        public Metadata? GetProviderMetadata(string domain) => this.GetProvider(domain).GetMetadata();
 
         /// <summary>
         /// Create a new instance of <see cref="FeatureClient"/> using the current provider

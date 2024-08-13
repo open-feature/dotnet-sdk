@@ -27,13 +27,13 @@ namespace OpenFeature.Tests
         public void OpenFeatureClient_Should_Allow_Hooks()
         {
             var fixture = new Fixture();
-            var clientName = fixture.Create<string>();
+            var domain = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
             var hook1 = Substitute.For<Hook>();
             var hook2 = Substitute.For<Hook>();
             var hook3 = Substitute.For<Hook>();
 
-            var client = Api.Instance.GetClient(clientName, clientVersion);
+            var client = Api.Instance.GetClient(domain, clientVersion);
 
             client.AddHooks(new[] { hook1, hook2 });
 
@@ -53,11 +53,11 @@ namespace OpenFeature.Tests
         public void OpenFeatureClient_Metadata_Should_Have_Name()
         {
             var fixture = new Fixture();
-            var clientName = fixture.Create<string>();
+            var domain = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
-            var client = Api.Instance.GetClient(clientName, clientVersion);
+            var client = Api.Instance.GetClient(domain, clientVersion);
 
-            client.GetMetadata().Name.Should().Be(clientName);
+            client.GetMetadata().Name.Should().Be(domain);
             client.GetMetadata().Version.Should().Be(clientVersion);
         }
 
@@ -68,7 +68,7 @@ namespace OpenFeature.Tests
         public async Task OpenFeatureClient_Should_Allow_Flag_Evaluation()
         {
             var fixture = new Fixture();
-            var clientName = fixture.Create<string>();
+            var domain = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultBoolValue = fixture.Create<bool>();
@@ -79,7 +79,7 @@ namespace OpenFeature.Tests
             var emptyFlagOptions = new FlagEvaluationOptions(ImmutableList<Hook>.Empty, ImmutableDictionary<string, object>.Empty);
 
             await Api.Instance.SetProviderAsync(new NoOpFeatureProvider());
-            var client = Api.Instance.GetClient(clientName, clientVersion);
+            var client = Api.Instance.GetClient(domain, clientVersion);
 
             (await client.GetBooleanValueAsync(flagName, defaultBoolValue)).Should().Be(defaultBoolValue);
             (await client.GetBooleanValueAsync(flagName, defaultBoolValue, EvaluationContext.Empty)).Should().Be(defaultBoolValue);
@@ -114,7 +114,7 @@ namespace OpenFeature.Tests
         public async Task OpenFeatureClient_Should_Allow_Details_Flag_Evaluation()
         {
             var fixture = new Fixture();
-            var clientName = fixture.Create<string>();
+            var domain = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultBoolValue = fixture.Create<bool>();
@@ -125,7 +125,7 @@ namespace OpenFeature.Tests
             var emptyFlagOptions = new FlagEvaluationOptions(ImmutableList<Hook>.Empty, ImmutableDictionary<string, object>.Empty);
 
             await Api.Instance.SetProviderAsync(new NoOpFeatureProvider());
-            var client = Api.Instance.GetClient(clientName, clientVersion);
+            var client = Api.Instance.GetClient(domain, clientVersion);
 
             var boolFlagEvaluationDetails = new FlagEvaluationDetails<bool>(flagName, defaultBoolValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
             (await client.GetBooleanDetailsAsync(flagName, defaultBoolValue)).Should().BeEquivalentTo(boolFlagEvaluationDetails);
@@ -163,7 +163,7 @@ namespace OpenFeature.Tests
         public async Task OpenFeatureClient_Should_Return_DefaultValue_When_Type_Mismatch()
         {
             var fixture = new Fixture();
-            var clientName = fixture.Create<string>();
+            var domain = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<Value>();
@@ -176,7 +176,7 @@ namespace OpenFeature.Tests
             mockedFeatureProvider.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
             await Api.Instance.SetProviderAsync(mockedFeatureProvider);
-            var client = Api.Instance.GetClient(clientName, clientVersion, mockedLogger);
+            var client = Api.Instance.GetClient(domain, clientVersion, mockedLogger);
 
             var evaluationDetails = await client.GetObjectDetailsAsync(flagName, defaultValue);
             evaluationDetails.ErrorType.Should().Be(ErrorType.TypeMismatch);
@@ -277,7 +277,7 @@ namespace OpenFeature.Tests
         public async Task Should_Resolve_BooleanValue()
         {
             var fixture = new Fixture();
-            var clientName = fixture.Create<string>();
+            var domain = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<bool>();
@@ -288,7 +288,7 @@ namespace OpenFeature.Tests
             featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
             await Api.Instance.SetProviderAsync(featureProviderMock);
-            var client = Api.Instance.GetClient(clientName, clientVersion);
+            var client = Api.Instance.GetClient(domain, clientVersion);
 
             (await client.GetBooleanValueAsync(flagName, defaultValue)).Should().Be(defaultValue);
 
@@ -299,7 +299,7 @@ namespace OpenFeature.Tests
         public async Task Should_Resolve_StringValue()
         {
             var fixture = new Fixture();
-            var clientName = fixture.Create<string>();
+            var domain = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<string>();
@@ -310,7 +310,7 @@ namespace OpenFeature.Tests
             featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
             await Api.Instance.SetProviderAsync(featureProviderMock);
-            var client = Api.Instance.GetClient(clientName, clientVersion);
+            var client = Api.Instance.GetClient(domain, clientVersion);
 
             (await client.GetStringValueAsync(flagName, defaultValue)).Should().Be(defaultValue);
 
@@ -321,7 +321,7 @@ namespace OpenFeature.Tests
         public async Task Should_Resolve_IntegerValue()
         {
             var fixture = new Fixture();
-            var clientName = fixture.Create<string>();
+            var domain = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<int>();
@@ -332,7 +332,7 @@ namespace OpenFeature.Tests
             featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
             await Api.Instance.SetProviderAsync(featureProviderMock);
-            var client = Api.Instance.GetClient(clientName, clientVersion);
+            var client = Api.Instance.GetClient(domain, clientVersion);
 
             (await client.GetIntegerValueAsync(flagName, defaultValue)).Should().Be(defaultValue);
 
@@ -343,7 +343,7 @@ namespace OpenFeature.Tests
         public async Task Should_Resolve_DoubleValue()
         {
             var fixture = new Fixture();
-            var clientName = fixture.Create<string>();
+            var domain = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<double>();
@@ -354,7 +354,7 @@ namespace OpenFeature.Tests
             featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
             await Api.Instance.SetProviderAsync(featureProviderMock);
-            var client = Api.Instance.GetClient(clientName, clientVersion);
+            var client = Api.Instance.GetClient(domain, clientVersion);
 
             (await client.GetDoubleValueAsync(flagName, defaultValue)).Should().Be(defaultValue);
 
@@ -365,7 +365,7 @@ namespace OpenFeature.Tests
         public async Task Should_Resolve_StructureValue()
         {
             var fixture = new Fixture();
-            var clientName = fixture.Create<string>();
+            var domain = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<Value>();
@@ -376,7 +376,7 @@ namespace OpenFeature.Tests
             featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
             await Api.Instance.SetProviderAsync(featureProviderMock);
-            var client = Api.Instance.GetClient(clientName, clientVersion);
+            var client = Api.Instance.GetClient(domain, clientVersion);
 
             (await client.GetObjectValueAsync(flagName, defaultValue)).Should().Be(defaultValue);
 
@@ -387,7 +387,7 @@ namespace OpenFeature.Tests
         public async Task When_Error_Is_Returned_From_Provider_Should_Return_Error()
         {
             var fixture = new Fixture();
-            var clientName = fixture.Create<string>();
+            var domain = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<Value>();
@@ -399,7 +399,7 @@ namespace OpenFeature.Tests
             featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
             await Api.Instance.SetProviderAsync(featureProviderMock);
-            var client = Api.Instance.GetClient(clientName, clientVersion);
+            var client = Api.Instance.GetClient(domain, clientVersion);
             var response = await client.GetObjectDetailsAsync(flagName, defaultValue);
 
             response.ErrorType.Should().Be(ErrorType.ParseError);
@@ -412,7 +412,7 @@ namespace OpenFeature.Tests
         public async Task When_Exception_Occurs_During_Evaluation_Should_Return_Error()
         {
             var fixture = new Fixture();
-            var clientName = fixture.Create<string>();
+            var domain = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<Value>();
@@ -424,7 +424,7 @@ namespace OpenFeature.Tests
             featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
             await Api.Instance.SetProviderAsync(featureProviderMock);
-            var client = Api.Instance.GetClient(clientName, clientVersion);
+            var client = Api.Instance.GetClient(domain, clientVersion);
             var response = await client.GetObjectDetailsAsync(flagName, defaultValue);
 
             response.ErrorType.Should().Be(ErrorType.ParseError);
@@ -437,7 +437,7 @@ namespace OpenFeature.Tests
         public async Task Cancellation_Token_Added_Is_Passed_To_Provider()
         {
             var fixture = new Fixture();
-            var clientName = fixture.Create<string>();
+            var domain = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultString = fixture.Create<string>();
@@ -459,8 +459,8 @@ namespace OpenFeature.Tests
             featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
             featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-            await Api.Instance.SetProviderAsync(clientName, featureProviderMock);
-            var client = Api.Instance.GetClient(clientName, clientVersion);
+            await Api.Instance.SetProviderAsync(domain, featureProviderMock);
+            var client = Api.Instance.GetClient(domain, clientVersion);
             var task = client.GetStringDetailsAsync(flagName, defaultString, EvaluationContext.Empty, null, cts.Token);
             cts.Cancel(); // cancel before awaiting
 
@@ -474,11 +474,11 @@ namespace OpenFeature.Tests
         public void Should_Get_And_Set_Context()
         {
             var fixture = new Fixture();
-            var clientName = fixture.Create<string>();
+            var domain = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
             var KEY = "key";
             var VAL = 1;
-            FeatureClient client = Api.Instance.GetClient(clientName, clientVersion);
+            FeatureClient client = Api.Instance.GetClient(domain, clientVersion);
             client.SetContext(new EvaluationContextBuilder().Set(KEY, VAL).Build());
             Assert.Equal(VAL, client.GetContext().GetValue(KEY).AsInteger);
         }

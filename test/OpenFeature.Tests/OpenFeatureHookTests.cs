@@ -27,7 +27,7 @@ namespace OpenFeature.Tests
         public async Task Hooks_Should_Be_Called_In_Order()
         {
             var fixture = new Fixture();
-            var clientName = fixture.Create<string>();
+            var domain = fixture.Create<string>();
             var clientVersion = fixture.Create<string>();
             var flagName = fixture.Create<string>();
             var defaultValue = fixture.Create<bool>();
@@ -54,7 +54,7 @@ namespace OpenFeature.Tests
             testProvider.AddHook(providerHook);
             Api.Instance.AddHooks(apiHook);
             await Api.Instance.SetProviderAsync(testProvider);
-            var client = Api.Instance.GetClient(clientName, clientVersion);
+            var client = Api.Instance.GetClient(domain, clientVersion);
             client.AddHooks(clientHook);
 
             await client.GetBooleanValueAsync(flagName, defaultValue, EvaluationContext.Empty,
