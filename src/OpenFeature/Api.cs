@@ -84,7 +84,8 @@ namespace OpenFeature
         /// <summary>
         /// Gets the feature provider with given domain
         /// </summary>
-        /// <param name="domain">Name of client</param>
+        /// <param name="domain">An identifier which logically binds clients with providers</param>
+
         /// <returns>A provider associated with the given domain, if domain is empty or doesn't
         /// have a corresponding provider the default provider will be returned</returns>
         public FeatureProvider GetProvider(string domain)
