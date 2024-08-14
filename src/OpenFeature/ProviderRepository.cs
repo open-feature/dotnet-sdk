@@ -127,7 +127,7 @@ namespace OpenFeature
         /// <summary>
         /// Set a named provider
         /// </summary>
-        /// <param name="clientName">the name to associate with the provider</param>
+        /// <param name="domain">an identifier which logically binds clients with providers</param>
         /// <param name="featureProvider">the provider to set as the default, passing null has no effect</param>
         /// <param name="context">the context to initialize the provider with</param>
         /// <param name="afterInitSuccess">
@@ -138,15 +138,15 @@ namespace OpenFeature
         /// initialization
         /// </param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel any async side effects.</param>
-        public async Task SetProviderAsync(string? clientName,
+        public async Task SetProviderAsync(string? domain,
             FeatureProvider? featureProvider,
             EvaluationContext context,
             Func<FeatureProvider, Task>? afterInitSuccess = null,
             Func<FeatureProvider, Exception, Task>? afterInitError = null,
             CancellationToken cancellationToken = default)
         {
-            // Cannot set a provider for a null clientName.
-            if (clientName == null)
+            // Cannot set a provider for a null domain.
+            if (domain == null)
             {
                 return;
             }
@@ -155,17 +155,17 @@ namespace OpenFeature
 
             try
             {
-                this._featureProviders.TryGetValue(clientName, out var oldProvider);
+                this._featureProviders.TryGetValue(domain, out var oldProvider);
                 if (featureProvider != null)
                 {
-                    this._featureProviders.AddOrUpdate(clientName, featureProvider,
+                    this._featureProviders.AddOrUpdate(domain, featureProvider,
                         (key, current) => featureProvider);
                 }
                 else
                 {
                     // If names of clients are programmatic, then setting the provider to null could result
                     // in unbounded growth of the collection.
-                    this._featureProviders.TryRemove(clientName, out _);
+                    this._featureProviders.TryRemove(domain, out _);
                 }
 
                 // We want to allow shutdown to happen concurrently with initialization, and the caller to not
@@ -238,22 +238,22 @@ namespace OpenFeature
             }
         }
 
-        public FeatureProvider GetProvider(string? clientName)
+        public FeatureProvider GetProvider(string? domain)
         {
 #if NET6_0_OR_GREATER
-            if (string.IsNullOrEmpty(clientName))
+            if (string.IsNullOrEmpty(domain))
             {
                 return this.GetProvider();
             }
 #else
             // This is a workaround for the issue in .NET Framework where string.IsNullOrEmpty is not nullable compatible.
-            if (clientName == null || string.IsNullOrEmpty(clientName))
+            if (domain == null || string.IsNullOrEmpty(domain))
             {
                 return this.GetProvider();
             }
 #endif
 
-            return this._featureProviders.TryGetValue(clientName, out var featureProvider)
+            return this._featureProviders.TryGetValue(domain, out var featureProvider)
                 ? featureProvider
                 : this.GetProvider();
         }

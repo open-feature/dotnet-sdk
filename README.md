@@ -92,16 +92,16 @@ app.MapGet("/flag", async ([FromServices]IFeatureClient client) =>
 
 ## 🌟 Features
 
-| Status | Features                        | Description                                                                                                                        |
-| ------ | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| ✅     | [Providers](#providers)         | Integrate with a commercial, open source, or in-house feature management tool.                                                     |
-| ✅     | [Targeting](#targeting)         | Contextually-aware flag evaluation using [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context). |
-| ✅     | [Hooks](#hooks)                 | Add functionality to various stages of the flag evaluation life-cycle.                                                             |
-| ✅     | [Logging](#logging)             | Integrate with popular logging packages.                                                                                           |
-| ✅     | [Named clients](#named-clients) | Utilize multiple providers in a single application.                                                                                |
-| ✅     | [Eventing](#eventing)           | React to state changes in the provider or flag management system.                                                                  |
-| ✅    | [Shutdown](#shutdown)           | Gracefully clean up a provider during application shutdown.                                                                        |
-| ✅     | [Extending](#extending)         | Extend OpenFeature with custom providers and hooks.                                                                                |
+| Status | Features                | Description                                                                                                                        |
+| ------ | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| ✅      | [Providers](#providers) | Integrate with a commercial, open source, or in-house feature management tool.                                                     |
+| ✅      | [Targeting](#targeting) | Contextually-aware flag evaluation using [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context). |
+| ✅      | [Hooks](#hooks)         | Add functionality to various stages of the flag evaluation life-cycle.                                                             |
+| ✅      | [Logging](#logging)     | Integrate with popular logging packages.                                                                                           |
+| ✅      | [Domains](#domains)     | Logically bind clients with providers.                                                                                             |
+| ✅      | [Eventing](#eventing)   | React to state changes in the provider or flag management system.                                                                  |
+| ✅      | [Shutdown](#shutdown)   | Gracefully clean up a provider during application shutdown.                                                                        |
+| ✅      | [Extending](#extending) | Extend OpenFeature with custom providers and hooks.                                                                                |
 
 > Implemented: ✅ | In-progress: ⚠️ | Not implemented yet: ❌
 
@@ -119,7 +119,7 @@ await Api.Instance.SetProviderAsync(new MyProvider());
 ```
 
 In some situations, it may be beneficial to register multiple providers in the same application.
-This is possible using [named clients](#named-clients), which is covered in more detail below.
+This is possible using [domains](#domains), which is covered in more detail below.
 
 ### Targeting
 
@@ -174,26 +174,28 @@ var value = await client.GetBooleanValueAsync("boolFlag", false, context, new Fl
 
 The .NET SDK uses Microsoft.Extensions.Logging. See the [manual](https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line) for complete documentation.
 
-### Named clients
+### Domains
 
-Clients can be given a name.
-A name is a logical identifier that can be used to associate clients with a particular provider.
-If a name has no associated provider, the global provider is used.
+Clients can be assigned to a domain.
+A domain is a logical identifier which can be used to associate clients with a particular provider.
+If a domain has no associated provider, the default provider is used.
 
 ```csharp
 // registering the default provider
 await Api.Instance.SetProviderAsync(new LocalProvider());
 
-// registering a named provider
+// registering a provider to a domain
 await Api.Instance.SetProviderAsync("clientForCache", new CachedProvider());
 
 // a client backed by default provider
 FeatureClient clientDefault = Api.Instance.GetClient();
 
 // a client backed by CachedProvider
-FeatureClient clientNamed = Api.Instance.GetClient("clientForCache");
-
+FeatureClient scopedClient = Api.Instance.GetClient("clientForCache");
 ```
+
+Domains can be defined on a provider during registration.
+For more details, please refer to the [providers](#providers) section.
 
 ### Eventing
 

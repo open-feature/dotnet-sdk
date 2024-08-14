@@ -101,10 +101,10 @@ namespace OpenFeature.Tests
             await openFeature.SetProviderAsync(TestProvider.DefaultName, new TestProvider());
 
             var defaultClient = openFeature.GetProviderMetadata();
-            var namedClient = openFeature.GetProviderMetadata(TestProvider.DefaultName);
+            var domainScopedClient = openFeature.GetProviderMetadata(TestProvider.DefaultName);
 
             defaultClient?.Name.Should().Be(NoOpProvider.NoOpProviderName);
-            namedClient?.Name.Should().Be(TestProvider.DefaultName);
+            domainScopedClient?.Name.Should().Be(TestProvider.DefaultName);
         }
 
         [Fact]
