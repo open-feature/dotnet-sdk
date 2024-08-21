@@ -170,7 +170,7 @@ namespace OpenFeature.Tests.Providers.Memory
         public async Task EmptyFlags_ShouldWork()
         {
             var provider = new InMemoryProvider();
-            await provider.UpdateFlags();
+            await provider.UpdateFlagsAsync();
             Assert.Equal("InMemory", provider.GetMetadata().Name);
         }
 
@@ -216,7 +216,7 @@ namespace OpenFeature.Tests.Providers.Memory
             Assert.True(details.Value);
 
             // update flags
-            await provider.UpdateFlags(new Dictionary<string, Flag>(){
+            await provider.UpdateFlagsAsync(new Dictionary<string, Flag>(){
             {
                 "new-flag", new Flag<string>(
                     variants: new Dictionary<string, string>(){
