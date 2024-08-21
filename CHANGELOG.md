@@ -2,6 +2,9 @@
 
 ## [2.0.0](https://github.com/open-feature/dotnet-sdk/compare/v1.5.0...v2.0.0) (2024-08-21)
 
+Today we're announcing the release of the OpenFeature SDK for .NET, v2.0! This release contains several ergonomic improvements to the SDK, which .NET developers will appreciate. It also includes some performance optimizations brought to you by the latest .NET primitives.
+
+For details and migration tips, check out: https://openfeature.dev/blog/dotnet-sdk-v2 
 
 ### ⚠ BREAKING CHANGES
 
