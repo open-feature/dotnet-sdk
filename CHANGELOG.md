@@ -1,5 +1,63 @@
 # Changelog
 
+## [2.0.0](https://github.com/open-feature/dotnet-sdk/compare/v1.5.0...v2.0.0) (2024-08-21)
+
+Today we're announcing the release of the OpenFeature SDK for .NET, v2.0! This release contains several ergonomic improvements to the SDK, which .NET developers will appreciate. It also includes some performance optimizations brought to you by the latest .NET primitives.
+
+For details and migration tips, check out: https://openfeature.dev/blog/dotnet-sdk-v2 
+
+### ⚠ BREAKING CHANGES
+
+* domain instead of client name ([#294](https://github.com/open-feature/dotnet-sdk/issues/294))
+* internally maintain provider status ([#276](https://github.com/open-feature/dotnet-sdk/issues/276))
+* add CancellationTokens, ValueTasks hooks ([#268](https://github.com/open-feature/dotnet-sdk/issues/268))
+* Use same type for flag metadata and event metadata ([#241](https://github.com/open-feature/dotnet-sdk/issues/241))
+* Enable nullable reference types ([#253](https://github.com/open-feature/dotnet-sdk/issues/253))
+
+### 🐛 Bug Fixes
+
+* Add missing error message when an error occurred ([#256](https://github.com/open-feature/dotnet-sdk/issues/256)) ([949d53c](https://github.com/open-feature/dotnet-sdk/commit/949d53cada68bee8e80d113357fa6df8d425d3c1))
+* Should map metadata when converting from ResolutionDetails to FlagEvaluationDetails ([#282](https://github.com/open-feature/dotnet-sdk/issues/282)) ([2f8bd21](https://github.com/open-feature/dotnet-sdk/commit/2f8bd2179ec35f79cbbab77206de78dd9b0f58d6))
+
+
+### ✨ New Features
+
+* add CancellationTokens, ValueTasks hooks ([#268](https://github.com/open-feature/dotnet-sdk/issues/268)) ([33154d2](https://github.com/open-feature/dotnet-sdk/commit/33154d2ed6b0b27f4a86a5fbad440a784a89c881))
+* back targetingKey with internal map ([#287](https://github.com/open-feature/dotnet-sdk/issues/287)) ([ccc2f7f](https://github.com/open-feature/dotnet-sdk/commit/ccc2f7fbd4e4f67eb03c2e6a07140ca31225da2c))
+* domain instead of client name ([#294](https://github.com/open-feature/dotnet-sdk/issues/294)) ([4c0592e](https://github.com/open-feature/dotnet-sdk/commit/4c0592e6baf86d831fc7b39762c960ca0dd843a9))
+* Drop net7 TFM ([#284](https://github.com/open-feature/dotnet-sdk/issues/284)) ([2dbe1f4](https://github.com/open-feature/dotnet-sdk/commit/2dbe1f4c95aeae501c8b5154b1ccefafa7df2632))
+* internally maintain provider status ([#276](https://github.com/open-feature/dotnet-sdk/issues/276)) ([63faa84](https://github.com/open-feature/dotnet-sdk/commit/63faa8440cd650b0bd6c3ec009ad9bd78bc31f32))
+* Use same type for flag metadata and event metadata ([#241](https://github.com/open-feature/dotnet-sdk/issues/241)) ([ac7d7de](https://github.com/open-feature/dotnet-sdk/commit/ac7d7debf50cef08668bcd9457d3f830b8718806))
+
+
+### 🧹 Chore
+
+* cleanup code ([#277](https://github.com/open-feature/dotnet-sdk/issues/277)) ([44cf586](https://github.com/open-feature/dotnet-sdk/commit/44cf586f96607716fb8b4464d81edfd6074f7376))
+* **deps:** Project file cleanup and remove unnecessary dependencies ([#251](https://github.com/open-feature/dotnet-sdk/issues/251)) ([79def47](https://github.com/open-feature/dotnet-sdk/commit/79def47106b19b316b691fa195f7160ddcfb9a41))
+* **deps:** update actions/upload-artifact action to v4.3.3 ([#263](https://github.com/open-feature/dotnet-sdk/issues/263)) ([7718649](https://github.com/open-feature/dotnet-sdk/commit/77186495cd3d567b0aabd418f23a65567656b54d))
+* **deps:** update actions/upload-artifact action to v4.3.4 ([#278](https://github.com/open-feature/dotnet-sdk/issues/278)) ([15189f1](https://github.com/open-feature/dotnet-sdk/commit/15189f1c6f7eb0931036e022eed68f58a1110b5b))
+* **deps:** update actions/upload-artifact action to v4.3.5 ([#291](https://github.com/open-feature/dotnet-sdk/issues/291)) ([00e99d6](https://github.com/open-feature/dotnet-sdk/commit/00e99d6c2208b304748d00a931f460d6d6aab4de))
+* **deps:** update codecov/codecov-action action to v4 ([#227](https://github.com/open-feature/dotnet-sdk/issues/227)) ([11a0333](https://github.com/open-feature/dotnet-sdk/commit/11a03332726f07dd0327d222e6bd6e1843db460c))
+* **deps:** update codecov/codecov-action action to v4.3.1 ([#267](https://github.com/open-feature/dotnet-sdk/issues/267)) ([ff9df59](https://github.com/open-feature/dotnet-sdk/commit/ff9df593400f92c016eee1a45bd7097da008d4dc))
+* **deps:** update codecov/codecov-action action to v4.5.0 ([#272](https://github.com/open-feature/dotnet-sdk/issues/272)) ([281295d](https://github.com/open-feature/dotnet-sdk/commit/281295d2999e4d36c5a2078cbfdfe5e59f4652b2))
+* **deps:** update dependency benchmarkdotnet to v0.14.0 ([#293](https://github.com/open-feature/dotnet-sdk/issues/293)) ([aec222f](https://github.com/open-feature/dotnet-sdk/commit/aec222fe1b1a5b52f8349ceb98c12b636eb155eb))
+* **deps:** update dependency coverlet.collector to v6.0.2 ([#247](https://github.com/open-feature/dotnet-sdk/issues/247)) ([ab34c16](https://github.com/open-feature/dotnet-sdk/commit/ab34c16b513ddbd0a53e925baaccd088163fbcc8))
+* **deps:** update dependency coverlet.msbuild to v6.0.2 ([#239](https://github.com/open-feature/dotnet-sdk/issues/239)) ([e654222](https://github.com/open-feature/dotnet-sdk/commit/e6542222827cc25cd5a1acc5af47ce55149c0623))
+* **deps:** update dependency dotnet-sdk to v8.0.204 ([#261](https://github.com/open-feature/dotnet-sdk/issues/261)) ([8f82645](https://github.com/open-feature/dotnet-sdk/commit/8f8264520814a42b7ed2af8f70340e7673259b6f))
+* **deps:** update dependency dotnet-sdk to v8.0.301 ([#271](https://github.com/open-feature/dotnet-sdk/issues/271)) ([acd0385](https://github.com/open-feature/dotnet-sdk/commit/acd0385641e114a16d0ee56e3a143baa7d3c0535))
+* **deps:** update dependency dotnet-sdk to v8.0.303 ([#275](https://github.com/open-feature/dotnet-sdk/issues/275)) ([871dcac](https://github.com/open-feature/dotnet-sdk/commit/871dcacc94fa2abb10434616c469cad6f674f07a))
+* **deps:** update dependency dotnet-sdk to v8.0.400 ([#295](https://github.com/open-feature/dotnet-sdk/issues/295)) ([bb4f352](https://github.com/open-feature/dotnet-sdk/commit/bb4f3526c2c2c2ca48ae61e883d6962847ebc5a6))
+* **deps:** update dependency githubactionstestlogger to v2.4.1 ([#274](https://github.com/open-feature/dotnet-sdk/issues/274)) ([46c2b15](https://github.com/open-feature/dotnet-sdk/commit/46c2b153c848bd3a500b828ddb89bd3b07753bf1))
+* **deps:** update dependency microsoft.net.test.sdk to v17.10.0 ([#273](https://github.com/open-feature/dotnet-sdk/issues/273)) ([581ff81](https://github.com/open-feature/dotnet-sdk/commit/581ff81c7b1840c34840229bf20444c528c64cc6))
+* **deps:** update dotnet monorepo ([#218](https://github.com/open-feature/dotnet-sdk/issues/218)) ([bc8301d](https://github.com/open-feature/dotnet-sdk/commit/bc8301d1c54e0b48ede3235877d969f28d61fb29))
+* **deps:** update xunit-dotnet monorepo ([#262](https://github.com/open-feature/dotnet-sdk/issues/262)) ([43f14cc](https://github.com/open-feature/dotnet-sdk/commit/43f14cca072372ecacec89a949c85f763c1ee7b4))
+* **deps:** update xunit-dotnet monorepo ([#279](https://github.com/open-feature/dotnet-sdk/issues/279)) ([fb1cc66](https://github.com/open-feature/dotnet-sdk/commit/fb1cc66440dd6bdbbef1ac1f85bf3228b80073af))
+* **deps:** update xunit-dotnet monorepo to v2.8.1 ([#266](https://github.com/open-feature/dotnet-sdk/issues/266)) ([a7b6d85](https://github.com/open-feature/dotnet-sdk/commit/a7b6d8561716763f324325a8803b913c4d69c044))
+* Enable nullable reference types ([#253](https://github.com/open-feature/dotnet-sdk/issues/253)) ([5a5312c](https://github.com/open-feature/dotnet-sdk/commit/5a5312cc082ccd880b65165135e05b4f3b035df7))
+* in-memory UpdateFlags to UpdateFlagsAsync ([#298](https://github.com/open-feature/dotnet-sdk/issues/298)) ([390205a](https://github.com/open-feature/dotnet-sdk/commit/390205a41d29d786b5f41b0d91f34ec237276cb4))
+* prompt 2.0 ([9b9c3fd](https://github.com/open-feature/dotnet-sdk/commit/9b9c3fd09c27b191104d7ceaa726b6edd71fcd06))
+* Support for determining spec support for the repo ([#270](https://github.com/open-feature/dotnet-sdk/issues/270)) ([67a1a0a](https://github.com/open-feature/dotnet-sdk/commit/67a1a0aea95ee943976990b1d1782e4061300b50))
+
 ## [1.5.0](https://github.com/open-feature/dotnet-sdk/compare/v1.4.1...v1.5.0) (2024-03-12)
 
 

@@ -15,7 +15,7 @@
 
   <ItemGroup Label="test">
     <PackageVersion Include="AutoFixture" Version="4.18.1" />
-    <PackageVersion Include="BenchmarkDotNet" Version="0.13.1" />
+    <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
     <PackageVersion Include="coverlet.collector" Version="6.0.2" />
     <PackageVersion Include="coverlet.msbuild" Version="6.0.2" />
     <PackageVersion Include="FluentAssertions" Version="6.12.0" />

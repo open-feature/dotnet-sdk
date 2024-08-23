@@ -43,10 +43,10 @@ namespace OpenFeature.Providers.Memory
         }
 
         /// <summary>
-        /// Updating provider flags configuration, replacing all flags.
+        /// Update provider flag configuration, replacing all flags.
         /// </summary>
         /// <param name="flags">the flags to use instead of the previous flags.</param>
-        public async Task UpdateFlags(IDictionary<string, Flag>? flags = null)
+        public async Task UpdateFlagsAsync(IDictionary<string, Flag>? flags = null)
         {
             var changed = this._flags.Keys.ToList();
             if (flags == null)
