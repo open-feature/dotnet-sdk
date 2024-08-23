@@ -14,7 +14,7 @@ public static class SomeHookExtensions
             throw new ArgumentNullException(nameof(builder));
         }
 
-        builder.ServiceCollection.TryAddSingleton<Hook, SomeHook>();
+        builder.Services.TryAddSingleton<Hook, SomeHook>();
 
         return builder;
     }

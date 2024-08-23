@@ -38,7 +38,7 @@ public static class SomeFeatureProviderExtensions
             throw new ArgumentNullException(nameof(builder));
         }
 
-        builder.ServiceCollection.TryAddEnumerable(ServiceDescriptor.Singleton<FeatureProvider, SomeFeatureProvider>());
+        builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<FeatureProvider, SomeFeatureProvider>());
         builder.TryAddOpenFeatureClient(SomeFeatureProvider.Name);
 
         return builder;
