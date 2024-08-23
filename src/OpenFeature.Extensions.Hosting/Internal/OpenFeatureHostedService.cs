@@ -12,6 +12,8 @@ internal sealed class OpenFeatureHostedService(Api api, IEnumerable<FeatureProvi
 
     async Task IHostedLifecycleService.StartingAsync(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         foreach (var provider in this._providers)
         {
             await this._api.SetProviderAsync(provider.GetMetadata()?.Name ?? string.Empty, provider).ConfigureAwait(false);
