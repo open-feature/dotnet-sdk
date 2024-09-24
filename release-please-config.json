@@ -1,12 +1,9 @@
 {
   "packages": {
     ".": {
-      "release-as": "2.0.0",
       "release-type": "simple",
       "monorepo-tags": false,
       "include-component-in-tag": false,
-      "bump-minor-pre-major": true,
-      "bump-patch-for-minor-pre-major": true,
       "versioning": "default",
       "extra-files": [
         "build/Common.prod.props",
