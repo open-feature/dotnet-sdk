@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.0.1](https://github.com/open-feature/dotnet-sdk/compare/v2.0.0...v2.0.1) (2024-09-24)
+
+
+### 🧹 Chore
+
+* **deps:** update dependency dotnet-sdk to v8.0.401 ([#296](https://github.com/open-feature/dotnet-sdk/issues/296)) ([0bae29d](https://github.com/open-feature/dotnet-sdk/commit/0bae29d4771c4901e0c511b8d3587e6501e67ecd))
+* **deps:** update dependency microsoft.net.test.sdk to 17.11.0 ([#297](https://github.com/open-feature/dotnet-sdk/issues/297)) ([5593e19](https://github.com/open-feature/dotnet-sdk/commit/5593e19ca990196f754cd0be69391abb8f0dbcd5))
+* update release please config ([#304](https://github.com/open-feature/dotnet-sdk/issues/304)) ([c471c06](https://github.com/open-feature/dotnet-sdk/commit/c471c062cf70d78b67f597f468c62dbfbf0674d2))
+
 ## [2.0.0](https://github.com/open-feature/dotnet-sdk/compare/v1.5.0...v2.0.0) (2024-08-21)
 
 Today we're announcing the release of the OpenFeature SDK for .NET, v2.0! This release contains several ergonomic improvements to the SDK, which .NET developers will appreciate. It also includes some performance optimizations brought to you by the latest .NET primitives.
