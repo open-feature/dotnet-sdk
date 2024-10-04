@@ -139,10 +139,10 @@ namespace OpenFeature
 
             public LoggingHookContent(string? domain, string? providerName, string flagKey, string? defaultValue, EvaluationContext? evaluationContext = null)
             {
-                this._domain = string.IsNullOrEmpty(domain) ? "missing" : domain;
-                this._providerName = string.IsNullOrEmpty(providerName) ? "missing" : providerName;
+                this._domain = string.IsNullOrEmpty(domain) ? "missing" : domain!;
+                this._providerName = string.IsNullOrEmpty(providerName) ? "missing" : providerName!;
                 this._flagKey = flagKey;
-                this._defaultValue = string.IsNullOrEmpty(defaultValue) ? "missing" : defaultValue;
+                this._defaultValue = string.IsNullOrEmpty(defaultValue) ? "missing" : defaultValue!;
                 this._evaluationContext = evaluationContext;
             }
 
@@ -153,19 +153,19 @@ namespace OpenFeature
                     var stringBuilder = new StringBuilder();
 
                     stringBuilder.Append("Domain:");
-                    stringBuilder.Append(_domain);
+                    stringBuilder.Append(this._domain);
                     stringBuilder.Append(Environment.NewLine);
 
                     stringBuilder.Append("ProviderName:");
-                    stringBuilder.Append(_providerName);
+                    stringBuilder.Append(this._providerName);
                     stringBuilder.Append(Environment.NewLine);
 
                     stringBuilder.Append("FlagKey:");
-                    stringBuilder.Append(_flagKey);
+                    stringBuilder.Append(this._flagKey);
                     stringBuilder.Append(Environment.NewLine);
 
                     stringBuilder.Append("DefaultValue:");
-                    stringBuilder.Append(_defaultValue);
+                    stringBuilder.Append(this._defaultValue);
                     stringBuilder.Append(Environment.NewLine);
 
                     if (this._evaluationContext != null)
