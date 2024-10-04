@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using OpenFeature.Error;
 using OpenFeature.Model;
 
 namespace OpenFeature
@@ -30,18 +28,26 @@ namespace OpenFeature
         /// <inheritdoc/>
         public override ValueTask<EvaluationContext> BeforeAsync<T>(HookContext<T> context, IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
         {
-            var domain = context.ClientMetadata.Name ?? string.Empty;
-            var providerName = context.ProviderMetadata.Name ?? string.Empty;
-            var defaultValue = context.DefaultValue?.ToString() ?? string.Empty;
-
             if (this._includeContext)
             {
-                var evaluationContextLog = new ExecutionContentLog(context.EvaluationContext);
-                this.HookBeforeStageExecuted(domain, providerName, context.FlagKey, defaultValue, evaluationContextLog);
+                var beforeLogContent = new LoggingHookContent(
+                    context.ClientMetadata.Name,
+                    context.ProviderMetadata.Name,
+                    context.FlagKey,
+                    context.DefaultValue?.ToString(),
+                    context.EvaluationContext);
+
+                this.HookBeforeStageExecuted(beforeLogContent);
             }
             else
             {
-                this.HookBeforeStageExecuted(domain, providerName, context.FlagKey, defaultValue);
+                var beforeLogContent = new LoggingHookContent(
+                    context.ClientMetadata.Name,
+                    context.ProviderMetadata.Name,
+                    context.FlagKey,
+                    context.DefaultValue?.ToString());
+
+                this.HookBeforeStageExecuted(beforeLogContent);
             }
 
             return base.BeforeAsync(context, hints, cancellationToken);
@@ -50,24 +56,26 @@ namespace OpenFeature
         /// <inheritdoc/>
         public override ValueTask ErrorAsync<T>(HookContext<T> context, Exception error, IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
         {
-            var domain = context.ClientMetadata.Name ?? string.Empty;
-            var providerName = context.ProviderMetadata.Name ?? string.Empty;
-            var defaultValue = context.DefaultValue?.ToString() ?? string.Empty;
-
-            if (error.GetType() == typeof(FeatureProviderException))
-            {
-                var featureError = (FeatureProviderException)error;
-                featureError.ErrorType;
-            }
-
             if (this._includeContext)
             {
-                var evaluationContextLog = new ExecutionContentLog(context.EvaluationContext);
-                this.HookErrorStageExecuted(domain, providerName, context.FlagKey, defaultValue, evaluationContextLog);
+                var beforeLogContent = new LoggingHookContent(
+                    context.ClientMetadata.Name,
+                    context.ProviderMetadata.Name,
+                    context.FlagKey,
+                    context.DefaultValue?.ToString(),
+                    context.EvaluationContext);
+
+                this.HookErrorStageExecuted(beforeLogContent);
             }
             else
             {
-                this.HookErrorStageExecuted(domain, providerName, context.FlagKey, defaultValue);
+                var beforeLogContent = new LoggingHookContent(
+                    context.ClientMetadata.Name,
+                    context.ProviderMetadata.Name,
+                    context.FlagKey,
+                    context.DefaultValue?.ToString());
+
+                this.HookErrorStageExecuted(beforeLogContent);
             }
 
             return base.ErrorAsync(context, error, hints, cancellationToken);
@@ -76,21 +84,26 @@ namespace OpenFeature
         /// <inheritdoc/>
         public override ValueTask AfterAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details, IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
         {
-            var domain = context.ClientMetadata.Name ?? string.Empty;
-            var providerName = context.ProviderMetadata.Name ?? string.Empty;
-            var defaultValue = context.DefaultValue?.ToString() ?? string.Empty;
-            var reason = details.Reason ?? string.Empty;
-            var variant = details.Variant ?? string.Empty;
-            var value = details.Value?.ToString() ?? string.Empty;
-
             if (this._includeContext)
             {
-                var evaluationContextLog = new ExecutionContentLog(context.EvaluationContext);
-                this.HookAfterStageExecuted(domain, providerName, context.FlagKey, defaultValue, evaluationContextLog);
+                var beforeLogContent = new LoggingHookContent(
+                    context.ClientMetadata.Name,
+                    context.ProviderMetadata.Name,
+                    context.FlagKey,
+                    context.DefaultValue?.ToString(),
+                    context.EvaluationContext);
+
+                this.HookAfterStageExecuted(beforeLogContent);
             }
             else
             {
-                this.HookAfterStageExecuted(domain, providerName, context.FlagKey, defaultValue);
+                var beforeLogContent = new LoggingHookContent(
+                    context.ClientMetadata.Name,
+                    context.ProviderMetadata.Name,
+                    context.FlagKey,
+                    context.DefaultValue?.ToString());
+
+                this.HookAfterStageExecuted(beforeLogContent);
             }
 
             return base.AfterAsync(context, details, hints, cancellationToken);
@@ -99,29 +112,38 @@ namespace OpenFeature
         [LoggerMessage(
             EventId = 0,
             Level = LogLevel.Debug,
-            Message = "[Before] Domain {Domain} with Provider {ProviderName} {FlagKey} defaults with {DefaultValue} {EvaluationContextLog}")]
-        partial void HookBeforeStageExecuted(string domain, string providerName, string flagKey, string defaultValue, ExecutionContentLog? evaluationContextLog = null);
+            Message = "Before Flag Evaluation {Content}")]
+        partial void HookBeforeStageExecuted(LoggingHookContent content);
 
         [LoggerMessage(
             EventId = 0,
             Level = LogLevel.Error,
-            Message = "[Error] Domain {Domain} with Provider {ProviderName} {FlagKey} defaults with {DefaultValue} {Variant} {Variant} {EvaluationContextLog}")]
-        partial void HookErrorStageExecuted(string domain, string providerName, string flagKey, string defaultValue, ExecutionContentLog? evaluationContextLog = null);
+            Message = "Error during Flag Evaluation {Content}")]
+        partial void HookErrorStageExecuted(LoggingHookContent content);
 
         [LoggerMessage(
             EventId = 0,
             Level = LogLevel.Debug,
-            Message = "[After] Domain {Domain} with Provider {ProviderName} {FlagKey} defaults with {DefaultValue} {EvaluationContextLog}")]
-        partial void HookAfterStageExecuted(string domain, string providerName, string flagKey, string defaultValue, ExecutionContentLog? evaluationContextLog = null);
+            Message = "After Flag Evaluation {Content}")]
+        partial void HookAfterStageExecuted(LoggingHookContent content);
 
-        internal class ExecutionContentLog
+        internal class LoggingHookContent
         {
-            private readonly IImmutableDictionary<string, Value> _values;
+            private readonly string _domain;
+            private readonly string _providerName;
+            private readonly string _flagKey;
+            private readonly string _defaultValue;
+            private readonly EvaluationContext? _evaluationContext;
+
             private string? _cachedToString;
 
-            public ExecutionContentLog(EvaluationContext evaluationContent)
+            public LoggingHookContent(string? domain, string? providerName, string flagKey, string? defaultValue, EvaluationContext? evaluationContext = null)
             {
-                this._values = evaluationContent.AsDictionary();
+                this._domain = string.IsNullOrEmpty(domain) ? "missing" : domain;
+                this._providerName = string.IsNullOrEmpty(providerName) ? "missing" : providerName;
+                this._flagKey = flagKey;
+                this._defaultValue = string.IsNullOrEmpty(defaultValue) ? "missing" : defaultValue;
+                this._evaluationContext = evaluationContext;
             }
 
             public override string ToString()
@@ -130,18 +152,57 @@ namespace OpenFeature
                 {
                     var stringBuilder = new StringBuilder();
 
-                    foreach (var kvp in this._values)
+                    stringBuilder.Append("Domain:");
+                    stringBuilder.Append(_domain);
+                    stringBuilder.Append(Environment.NewLine);
+
+                    stringBuilder.Append("ProviderName:");
+                    stringBuilder.Append(_providerName);
+                    stringBuilder.Append(Environment.NewLine);
+
+                    stringBuilder.Append("FlagKey:");
+                    stringBuilder.Append(_flagKey);
+                    stringBuilder.Append(Environment.NewLine);
+
+                    stringBuilder.Append("DefaultValue:");
+                    stringBuilder.Append(_defaultValue);
+                    stringBuilder.Append(Environment.NewLine);
+
+                    if (this._evaluationContext != null)
                     {
-                        stringBuilder.Append(kvp.Key);
-                        stringBuilder.Append(':');
-                        stringBuilder.Append(kvp.Value.ToString());
+                        stringBuilder.Append("Context:");
                         stringBuilder.Append(Environment.NewLine);
+                        foreach (var kvp in this._evaluationContext.AsDictionary())
+                        {
+                            stringBuilder.Append('\t');
+                            stringBuilder.Append(kvp.Key);
+                            stringBuilder.Append(':');
+                            stringBuilder.Append(GetValueString(kvp.Value) ?? "missing");
+                            stringBuilder.Append(Environment.NewLine);
+                        }
                     }
 
                     this._cachedToString = stringBuilder.ToString();
                 }
 
                 return this._cachedToString;
+            }
+
+            static string? GetValueString(Value value)
+            {
+                if (value.IsNull)
+                    return string.Empty;
+
+                if (value.IsString)
+                    return value.AsString;
+
+                if (value.IsBoolean)
+                    return value.AsBoolean.ToString();
+
+                if (value.IsDateTime)
+                    return value.AsDateTime?.ToString("O");
+
+                return value.ToString();
             }
         }
     }
