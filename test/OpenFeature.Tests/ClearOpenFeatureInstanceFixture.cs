@@ -5,7 +5,7 @@ namespace OpenFeature.Tests;
 public class ClearOpenFeatureInstanceFixture : IDisposable
 {
     // Make sure the singleton is cleared between tests
-    public ClearOpenFeatureInstanceFixture()
+    public void Dispose()
     {
         Api.Instance.SetContext(null);
         Api.Instance.ClearHooks();
