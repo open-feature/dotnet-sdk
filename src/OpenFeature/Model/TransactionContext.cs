@@ -11,4 +11,13 @@ public sealed class TransactionContext : EvaluationContext
     internal TransactionContext(Structure content) : base(content)
     {
     }
+
+    /// <summary>
+    /// Get a builder which can build an <see cref="EvaluationContext"/>.
+    /// </summary>
+    /// <returns>The builder</returns>
+    public static new ContextBuilder Builder()
+    {
+        return new ContextBuilder();
+    }
 }
