@@ -22,6 +22,7 @@ namespace OpenFeature
         private EventExecutor _eventExecutor = new EventExecutor();
         private ProviderRepository _repository = new ProviderRepository();
         private readonly ConcurrentStack<Hook> _hooks = new ConcurrentStack<Hook>();
+        private TransactionContext? _transactionContext;
 
         /// The reader/writer locks are not disposed because the singleton instance should never be disposed.
         private readonly ReaderWriterLockSlim _evaluationContextLock = new ReaderWriterLockSlim();
@@ -210,12 +211,25 @@ namespace OpenFeature
             this._evaluationContextLock.EnterReadLock();
             try
             {
-                return this._evaluationContext;
+                var mergedContext = EvaluationContext.Builder()
+                    .Merge(this._evaluationContext)
+                    .Merge(this._transactionContext ?? EvaluationContext.Empty)
+                    .Build();
+                return mergedContext;
             }
             finally
             {
                 this._evaluationContextLock.ExitReadLock();
             }
+        }
+
+        /// <summary>
+        /// Sets the transaction context for the current transaction.
+        /// </summary>
+        /// <param name="transactionContext">The transaction-specific context to set.</param>
+        public void SetTransactionContext(TransactionContext transactionContext) // Pf32f
+        {
+            this._transactionContext = transactionContext;
         }
 
         /// <summary>
