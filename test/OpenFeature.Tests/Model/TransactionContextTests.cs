@@ -41,7 +41,7 @@ public class TransactionContextTests
         var defaultValue = "default-value";
 
         // Act
-        var result = await client.GetStringValueAsync(flagKey, defaultValue);
+        var result = await client.GetStringValueAsync(flagKey, defaultValue).ConfigureAwait(true);
 
         // Assert
         Assert.Equal("default-value", result);
