@@ -227,7 +227,7 @@ namespace OpenFeature
         /// Sets the transaction context for the current transaction.
         /// </summary>
         /// <param name="transactionContext">The transaction-specific context to set.</param>
-        public void SetTransactionContext(TransactionContext transactionContext) // Pf32f
+        public void SetTransactionContext(TransactionContext transactionContext)
         {
             this._transactionContext = transactionContext;
         }
