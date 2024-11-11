@@ -30,7 +30,7 @@ public class TransactionContextTests
     {
         // Arrange
         var api = Api.Instance;
-        var transactionContext = EvaluationContext.Builder()
+        var transactionContext = TransactionContext.Builder()
             .Set("userId", "12345")
             .Set("userAgent", "Mozilla/5.0")
             .BuildTransactionContext();
