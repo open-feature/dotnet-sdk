@@ -479,7 +479,7 @@ namespace OpenFeature.Tests
             var KEY = "key";
             var VAL = 1;
             FeatureClient client = Api.Instance.GetClient(domain, clientVersion);
-            client.SetContext(new EvaluationContextBuilder().Set(KEY, VAL).Build());
+            client.SetContext(new ContextBuilder().Set(KEY, VAL).Build());
             Assert.Equal(VAL, client.GetContext().GetValue(KEY).AsInteger);
         }
 

@@ -134,7 +134,7 @@ namespace OpenFeature.Tests
         [Specification("4.3.3", "Any `evaluation context` returned from a `before` hook MUST be passed to subsequent `before` hooks (via `HookContext`).")]
         public async Task Evaluation_Context_Must_Be_Mutable_Before_Hook()
         {
-            var evaluationContext = new EvaluationContextBuilder().Set("test", "test").Build();
+            var evaluationContext = new ContextBuilder().Set("test", "test").Build();
             var hook1 = Substitute.For<Hook>();
             var hook2 = Substitute.For<Hook>();
             var hookContext = new HookContext<bool>("test", false,
@@ -169,24 +169,24 @@ namespace OpenFeature.Tests
             var propHook = "4.3.4hook";
 
             // setup a cascade of overwriting properties
-            Api.Instance.SetContext(new EvaluationContextBuilder()
+            Api.Instance.SetContext(new ContextBuilder()
                 .Set(propGlobal, true)
                 .Set(propGlobalToOverwrite, false)
                 .Build());
 
-            var clientContext = new EvaluationContextBuilder()
+            var clientContext = new ContextBuilder()
                 .Set(propClient, true)
                 .Set(propGlobalToOverwrite, true)
                 .Set(propClientToOverwrite, false)
                 .Build();
 
-            var invocationContext = new EvaluationContextBuilder()
+            var invocationContext = new ContextBuilder()
                 .Set(propInvocation, true)
                 .Set(propClientToOverwrite, true)
                 .Set(propInvocationToOverwrite, false)
                 .Build();
 
-            var hookContext = new EvaluationContextBuilder()
+            var hookContext = new ContextBuilder()
                 .Set(propHook, true)
                 .Set(propInvocationToOverwrite, true)
                 .Build();

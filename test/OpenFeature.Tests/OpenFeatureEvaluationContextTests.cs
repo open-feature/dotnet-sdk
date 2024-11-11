@@ -13,9 +13,9 @@ namespace OpenFeature.Tests
         [Fact]
         public void Should_Merge_Two_Contexts()
         {
-            var contextBuilder1 = new EvaluationContextBuilder()
+            var contextBuilder1 = new ContextBuilder()
                 .Set("key1", "value1");
-            var contextBuilder2 = new EvaluationContextBuilder()
+            var contextBuilder2 = new ContextBuilder()
                 .Set("key2", "value2");
             var context1 = contextBuilder1.Merge(contextBuilder2.Build()).Build();
 
@@ -27,10 +27,10 @@ namespace OpenFeature.Tests
         [Fact]
         public void Should_Change_TargetingKey_From_OverridingContext()
         {
-            var contextBuilder1 = new EvaluationContextBuilder()
+            var contextBuilder1 = new ContextBuilder()
                 .Set("key1", "value1")
                 .SetTargetingKey("targeting_key");
-            var contextBuilder2 = new EvaluationContextBuilder()
+            var contextBuilder2 = new ContextBuilder()
                 .Set("key2", "value2")
                 .SetTargetingKey("overriding_key");
 
@@ -42,10 +42,10 @@ namespace OpenFeature.Tests
         [Fact]
         public void Should_Retain_TargetingKey_When_OverridingContext_TargetingKey_Value_IsEmpty()
         {
-            var contextBuilder1 = new EvaluationContextBuilder()
+            var contextBuilder1 = new ContextBuilder()
                 .Set("key1", "value1")
                 .SetTargetingKey("targeting_key");
-            var contextBuilder2 = new EvaluationContextBuilder()
+            var contextBuilder2 = new ContextBuilder()
                 .Set("key2", "value2");
 
             var mergeContext = contextBuilder1.Merge(contextBuilder2.Build()).Build();
@@ -57,8 +57,8 @@ namespace OpenFeature.Tests
         [Specification("3.2.2", "Evaluation context MUST be merged in the order: API (global; lowest precedence) - client - invocation - before hooks (highest precedence), with duplicate values being overwritten.")]
         public void Should_Merge_TwoContexts_And_Override_Duplicates_With_RightHand_Context()
         {
-            var contextBuilder1 = new EvaluationContextBuilder();
-            var contextBuilder2 = new EvaluationContextBuilder();
+            var contextBuilder1 = new ContextBuilder();
+            var contextBuilder2 = new ContextBuilder();
 
             contextBuilder1.Set("key1", "value1");
             contextBuilder2.Set("key1", "overriden_value");
@@ -79,7 +79,7 @@ namespace OpenFeature.Tests
             var fixture = new Fixture();
             var now = fixture.Create<DateTime>();
             var structure = fixture.Create<Structure>();
-            var contextBuilder = new EvaluationContextBuilder()
+            var contextBuilder = new ContextBuilder()
                 .SetTargetingKey("targeting_key")
                 .Set("targeting_key", "userId")
                 .Set("key1", "value")
@@ -125,7 +125,7 @@ namespace OpenFeature.Tests
         [Specification("3.1.4", "The evaluation context fields MUST have an unique key.")]
         public void When_Duplicate_Key_Set_It_Replaces_Value()
         {
-            var contextBuilder = new EvaluationContextBuilder().Set("key", "value");
+            var contextBuilder = new ContextBuilder().Set("key", "value");
             contextBuilder.Set("key", "overriden_value");
             Assert.Equal("overriden_value", contextBuilder.Build().GetValue("key").AsString);
         }
@@ -134,7 +134,7 @@ namespace OpenFeature.Tests
         [Specification("3.1.3", "The evaluation context MUST support fetching the custom fields by key and also fetching all key value pairs.")]
         public void Should_Be_Able_To_Get_All_Values()
         {
-            var context = new EvaluationContextBuilder()
+            var context = new ContextBuilder()
                 .Set("key1", "value1")
                 .Set("key2", "value2")
                 .Set("key3", "value3")
