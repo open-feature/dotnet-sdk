@@ -9,7 +9,7 @@ namespace OpenFeature.Model
     /// to the feature flag evaluation context.
     /// </summary>
     /// <seealso href="https://github.com/open-feature/spec/blob/v0.5.2/specification/sections/03-evaluation-context.md">Evaluation context</seealso>
-    public sealed class EvaluationContext
+    public class EvaluationContext
     {
         /// <summary>
         /// The index for the "targeting key" property when the EvaluationContext is serialized or expressed as a dictionary.
