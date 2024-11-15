@@ -247,6 +247,7 @@ namespace OpenFeature
             await using (this._repository.ConfigureAwait(false))
             {
                 this._evaluationContext = EvaluationContext.Empty;
+                this._transactionContext = null;
                 this._hooks.Clear();
 
                 // TODO: make these lazy to avoid extra allocations on the common cleanup path?
