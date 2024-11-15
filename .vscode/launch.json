@@ -10,7 +10,7 @@
       "request": "launch",
       "preLaunchTask": "build",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/test/OpenFeature.Tests/bin/Debug/net6.0/OpenFeature.Tests.dll",
+      "program": "${workspaceFolder}/test/OpenFeature.Tests/bin/Debug/net9.0/OpenFeature.Tests.dll",
       "args": [],
       "cwd": "${workspaceFolder}/test/OpenFeature.Tests",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
