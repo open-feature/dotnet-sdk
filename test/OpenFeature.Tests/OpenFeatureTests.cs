@@ -31,14 +31,13 @@ namespace OpenFeature.Tests
             providerMockDefault.Status.Returns(ProviderStatus.NotReady);
 
             await Api.Instance.SetProviderAsync(providerMockDefault);
-
-            await providerMockDefault.Received(1).InitializeAsync(Arg.Is<EvaluationContext>(e => e.Count == 0));
+            await providerMockDefault.Received(1).InitializeAsync(Api.Instance.GetContext());
 
             var providerMockNamed = Substitute.For<FeatureProvider>();
             providerMockNamed.Status.Returns(ProviderStatus.NotReady);
 
             await Api.Instance.SetProviderAsync("the-name", providerMockNamed);
-            await providerMockNamed.Received(1).InitializeAsync(Arg.Is<EvaluationContext>(e => e.Count == 0));
+            await providerMockNamed.Received(1).InitializeAsync(Api.Instance.GetContext());
         }
 
         [Fact]
@@ -50,26 +49,26 @@ namespace OpenFeature.Tests
             providerA.Status.Returns(ProviderStatus.NotReady);
 
             await Api.Instance.SetProviderAsync(providerA);
-            await providerA.Received(1).InitializeAsync(Arg.Is<EvaluationContext>(e => e.Count == 0));
+            await providerA.Received(1).InitializeAsync(Api.Instance.GetContext());
 
             var providerB = Substitute.For<FeatureProvider>();
             providerB.Status.Returns(ProviderStatus.NotReady);
 
             await Api.Instance.SetProviderAsync(providerB);
-            await providerB.Received(1).InitializeAsync(Arg.Is<EvaluationContext>(e => e.Count == 0));
+            await providerB.Received(1).InitializeAsync(Api.Instance.GetContext());
             await providerA.Received(1).ShutdownAsync();
 
             var providerC = Substitute.For<FeatureProvider>();
             providerC.Status.Returns(ProviderStatus.NotReady);
 
             await Api.Instance.SetProviderAsync("named", providerC);
-            await providerC.Received(1).InitializeAsync(Arg.Is<EvaluationContext>(e => e.Count == 0));
+            await providerC.Received(1).InitializeAsync(Api.Instance.GetContext());
 
             var providerD = Substitute.For<FeatureProvider>();
             providerD.Status.Returns(ProviderStatus.NotReady);
 
             await Api.Instance.SetProviderAsync("named", providerD);
-            await providerD.Received(1).InitializeAsync(Arg.Is<EvaluationContext>(e => e.Count == 0));
+            await providerD.Received(1).InitializeAsync(Api.Instance.GetContext());
             await providerC.Received(1).ShutdownAsync();
         }
 
@@ -213,17 +212,13 @@ namespace OpenFeature.Tests
 
             Api.Instance.SetContext(context);
 
-            var context2 = Api.Instance.GetContext();
-            context2.Count.Should().Be(context.Count);
-            context2.TargetingKey?.Should().Be(context.TargetingKey);
+            Api.Instance.GetContext().Should().BeSameAs(context);
 
             context = EvaluationContext.Builder().Build();
 
             Api.Instance.SetContext(context);
 
-            var context3 = Api.Instance.GetContext();
-            context3.Count.Should().Be(context.Count);
-            context3.TargetingKey?.Should().Be(context.TargetingKey);
+            Api.Instance.GetContext().Should().BeSameAs(context);
         }
 
         [Fact]

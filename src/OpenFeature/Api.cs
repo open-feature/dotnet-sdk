@@ -211,6 +211,11 @@ namespace OpenFeature
             this._evaluationContextLock.EnterReadLock();
             try
             {
+                if (this._transactionContext == null)
+                {
+                    return this._evaluationContext;
+                }
+
                 var mergedContext = EvaluationContext.Builder()
                     .Merge(this._evaluationContext)
                     .Merge(this._transactionContext ?? EvaluationContext.Empty)
