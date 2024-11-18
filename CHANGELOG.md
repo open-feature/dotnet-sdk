@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.0.1](https://github.com/open-feature/dotnet-sdk/compare/v2.0.0...v2.0.1) (2024-11-18)
+
+
+### 🐛 Bug Fixes
+
+* Fix action syntax in workflow configuration ([#315](https://github.com/open-feature/dotnet-sdk/issues/315)) ([ccf0250](https://github.com/open-feature/dotnet-sdk/commit/ccf02506ecd924738b6ae03dedf25c8e2df6d1fb))
+* Fix unit test clean context  ([#313](https://github.com/open-feature/dotnet-sdk/issues/313)) ([3038142](https://github.com/open-feature/dotnet-sdk/commit/30381423333c54e1df98d7721dd72697fc5406dc))
+
+
+### 🧹 Chore
+
+* **deps:** update actions/upload-artifact action to v4.4.3 ([#292](https://github.com/open-feature/dotnet-sdk/issues/292)) ([9b693f7](https://github.com/open-feature/dotnet-sdk/commit/9b693f737f111ed878749f725dd4c831206b308a))
+* **deps:** update codecov/codecov-action action to v4.6.0 ([#306](https://github.com/open-feature/dotnet-sdk/issues/306)) ([4b92528](https://github.com/open-feature/dotnet-sdk/commit/4b92528bd56541ca3701bd4cf80467cdda80f046))
+* **deps:** update dependency dotnet-sdk to v8.0.401 ([#296](https://github.com/open-feature/dotnet-sdk/issues/296)) ([0bae29d](https://github.com/open-feature/dotnet-sdk/commit/0bae29d4771c4901e0c511b8d3587e6501e67ecd))
+* **deps:** update dependency fluentassertions to 6.12.2 ([#302](https://github.com/open-feature/dotnet-sdk/issues/302)) ([bc7e187](https://github.com/open-feature/dotnet-sdk/commit/bc7e187b7586a04e0feb9ef28291ce14c9ac35c5))
+* **deps:** update dependency microsoft.net.test.sdk to 17.11.0 ([#297](https://github.com/open-feature/dotnet-sdk/issues/297)) ([5593e19](https://github.com/open-feature/dotnet-sdk/commit/5593e19ca990196f754cd0be69391abb8f0dbcd5))
+* **deps:** update dependency microsoft.net.test.sdk to 17.11.1 ([#301](https://github.com/open-feature/dotnet-sdk/issues/301)) ([5b979d2](https://github.com/open-feature/dotnet-sdk/commit/5b979d290d96020ffe7f3e5729550d6f988b2af2))
+* **deps:** update dependency nsubstitute to 5.3.0 ([#311](https://github.com/open-feature/dotnet-sdk/issues/311)) ([87f9cfa](https://github.com/open-feature/dotnet-sdk/commit/87f9cfa9b5ace84546690fea95f33bf06fd1947b))
+* **deps:** update dependency xunit to 2.9.2 ([#303](https://github.com/open-feature/dotnet-sdk/issues/303)) ([2273948](https://github.com/open-feature/dotnet-sdk/commit/22739486ee107562c72d02a46190c651e59a753c))
+* **deps:** update dotnet monorepo ([#305](https://github.com/open-feature/dotnet-sdk/issues/305)) ([3955b16](https://github.com/open-feature/dotnet-sdk/commit/3955b1604d5dad9b67e01974d96d53d5cacb9aad))
+* update release please config ([#304](https://github.com/open-feature/dotnet-sdk/issues/304)) ([c471c06](https://github.com/open-feature/dotnet-sdk/commit/c471c062cf70d78b67f597f468c62dbfbf0674d2))
+
 ## [2.0.0](https://github.com/open-feature/dotnet-sdk/compare/v1.5.0...v2.0.0) (2024-08-21)
 
 Today we're announcing the release of the OpenFeature SDK for .NET, v2.0! This release contains several ergonomic improvements to the SDK, which .NET developers will appreciate. It also includes some performance optimizations brought to you by the latest .NET primitives.
