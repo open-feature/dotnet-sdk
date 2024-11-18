@@ -78,8 +78,9 @@ public async Task Example()
 | ✅      | [Eventing](#eventing)   | React to state changes in the provider or flag management system.                                                                  |
 | ✅      | [Shutdown](#shutdown)   | Gracefully clean up a provider during application shutdown.                                                                        |
 | ✅      | [Extending](#extending) | Extend OpenFeature with custom providers and hooks.                                                                                |
+| 🔬      | [DependencyInjection](#DependencyInjection) | Integrate OpenFeature with .NET's dependency injection for streamlined provider setup.                         |
 
-> Implemented: ✅ | In-progress: ⚠️ | Not implemented yet: ❌
+> Implemented: ✅ | In-progress: ⚠️ | Not implemented yet: ❌ | Experimental: 🔬
 
 ### Providers
 
@@ -298,6 +299,80 @@ public class MyHook : Hook
 ```
 
 Built a new hook? [Let us know](https://github.com/open-feature/openfeature.dev/issues/new?assignees=&labels=hook&projects=&template=document-hook.yaml&title=%5BHook%5D%3A+) so we can add it to the docs!
+
+### DependencyInjection
+> [!NOTE]
+> The OpenFeature.DependencyInjection and OpenFeature.Hosting packages are currently experimental. They streamline the integration of OpenFeature within .NET applications, allowing for seamless configuration and lifecycle management of feature flag providers using dependency injection and hosting services.
+
+#### Installation
+To set up dependency injection and hosting capabilities for OpenFeature, install the following packages:
+```sh
+dotnet add package OpenFeature.DependencyInjection
+dotnet add package OpenFeature.Hosting
+```
+#### Usage Examples
+For a basic configuration, you can use the InMemoryProvider. This provider is simple and well-suited for development and testing purposes.
+
+**Basic Configuration:**
+```csharp
+builder.Services.AddOpenFeature(featureBuilder => {
+    featureBuilder
+        .AddHostedFeatureLifecycle() // From Hosting package
+        .AddContext((contextBuilder, serviceProvider) => { /* Custom context configuration */ })
+        .AddInMemoryProvider(); 
+});
+```
+**Domain-Scoped Provider Configuration:**
+<br />To set up multiple providers with a selection policy, define logic for choosing the default provider. This example designates `name1` as the default provider:
+```csharp
+builder.Services.AddOpenFeature(featureBuilder => {
+    featureBuilder
+        .AddHostedFeatureLifecycle()
+        .AddContext((contextBuilder, serviceProvider) => { /* Custom context configuration */ })
+        .AddInMemoryProvider("name1")
+        .AddInMemoryProvider("name2")
+        .AddPolicyName(options => {
+            // Custom logic to select a default provider
+            options.DefaultNameSelector = serviceProvider => "name1";
+        });
+});
+```
+#### Creating a New Provider
+To integrate a custom provider, such as InMemoryProvider, you’ll need to create a factory that builds and configures the provider. This section demonstrates how to set up InMemoryProvider as a new provider with custom configuration options.
+
+**Configuring InMemoryProvider as a New Provider**
+<br />Begin by creating a custom factory class, `InMemoryProviderFactory`, that implements `IFeatureProviderFactory`. This factory will initialize your provider with any necessary configurations.
+```csharp
+public class InMemoryProviderFactory : IFeatureProviderFactory
+{
+    internal IDictionary<string, Flag>? Flags { get; set; }
+
+    public FeatureProvider Create() => new InMemoryProvider(Flags);
+}
+```
+**Adding an Extension Method to OpenFeatureBuilder**
+<br />To streamline the configuration process, add an extension method, `AddInMemoryProvider`, to `OpenFeatureBuilder`. This allows you to set up the provider with either a domain-scoped or a default configuration.
+
+```csharp
+public static partial class FeatureBuilderExtensions
+{
+    public static OpenFeatureBuilder AddInMemoryProvider(this OpenFeatureBuilder builder, Action<IDictionary<string, Flag>>? configure = null)
+        => builder.AddProvider<InMemoryProviderFactory>(factory => ConfigureFlags(factory, configure));
+
+    public static OpenFeatureBuilder AddInMemoryProvider(this OpenFeatureBuilder builder, string domain, Action<IDictionary<string, Flag>>? configure = null)
+        => builder.AddProvider<InMemoryProviderFactory>(domain, factory => ConfigureFlags(factory, configure));
+
+    private static void ConfigureFlags(InMemoryProviderFactory factory, Action<IDictionary<string, Flag>>? configure)
+    {
+        if (configure == null)
+            return;
+
+        var flag = new Dictionary<string, Flag>();
+        configure.Invoke(flag);
+        factory.Flags = flag;
+    }
+}
+```
 
 <!-- x-hide-in-docs-start -->
 ## ⭐️ Support the project
