@@ -8,6 +8,8 @@
     <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.0" />
     <PackageVersion Include="System.Collections.Immutable" Version="9.0.0" />
     <PackageVersion Include="System.Threading.Channels" Version="9.0.0" />
     <PackageVersion Include="System.ValueTuple" Version="4.5.0" />
@@ -27,7 +29,7 @@
     <PackageVersion Include="SpecFlow.xUnit" Version="3.9.74" />
     <PackageVersion Include="xunit" Version="2.9.2" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(OS)' == 'Unix'">
