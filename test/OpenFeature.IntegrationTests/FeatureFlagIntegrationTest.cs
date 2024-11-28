@@ -95,8 +95,8 @@ public class FeatureFlagIntegrationTest
         {
             var client = context.RequestServices.GetRequiredService<IFeatureClient>();
             var featureName = UserInfoHelper.GetFeatureName(context);
-            var res = await client.GetBooleanValueAsync(featureName, false).ConfigureAwait(false);
-            var result = await client.GetBooleanValueAsync(featureName, false).ConfigureAwait(false);
+            var res = await client.GetBooleanValueAsync(featureName, false).ConfigureAwait(true);
+            var result = await client.GetBooleanValueAsync(featureName, false).ConfigureAwait(true);
 
             var response = new FeatureFlagResponse<bool>(featureName, result);
 
@@ -105,10 +105,10 @@ public class FeatureFlagIntegrationTest
 
             // Write the JSON response
             context.Response.ContentType = "application/json";
-            await context.Response.WriteAsync(jsonResponse).ConfigureAwait(false);
+            await context.Response.WriteAsync(jsonResponse).ConfigureAwait(true);
         });
 
-        await app.StartAsync().ConfigureAwait(false);
+        await app.StartAsync().ConfigureAwait(true);
 
         return app.GetTestServer();
     }
