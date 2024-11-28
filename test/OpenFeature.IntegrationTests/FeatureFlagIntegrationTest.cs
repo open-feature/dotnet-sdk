@@ -44,14 +44,14 @@ public class FeatureFlagIntegrationTest
                 default:
                     throw new ArgumentOutOfRangeException(nameof(serviceLifetime), serviceLifetime, null);
             }
-        });
+        }).ConfigureAwait(true);
 
         var client = server.CreateClient();
         var requestUri = $"/features/{userId}/flags/{FeatureA}";
 
         // Act
-        var response = await client.GetAsync(requestUri);
-        var responseContent = await response.Content.ReadFromJsonAsync<FeatureFlagResponse<bool>>();
+        var response = await client.GetAsync(requestUri).ConfigureAwait(true);
+        var responseContent = await response.Content.ReadFromJsonAsync<FeatureFlagResponse<bool>>().ConfigureAwait(true); ;
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue("Expected HTTP status code 200 OK.");
