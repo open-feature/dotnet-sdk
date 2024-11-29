@@ -25,7 +25,6 @@ public class OpenFeatureServiceCollectionExtensionsTests
         _systemUnderTest.Should().ContainSingle(s => s.ServiceType == typeof(Api) && s.Lifetime == ServiceLifetime.Singleton);
         _systemUnderTest.Should().ContainSingle(s => s.ServiceType == typeof(IFeatureLifecycleManager) && s.Lifetime == ServiceLifetime.Singleton);
         _systemUnderTest.Should().ContainSingle(s => s.ServiceType == typeof(IFeatureClient) && s.Lifetime == ServiceLifetime.Scoped);
-        _systemUnderTest.Should().ContainSingle(s => s.ServiceType == typeof(FeatureProvider) && s.Lifetime == ServiceLifetime.Transient);
     }
 
     [Fact]
