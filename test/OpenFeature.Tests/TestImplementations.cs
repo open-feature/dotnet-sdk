@@ -8,28 +8,49 @@ using OpenFeature.Model;
 
 namespace OpenFeature.Tests
 {
-    public class TestHookNoOverride : Hook { }
+    public class TestHookNoOverride : Hook
+    {
+    }
 
     public class TestHook : Hook
     {
-        public override ValueTask<EvaluationContext> BeforeAsync<T>(HookContext<T> context, IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
+        private int _beforeCallCount;
+        public int BeforeCallCount { get => this._beforeCallCount; }
+
+        private int _afterCallCount;
+        public int AfterCallCount { get => this._afterCallCount; }
+
+        private int _errorCallCount;
+        public int ErrorCallCount { get => this._errorCallCount; }
+
+        private int _finallyCallCount;
+        public int FinallyCallCount { get => this._finallyCallCount; }
+
+        public override ValueTask<EvaluationContext> BeforeAsync<T>(HookContext<T> context,
+            IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
         {
+            Interlocked.Increment(ref this._beforeCallCount);
             return new ValueTask<EvaluationContext>(EvaluationContext.Empty);
         }
 
         public override ValueTask AfterAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
             IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
         {
+            Interlocked.Increment(ref this._afterCallCount);
             return new ValueTask();
         }
 
-        public override ValueTask ErrorAsync<T>(HookContext<T> context, Exception error, IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
+        public override ValueTask ErrorAsync<T>(HookContext<T> context, Exception error,
+            IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
         {
+            Interlocked.Increment(ref this._errorCallCount);
             return new ValueTask();
         }
 
-        public override ValueTask FinallyAsync<T>(HookContext<T> context, IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
+        public override ValueTask FinallyAsync<T>(HookContext<T> context,
+            IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
         {
+            Interlocked.Increment(ref this._finallyCallCount);
             return new ValueTask();
         }
     }
