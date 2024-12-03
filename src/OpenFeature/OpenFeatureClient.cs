@@ -263,7 +263,23 @@ namespace OpenFeature
                     (await resolveValueDelegate.Invoke(flagKey, defaultValue, contextFromHooks.EvaluationContext, cancellationToken).ConfigureAwait(false))
                     .ToFlagEvaluationDetails();
 
-                await this.TriggerAfterHooksAsync(allHooksReversed, hookContext, evaluation, options, cancellationToken).ConfigureAwait(false);
+                if (evaluation.ErrorType == ErrorType.None)
+                {
+                    await this.TriggerAfterHooksAsync(
+                        allHooksReversed,
+                        hookContext,
+                        evaluation,
+                        options,
+                        cancellationToken
+                    ).ConfigureAwait(false);
+                }
+                else
+                {
+                    var exception = new FeatureProviderException(evaluation.ErrorType, evaluation.ErrorMessage);
+                    this.FlagEvaluationErrorWithDescription(flagKey, evaluation.ErrorType.GetDescription(), exception);
+                    await this.TriggerErrorHooksAsync(allHooksReversed, hookContext, exception, options, cancellationToken)
+                        .ConfigureAwait(false);
+                }
             }
             catch (FeatureProviderException ex)
             {

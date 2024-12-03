@@ -434,6 +434,41 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
+        public async Task When_Error_Is_Returned_From_Provider_Should_Not_Run_After_Hook_But_Error_Hook()
+        {
+            var fixture = new Fixture();
+            var domain = fixture.Create<string>();
+            var clientVersion = fixture.Create<string>();
+            var flagName = fixture.Create<string>();
+            var defaultValue = fixture.Create<Value>();
+            const string testMessage = "Couldn't parse flag data.";
+
+            var featureProviderMock = Substitute.For<FeatureProvider>();
+            featureProviderMock.ResolveStructureValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>())
+                .Returns(Task.FromResult(new ResolutionDetails<Value>(flagName, defaultValue, ErrorType.ParseError,
+                    "ERROR", null, testMessage)));
+            featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
+            featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
+
+            await Api.Instance.SetProviderAsync(featureProviderMock);
+            var client = Api.Instance.GetClient(domain, clientVersion);
+            var testHook = new TestHook();
+            client.AddHooks(testHook);
+            var response = await client.GetObjectDetailsAsync(flagName, defaultValue);
+
+            response.ErrorType.Should().Be(ErrorType.ParseError);
+            response.Reason.Should().Be(Reason.Error);
+            response.ErrorMessage.Should().Be(testMessage);
+            _ = featureProviderMock.Received(1)
+                .ResolveStructureValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>());
+
+            Assert.Equal(1, testHook.BeforeCallCount);
+            Assert.Equal(0, testHook.AfterCallCount);
+            Assert.Equal(1, testHook.ErrorCallCount);
+            Assert.Equal(1, testHook.FinallyCallCount);
+        }
+
+        [Fact]
         public async Task Cancellation_Token_Added_Is_Passed_To_Provider()
         {
             var fixture = new Fixture();
@@ -454,6 +489,7 @@ namespace OpenFeature.Tests
                 {
                     await Task.Delay(10); // artificially delay until cancelled
                 }
+
                 return new ResolutionDetails<string>(flagName, defaultString, ErrorType.None, cancelledReason);
             });
             featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
