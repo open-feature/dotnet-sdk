@@ -48,9 +48,8 @@ namespace OpenFeature
         public async Task SetProviderAsync(FeatureProvider featureProvider)
         {
             this._eventExecutor.RegisterDefaultFeatureProvider(featureProvider);
-            await this._repository
-                .SetProviderAsync(featureProvider, this.GetContext(), this.AfterInitialization, this.AfterError)
-                .ConfigureAwait(false);
+            await this._repository.SetProviderAsync(featureProvider, this.GetContext(), this.AfterInitialization, this.AfterError).ConfigureAwait(false);
+
         }
 
         /// <summary>
@@ -65,11 +64,8 @@ namespace OpenFeature
             {
                 throw new ArgumentNullException(nameof(domain));
             }
-
             this._eventExecutor.RegisterClientFeatureProvider(domain, featureProvider);
-            await this._repository
-                .SetProviderAsync(domain, featureProvider, this.GetContext(), this.AfterInitialization, this.AfterError)
-                .ConfigureAwait(false);
+            await this._repository.SetProviderAsync(domain, featureProvider, this.GetContext(), this.AfterInitialization, this.AfterError).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -345,8 +341,7 @@ namespace OpenFeature
                 ProviderName = provider.GetMetadata()?.Name,
             };
 
-            await this._eventExecutor.EventChannel.Writer
-                .WriteAsync(new Event { Provider = provider, EventPayload = eventPayload }).ConfigureAwait(false);
+            await this._eventExecutor.EventChannel.Writer.WriteAsync(new Event { Provider = provider, EventPayload = eventPayload }).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -354,9 +349,7 @@ namespace OpenFeature
         /// </summary>
         private async Task AfterError(FeatureProvider provider, Exception? ex)
         {
-            provider.Status = typeof(ProviderFatalException) == ex?.GetType()
-                ? ProviderStatus.Fatal
-                : ProviderStatus.Error;
+            provider.Status = typeof(ProviderFatalException) == ex?.GetType() ? ProviderStatus.Fatal : ProviderStatus.Error;
             var eventPayload = new ProviderEventPayload
             {
                 Type = ProviderEventTypes.ProviderError,
@@ -364,8 +357,7 @@ namespace OpenFeature
                 ProviderName = provider.GetMetadata()?.Name,
             };
 
-            await this._eventExecutor.EventChannel.Writer
-                .WriteAsync(new Event { Provider = provider, EventPayload = eventPayload }).ConfigureAwait(false);
+            await this._eventExecutor.EventChannel.Writer.WriteAsync(new Event { Provider = provider, EventPayload = eventPayload }).ConfigureAwait(false);
         }
     }
 }
