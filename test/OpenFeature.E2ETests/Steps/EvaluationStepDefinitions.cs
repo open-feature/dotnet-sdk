@@ -194,7 +194,7 @@ namespace OpenFeature.E2ETests
         [When(@"context contains keys ""(.*)"", ""(.*)"", ""(.*)"", ""(.*)"" with values ""(.*)"", ""(.*)"", (.*), ""(.*)""")]
         public void Whencontextcontainskeyswithvalues(string field1, string field2, string field3, string field4, string value1, string value2, int value3, string value4)
         {
-            this.context = new ContextBuilder()
+            this.context = new EvaluationContextBuilder()
                 .Set(field1, value1)
                 .Set(field2, value2)
                 .Set(field3, value3)

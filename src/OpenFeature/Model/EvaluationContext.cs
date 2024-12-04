@@ -115,9 +115,9 @@ namespace OpenFeature.Model
         /// Get a builder which can build an <see cref="EvaluationContext"/>.
         /// </summary>
         /// <returns>The builder</returns>
-        public static ContextBuilder Builder()
+        public static EvaluationContextBuilder Builder()
         {
-            return new ContextBuilder();
+            return new EvaluationContextBuilder();
         }
     }
 }

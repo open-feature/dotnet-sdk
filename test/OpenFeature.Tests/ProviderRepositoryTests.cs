@@ -19,7 +19,7 @@ namespace OpenFeature.Tests
         {
             var repository = new ProviderRepository();
             var provider = new NoOpFeatureProvider();
-            var context = new ContextBuilder().Build();
+            var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync(provider, context);
             Assert.Equal(provider, repository.GetProvider());
         }
@@ -30,7 +30,7 @@ namespace OpenFeature.Tests
             var repository = new ProviderRepository();
             var providerMock = Substitute.For<FeatureProvider>();
             providerMock.Status.Returns(ProviderStatus.NotReady);
-            var context = new ContextBuilder().Build();
+            var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync(providerMock, context);
             providerMock.Received(1).InitializeAsync(context);
             providerMock.DidNotReceive().ShutdownAsync();
@@ -42,7 +42,7 @@ namespace OpenFeature.Tests
             var repository = new ProviderRepository();
             var providerMock = Substitute.For<FeatureProvider>();
             providerMock.Status.Returns(ProviderStatus.NotReady);
-            var context = new ContextBuilder().Build();
+            var context = new EvaluationContextBuilder().Build();
             var callCount = 0;
             await repository.SetProviderAsync(providerMock, context, afterInitSuccess: (theProvider) =>
             {
@@ -59,7 +59,7 @@ namespace OpenFeature.Tests
             var repository = new ProviderRepository();
             var providerMock = Substitute.For<FeatureProvider>();
             providerMock.Status.Returns(ProviderStatus.NotReady);
-            var context = new ContextBuilder().Build();
+            var context = new EvaluationContextBuilder().Build();
             providerMock.When(x => x.InitializeAsync(context)).Throw(new Exception("BAD THINGS"));
             var callCount = 0;
             Exception? receivedError = null;
@@ -83,7 +83,7 @@ namespace OpenFeature.Tests
             var repository = new ProviderRepository();
             var providerMock = Substitute.For<FeatureProvider>();
             providerMock.Status.Returns(status);
-            var context = new ContextBuilder().Build();
+            var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync(providerMock, context);
             providerMock.DidNotReceive().InitializeAsync(context);
         }
@@ -97,7 +97,7 @@ namespace OpenFeature.Tests
             var repository = new ProviderRepository();
             var providerMock = Substitute.For<FeatureProvider>();
             providerMock.Status.Returns(status);
-            var context = new ContextBuilder().Build();
+            var context = new EvaluationContextBuilder().Build();
             var callCount = 0;
             await repository.SetProviderAsync(providerMock, context, afterInitSuccess: provider =>
             {
@@ -117,7 +117,7 @@ namespace OpenFeature.Tests
             var provider2 = Substitute.For<FeatureProvider>();
             provider2.Status.Returns(ProviderStatus.NotReady);
 
-            var context = new ContextBuilder().Build();
+            var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync(provider1, context);
             await repository.SetProviderAsync(provider2, context);
             provider1.Received(1).ShutdownAsync();
@@ -129,7 +129,7 @@ namespace OpenFeature.Tests
         {
             var repository = new ProviderRepository();
             var provider = new NoOpFeatureProvider();
-            var context = new ContextBuilder().Build();
+            var context = new EvaluationContextBuilder().Build();
 
             await repository.SetProviderAsync("the-name", provider, context);
             Assert.Equal(provider, repository.GetProvider("the-name"));
@@ -141,7 +141,7 @@ namespace OpenFeature.Tests
             var repository = new ProviderRepository();
             var providerMock = Substitute.For<FeatureProvider>();
             providerMock.Status.Returns(ProviderStatus.NotReady);
-            var context = new ContextBuilder().Build();
+            var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync("the-name", providerMock, context);
             providerMock.Received(1).InitializeAsync(context);
             providerMock.DidNotReceive().ShutdownAsync();
@@ -153,7 +153,7 @@ namespace OpenFeature.Tests
             var repository = new ProviderRepository();
             var providerMock = Substitute.For<FeatureProvider>();
             providerMock.Status.Returns(ProviderStatus.NotReady);
-            var context = new ContextBuilder().Build();
+            var context = new EvaluationContextBuilder().Build();
             var callCount = 0;
             await repository.SetProviderAsync("the-name", providerMock, context, afterInitSuccess: (theProvider) =>
             {
@@ -170,7 +170,7 @@ namespace OpenFeature.Tests
             var repository = new ProviderRepository();
             var providerMock = Substitute.For<FeatureProvider>();
             providerMock.Status.Returns(ProviderStatus.NotReady);
-            var context = new ContextBuilder().Build();
+            var context = new EvaluationContextBuilder().Build();
             providerMock.When(x => x.InitializeAsync(context)).Throw(new Exception("BAD THINGS"));
             var callCount = 0;
             Exception? receivedError = null;
@@ -194,7 +194,7 @@ namespace OpenFeature.Tests
             var repository = new ProviderRepository();
             var providerMock = Substitute.For<FeatureProvider>();
             providerMock.Status.Returns(status);
-            var context = new ContextBuilder().Build();
+            var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync("the-name", providerMock, context);
             providerMock.DidNotReceive().InitializeAsync(context);
         }
@@ -208,7 +208,7 @@ namespace OpenFeature.Tests
             var repository = new ProviderRepository();
             var providerMock = Substitute.For<FeatureProvider>();
             providerMock.Status.Returns(status);
-            var context = new ContextBuilder().Build();
+            var context = new EvaluationContextBuilder().Build();
             var callCount = 0;
             await repository.SetProviderAsync("the-name", providerMock, context,
                 afterInitSuccess: provider =>
@@ -229,7 +229,7 @@ namespace OpenFeature.Tests
             var provider2 = Substitute.For<FeatureProvider>();
             provider2.Status.Returns(ProviderStatus.NotReady);
 
-            var context = new ContextBuilder().Build();
+            var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync("the-name", provider1, context);
             await repository.SetProviderAsync("the-name", provider2, context);
             provider1.Received(1).ShutdownAsync();
@@ -246,7 +246,7 @@ namespace OpenFeature.Tests
             var provider2 = Substitute.For<FeatureProvider>();
             provider2.Status.Returns(ProviderStatus.NotReady);
 
-            var context = new ContextBuilder().Build();
+            var context = new EvaluationContextBuilder().Build();
 
             await repository.SetProviderAsync(provider1, context);
             await repository.SetProviderAsync("A", provider1, context);
@@ -266,7 +266,7 @@ namespace OpenFeature.Tests
             var provider2 = Substitute.For<FeatureProvider>();
             provider2.Status.Returns(ProviderStatus.NotReady);
 
-            var context = new ContextBuilder().Build();
+            var context = new EvaluationContextBuilder().Build();
 
             await repository.SetProviderAsync("B", provider1, context);
             await repository.SetProviderAsync("A", provider1, context);
@@ -286,7 +286,7 @@ namespace OpenFeature.Tests
             var provider2 = Substitute.For<FeatureProvider>();
             provider2.Status.Returns(ProviderStatus.NotReady);
 
-            var context = new ContextBuilder().Build();
+            var context = new EvaluationContextBuilder().Build();
 
             await repository.SetProviderAsync("B", provider1, context);
             await repository.SetProviderAsync("A", provider1, context);
@@ -307,7 +307,7 @@ namespace OpenFeature.Tests
             var provider2 = Substitute.For<FeatureProvider>();
             provider2.Status.Returns(ProviderStatus.NotReady);
 
-            var context = new ContextBuilder().Build();
+            var context = new EvaluationContextBuilder().Build();
 
             await repository.SetProviderAsync("A", provider1, context);
             await repository.SetProviderAsync("B", provider2, context);
@@ -326,7 +326,7 @@ namespace OpenFeature.Tests
             var provider2 = Substitute.For<FeatureProvider>();
             provider2.Status.Returns(ProviderStatus.NotReady);
 
-            var context = new ContextBuilder().Build();
+            var context = new EvaluationContextBuilder().Build();
 
             await repository.SetProviderAsync("A", provider1, context);
             await repository.SetProviderAsync("A", provider2, context);
@@ -347,7 +347,7 @@ namespace OpenFeature.Tests
             var provider3 = Substitute.For<FeatureProvider>();
             provider3.Status.Returns(ProviderStatus.NotReady);
 
-            var context = new ContextBuilder().Build();
+            var context = new EvaluationContextBuilder().Build();
 
             await repository.SetProviderAsync(provider1, context);
             await repository.SetProviderAsync("provider1", provider1, context);
@@ -368,7 +368,7 @@ namespace OpenFeature.Tests
             var repository = new ProviderRepository();
             var provider = Substitute.For<FeatureProvider>();
             provider.Status.Returns(ProviderStatus.NotReady);
-            var context = new ContextBuilder().Build();
+            var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync(provider, context);
             await repository.SetProviderAsync(provider, context);
 
@@ -383,7 +383,7 @@ namespace OpenFeature.Tests
             var repository = new ProviderRepository();
             var provider = Substitute.For<FeatureProvider>();
             provider.Status.Returns(ProviderStatus.NotReady);
-            var context = new ContextBuilder().Build();
+            var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync(provider, context);
             await repository.SetProviderAsync(null, context);
 
@@ -403,7 +403,7 @@ namespace OpenFeature.Tests
             var defaultProvider = Substitute.For<FeatureProvider>();
             defaultProvider.Status.Returns(ProviderStatus.NotReady);
 
-            var context = new ContextBuilder().Build();
+            var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync(defaultProvider, context);
 
             await repository.SetProviderAsync("named-provider", namedProvider, context);

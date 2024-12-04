@@ -5,26 +5,26 @@ namespace OpenFeature.Model
     /// <summary>
     /// A builder which allows the specification of attributes for an <see cref="EvaluationContext"/>.
     /// <para>
-    /// A <see cref="ContextBuilder"/> object is intended for use by a single thread and should not be used
+    /// A <see cref="EvaluationContextBuilder"/> object is intended for use by a single thread and should not be used
     /// from multiple threads. Once an <see cref="EvaluationContext"/> has been created it is immutable and safe for use
     /// from multiple threads.
     /// </para>
     /// </summary>
-    public sealed class ContextBuilder
+    public sealed class EvaluationContextBuilder
     {
         private readonly StructureBuilder _attributes = Structure.Builder();
 
         /// <summary>
         /// Internal to only allow direct creation by <see cref="EvaluationContext.Builder()"/>.
         /// </summary>
-        internal ContextBuilder() { }
+        internal EvaluationContextBuilder() { }
 
         /// <summary>
         /// Set the targeting key for the context.
         /// </summary>
         /// <param name="targetingKey">The targeting key</param>
         /// <returns>This builder</returns>
-        public ContextBuilder SetTargetingKey(string targetingKey)
+        public EvaluationContextBuilder SetTargetingKey(string targetingKey)
         {
             this._attributes.Set(EvaluationContext.TargetingKeyIndex, targetingKey);
             return this;
@@ -36,7 +36,7 @@ namespace OpenFeature.Model
         /// <param name="key">The key for the value</param>
         /// <param name="value">The value to set</param>
         /// <returns>This builder</returns>
-        public ContextBuilder Set(string key, Value value)
+        public EvaluationContextBuilder Set(string key, Value value)
         {
             this._attributes.Set(key, value);
             return this;
@@ -48,7 +48,7 @@ namespace OpenFeature.Model
         /// <param name="key">The key for the value</param>
         /// <param name="value">The value to set</param>
         /// <returns>This builder</returns>
-        public ContextBuilder Set(string key, string value)
+        public EvaluationContextBuilder Set(string key, string value)
         {
             this._attributes.Set(key, value);
             return this;
@@ -60,7 +60,7 @@ namespace OpenFeature.Model
         /// <param name="key">The key for the value</param>
         /// <param name="value">The value to set</param>
         /// <returns>This builder</returns>
-        public ContextBuilder Set(string key, int value)
+        public EvaluationContextBuilder Set(string key, int value)
         {
             this._attributes.Set(key, value);
             return this;
@@ -72,7 +72,7 @@ namespace OpenFeature.Model
         /// <param name="key">The key for the value</param>
         /// <param name="value">The value to set</param>
         /// <returns>This builder</returns>
-        public ContextBuilder Set(string key, double value)
+        public EvaluationContextBuilder Set(string key, double value)
         {
             this._attributes.Set(key, value);
             return this;
@@ -84,7 +84,7 @@ namespace OpenFeature.Model
         /// <param name="key">The key for the value</param>
         /// <param name="value">The value to set</param>
         /// <returns>This builder</returns>
-        public ContextBuilder Set(string key, long value)
+        public EvaluationContextBuilder Set(string key, long value)
         {
             this._attributes.Set(key, value);
             return this;
@@ -96,7 +96,7 @@ namespace OpenFeature.Model
         /// <param name="key">The key for the value</param>
         /// <param name="value">The value to set</param>
         /// <returns>This builder</returns>
-        public ContextBuilder Set(string key, bool value)
+        public EvaluationContextBuilder Set(string key, bool value)
         {
             this._attributes.Set(key, value);
             return this;
@@ -108,7 +108,7 @@ namespace OpenFeature.Model
         /// <param name="key">The key for the value</param>
         /// <param name="value">The value to set</param>
         /// <returns>This builder</returns>
-        public ContextBuilder Set(string key, Structure value)
+        public EvaluationContextBuilder Set(string key, Structure value)
         {
             this._attributes.Set(key, value);
             return this;
@@ -120,7 +120,7 @@ namespace OpenFeature.Model
         /// <param name="key">The key for the value</param>
         /// <param name="value">The value to set</param>
         /// <returns>This builder</returns>
-        public ContextBuilder Set(string key, DateTime value)
+        public EvaluationContextBuilder Set(string key, DateTime value)
         {
             this._attributes.Set(key, value);
             return this;
@@ -134,7 +134,7 @@ namespace OpenFeature.Model
         /// </summary>
         /// <param name="context">The context to add merge</param>
         /// <returns>This builder</returns>
-        public ContextBuilder Merge(EvaluationContext context)
+        public EvaluationContextBuilder Merge(EvaluationContext context)
         {
             foreach (var kvp in context)
             {
