@@ -152,14 +152,5 @@ namespace OpenFeature.Model
         {
             return new EvaluationContext(this._attributes.Build());
         }
-
-        /// <summary>
-        /// Build an immutable <see cref="TransactionContext"/>.
-        /// </summary>
-        /// <returns>An immutable <see cref="TransactionContext"/></returns>
-        public TransactionContext BuildTransactionContext()
-        {
-            return new TransactionContext(this._attributes.Build());
-        }
     }
 }
