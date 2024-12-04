@@ -219,6 +219,24 @@ namespace OpenFeature
         }
 
         /// <summary>
+        /// Returns the currently defined transaction context using the registered transaction context propagator.
+        /// </summary>
+        /// <returns><see cref="EvaluationContext"/>The current transaction context</returns>
+        public EvaluationContext GetTransactionContext() {
+            // return this.transactionContextPropagator.getTransactionContext();
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Sets the transaction context using the registered transaction context propagator.
+        /// </summary>
+        /// <param name="evaluationContext">The <see cref="EvaluationContext"/> to set</param>
+        public void SetTransactionContext(EvaluationContext evaluationContext) {
+            // this.transactionContextPropagator.setTransactionContext(evaluationContext);
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// <para>
         /// Shut down and reset the current status of OpenFeature API.
         /// </para>
