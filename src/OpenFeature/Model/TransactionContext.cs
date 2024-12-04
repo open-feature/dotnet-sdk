@@ -16,8 +16,8 @@ public sealed class TransactionContext : EvaluationContext
     /// Get a builder which can build an <see cref="EvaluationContext"/>.
     /// </summary>
     /// <returns>The builder</returns>
-    public static new ContextBuilder Builder()
+    public static new EvaluationContextBuilder Builder()
     {
-        return new ContextBuilder();
+        return new EvaluationContextBuilder();
     }
 }
