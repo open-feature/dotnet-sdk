@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using OpenFeature.Model;
 using OpenFeature.Tests.Internal;
@@ -31,15 +32,19 @@ public class TrackingEventDetailsTest
     public void TrackingEventDetails_CanTakeValues()
     {
         var structure = new Structure(new Dictionary<string, Value> { { "key", new Value("value") } });
-        var builder = new TrackingEventDetailsBuilder()
+        var dateTimeValue = new Value(DateTime.Now);
+        var builder = TrackingEventDetails.Builder()
             .Set("boolean", true)
             .Set("string", "some string")
-            .Set("number", 123.3)
-            .Set("structure", structure);
+            .Set("double", 123.3)
+            .Set("structure", structure)
+            .Set("value", dateTimeValue);
         var details = builder.Build();
+        Assert.Equal(5, details.Count);
         Assert.Equal(true, details.GetValue("boolean").AsBoolean);
         Assert.Equal("some string", details.GetValue("string").AsString);
-        Assert.Equal(123.3, details.GetValue("number").AsDouble);
+        Assert.Equal(123.3, details.GetValue("double").AsDouble);
         Assert.Equal(structure, details.GetValue("structure").AsStructure);
+        Assert.Equal(dateTimeValue, details.GetValue("value"));
     }
 }
