@@ -74,6 +74,7 @@ public async Task Example()
 | ✅      | [Providers](#providers) | Integrate with a commercial, open source, or in-house feature management tool.                                                     |
 | ✅      | [Targeting](#targeting) | Contextually-aware flag evaluation using [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context). |
 | ✅      | [Hooks](#hooks)         | Add functionality to various stages of the flag evaluation life-cycle.                                                             |
+| ✅      | [Tracking](#tracking)   | Associate user actions with feature flag evaluations.                                                                              |
 | ✅      | [Logging](#logging)     | Integrate with popular logging packages.                                                                                           |
 | ✅      | [Domains](#domains)     | Logically bind clients with providers.                                                                                             |
 | ✅      | [Eventing](#eventing)   | React to state changes in the provider or flag management system.                                                                  |
