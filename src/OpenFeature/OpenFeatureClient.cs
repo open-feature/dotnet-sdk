@@ -378,7 +378,7 @@ namespace OpenFeature
         {
             if (string.IsNullOrEmpty(trackingEventName))
             {
-                throw new ArgumentException(nameof(trackingEventName) + " cannot be null or empty.");
+                throw new ArgumentException("Tracking event cannot be null or empty.", nameof(trackingEventName));
             }
 
             var globalContext = Api.Instance.GetContext();
