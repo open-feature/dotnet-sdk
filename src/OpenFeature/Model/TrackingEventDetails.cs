@@ -11,11 +11,6 @@ namespace OpenFeature.Model;
 public sealed class TrackingEventDetails
 {
     /// <summary>
-    /// The index for the "targeting key" property when the TrackingEventDetails is serialized or expressed as a dictionary.
-    /// </summary>
-    internal const string ValueIndex = "value";
-
-    /// <summary>
     ///A predefined value field for the tracking details.
     /// </summary>
     public readonly double? Value;
