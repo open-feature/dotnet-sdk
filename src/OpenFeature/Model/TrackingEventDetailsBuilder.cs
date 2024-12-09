@@ -32,17 +32,6 @@ namespace OpenFeature.Model
         }
 
         /// <summary>
-        /// Set the targeting key for the tracking details.
-        /// </summary>
-        /// <param name="targetingKey">The targeting key</param>
-        /// <returns>This builder</returns>
-        public TrackingEventDetailsBuilder SetTargetingKey(string targetingKey)
-        {
-            this._attributes.Set(TrackingEventDetails.TargetingKeyIndex, targetingKey);
-            return this;
-        }
-
-        /// <summary>
         /// Set the key to the given <see cref="Value"/>.
         /// </summary>
         /// <param name="key">The key for the value</param>
@@ -141,13 +130,15 @@ namespace OpenFeature.Model
         /// <summary>
         /// Incorporate existing tracking details into the builder.
         /// <para>
-        /// Any existing keys in the builder will be replaced by keys in the tracking details.
+        /// Any existing keys in the builder will be replaced by keys in the tracking details, including the Value set
+        /// through <see cref="SetValue(double?)"/>.
         /// </para>
         /// </summary>
         /// <param name="trackingDetails">The tracking details to add merge</param>
         /// <returns>This builder</returns>
         public TrackingEventDetailsBuilder Merge(TrackingEventDetails trackingDetails)
         {
+            this._value = trackingDetails.Value;
             foreach (var kvp in trackingDetails)
             {
                 this.Set(kvp.Key, kvp.Value);

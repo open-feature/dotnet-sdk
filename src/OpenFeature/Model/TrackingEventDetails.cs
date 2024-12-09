@@ -11,9 +11,9 @@ namespace OpenFeature.Model;
 public sealed class TrackingEventDetails
 {
     /// <summary>
-    /// The index for the "targeting key" property when the EvaluationContext is serialized or expressed as a dictionary.
+    /// The index for the "targeting key" property when the TrackingEventDetails is serialized or expressed as a dictionary.
     /// </summary>
-    internal const string TargetingKeyIndex = "targetingKey";
+    internal const string ValueIndex = "value";
 
     /// <summary>
     ///A predefined value field for the tracking details.
@@ -96,18 +96,6 @@ public sealed class TrackingEventDetails
     /// Return a count of all values
     /// </summary>
     public int Count => this._structure.Count;
-
-    /// <summary>
-    /// Returns the targeting key for the context.
-    /// </summary>
-    public string? TargetingKey
-    {
-        get
-        {
-            this._structure.TryGetValue(TargetingKeyIndex, out Value? targetingKey);
-            return targetingKey?.AsString;
-        }
-    }
 
     /// <summary>
     /// Return an enumerator for all values
