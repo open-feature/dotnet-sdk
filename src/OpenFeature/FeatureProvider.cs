@@ -143,7 +143,7 @@ namespace OpenFeature
         public virtual Channel<object> GetEventChannel() => this.EventChannel;
 
         /// <summary>
-        /// Use this method to track user interactions and the application state. The implementation of this method is optional.
+        /// Track a user action or application state, usually representing a business objective or outcome. The implementation of this method is optional.
         /// </summary>
         /// <param name="trackingEventName">The name associated with this tracking event</param>
         /// <param name="evaluationContext">The evaluation context used in the evaluation of the flag (optional)</param>
