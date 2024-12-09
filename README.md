@@ -215,7 +215,7 @@ myClient.AddHandler(ProviderEventTypes.ProviderReady, callback);
 
 ### Tracking
 
-The tracking API allows you to use OpenFeature abstractions and objects to associate user actions with feature flag evaluations.
+The [tracking API](https://openfeature.dev/specification/sections/tracking) allows you to use OpenFeature abstractions and objects to associate user actions with feature flag evaluations.
 This is essential for robust experimentation powered by feature flags.
 For example, a flag enhancing the appearance of a UI component might drive user engagement to a new feature; to test this hypothesis, telemetry collected by a hook(#hooks) or provider(#providers) can be associated with telemetry reported in the client's `track` function.
 
