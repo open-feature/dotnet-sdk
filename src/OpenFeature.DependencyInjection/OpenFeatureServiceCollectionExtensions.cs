@@ -53,16 +53,7 @@ public static partial class OpenFeatureServiceCollectionExtensions
             });
         }
 
-        builder.AddDefaultClient((provider, policy) =>
-        {
-            var name = policy.DefaultNameSelector.Invoke(provider);
-            if (name == null)
-            {
-                return provider.GetRequiredService<IFeatureClient>();
-            }
-            return provider.GetRequiredKeyedService<IFeatureClient>(name);
-        });
-
+        builder.AddPolicyBasedClient();
         return services;
     }
 }
