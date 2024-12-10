@@ -22,6 +22,8 @@ namespace OpenFeature
         private EventExecutor _eventExecutor = new EventExecutor();
         private ProviderRepository _repository = new ProviderRepository();
         private readonly ConcurrentStack<Hook> _hooks = new ConcurrentStack<Hook>();
+        private ITransactionContextPropagator? _transactionContextPropagator;
+        private object _transactionContextPropagatorLock = new();
 
         /// The reader/writer locks are not disposed because the singleton instance should never be disposed.
         private readonly ReaderWriterLockSlim _evaluationContextLock = new ReaderWriterLockSlim();
@@ -47,6 +49,7 @@ namespace OpenFeature
         {
             this._eventExecutor.RegisterDefaultFeatureProvider(featureProvider);
             await this._repository.SetProviderAsync(featureProvider, this.GetContext(), this.AfterInitialization, this.AfterError).ConfigureAwait(false);
+
         }
 
         /// <summary>
@@ -85,7 +88,6 @@ namespace OpenFeature
         /// Gets the feature provider with given domain
         /// </summary>
         /// <param name="domain">An identifier which logically binds clients with providers</param>
-
         /// <returns>A provider associated with the given domain, if domain is empty or doesn't
         /// have a corresponding provider the default provider will be returned</returns>
         public FeatureProvider GetProvider(string domain)
@@ -109,7 +111,6 @@ namespace OpenFeature
         /// assigned to it the default provider will be returned
         /// </summary>
         /// <param name="domain">An identifier which logically binds clients with providers</param>
-
         /// <returns>Metadata assigned to provider</returns>
         public Metadata? GetProviderMetadata(string domain) => this.GetProvider(domain).GetMetadata();
 
@@ -216,6 +217,64 @@ namespace OpenFeature
             {
                 this._evaluationContextLock.ExitReadLock();
             }
+        }
+
+        /// <summary>
+        /// Return the transaction context propagator.
+        /// </summary>
+        /// <returns><see cref="ITransactionContextPropagator"/>the registered transaction context propagator</returns>
+        public ITransactionContextPropagator? GetTransactionContextPropagator()
+        {
+            return this._transactionContextPropagator;
+        }
+
+        /// <summary>
+        /// Sets the transaction context propagator.
+        /// </summary>
+        /// <param name="transactionContextPropagator">the transaction context propagator to be registered</param>
+        /// <exception cref="ArgumentNullException">Transaction context propagator cannot be null</exception>
+        public void SetTransactionContextPropagator(ITransactionContextPropagator transactionContextPropagator)
+        {
+            if (transactionContextPropagator == null)
+            {
+                throw new ArgumentNullException(nameof(transactionContextPropagator),
+                    "Transaction context propagator cannot be null");
+            }
+
+            lock (this._transactionContextPropagatorLock)
+            {
+                this._transactionContextPropagator = transactionContextPropagator;
+            }
+        }
+
+        /// <summary>
+        /// Returns the currently defined transaction context using the registered transaction context propagator.
+        /// </summary>
+        /// <returns><see cref="EvaluationContext"/>The current transaction context</returns>
+        public EvaluationContext? GetTransactionContext()
+        {
+            return this._transactionContextPropagator?.GetTransactionContext();
+        }
+
+        /// <summary>
+        /// Sets the transaction context using the registered transaction context propagator.
+        /// </summary>
+        /// <param name="evaluationContext">The <see cref="EvaluationContext"/> to set</param>
+        /// <exception cref="InvalidOperationException">Transaction context propagator is not set.</exception>
+        /// <exception cref="ArgumentNullException">Evaluation context cannot be null</exception>
+        public void SetTransactionContext(EvaluationContext evaluationContext)
+        {
+            if (evaluationContext == null)
+            {
+                throw new ArgumentNullException(nameof(evaluationContext), "Evaluation context cannot be null");
+            }
+
+            if (this._transactionContextPropagator == null)
+            {
+                throw new InvalidOperationException("Transaction context propagator is not set");
+            }
+
+            this._transactionContextPropagator?.SetTransactionContext(evaluationContext);
         }
 
         /// <summary>
