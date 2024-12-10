@@ -595,6 +595,16 @@ namespace OpenFeature.Tests
             Assert.Throws<ArgumentException>(() => client.Track(""));
         }
 
+        [Fact]
+        public async Task PassingABlankStringAsTrackingEventName_ThrowsArgumentException()
+        {
+            var provider = new TestProvider();
+            await Api.Instance.SetProviderAsync(provider);
+            var client = Api.Instance.GetClient();
+
+            Assert.Throws<ArgumentException>(() => client.Track(" \n "));
+        }
+
         public static TheoryData<string, EvaluationContext?, EvaluationContext?, EvaluationContext?, string> GenerateMergeEvaluationContextTestData()
         {
             const string key = "key";

@@ -376,7 +376,7 @@ namespace OpenFeature
         /// <exception cref="ArgumentException">When trackingEventName is null or empty</exception>
         public void Track(string trackingEventName, EvaluationContext? evaluationContext = default, TrackingEventDetails? trackingEventDetails = default)
         {
-            if (string.IsNullOrEmpty(trackingEventName))
+            if (string.IsNullOrWhiteSpace(trackingEventName))
             {
                 throw new ArgumentException("Tracking event cannot be null or empty.", nameof(trackingEventName));
             }
