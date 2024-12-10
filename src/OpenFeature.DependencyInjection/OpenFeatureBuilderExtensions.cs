@@ -21,9 +21,7 @@ public static partial class OpenFeatureBuilderExtensions
     /// <param name="configure">the desired configuration</param>
     /// <returns>The <see cref="OpenFeatureBuilder"/> instance.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the <paramref name="builder"/> or <paramref name="configure"/> action is null.</exception>
-    public static OpenFeatureBuilder AddContext(
-        this OpenFeatureBuilder builder,
-        Action<EvaluationContextBuilder> configure)
+    public static OpenFeatureBuilder AddContext(this OpenFeatureBuilder builder, Action<EvaluationContextBuilder> configure)
     {
         Guard.ThrowIfNull(builder);
         Guard.ThrowIfNull(configure);
@@ -38,9 +36,7 @@ public static partial class OpenFeatureBuilderExtensions
     /// <param name="configure">the desired configuration</param>
     /// <returns>The <see cref="OpenFeatureBuilder"/> instance.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the <paramref name="builder"/> or <paramref name="configure"/> action is null.</exception>
-    public static OpenFeatureBuilder AddContext(
-        this OpenFeatureBuilder builder,
-        Action<EvaluationContextBuilder, IServiceProvider> configure)
+    public static OpenFeatureBuilder AddContext(this OpenFeatureBuilder builder, Action<EvaluationContextBuilder, IServiceProvider> configure)
     {
         Guard.ThrowIfNull(builder);
         Guard.ThrowIfNull(configure);
@@ -57,122 +53,106 @@ public static partial class OpenFeatureBuilderExtensions
     }
 
     /// <summary>
-    /// Adds a new feature provider with specified options and configuration builder.
+    /// Adds a feature provider using a factory method without additional configuration options.
+    /// This method adds the feature provider as a transient service and sets it as the default provider within the application.
     /// </summary>
-    /// <typeparam name="TOptions">The <see cref="OpenFeatureOptions"/> type for configuring the feature provider.</typeparam>
-    /// <typeparam name="TProviderFactory">The type of the provider factory implementing <see cref="IFeatureProviderFactory"/>.</typeparam>
-    /// <param name="builder">The <see cref="OpenFeatureBuilder"/> instance.</param>
-    /// <param name="configureFactory">An optional action to configure the provider factory of type <typeparamref name="TProviderFactory"/>.</param>
-    /// <returns>The <see cref="OpenFeatureBuilder"/> instance.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="builder"/> is null.</exception>
-    public static OpenFeatureBuilder AddProvider<TOptions, TProviderFactory>(this OpenFeatureBuilder builder, Action<TProviderFactory>? configureFactory = null)
+    /// <param name="builder">The <see cref="OpenFeatureBuilder"/> used to configure feature flags.</param>
+    /// <param name="implementationFactory">
+    /// A factory method that creates and returns a <see cref="FeatureProvider"/>
+    /// instance based on the provided service provider.
+    /// </param>
+    /// <returns>The updated <see cref="OpenFeatureBuilder"/> instance with the default feature provider set and configured.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if the <paramref name="builder"/> is null, as a valid builder is required to add and configure providers.</exception>
+    public static OpenFeatureBuilder AddProvider(this OpenFeatureBuilder builder, Func<IServiceProvider, FeatureProvider> implementationFactory)
+        => AddProvider<OpenFeatureOptions>(builder, implementationFactory, null);
+
+    /// <summary>
+    /// Adds a feature provider using a factory method to create the provider instance and optionally configures its settings.
+    /// This method adds the feature provider as a transient service and sets it as the default provider within the application.
+    /// </summary>
+    /// <typeparam name="TOptions"> Type derived from <see cref="OpenFeatureOptions"/> used to configure the feature provider.</typeparam>
+    /// <param name="builder">The <see cref="OpenFeatureBuilder"/> used to configure feature flags.</param>
+    /// <param name="implementationFactory">
+    /// A factory method that creates and returns a <see cref="FeatureProvider"/>
+    /// instance based on the provided service provider.
+    /// </param>
+    /// <param name="configureOptions">An optional delegate to configure the provider-specific options.</param>
+    /// <returns>The updated <see cref="OpenFeatureBuilder"/> instance with the default feature provider set and configured.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if the <paramref name="builder"/> is null, as a valid builder is required to add and configure providers.</exception>
+    public static OpenFeatureBuilder AddProvider<TOptions>(this OpenFeatureBuilder builder, Func<IServiceProvider, FeatureProvider> implementationFactory, Action<TOptions>? configureOptions)
         where TOptions : OpenFeatureOptions
-        where TProviderFactory : class, IFeatureProviderFactory
     {
         Guard.ThrowIfNull(builder);
 
         builder.HasDefaultProvider = true;
-
-        builder.Services.Configure<TOptions>(options =>
+        builder.Services.PostConfigure<TOptions>(options => options.AddDefaultProviderName());
+        if (configureOptions != null)
         {
-            options.AddDefaultProviderName();
-        });
-
-        if (configureFactory != null)
-        {
-            builder.Services.AddOptions<TProviderFactory>()
-                .Validate(options => options != null, $"{typeof(TProviderFactory).Name} configuration is invalid.")
-                .Configure(configureFactory);
-        }
-        else
-        {
-            builder.Services.AddOptions<TProviderFactory>()
-                .Configure(options => { });
+            builder.Services.Configure(configureOptions);
         }
 
-        builder.Services.TryAddSingleton(static provider =>
-        {
-            var providerFactory = provider.GetRequiredService<IOptions<TProviderFactory>>().Value;
-            return providerFactory.Create();
-        });
-
+        builder.Services.TryAddTransient(implementationFactory);
         builder.AddClient();
-
         return builder;
     }
 
     /// <summary>
-    /// Adds a new feature provider with the default <see cref="OpenFeatureOptions"/> type and a specified configuration builder.
+    /// Adds a feature provider for a specific domain using provided options and a configuration builder.
     /// </summary>
-    /// <typeparam name="TProviderFactory">The type of the provider factory implementing <see cref="IFeatureProviderFactory"/>.</typeparam>
-    /// <param name="builder">The <see cref="OpenFeatureBuilder"/> instance.</param>
-    /// <param name="configureFactory">An optional action to configure the provider factory of type <typeparamref name="TProviderFactory"/>.</param>
-    /// <returns>The configured <see cref="OpenFeatureBuilder"/> instance.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="builder"/> is null.</exception>
-    public static OpenFeatureBuilder AddProvider<TProviderFactory>(this OpenFeatureBuilder builder, Action<TProviderFactory>? configureFactory = null)
-        where TProviderFactory : class, IFeatureProviderFactory
-        => AddProvider<OpenFeatureOptions, TProviderFactory>(builder, configureFactory);
-
-    /// <summary>
-    /// Adds a feature provider with specified options and configuration builder for the specified domain.
-    /// </summary>
-    /// <typeparam name="TOptions">The <see cref="OpenFeatureOptions"/> type for configuring the feature provider.</typeparam>
-    /// <typeparam name="TProviderFactory">The type of the provider factory implementing <see cref="IFeatureProviderFactory"/>.</typeparam>
-    /// <param name="builder">The <see cref="OpenFeatureBuilder"/> instance.</param>
+    /// <typeparam name="TOptions"> Type derived from <see cref="OpenFeatureOptions"/> used to configure the feature provider.</typeparam>
+    /// <param name="builder">The <see cref="OpenFeatureBuilder"/> used to configure feature flags.</param>
     /// <param name="domain">The unique name of the provider.</param>
-    /// <param name="configureFactory">An optional action to configure the provider factory of type <typeparamref name="TProviderFactory"/>.</param>
-    /// <returns>The <see cref="OpenFeatureBuilder"/> instance.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="builder"/> or <paramref name="domain"/> is null or empty.</exception>
-    public static OpenFeatureBuilder AddProvider<TOptions, TProviderFactory>(this OpenFeatureBuilder builder, string domain, Action<TProviderFactory>? configureFactory = null)
+    /// <param name="implementationFactory">
+    /// A factory method that creates a feature provider instance.
+    /// It adds the provider as a transient service unless it is already added.
+    /// </param>
+    /// <param name="configureOptions">An optional delegate to configure the provider-specific options.</param>
+    /// <returns>The updated <see cref="OpenFeatureBuilder"/> instance with the new feature provider configured.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown if either <paramref name="builder"/> or <paramref name="domain"/> is null or if the <paramref name="domain"/> is empty.
+    /// </exception>
+    public static OpenFeatureBuilder AddProvider<TOptions>(this OpenFeatureBuilder builder, string domain, Func<IServiceProvider, string, FeatureProvider> implementationFactory, Action<TOptions>? configureOptions)
         where TOptions : OpenFeatureOptions
-        where TProviderFactory : class, IFeatureProviderFactory
     {
         Guard.ThrowIfNull(builder);
-        Guard.ThrowIfNullOrWhiteSpace(domain, nameof(domain));
 
         builder.DomainBoundProviderRegistrationCount++;
 
-        builder.Services.Configure<TOptions>(options =>
+        builder.Services.PostConfigure<TOptions>(options => options.AddProviderName(domain));
+        if (configureOptions != null)
         {
-            options.AddProviderName(domain);
-        });
-
-        if (configureFactory != null)
-        {
-            builder.Services.AddOptions<TProviderFactory>(domain)
-                .Validate(options => options != null, $"{typeof(TProviderFactory).Name} configuration is invalid.")
-                .Configure(configureFactory);
-        }
-        else
-        {
-            builder.Services.AddOptions<TProviderFactory>(domain)
-                .Configure(options => { });
+            builder.Services.Configure(domain, configureOptions);
         }
 
-        builder.Services.TryAddKeyedSingleton(domain, static (provider, key) =>
+        builder.Services.TryAddKeyedTransient(domain, (provider, key) =>
         {
-            var options = provider.GetRequiredService<IOptionsMonitor<TProviderFactory>>();
-            var providerFactory = options.Get(key!.ToString());
-            return providerFactory.Create();
+            if (key == null)
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+            return implementationFactory(provider, key.ToString()!);
         });
 
         builder.AddClient(domain);
-
         return builder;
     }
 
     /// <summary>
-    /// Adds a feature provider with a specified configuration builder for the specified domain, using default <see cref="OpenFeatureOptions"/>.
+    /// Adds a feature provider for a specified domain using the default options.
+    /// This method configures a feature provider without custom options, delegating to the more generic AddProvider method.
     /// </summary>
-    /// <typeparam name="TProviderFactory">The type of the provider factory implementing <see cref="IFeatureProviderFactory"/>.</typeparam>
-    /// <param name="builder">The <see cref="OpenFeatureBuilder"/> instance.</param>
-    /// <param name="domain">The unique domain of the provider.</param>
-    /// <param name="configureFactory">An optional action to configure the provider factory of type <typeparamref name="TProviderFactory"/>.</param>
-    /// <returns>The configured <see cref="OpenFeatureBuilder"/> instance.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="builder"/> or <paramref name="domain"/> is null or empty.</exception>
-    public static OpenFeatureBuilder AddProvider<TProviderFactory>(this OpenFeatureBuilder builder, string domain, Action<TProviderFactory>? configureFactory = null)
-        where TProviderFactory : class, IFeatureProviderFactory
-        => AddProvider<OpenFeatureOptions, TProviderFactory>(builder, domain, configureFactory);
+    /// <param name="builder">The <see cref="OpenFeatureBuilder"/> used to configure feature flags.</param>
+    /// <param name="domain">The unique name of the provider.</param>
+    /// <param name="implementationFactory">
+    /// A factory method that creates a feature provider instance.
+    /// It adds the provider as a transient service unless it is already added.
+    /// </param>
+    /// <returns>The updated <see cref="OpenFeatureBuilder"/> instance with the new feature provider configured.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown if either <paramref name="builder"/> or <paramref name="domain"/> is null or if the <paramref name="domain"/> is empty.
+    /// </exception>
+    public static OpenFeatureBuilder AddProvider(this OpenFeatureBuilder builder, string domain, Func<IServiceProvider, string, FeatureProvider> implementationFactory)
+        => AddProvider<OpenFeatureOptions>(builder, domain, implementationFactory, configureOptions: null);
 
     /// <summary>
     /// Adds a feature client to the service collection, configuring it to work with a specific context if provided.
@@ -231,19 +211,24 @@ public static partial class OpenFeatureBuilderExtensions
     }
 
     /// <summary>
-    /// Configures a default client for OpenFeature using the provided factory function.
+    /// Adds a default <see cref="IFeatureClient"/> to the <see cref="OpenFeatureBuilder"/> based on the policy name options.
+    /// This method configures the dependency injection container to resolve the appropriate <see cref="IFeatureClient"/>
+    /// depending on the policy name selected.
+    /// If no name is selected (i.e., null), it retrieves the default client.
     /// </summary>
     /// <param name="builder">The <see cref="OpenFeatureBuilder"/> instance.</param>
-    /// <param name="clientFactory">
-    /// A factory function that creates an <see cref="IFeatureClient"/> based on the service provider and <see cref="PolicyNameOptions"/>.
-    /// </param>
     /// <returns>The configured <see cref="OpenFeatureBuilder"/> instance.</returns>
-    internal static OpenFeatureBuilder AddDefaultClient(this OpenFeatureBuilder builder, Func<IServiceProvider, PolicyNameOptions, IFeatureClient> clientFactory)
+    internal static OpenFeatureBuilder AddPolicyBasedClient(this OpenFeatureBuilder builder)
     {
         builder.Services.AddScoped(provider =>
         {
             var policy = provider.GetRequiredService<IOptions<PolicyNameOptions>>().Value;
-            return clientFactory(provider, policy);
+            var name = policy.DefaultNameSelector(provider);
+            if (name == null)
+            {
+                return provider.GetRequiredService<IFeatureClient>();
+            }
+            return provider.GetRequiredKeyedService<IFeatureClient>(name);
         });
 
         return builder;
