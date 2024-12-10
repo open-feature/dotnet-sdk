@@ -26,13 +26,13 @@ public class OpenFeatureOptions
     /// Registers the default provider name if no specific name is provided.
     /// Sets <see cref="HasDefaultProvider"/> to true.
     /// </summary>
-    public void AddDefaultProviderName() => AddProviderName(null);
+    protected internal void AddDefaultProviderName() => AddProviderName(null);
 
     /// <summary>
     /// Registers a new feature provider name. This operation is thread-safe.
     /// </summary>
     /// <param name="name">The name of the feature provider to register. Registers as default if null.</param>
-    public void AddProviderName(string? name)
+    protected internal void AddProviderName(string? name)
     {
         if (string.IsNullOrWhiteSpace(name))
         {

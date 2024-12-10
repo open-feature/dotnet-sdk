@@ -352,41 +352,43 @@ builder.Services.AddOpenFeature(featureBuilder => {
         });
 });
 ```
-#### Creating a New Provider
-To integrate a custom provider, such as InMemoryProvider, you’ll need to create a factory that builds and configures the provider. This section demonstrates how to set up InMemoryProvider as a new provider with custom configuration options.
 
-**Configuring InMemoryProvider as a New Provider**
-<br />Begin by creating a custom factory class, `InMemoryProviderFactory`, that implements `IFeatureProviderFactory`. This factory will initialize your provider with any necessary configurations.
+### Registering a Custom Provider
+You can register a custom provider, such as `InMemoryProvider`, with OpenFeature using the `AddProvider` method. This approach allows you to dynamically resolve services or configurations during registration.
+
 ```csharp
-public class InMemoryProviderFactory : IFeatureProviderFactory
-{
-    internal IDictionary<string, Flag>? Flags { get; set; }
+services.AddOpenFeature()
+        .AddProvider(provider =>
+        {
+            // Resolve services or configurations as needed
+            var configuration = provider.GetRequiredService<IConfiguration>();
+            var flags = new Dictionary<string, Flag>
+            {
+                { "feature-key", new Flag<bool>(configuration.GetValue<bool>("FeatureFlags:Key")) }
+            };
 
-    public FeatureProvider Create() => new InMemoryProvider(Flags);
-}
+            // Register a custom provider, such as InMemoryProvider
+            return new InMemoryProvider(flags);
+        });
 ```
-**Adding an Extension Method to OpenFeatureBuilder**
-<br />To streamline the configuration process, add an extension method, `AddInMemoryProvider`, to `OpenFeatureBuilder`. This allows you to set up the provider with either a domain-scoped or a default configuration.
+
+#### Adding a Domain-Scoped Provider
+
+You can also register a domain-scoped custom provider, enabling configurations specific to each domain:
 
 ```csharp
-public static partial class FeatureBuilderExtensions
-{
-    public static OpenFeatureBuilder AddInMemoryProvider(this OpenFeatureBuilder builder, Action<IDictionary<string, Flag>>? configure = null)
-        => builder.AddProvider<InMemoryProviderFactory>(factory => ConfigureFlags(factory, configure));
+services.AddOpenFeature()
+        .AddProvider("my-domain", (provider, domain) =>
+        {
+            // Resolve services or configurations as needed for the domain
+            var flags = new Dictionary<string, Flag>
+            {
+                { $"{domain}-feature-key", new Flag<bool>(true) }
+            };
 
-    public static OpenFeatureBuilder AddInMemoryProvider(this OpenFeatureBuilder builder, string domain, Action<IDictionary<string, Flag>>? configure = null)
-        => builder.AddProvider<InMemoryProviderFactory>(domain, factory => ConfigureFlags(factory, configure));
-
-    private static void ConfigureFlags(InMemoryProviderFactory factory, Action<IDictionary<string, Flag>>? configure)
-    {
-        if (configure == null)
-            return;
-
-        var flag = new Dictionary<string, Flag>();
-        configure.Invoke(flag);
-        factory.Flags = flag;
-    }
-}
+            // Register a domain-scoped custom provider such as InMemoryProvider
+            return new InMemoryProvider(flags);
+        });
 ```
 
 <!-- x-hide-in-docs-start -->
