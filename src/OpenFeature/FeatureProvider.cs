@@ -7,6 +7,7 @@ using OpenFeature.Constant;
 using OpenFeature.Model;
 
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")] // required to allow NSubstitute mocking of internal methods
+
 namespace OpenFeature
 {
     /// <summary>
@@ -140,5 +141,16 @@ namespace OpenFeature
         /// </summary>
         /// <returns>The event channel of the provider</returns>
         public virtual Channel<object> GetEventChannel() => this.EventChannel;
+
+        /// <summary>
+        /// Track a user action or application state, usually representing a business objective or outcome. The implementation of this method is optional.
+        /// </summary>
+        /// <param name="trackingEventName">The name associated with this tracking event</param>
+        /// <param name="evaluationContext">The evaluation context used in the evaluation of the flag (optional)</param>
+        /// <param name="trackingEventDetails">Data pertinent to the tracking event (Optional)</param>
+        public virtual void Track(string trackingEventName, EvaluationContext? evaluationContext = default, TrackingEventDetails? trackingEventDetails = default)
+        {
+            // Intentionally left blank.
+        }
     }
 }
