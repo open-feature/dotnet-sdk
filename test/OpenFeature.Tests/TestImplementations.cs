@@ -60,6 +60,7 @@ namespace OpenFeature.Tests
         private readonly List<Hook> _hooks = new List<Hook>();
 
         public static string DefaultName = "test-provider";
+        private readonly List<Tuple<string, EvaluationContext?, TrackingEventDetails?>> TrackingInvocations = [];
 
         public string? Name { get; set; }
 
@@ -85,6 +86,16 @@ namespace OpenFeature.Tests
             this.Name = string.IsNullOrEmpty(name) ? DefaultName : name;
             this.initException = initException;
             this.initDelay = initDelay;
+        }
+
+        public ImmutableList<Tuple<string, EvaluationContext?, TrackingEventDetails?>> GetTrackingInvocations()
+        {
+            return this.TrackingInvocations.ToImmutableList();
+        }
+
+        public void Reset()
+        {
+            this.TrackingInvocations.Clear();
         }
 
         public override Metadata GetMetadata()
@@ -129,6 +140,11 @@ namespace OpenFeature.Tests
             {
                 throw this.initException;
             }
+        }
+
+        public override void Track(string trackingEventName, EvaluationContext? evaluationContext = default, TrackingEventDetails? trackingEventDetails = default)
+        {
+            this.TrackingInvocations.Add(new Tuple<string, EvaluationContext?, TrackingEventDetails?>(trackingEventName, evaluationContext, trackingEventDetails));
         }
 
         internal ValueTask SendEventAsync(ProviderEventTypes eventType, CancellationToken cancellationToken = default)

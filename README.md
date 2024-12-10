@@ -74,6 +74,7 @@ public async Task Example()
 | ✅      | [Providers](#providers) | Integrate with a commercial, open source, or in-house feature management tool.                                                     |
 | ✅      | [Targeting](#targeting) | Contextually-aware flag evaluation using [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context). |
 | ✅      | [Hooks](#hooks)         | Add functionality to various stages of the flag evaluation life-cycle.                                                             |
+| ✅      | [Tracking](#tracking)   | Associate user actions with feature flag evaluations.                                                                              |
 | ✅      | [Logging](#logging)     | Integrate with popular logging packages.                                                                                           |
 | ✅      | [Domains](#domains)     | Logically bind clients with providers.                                                                                             |
 | ✅      | [Eventing](#eventing)   | React to state changes in the provider or flag management system.                                                                  |
@@ -212,6 +213,19 @@ await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name, provider);
 myClient.AddHandler(ProviderEventTypes.ProviderReady, callback);
 ```
 
+### Tracking
+
+The [tracking API](https://openfeature.dev/specification/sections/tracking) allows you to use OpenFeature abstractions and objects to associate user actions with feature flag evaluations.
+This is essential for robust experimentation powered by feature flags.
+For example, a flag enhancing the appearance of a UI component might drive user engagement to a new feature; to test this hypothesis, telemetry collected by a hook(#hooks) or provider(#providers) can be associated with telemetry reported in the client's `track` function.
+
+```csharp
+var client = Api.Instance.GetClient();
+client.Track("visited-promo-page", trackingEventDetails: new TrackingEventDetailsBuilder().SetValue(99.77).Set("currency", "USD").Build());
+```
+
+Note that some providers may not support tracking; check the documentation for your provider for more information.
+
 ### Shutdown
 
 The OpenFeature API provides a close function to perform a cleanup of all registered providers. This should only be called when your application is in the process of shutting down.
@@ -320,7 +334,7 @@ builder.Services.AddOpenFeature(featureBuilder => {
     featureBuilder
         .AddHostedFeatureLifecycle() // From Hosting package
         .AddContext((contextBuilder, serviceProvider) => { /* Custom context configuration */ })
-        .AddInMemoryProvider(); 
+        .AddInMemoryProvider();
 });
 ```
 **Domain-Scoped Provider Configuration:**
