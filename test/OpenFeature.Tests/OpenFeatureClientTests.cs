@@ -540,5 +540,121 @@ namespace OpenFeature.Tests
 
             result.Should().BeEquivalentTo(expected);
         }
+
+        [Fact]
+        [Specification("6.1.1", "The `client` MUST define a function for tracking the occurrence of a particular action or application state, with parameters `tracking event name` (string, required), `evaluation context` (optional) and `tracking event details` (optional), which returns nothing.")]
+        [Specification("6.1.2", "The `client` MUST define a function for tracking the occurrence of a particular action or application state, with parameters `tracking event name` (string, required) and `tracking event details` (optional), which returns nothing.")]
+        [Specification("6.1.4", "If the client's `track` function is called and the associated provider does not implement tracking, the client's `track` function MUST no-op.")]
+        public async Task TheClient_ImplementsATrackingFunction()
+        {
+            var provider = new TestProvider();
+            await Api.Instance.SetProviderAsync(provider);
+            var client = Api.Instance.GetClient();
+
+            const string trackingEventName = "trackingEventName";
+            var trackingEventDetails = new TrackingEventDetailsBuilder().Build();
+            client.Track(trackingEventName);
+            client.Track(trackingEventName, EvaluationContext.Empty);
+            client.Track(trackingEventName, EvaluationContext.Empty, trackingEventDetails);
+            client.Track(trackingEventName, trackingEventDetails: trackingEventDetails);
+
+            Assert.Equal(4, provider.GetTrackingInvocations().Count);
+            Assert.Equal(trackingEventName, provider.GetTrackingInvocations()[0].Item1);
+            Assert.Equal(trackingEventName, provider.GetTrackingInvocations()[1].Item1);
+            Assert.Equal(trackingEventName, provider.GetTrackingInvocations()[2].Item1);
+            Assert.Equal(trackingEventName, provider.GetTrackingInvocations()[3].Item1);
+
+            Assert.NotNull(provider.GetTrackingInvocations()[0].Item2);
+            Assert.NotNull(provider.GetTrackingInvocations()[1].Item2);
+            Assert.NotNull(provider.GetTrackingInvocations()[2].Item2);
+            Assert.NotNull(provider.GetTrackingInvocations()[3].Item2);
+
+            Assert.Equal(EvaluationContext.Empty.Count, provider.GetTrackingInvocations()[0].Item2!.Count);
+            Assert.Equal(EvaluationContext.Empty.Count, provider.GetTrackingInvocations()[1].Item2!.Count);
+            Assert.Equal(EvaluationContext.Empty.Count, provider.GetTrackingInvocations()[2].Item2!.Count);
+            Assert.Equal(EvaluationContext.Empty.Count, provider.GetTrackingInvocations()[3].Item2!.Count);
+
+            Assert.Equal(EvaluationContext.Empty.TargetingKey, provider.GetTrackingInvocations()[0].Item2!.TargetingKey);
+            Assert.Equal(EvaluationContext.Empty.TargetingKey, provider.GetTrackingInvocations()[1].Item2!.TargetingKey);
+            Assert.Equal(EvaluationContext.Empty.TargetingKey, provider.GetTrackingInvocations()[2].Item2!.TargetingKey);
+            Assert.Equal(EvaluationContext.Empty.TargetingKey, provider.GetTrackingInvocations()[3].Item2!.TargetingKey);
+
+            Assert.Null(provider.GetTrackingInvocations()[0].Item3);
+            Assert.Null(provider.GetTrackingInvocations()[1].Item3);
+            Assert.Equal(trackingEventDetails, provider.GetTrackingInvocations()[2].Item3);
+            Assert.Equal(trackingEventDetails, provider.GetTrackingInvocations()[3].Item3);
+        }
+
+        [Fact]
+        public async Task PassingAnEmptyStringAsTrackingEventName_ThrowsArgumentException()
+        {
+            var provider = new TestProvider();
+            await Api.Instance.SetProviderAsync(provider);
+            var client = Api.Instance.GetClient();
+
+            Assert.Throws<ArgumentException>(() => client.Track(""));
+        }
+
+        [Fact]
+        public async Task PassingABlankStringAsTrackingEventName_ThrowsArgumentException()
+        {
+            var provider = new TestProvider();
+            await Api.Instance.SetProviderAsync(provider);
+            var client = Api.Instance.GetClient();
+
+            Assert.Throws<ArgumentException>(() => client.Track(" \n "));
+        }
+
+        public static TheoryData<string, EvaluationContext?, EvaluationContext?, EvaluationContext?, string> GenerateMergeEvaluationContextTestData()
+        {
+            const string key = "key";
+            const string global = "global";
+            const string client = "client";
+            const string invocation = "invocation";
+            var globalEvaluationContext = new[] { new EvaluationContextBuilder().Set(key, "global").Build(), null };
+            var clientEvaluationContext = new[] { new EvaluationContextBuilder().Set(key, "client").Build(), null };
+            var invocationEvaluationContext = new[] { new EvaluationContextBuilder().Set(key, "invocation").Build(), null };
+
+            var data = new TheoryData<string, EvaluationContext?, EvaluationContext?, EvaluationContext?, string>();
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    for (int k = 0; k < 2; k++)
+                    {
+                        if (i == 1 && j == 1 && k == 1) continue;
+                        string expected;
+                        if (k == 0) expected = invocation;
+                        else if (j == 0) expected = client;
+                        else expected = global;
+                        data.Add(key, globalEvaluationContext[i], clientEvaluationContext[j], invocationEvaluationContext[k], expected);
+                    }
+                }
+            }
+
+            return data;
+        }
+
+        [Theory]
+        [MemberData(nameof(GenerateMergeEvaluationContextTestData))]
+        [Specification("6.1.3", "The evaluation context passed to the provider's track function MUST be merged in the order: API (global; lowest precedence) - transaction - client - invocation (highest precedence), with duplicate values being overwritten.")]
+        public async Task TheClient_MergesTheEvaluationContextInTheCorrectOrder(string key, EvaluationContext? globalEvaluationContext, EvaluationContext? clientEvaluationContext, EvaluationContext? invocationEvaluationContext, string expectedResult)
+        {
+            var provider = new TestProvider();
+            await Api.Instance.SetProviderAsync(provider);
+            var client = Api.Instance.GetClient();
+
+            const string trackingEventName = "trackingEventName";
+
+            Api.Instance.SetContext(globalEvaluationContext);
+            client.SetContext(clientEvaluationContext);
+            client.Track(trackingEventName, invocationEvaluationContext);
+            Assert.Single(provider.GetTrackingInvocations());
+            var actualEvaluationContext = provider.GetTrackingInvocations()[0].Item2;
+            Assert.NotNull(actualEvaluationContext);
+            Assert.NotEqual(0, actualEvaluationContext.Count);
+
+            Assert.Equal(expectedResult, actualEvaluationContext.GetValue(key).AsString);
+        }
     }
 }

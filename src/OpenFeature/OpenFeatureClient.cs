@@ -367,6 +367,31 @@ namespace OpenFeature
             }
         }
 
+        /// <summary>
+        /// Use this method to track user interactions and the application state.
+        /// </summary>
+        /// <param name="trackingEventName">The name associated with this tracking event</param>
+        /// <param name="evaluationContext">The evaluation context used in the evaluation of the flag (optional)</param>
+        /// <param name="trackingEventDetails">Data pertinent to the tracking event (Optional)</param>
+        /// <exception cref="ArgumentException">When trackingEventName is null or empty</exception>
+        public void Track(string trackingEventName, EvaluationContext? evaluationContext = default, TrackingEventDetails? trackingEventDetails = default)
+        {
+            if (string.IsNullOrWhiteSpace(trackingEventName))
+            {
+                throw new ArgumentException("Tracking event cannot be null or empty.", nameof(trackingEventName));
+            }
+
+            var globalContext = Api.Instance.GetContext();
+            var clientContext = this.GetContext();
+
+            var evaluationContextBuilder = EvaluationContext.Builder()
+                .Merge(globalContext)
+                .Merge(clientContext);
+            if (evaluationContext != null) evaluationContextBuilder.Merge(evaluationContext);
+
+            this._providerAccessor.Invoke().Track(trackingEventName, evaluationContextBuilder.Build(), trackingEventDetails);
+        }
+
         [LoggerMessage(100, LogLevel.Debug, "Hook {HookName} returned null, nothing to merge back into context")]
         partial void HookReturnedNull(string hookName);
 
