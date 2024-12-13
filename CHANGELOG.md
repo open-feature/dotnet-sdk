@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.2.0](https://github.com/open-feature/dotnet-sdk/compare/v2.1.0...v2.2.0) (2024-12-12)
+
+
+### ✨ New Features
+
+* Feature Provider Enhancements- [#321](https://github.com/open-feature/dotnet-sdk/issues/321) ([#324](https://github.com/open-feature/dotnet-sdk/issues/324)) ([70f847b](https://github.com/open-feature/dotnet-sdk/commit/70f847b2979e9b2b69f4e560799e2bc9fe87d5e8))
+* Implement Tracking in .NET [#309](https://github.com/open-feature/dotnet-sdk/issues/309) ([#327](https://github.com/open-feature/dotnet-sdk/issues/327)) ([cbf4f25](https://github.com/open-feature/dotnet-sdk/commit/cbf4f25a4365eac15e37987d2d7163cb1aefacfe))
+* Support Returning Error Resolutions from Providers ([#323](https://github.com/open-feature/dotnet-sdk/issues/323)) ([bf9de4e](https://github.com/open-feature/dotnet-sdk/commit/bf9de4e177a4963340278854a25dd355f95dfc51))
+
+
+### 🧹 Chore
+
+* **deps:** update dependency fluentassertions to v7 ([#325](https://github.com/open-feature/dotnet-sdk/issues/325)) ([35cd77b](https://github.com/open-feature/dotnet-sdk/commit/35cd77b59dc938301e7e22ddefd9b39ef8e21a4b))
+
 ## [2.1.0](https://github.com/open-feature/dotnet-sdk/compare/v2.0.0...v2.1.0) (2024-11-18)
 
 
