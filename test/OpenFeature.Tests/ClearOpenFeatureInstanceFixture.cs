@@ -14,8 +14,5 @@ public class ClearOpenFeatureInstanceFixture : IAsyncLifetime
     public async Task DisposeAsync()
     {
         await Api.Instance.ShutdownAsync().ConfigureAwait(false);
-        // Api.Instance.SetContext(null);
-        // Api.Instance.ClearHooks();
-        // Api.Instance.SetProviderAsync(new NoOpFeatureProvider()).Wait();
     }
 }
