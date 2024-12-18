@@ -288,6 +288,7 @@ namespace OpenFeature
             {
                 this._evaluationContext = EvaluationContext.Empty;
                 this._hooks.Clear();
+                this._transactionContextPropagator = new NoOpTransactionContextPropagator();
 
                 // TODO: make these lazy to avoid extra allocations on the common cleanup path?
                 this._eventExecutor = new EventExecutor();
