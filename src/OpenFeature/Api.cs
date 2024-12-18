@@ -22,7 +22,7 @@ namespace OpenFeature
         private EventExecutor _eventExecutor = new EventExecutor();
         private ProviderRepository _repository = new ProviderRepository();
         private readonly ConcurrentStack<Hook> _hooks = new ConcurrentStack<Hook>();
-        private ITransactionContextPropagator? _transactionContextPropagator;
+        private ITransactionContextPropagator _transactionContextPropagator = new NoOpTransactionContextPropagator();
         private object _transactionContextPropagatorLock = new();
 
         /// The reader/writer locks are not disposed because the singleton instance should never be disposed.
@@ -223,7 +223,7 @@ namespace OpenFeature
         /// Return the transaction context propagator.
         /// </summary>
         /// <returns><see cref="ITransactionContextPropagator"/>the registered transaction context propagator</returns>
-        public ITransactionContextPropagator? GetTransactionContextPropagator()
+        public ITransactionContextPropagator GetTransactionContextPropagator()
         {
             return this._transactionContextPropagator;
         }
@@ -253,7 +253,7 @@ namespace OpenFeature
         /// <returns><see cref="EvaluationContext"/>The current transaction context</returns>
         public EvaluationContext? GetTransactionContext()
         {
-            return this._transactionContextPropagator?.GetTransactionContext();
+            return this._transactionContextPropagator.GetTransactionContext();
         }
 
         /// <summary>
@@ -274,7 +274,7 @@ namespace OpenFeature
                 throw new InvalidOperationException("Transaction context propagator is not set");
             }
 
-            this._transactionContextPropagator?.SetTransactionContext(evaluationContext);
+            this._transactionContextPropagator.SetTransactionContext(evaluationContext);
         }
 
         /// <summary>
