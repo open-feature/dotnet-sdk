@@ -287,7 +287,9 @@ namespace OpenFeature.Tests
             var api = Api.Instance;
             var evaluationContext = EvaluationContext.Empty;
             var mockPropagator = Substitute.For<ITransactionContextPropagator>();
+            mockPropagator.GetTransactionContext().Returns(evaluationContext);
             api.SetTransactionContextPropagator(mockPropagator);
+            api.SetTransactionContext(evaluationContext);
 
             // Act
             api.SetTransactionContext(evaluationContext);
