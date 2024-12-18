@@ -7,6 +7,8 @@ public class ClearOpenFeatureInstanceFixture : IAsyncLifetime
 {
     public Task InitializeAsync()
     {
+        Api.ResetApi();
+
         return Task.CompletedTask;
     }
 
