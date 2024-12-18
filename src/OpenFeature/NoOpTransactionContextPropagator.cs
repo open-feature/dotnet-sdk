@@ -6,11 +6,10 @@ internal class NoOpTransactionContextPropagator : ITransactionContextPropagator
 {
     public EvaluationContext GetTransactionContext()
     {
-        throw new System.NotImplementedException();
+        return EvaluationContext.Empty;
     }
 
     public void SetTransactionContext(EvaluationContext evaluationContext)
     {
-        throw new System.NotImplementedException();
     }
 }
