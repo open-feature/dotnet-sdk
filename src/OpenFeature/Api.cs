@@ -23,7 +23,7 @@ namespace OpenFeature
         private ProviderRepository _repository = new ProviderRepository();
         private readonly ConcurrentStack<Hook> _hooks = new ConcurrentStack<Hook>();
         private ITransactionContextPropagator _transactionContextPropagator = new NoOpTransactionContextPropagator();
-        private object _transactionContextPropagatorLock = new();
+        private readonly object _transactionContextPropagatorLock = new();
 
         /// The reader/writer locks are not disposed because the singleton instance should never be disposed.
         private readonly ReaderWriterLockSlim _evaluationContextLock = new ReaderWriterLockSlim();
