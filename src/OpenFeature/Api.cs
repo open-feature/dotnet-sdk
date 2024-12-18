@@ -269,11 +269,6 @@ namespace OpenFeature
                 throw new ArgumentNullException(nameof(evaluationContext), "Evaluation context cannot be null");
             }
 
-            if (this._transactionContextPropagator == null)
-            {
-                throw new InvalidOperationException("Transaction context propagator is not set");
-            }
-
             this._transactionContextPropagator.SetTransactionContext(evaluationContext);
         }
 
