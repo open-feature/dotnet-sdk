@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using OpenFeature.Constant;
@@ -14,6 +15,13 @@ namespace OpenFeature.Tests
     [SuppressMessage("Reliability", "CA2007:Consider calling ConfigureAwait on the awaited task")]
     public class ProviderRepositoryTests
     {
+        private readonly CancellationToken _testCancellationToken;
+
+        public ProviderRepositoryTests()
+        {
+            this._testCancellationToken = TestContext.Current.CancellationToken;
+        }
+
         [Fact]
         public async Task Default_Provider_Is_Set_Without_Await()
         {
@@ -32,8 +40,8 @@ namespace OpenFeature.Tests
             providerMock.Status.Returns(ProviderStatus.NotReady);
             var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync(providerMock, context);
-            providerMock.Received(1).InitializeAsync(context);
-            providerMock.DidNotReceive().ShutdownAsync();
+            providerMock.Received(1).InitializeAsync(context, _testCancellationToken);
+            providerMock.DidNotReceive().ShutdownAsync(_testCancellationToken);
         }
 
         [Fact]
@@ -60,7 +68,7 @@ namespace OpenFeature.Tests
             var providerMock = Substitute.For<FeatureProvider>();
             providerMock.Status.Returns(ProviderStatus.NotReady);
             var context = new EvaluationContextBuilder().Build();
-            providerMock.When(x => x.InitializeAsync(context)).Throw(new Exception("BAD THINGS"));
+            providerMock.When(x => x.InitializeAsync(context, _testCancellationToken)).Throw(new Exception("BAD THINGS"));
             var callCount = 0;
             Exception? receivedError = null;
             await repository.SetProviderAsync(providerMock, context, afterInitError: (theProvider, error) =>
@@ -85,7 +93,7 @@ namespace OpenFeature.Tests
             providerMock.Status.Returns(status);
             var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync(providerMock, context);
-            providerMock.DidNotReceive().InitializeAsync(context);
+            providerMock.DidNotReceive().InitializeAsync(context, _testCancellationToken);
         }
 
         [Theory]
@@ -120,8 +128,8 @@ namespace OpenFeature.Tests
             var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync(provider1, context);
             await repository.SetProviderAsync(provider2, context);
-            provider1.Received(1).ShutdownAsync();
-            provider2.DidNotReceive().ShutdownAsync();
+            provider1.Received(1).ShutdownAsync(_testCancellationToken);
+            provider2.DidNotReceive().ShutdownAsync(_testCancellationToken);
         }
 
         [Fact]
@@ -131,7 +139,7 @@ namespace OpenFeature.Tests
             var provider = new NoOpFeatureProvider();
             var context = new EvaluationContextBuilder().Build();
 
-            await repository.SetProviderAsync("the-name", provider, context);
+            await repository.SetProviderAsync("the-name", provider, context, cancellationToken: _testCancellationToken);
             Assert.Equal(provider, repository.GetProvider("the-name"));
         }
 
@@ -142,9 +150,9 @@ namespace OpenFeature.Tests
             var providerMock = Substitute.For<FeatureProvider>();
             providerMock.Status.Returns(ProviderStatus.NotReady);
             var context = new EvaluationContextBuilder().Build();
-            await repository.SetProviderAsync("the-name", providerMock, context);
-            providerMock.Received(1).InitializeAsync(context);
-            providerMock.DidNotReceive().ShutdownAsync();
+            await repository.SetProviderAsync("the-name", providerMock, context, cancellationToken: _testCancellationToken);
+            providerMock.Received(1).InitializeAsync(context, _testCancellationToken);
+            providerMock.DidNotReceive().ShutdownAsync(_testCancellationToken);
         }
 
         [Fact]
@@ -160,7 +168,7 @@ namespace OpenFeature.Tests
                 Assert.Equal(providerMock, theProvider);
                 callCount++;
                 return Task.CompletedTask;
-            });
+            }, cancellationToken: _testCancellationToken);
             Assert.Equal(1, callCount);
         }
 
@@ -171,7 +179,7 @@ namespace OpenFeature.Tests
             var providerMock = Substitute.For<FeatureProvider>();
             providerMock.Status.Returns(ProviderStatus.NotReady);
             var context = new EvaluationContextBuilder().Build();
-            providerMock.When(x => x.InitializeAsync(context)).Throw(new Exception("BAD THINGS"));
+            providerMock.When(x => x.InitializeAsync(context, _testCancellationToken)).Throw(new Exception("BAD THINGS"));
             var callCount = 0;
             Exception? receivedError = null;
             await repository.SetProviderAsync("the-provider", providerMock, context, afterInitError: (theProvider, error) =>
@@ -180,7 +188,7 @@ namespace OpenFeature.Tests
                 callCount++;
                 receivedError = error;
                 return Task.CompletedTask;
-            });
+            }, cancellationToken: _testCancellationToken);
             Assert.Equal("BAD THINGS", receivedError?.Message);
             Assert.Equal(1, callCount);
         }
@@ -195,8 +203,8 @@ namespace OpenFeature.Tests
             var providerMock = Substitute.For<FeatureProvider>();
             providerMock.Status.Returns(status);
             var context = new EvaluationContextBuilder().Build();
-            await repository.SetProviderAsync("the-name", providerMock, context);
-            providerMock.DidNotReceive().InitializeAsync(context);
+            await repository.SetProviderAsync("the-name", providerMock, context, cancellationToken: _testCancellationToken);
+            providerMock.DidNotReceive().InitializeAsync(context, _testCancellationToken);
         }
 
         [Theory]
@@ -210,12 +218,11 @@ namespace OpenFeature.Tests
             providerMock.Status.Returns(status);
             var context = new EvaluationContextBuilder().Build();
             var callCount = 0;
-            await repository.SetProviderAsync("the-name", providerMock, context,
-                afterInitSuccess: provider =>
+            await repository.SetProviderAsync("the-name", providerMock, context, afterInitSuccess: provider =>
                 {
                     callCount++;
                     return Task.CompletedTask;
-                });
+                }, cancellationToken: _testCancellationToken);
             Assert.Equal(0, callCount);
         }
 
@@ -230,10 +237,10 @@ namespace OpenFeature.Tests
             provider2.Status.Returns(ProviderStatus.NotReady);
 
             var context = new EvaluationContextBuilder().Build();
-            await repository.SetProviderAsync("the-name", provider1, context);
-            await repository.SetProviderAsync("the-name", provider2, context);
-            provider1.Received(1).ShutdownAsync();
-            provider2.DidNotReceive().ShutdownAsync();
+            await repository.SetProviderAsync("the-name", provider1, context, cancellationToken: _testCancellationToken);
+            await repository.SetProviderAsync("the-name", provider2, context, cancellationToken: _testCancellationToken);
+            provider1.Received(1).ShutdownAsync(_testCancellationToken);
+            provider2.DidNotReceive().ShutdownAsync(_testCancellationToken);
         }
 
         [Fact]
@@ -249,11 +256,11 @@ namespace OpenFeature.Tests
             var context = new EvaluationContextBuilder().Build();
 
             await repository.SetProviderAsync(provider1, context);
-            await repository.SetProviderAsync("A", provider1, context);
+            await repository.SetProviderAsync("A", provider1, context, cancellationToken: _testCancellationToken);
             // Provider one is replaced for "A", but not default.
-            await repository.SetProviderAsync("A", provider2, context);
+            await repository.SetProviderAsync("A", provider2, context, cancellationToken: _testCancellationToken);
 
-            provider1.DidNotReceive().ShutdownAsync();
+            provider1.DidNotReceive().ShutdownAsync(_testCancellationToken);
         }
 
         [Fact]
@@ -268,12 +275,12 @@ namespace OpenFeature.Tests
 
             var context = new EvaluationContextBuilder().Build();
 
-            await repository.SetProviderAsync("B", provider1, context);
-            await repository.SetProviderAsync("A", provider1, context);
+            await repository.SetProviderAsync("B", provider1, context, cancellationToken: _testCancellationToken);
+            await repository.SetProviderAsync("A", provider1, context, cancellationToken: _testCancellationToken);
             // Provider one is replaced for "A", but not "B".
-            await repository.SetProviderAsync("A", provider2, context);
+            await repository.SetProviderAsync("A", provider2, context, cancellationToken: _testCancellationToken);
 
-            provider1.DidNotReceive().ShutdownAsync();
+            provider1.DidNotReceive().ShutdownAsync(_testCancellationToken);
         }
 
         [Fact]
@@ -288,13 +295,13 @@ namespace OpenFeature.Tests
 
             var context = new EvaluationContextBuilder().Build();
 
-            await repository.SetProviderAsync("B", provider1, context);
-            await repository.SetProviderAsync("A", provider1, context);
+            await repository.SetProviderAsync("B", provider1, context, cancellationToken: _testCancellationToken);
+            await repository.SetProviderAsync("A", provider1, context, cancellationToken: _testCancellationToken);
 
-            await repository.SetProviderAsync("A", provider2, context);
-            await repository.SetProviderAsync("B", provider2, context);
+            await repository.SetProviderAsync("A", provider2, context, cancellationToken: _testCancellationToken);
+            await repository.SetProviderAsync("B", provider2, context, cancellationToken: _testCancellationToken);
 
-            provider1.Received(1).ShutdownAsync();
+            provider1.Received(1).ShutdownAsync(_testCancellationToken);
         }
 
         [Fact]
@@ -309,8 +316,8 @@ namespace OpenFeature.Tests
 
             var context = new EvaluationContextBuilder().Build();
 
-            await repository.SetProviderAsync("A", provider1, context);
-            await repository.SetProviderAsync("B", provider2, context);
+            await repository.SetProviderAsync("A", provider1, context, cancellationToken: _testCancellationToken);
+            await repository.SetProviderAsync("B", provider2, context, cancellationToken: _testCancellationToken);
 
             Assert.Equal(provider1, repository.GetProvider("A"));
             Assert.Equal(provider2, repository.GetProvider("B"));
@@ -328,8 +335,8 @@ namespace OpenFeature.Tests
 
             var context = new EvaluationContextBuilder().Build();
 
-            await repository.SetProviderAsync("A", provider1, context);
-            await repository.SetProviderAsync("A", provider2, context);
+            await repository.SetProviderAsync("A", provider1, context, cancellationToken: _testCancellationToken);
+            await repository.SetProviderAsync("A", provider2, context, cancellationToken: _testCancellationToken);
 
             Assert.Equal(provider2, repository.GetProvider("A"));
         }
@@ -350,16 +357,16 @@ namespace OpenFeature.Tests
             var context = new EvaluationContextBuilder().Build();
 
             await repository.SetProviderAsync(provider1, context);
-            await repository.SetProviderAsync("provider1", provider1, context);
-            await repository.SetProviderAsync("provider2", provider2, context);
-            await repository.SetProviderAsync("provider2a", provider2, context);
-            await repository.SetProviderAsync("provider3", provider3, context);
+            await repository.SetProviderAsync("provider1", provider1, context, cancellationToken: _testCancellationToken);
+            await repository.SetProviderAsync("provider2", provider2, context, cancellationToken: _testCancellationToken);
+            await repository.SetProviderAsync("provider2a", provider2, context, cancellationToken: _testCancellationToken);
+            await repository.SetProviderAsync("provider3", provider3, context, cancellationToken: _testCancellationToken);
 
-            await repository.ShutdownAsync();
+            await repository.ShutdownAsync(cancellationToken: _testCancellationToken);
 
-            provider1.Received(1).ShutdownAsync();
-            provider2.Received(1).ShutdownAsync();
-            provider3.Received(1).ShutdownAsync();
+            provider1.Received(1).ShutdownAsync(_testCancellationToken);
+            provider2.Received(1).ShutdownAsync(_testCancellationToken);
+            provider3.Received(1).ShutdownAsync(_testCancellationToken);
         }
 
         [Fact]
@@ -373,8 +380,8 @@ namespace OpenFeature.Tests
             await repository.SetProviderAsync(provider, context);
 
             Assert.Equal(provider, repository.GetProvider());
-            provider.Received(1).InitializeAsync(context);
-            provider.DidNotReceive().ShutdownAsync();
+            provider.Received(1).InitializeAsync(context, _testCancellationToken);
+            provider.DidNotReceive().ShutdownAsync(_testCancellationToken);
         }
 
         [Fact]
@@ -388,8 +395,8 @@ namespace OpenFeature.Tests
             await repository.SetProviderAsync(null, context);
 
             Assert.Equal(provider, repository.GetProvider());
-            provider.Received(1).InitializeAsync(context);
-            provider.DidNotReceive().ShutdownAsync();
+            provider.Received(1).InitializeAsync(context, _testCancellationToken);
+            provider.DidNotReceive().ShutdownAsync(_testCancellationToken);
         }
 
         [Fact]
@@ -406,8 +413,8 @@ namespace OpenFeature.Tests
             var context = new EvaluationContextBuilder().Build();
             await repository.SetProviderAsync(defaultProvider, context);
 
-            await repository.SetProviderAsync("named-provider", namedProvider, context);
-            await repository.SetProviderAsync("named-provider", null, context);
+            await repository.SetProviderAsync("named-provider", namedProvider, context, cancellationToken: _testCancellationToken);
+            await repository.SetProviderAsync("named-provider", null, context, cancellationToken: _testCancellationToken);
 
             Assert.Equal(defaultProvider, repository.GetProvider("named-provider"));
         }
