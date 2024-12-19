@@ -87,7 +87,7 @@ jobs:
 
       - name: Publish NuGet packages (fork)
         if: github.event.pull_request.head.repo.fork == true
-        uses: actions/upload-artifact@v4.4.3
+        uses: actions/upload-artifact@v4.5.0
         with:
           name: nupkgs
           path: src/**/*.nupkg
