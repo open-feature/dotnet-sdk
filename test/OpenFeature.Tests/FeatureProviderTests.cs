@@ -44,27 +44,27 @@ namespace OpenFeature.Tests
 
             var boolResolutionDetails = new ResolutionDetails<bool>(flagName, defaultBoolValue, ErrorType.None,
                 NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
-            (await provider.ResolveBooleanValueAsync(flagName, defaultBoolValue)).Should()
+            (await provider.ResolveBooleanValueAsync(flagName, defaultBoolValue, cancellationToken: this.TestCancellationToken)).Should()
                 .BeEquivalentTo(boolResolutionDetails);
 
             var integerResolutionDetails = new ResolutionDetails<int>(flagName, defaultIntegerValue, ErrorType.None,
                 NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
-            (await provider.ResolveIntegerValueAsync(flagName, defaultIntegerValue)).Should()
+            (await provider.ResolveIntegerValueAsync(flagName, defaultIntegerValue, cancellationToken: this.TestCancellationToken)).Should()
                 .BeEquivalentTo(integerResolutionDetails);
 
             var doubleResolutionDetails = new ResolutionDetails<double>(flagName, defaultDoubleValue, ErrorType.None,
                 NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
-            (await provider.ResolveDoubleValueAsync(flagName, defaultDoubleValue)).Should()
+            (await provider.ResolveDoubleValueAsync(flagName, defaultDoubleValue, cancellationToken: this.TestCancellationToken)).Should()
                 .BeEquivalentTo(doubleResolutionDetails);
 
             var stringResolutionDetails = new ResolutionDetails<string>(flagName, defaultStringValue, ErrorType.None,
                 NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
-            (await provider.ResolveStringValueAsync(flagName, defaultStringValue)).Should()
+            (await provider.ResolveStringValueAsync(flagName, defaultStringValue, cancellationToken: this.TestCancellationToken)).Should()
                 .BeEquivalentTo(stringResolutionDetails);
 
             var structureResolutionDetails = new ResolutionDetails<Value>(flagName, defaultStructureValue,
                 ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
-            (await provider.ResolveStructureValueAsync(flagName, defaultStructureValue)).Should()
+            (await provider.ResolveStructureValueAsync(flagName, defaultStructureValue, cancellationToken: this.TestCancellationToken)).Should()
                 .BeEquivalentTo(structureResolutionDetails);
         }
 
@@ -84,59 +84,52 @@ namespace OpenFeature.Tests
             var providerMock = Substitute.For<FeatureProvider>();
             const string testMessage = "An error message";
 
-            providerMock.ResolveBooleanValueAsync(flagName, defaultBoolValue, Arg.Any<EvaluationContext>())
-                .Returns(new ResolutionDetails<bool>(flagName, defaultBoolValue, ErrorType.General,
+            providerMock.ResolveBooleanValueAsync(flagName, defaultBoolValue, Arg.Any<EvaluationContext>(), this.TestCancellationToken).Returns(new ResolutionDetails<bool>(flagName, defaultBoolValue, ErrorType.General,
                     NoOpProvider.ReasonNoOp, NoOpProvider.Variant, testMessage));
 
-            providerMock.ResolveIntegerValueAsync(flagName, defaultIntegerValue, Arg.Any<EvaluationContext>())
-                .Returns(new ResolutionDetails<int>(flagName, defaultIntegerValue, ErrorType.ParseError,
+            providerMock.ResolveIntegerValueAsync(flagName, defaultIntegerValue, Arg.Any<EvaluationContext>(), this.TestCancellationToken).Returns(new ResolutionDetails<int>(flagName, defaultIntegerValue, ErrorType.ParseError,
                     NoOpProvider.ReasonNoOp, NoOpProvider.Variant, testMessage));
 
-            providerMock.ResolveDoubleValueAsync(flagName, defaultDoubleValue, Arg.Any<EvaluationContext>())
-                .Returns(new ResolutionDetails<double>(flagName, defaultDoubleValue, ErrorType.InvalidContext,
+            providerMock.ResolveDoubleValueAsync(flagName, defaultDoubleValue, Arg.Any<EvaluationContext>(), this.TestCancellationToken).Returns(new ResolutionDetails<double>(flagName, defaultDoubleValue, ErrorType.InvalidContext,
                     NoOpProvider.ReasonNoOp, NoOpProvider.Variant, testMessage));
 
-            providerMock.ResolveStringValueAsync(flagName, defaultStringValue, Arg.Any<EvaluationContext>())
-                .Returns(new ResolutionDetails<string>(flagName, defaultStringValue, ErrorType.TypeMismatch,
+            providerMock.ResolveStringValueAsync(flagName, defaultStringValue, Arg.Any<EvaluationContext>(), this.TestCancellationToken).Returns(new ResolutionDetails<string>(flagName, defaultStringValue, ErrorType.TypeMismatch,
                     NoOpProvider.ReasonNoOp, NoOpProvider.Variant, testMessage));
 
-            providerMock.ResolveStructureValueAsync(flagName, defaultStructureValue, Arg.Any<EvaluationContext>())
-                .Returns(new ResolutionDetails<Value>(flagName, defaultStructureValue, ErrorType.FlagNotFound,
+            providerMock.ResolveStructureValueAsync(flagName, defaultStructureValue, Arg.Any<EvaluationContext>(), this.TestCancellationToken).Returns(new ResolutionDetails<Value>(flagName, defaultStructureValue, ErrorType.FlagNotFound,
                     NoOpProvider.ReasonNoOp, NoOpProvider.Variant, testMessage));
 
-            providerMock.ResolveStructureValueAsync(flagName2, defaultStructureValue, Arg.Any<EvaluationContext>())
-                .Returns(new ResolutionDetails<Value>(flagName2, defaultStructureValue, ErrorType.ProviderNotReady,
+            providerMock.ResolveStructureValueAsync(flagName2, defaultStructureValue, Arg.Any<EvaluationContext>(), this.TestCancellationToken).Returns(new ResolutionDetails<Value>(flagName2, defaultStructureValue, ErrorType.ProviderNotReady,
                     NoOpProvider.ReasonNoOp, NoOpProvider.Variant, testMessage));
 
-            providerMock.ResolveBooleanValueAsync(flagName2, defaultBoolValue, Arg.Any<EvaluationContext>())
-                .Returns(new ResolutionDetails<bool>(flagName2, defaultBoolValue, ErrorType.TargetingKeyMissing,
+            providerMock.ResolveBooleanValueAsync(flagName2, defaultBoolValue, Arg.Any<EvaluationContext>(), this.TestCancellationToken).Returns(new ResolutionDetails<bool>(flagName2, defaultBoolValue, ErrorType.TargetingKeyMissing,
                     NoOpProvider.ReasonNoOp, NoOpProvider.Variant));
 
-            var boolRes = await providerMock.ResolveBooleanValueAsync(flagName, defaultBoolValue);
+            var boolRes = await providerMock.ResolveBooleanValueAsync(flagName, defaultBoolValue, cancellationToken: this.TestCancellationToken);
             boolRes.ErrorType.Should().Be(ErrorType.General);
             boolRes.ErrorMessage.Should().Be(testMessage);
 
-            var intRes = await providerMock.ResolveIntegerValueAsync(flagName, defaultIntegerValue);
+            var intRes = await providerMock.ResolveIntegerValueAsync(flagName, defaultIntegerValue, cancellationToken: this.TestCancellationToken);
             intRes.ErrorType.Should().Be(ErrorType.ParseError);
             intRes.ErrorMessage.Should().Be(testMessage);
 
-            var doubleRes = await providerMock.ResolveDoubleValueAsync(flagName, defaultDoubleValue);
+            var doubleRes = await providerMock.ResolveDoubleValueAsync(flagName, defaultDoubleValue, cancellationToken: this.TestCancellationToken);
             doubleRes.ErrorType.Should().Be(ErrorType.InvalidContext);
             doubleRes.ErrorMessage.Should().Be(testMessage);
 
-            var stringRes = await providerMock.ResolveStringValueAsync(flagName, defaultStringValue);
+            var stringRes = await providerMock.ResolveStringValueAsync(flagName, defaultStringValue, cancellationToken: this.TestCancellationToken);
             stringRes.ErrorType.Should().Be(ErrorType.TypeMismatch);
             stringRes.ErrorMessage.Should().Be(testMessage);
 
-            var structRes1 = await providerMock.ResolveStructureValueAsync(flagName, defaultStructureValue);
+            var structRes1 = await providerMock.ResolveStructureValueAsync(flagName, defaultStructureValue, cancellationToken: this.TestCancellationToken);
             structRes1.ErrorType.Should().Be(ErrorType.FlagNotFound);
             structRes1.ErrorMessage.Should().Be(testMessage);
 
-            var structRes2 = await providerMock.ResolveStructureValueAsync(flagName2, defaultStructureValue);
+            var structRes2 = await providerMock.ResolveStructureValueAsync(flagName2, defaultStructureValue, cancellationToken: this.TestCancellationToken);
             structRes2.ErrorType.Should().Be(ErrorType.ProviderNotReady);
             structRes2.ErrorMessage.Should().Be(testMessage);
 
-            var boolRes2 = await providerMock.ResolveBooleanValueAsync(flagName2, defaultBoolValue);
+            var boolRes2 = await providerMock.ResolveBooleanValueAsync(flagName2, defaultBoolValue, cancellationToken: this.TestCancellationToken);
             boolRes2.ErrorType.Should().Be(ErrorType.TargetingKeyMissing);
             boolRes2.ErrorMessage.Should().BeNull();
         }

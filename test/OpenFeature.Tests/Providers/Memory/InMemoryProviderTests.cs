@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
 using OpenFeature.Constant;
 using OpenFeature.Error;
@@ -13,9 +14,11 @@ namespace OpenFeature.Tests.Providers.Memory
     public class InMemoryProviderTests
     {
         private FeatureProvider commonProvider;
+        private readonly CancellationToken _testCancellationToken;
 
         public InMemoryProviderTests()
         {
+            this._testCancellationToken = TestContext.Current.CancellationToken;
             var provider = new InMemoryProvider(new Dictionary<string, Flag>(){
                 {
                     "boolean-flag", new Flag<bool>(
@@ -112,7 +115,7 @@ namespace OpenFeature.Tests.Providers.Memory
         [Fact]
         public async Task GetBoolean_ShouldEvaluateWithReasonAndVariant()
         {
-            ResolutionDetails<bool> details = await this.commonProvider.ResolveBooleanValueAsync("boolean-flag", false, EvaluationContext.Empty);
+            ResolutionDetails<bool> details = await this.commonProvider.ResolveBooleanValueAsync("boolean-flag", false, EvaluationContext.Empty, _testCancellationToken);
             Assert.True(details.Value);
             Assert.Equal(Reason.Static, details.Reason);
             Assert.Equal("on", details.Variant);
@@ -121,7 +124,7 @@ namespace OpenFeature.Tests.Providers.Memory
         [Fact]
         public async Task GetString_ShouldEvaluateWithReasonAndVariant()
         {
-            ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("string-flag", "nope", EvaluationContext.Empty);
+            ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("string-flag", "nope", EvaluationContext.Empty, _testCancellationToken);
             Assert.Equal("hi", details.Value);
             Assert.Equal(Reason.Static, details.Reason);
             Assert.Equal("greeting", details.Variant);
@@ -130,7 +133,7 @@ namespace OpenFeature.Tests.Providers.Memory
         [Fact]
         public async Task GetInt_ShouldEvaluateWithReasonAndVariant()
         {
-            ResolutionDetails<int> details = await this.commonProvider.ResolveIntegerValueAsync("integer-flag", 13, EvaluationContext.Empty);
+            ResolutionDetails<int> details = await this.commonProvider.ResolveIntegerValueAsync("integer-flag", 13, EvaluationContext.Empty, _testCancellationToken);
             Assert.Equal(10, details.Value);
             Assert.Equal(Reason.Static, details.Reason);
             Assert.Equal("ten", details.Variant);
@@ -139,7 +142,7 @@ namespace OpenFeature.Tests.Providers.Memory
         [Fact]
         public async Task GetDouble_ShouldEvaluateWithReasonAndVariant()
         {
-            ResolutionDetails<double> details = await this.commonProvider.ResolveDoubleValueAsync("float-flag", 13, EvaluationContext.Empty);
+            ResolutionDetails<double> details = await this.commonProvider.ResolveDoubleValueAsync("float-flag", 13, EvaluationContext.Empty, _testCancellationToken);
             Assert.Equal(0.5, details.Value);
             Assert.Equal(Reason.Static, details.Reason);
             Assert.Equal("half", details.Variant);
@@ -148,7 +151,7 @@ namespace OpenFeature.Tests.Providers.Memory
         [Fact]
         public async Task GetStruct_ShouldEvaluateWithReasonAndVariant()
         {
-            ResolutionDetails<Value> details = await this.commonProvider.ResolveStructureValueAsync("object-flag", new Value(), EvaluationContext.Empty);
+            ResolutionDetails<Value> details = await this.commonProvider.ResolveStructureValueAsync("object-flag", new Value(), EvaluationContext.Empty, _testCancellationToken);
             Assert.Equal(true, details.Value.AsStructure?["showImages"].AsBoolean);
             Assert.Equal("Check out these pics!", details.Value.AsStructure?["title"].AsString);
             Assert.Equal(100, details.Value.AsStructure?["imagesPerPage"].AsInteger);
@@ -160,7 +163,7 @@ namespace OpenFeature.Tests.Providers.Memory
         public async Task GetString_ContextSensitive_ShouldEvaluateWithReasonAndVariant()
         {
             EvaluationContext context = EvaluationContext.Builder().Set("email", "me@faas.com").Build();
-            ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("context-aware", "nope", context);
+            ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("context-aware", "nope", context, _testCancellationToken);
             Assert.Equal("INTERNAL", details.Value);
             Assert.Equal(Reason.TargetingMatch, details.Reason);
             Assert.Equal("internal", details.Variant);
@@ -177,25 +180,25 @@ namespace OpenFeature.Tests.Providers.Memory
         [Fact]
         public async Task MissingFlag_ShouldThrow()
         {
-            await Assert.ThrowsAsync<FlagNotFoundException>(() => this.commonProvider.ResolveBooleanValueAsync("missing-flag", false, EvaluationContext.Empty));
+            await Assert.ThrowsAsync<FlagNotFoundException>(() => this.commonProvider.ResolveBooleanValueAsync("missing-flag", false, EvaluationContext.Empty, _testCancellationToken));
         }
 
         [Fact]
         public async Task MismatchedFlag_ShouldThrow()
         {
-            await Assert.ThrowsAsync<TypeMismatchException>(() => this.commonProvider.ResolveStringValueAsync("boolean-flag", "nope", EvaluationContext.Empty));
+            await Assert.ThrowsAsync<TypeMismatchException>(() => this.commonProvider.ResolveStringValueAsync("boolean-flag", "nope", EvaluationContext.Empty, _testCancellationToken));
         }
 
         [Fact]
         public async Task MissingDefaultVariant_ShouldThrow()
         {
-            await Assert.ThrowsAsync<GeneralException>(() => this.commonProvider.ResolveBooleanValueAsync("invalid-flag", false, EvaluationContext.Empty));
+            await Assert.ThrowsAsync<GeneralException>(() => this.commonProvider.ResolveBooleanValueAsync("invalid-flag", false, EvaluationContext.Empty, _testCancellationToken));
         }
 
         [Fact]
         public async Task MissingEvaluatedVariant_ShouldThrow()
         {
-            await Assert.ThrowsAsync<GeneralException>(() => this.commonProvider.ResolveBooleanValueAsync("invalid-evaluator-flag", false, EvaluationContext.Empty));
+            await Assert.ThrowsAsync<GeneralException>(() => this.commonProvider.ResolveBooleanValueAsync("invalid-evaluator-flag", false, EvaluationContext.Empty, _testCancellationToken));
         }
 
         [Fact]
@@ -212,7 +215,7 @@ namespace OpenFeature.Tests.Providers.Memory
                 )
             }});
 
-            ResolutionDetails<bool> details = await provider.ResolveBooleanValueAsync("old-flag", false, EvaluationContext.Empty);
+            ResolutionDetails<bool> details = await provider.ResolveBooleanValueAsync("old-flag", false, EvaluationContext.Empty, _testCancellationToken);
             Assert.True(details.Value);
 
             // update flags
@@ -227,13 +230,13 @@ namespace OpenFeature.Tests.Providers.Memory
                 )
             }});
 
-            var res = await provider.GetEventChannel().Reader.ReadAsync() as ProviderEventPayload;
+            var res = await provider.GetEventChannel().Reader.ReadAsync(_testCancellationToken) as ProviderEventPayload;
             Assert.Equal(ProviderEventTypes.ProviderConfigurationChanged, res?.Type);
 
-            await Assert.ThrowsAsync<FlagNotFoundException>(() => provider.ResolveBooleanValueAsync("old-flag", false, EvaluationContext.Empty));
+            await Assert.ThrowsAsync<FlagNotFoundException>(() => provider.ResolveBooleanValueAsync("old-flag", false, EvaluationContext.Empty, _testCancellationToken));
 
             // new flag should be present, old gone (defaults), handler run.
-            ResolutionDetails<string> detailsAfter = await provider.ResolveStringValueAsync("new-flag", "nope", EvaluationContext.Empty);
+            ResolutionDetails<string> detailsAfter = await provider.ResolveStringValueAsync("new-flag", "nope", EvaluationContext.Empty, _testCancellationToken);
             Assert.True(details.Value);
             Assert.Equal("hi", detailsAfter.Value);
         }
