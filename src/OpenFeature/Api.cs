@@ -251,7 +251,7 @@ namespace OpenFeature
         /// Returns the currently defined transaction context using the registered transaction context propagator.
         /// </summary>
         /// <returns><see cref="EvaluationContext"/>The current transaction context</returns>
-        public EvaluationContext? GetTransactionContext()
+        public EvaluationContext GetTransactionContext()
         {
             return this._transactionContextPropagator.GetTransactionContext();
         }
