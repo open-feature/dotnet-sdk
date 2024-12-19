@@ -31,7 +31,7 @@ namespace OpenFeature
         /// <summary>
         /// Singleton instance of Api
         /// </summary>
-        public static Api Instance { get; } = new Api();
+        public static Api Instance { get; private set; } = new Api();
 
         // Explicit static constructor to tell C# compiler
         // not to mark type as beforeFieldInit
@@ -354,6 +354,14 @@ namespace OpenFeature
             };
 
             await this._eventExecutor.EventChannel.Writer.WriteAsync(new Event { Provider = provider, EventPayload = eventPayload }).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// This method should only be using for testing purposes. It will reset the singleton instance of the API.
+        /// </summary>
+        internal static void ResetApi()
+        {
+            Instance = new Api();
         }
     }
 }

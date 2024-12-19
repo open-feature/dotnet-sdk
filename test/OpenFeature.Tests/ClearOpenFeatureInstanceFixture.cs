@@ -1,14 +1,20 @@
-using System;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace OpenFeature.Tests;
 
-public class ClearOpenFeatureInstanceFixture : IDisposable
+public class ClearOpenFeatureInstanceFixture : IAsyncLifetime
 {
-    // Make sure the singleton is cleared between tests
-    public void Dispose()
+    public Task InitializeAsync()
     {
-        Api.Instance.SetContext(null);
-        Api.Instance.ClearHooks();
-        Api.Instance.SetProviderAsync(new NoOpFeatureProvider()).Wait();
+        Api.ResetApi();
+
+        return Task.CompletedTask;
+    }
+
+    // Make sure the singleton is cleared between tests
+    public async Task DisposeAsync()
+    {
+        await Api.Instance.ShutdownAsync().ConfigureAwait(false);
     }
 }
