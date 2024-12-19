@@ -221,6 +221,7 @@ namespace OpenFeature
             evaluationContextBuilder.Merge(evaluationContext);
             evaluationContextBuilder.Merge(this.GetContext());
             evaluationContextBuilder.Merge(context);
+            evaluationContextBuilder.Merge(Api.Instance.GetTransactionContext());
 
             var allHooks = new List<Hook>()
                 .Concat(Api.Instance.GetHooks())
