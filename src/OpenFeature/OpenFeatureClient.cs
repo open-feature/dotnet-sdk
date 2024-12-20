@@ -244,7 +244,7 @@ namespace OpenFeature
                 evaluationContextBuilder.Build()
             );
 
-            FlagEvaluationDetails<T> evaluation;
+            FlagEvaluationDetails<T>? evaluation = null;
             try
             {
                 var contextFromHooks = await this.TriggerBeforeHooksAsync(allHooks, hookContext, options, cancellationToken).ConfigureAwait(false);
@@ -252,10 +252,12 @@ namespace OpenFeature
                 // short circuit evaluation entirely if provider is in a bad state
                 if (provider.Status == ProviderStatus.NotReady)
                 {
+                    evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, ErrorType.ProviderNotReady, Reason.Error, string.Empty, "Provider has not yet completed initialization.");
                     throw new ProviderNotReadyException("Provider has not yet completed initialization.");
                 }
                 else if (provider.Status == ProviderStatus.Fatal)
                 {
+                    evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, ErrorType.ProviderFatal, Reason.Error, string.Empty, string.Empty);
                     throw new ProviderFatalException("Provider is in an irrecoverable error state.");
                 }
 
@@ -297,7 +299,9 @@ namespace OpenFeature
             }
             finally
             {
-                await this.TriggerFinallyHooksAsync(allHooksReversed, hookContext, options, cancellationToken).ConfigureAwait(false);
+                evaluation ??= new FlagEvaluationDetails<T>(flagKey, defaultValue, ErrorType.General, Reason.Error, string.Empty,
+                    "Evaluation failed to return a result.");
+                await this.TriggerFinallyHooksAsync(allHooksReversed, evaluation, hookContext, options, cancellationToken).ConfigureAwait(false);
             }
 
             return evaluation;
@@ -351,14 +355,14 @@ namespace OpenFeature
             }
         }
 
-        private async Task TriggerFinallyHooksAsync<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
-            FlagEvaluationOptions? options, CancellationToken cancellationToken = default)
+        private async Task TriggerFinallyHooksAsync<T>(IReadOnlyList<Hook> hooks, FlagEvaluationDetails<T> evaluation,
+            HookContext<T> context, FlagEvaluationOptions? options, CancellationToken cancellationToken = default)
         {
             foreach (var hook in hooks)
             {
                 try
                 {
-                    await hook.FinallyAsync(context, options?.HookHints, cancellationToken).ConfigureAwait(false);
+                    await hook.FinallyAsync(context, evaluation, options?.HookHints, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
