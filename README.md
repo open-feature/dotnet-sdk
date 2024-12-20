@@ -306,7 +306,7 @@ public class MyHook : Hook
     // code to run if there's an error during before hooks or during flag evaluation
   }
 
-  public ValueTask FinallyAsync<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null)
+  public ValueTask FinallyAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> evaluationDetails, IReadOnlyDictionary<string, object> hints = null)
   {
     // code to run after all other stages, regardless of success/failure
   }

@@ -31,7 +31,8 @@ namespace OpenFeature
         /// <typeparam name="T">Flag value type (bool|number|string|object)</typeparam>
         /// <returns>Modified EvaluationContext that is used for the flag evaluation</returns>
         public virtual ValueTask<EvaluationContext> BeforeAsync<T>(HookContext<T> context,
-            IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
+            IReadOnlyDictionary<string, object>? hints = null,
+            CancellationToken cancellationToken = default)
         {
             return new ValueTask<EvaluationContext>(EvaluationContext.Empty);
         }
@@ -44,8 +45,10 @@ namespace OpenFeature
         /// <param name="hints">Caller provided data</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
         /// <typeparam name="T">Flag value type (bool|number|string|object)</typeparam>
-        public virtual ValueTask AfterAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
-            IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
+        public virtual ValueTask AfterAsync<T>(HookContext<T> context,
+            FlagEvaluationDetails<T> details,
+            IReadOnlyDictionary<string, object>? hints = null,
+            CancellationToken cancellationToken = default)
         {
             return new ValueTask();
         }
@@ -58,8 +61,10 @@ namespace OpenFeature
         /// <param name="hints">Caller provided data</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
         /// <typeparam name="T">Flag value type (bool|number|string|object)</typeparam>
-        public virtual ValueTask ErrorAsync<T>(HookContext<T> context, Exception error,
-            IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
+        public virtual ValueTask ErrorAsync<T>(HookContext<T> context,
+            Exception error,
+            IReadOnlyDictionary<string, object>? hints = null,
+            CancellationToken cancellationToken = default)
         {
             return new ValueTask();
         }
@@ -68,10 +73,14 @@ namespace OpenFeature
         /// Called unconditionally after flag evaluation.
         /// </summary>
         /// <param name="context">Provides context of innovation</param>
+        /// <param name="evaluationDetails">Flag evaluation information</param>
         /// <param name="hints">Caller provided data</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
         /// <typeparam name="T">Flag value type (bool|number|string|object)</typeparam>
-        public virtual ValueTask FinallyAsync<T>(HookContext<T> context, IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
+        public virtual ValueTask FinallyAsync<T>(HookContext<T> context,
+            FlagEvaluationDetails<T> evaluationDetails,
+            IReadOnlyDictionary<string, object>? hints = null,
+            CancellationToken cancellationToken = default)
         {
             return new ValueTask();
         }

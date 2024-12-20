@@ -656,5 +656,25 @@ namespace OpenFeature.Tests
 
             Assert.Equal(expectedResult, actualEvaluationContext.GetValue(key).AsString);
         }
+
+        [Fact]
+        [Specification("4.3.8", "'evaluation details' passed to the 'finally' stage matches the evaluation details returned to the application author")]
+        public async Task FinallyHook_IncludesEvaluationDetails()
+        {
+            // Arrange
+            var provider = new TestProvider();
+            var providerHook = Substitute.For<Hook>();
+            provider.AddHook(providerHook);
+            await Api.Instance.SetProviderAsync(provider);
+            var client = Api.Instance.GetClient();
+
+            const string flagName = "flagName";
+
+            // Act
+            var evaluationDetails = await client.GetBooleanDetailsAsync(flagName, true);
+
+            // Assert
+            await providerHook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), evaluationDetails);
+        }
     }
 }
