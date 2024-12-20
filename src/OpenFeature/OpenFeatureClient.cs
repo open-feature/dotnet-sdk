@@ -252,12 +252,10 @@ namespace OpenFeature
                 // short circuit evaluation entirely if provider is in a bad state
                 if (provider.Status == ProviderStatus.NotReady)
                 {
-                    evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, ErrorType.ProviderNotReady, Reason.Error, string.Empty, "Provider has not yet completed initialization.");
                     throw new ProviderNotReadyException("Provider has not yet completed initialization.");
                 }
                 else if (provider.Status == ProviderStatus.Fatal)
                 {
-                    evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, ErrorType.ProviderFatal, Reason.Error, string.Empty, string.Empty);
                     throw new ProviderFatalException("Provider is in an irrecoverable error state.");
                 }
 
