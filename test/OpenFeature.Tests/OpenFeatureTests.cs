@@ -299,5 +299,20 @@ namespace OpenFeature.Tests
             mockPropagator.Received().SetTransactionContext(evaluationContext);
             Assert.Equal(evaluationContext, result);
         }
+
+        [Fact]
+        public void GetTransactionContext_ShouldReturnEmptyEvaluationContext_WhenNoPropagatorIsSet()
+        {
+            // Arrange
+            var api = Api.Instance;
+            var context = EvaluationContext.Builder().Set("status", "not-ready").Build();
+            api.SetTransactionContext(context);
+
+            // Act
+            var result = api.GetTransactionContext();
+
+            // Assert
+            Assert.Equal(EvaluationContext.Empty, result);
+        }
     }
 }
