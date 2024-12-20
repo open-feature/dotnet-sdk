@@ -12,9 +12,11 @@ public class FeatureLifecycleManagerTests
 {
     private readonly FeatureLifecycleManager _systemUnderTest;
     private readonly IServiceProvider _mockServiceProvider;
+    private readonly CancellationToken _testCancellationToken;
 
     public FeatureLifecycleManagerTests()
     {
+        this._testCancellationToken = TestContext.Current.CancellationToken;
         Api.Instance.SetContext(null);
         Api.Instance.ClearHooks();
 
@@ -41,7 +43,7 @@ public class FeatureLifecycleManagerTests
         _mockServiceProvider.GetService(typeof(FeatureProvider)).Returns(featureProvider);
 
         // Act
-        await _systemUnderTest.EnsureInitializedAsync().ConfigureAwait(true);
+        await _systemUnderTest.EnsureInitializedAsync(_testCancellationToken).ConfigureAwait(true);
 
         // Assert
         Api.Instance.GetProvider().Should().BeSameAs(featureProvider);
@@ -54,7 +56,7 @@ public class FeatureLifecycleManagerTests
         _mockServiceProvider.GetService(typeof(FeatureProvider)).Returns(null as FeatureProvider);
 
         // Act
-        var act = () => _systemUnderTest.EnsureInitializedAsync().AsTask();
+        var act = () => _systemUnderTest.EnsureInitializedAsync(_testCancellationToken).AsTask();
 
         // Assert
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(act).ConfigureAwait(true);

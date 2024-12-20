@@ -1,19 +1,23 @@
 using System.Threading.Tasks;
+using System.Threading;
 using Xunit;
 
 namespace OpenFeature.Tests;
 
 public class ClearOpenFeatureInstanceFixture : IAsyncLifetime
 {
-    public Task InitializeAsync()
+    protected CancellationToken TestCancellationToken;
+
+    public ValueTask InitializeAsync()
     {
+        this.TestCancellationToken = TestContext.Current.CancellationToken;
         Api.ResetApi();
 
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     // Make sure the singleton is cleared between tests
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         await Api.Instance.ShutdownAsync().ConfigureAwait(false);
     }

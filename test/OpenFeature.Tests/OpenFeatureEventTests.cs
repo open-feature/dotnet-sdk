@@ -78,9 +78,9 @@ namespace OpenFeature.Tests
             var testProvider = new TestProvider();
             await Api.Instance.SetProviderAsync(testProvider);
 
-            await testProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged);
-            await testProvider.SendEventAsync(ProviderEventTypes.ProviderError);
-            await testProvider.SendEventAsync(ProviderEventTypes.ProviderStale);
+            await testProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, this.TestCancellationToken);
+            await testProvider.SendEventAsync(ProviderEventTypes.ProviderError, this.TestCancellationToken);
+            await testProvider.SendEventAsync(ProviderEventTypes.ProviderStale, this.TestCancellationToken);
 
             await Utils.AssertUntilAsync(_ => eventHandler
                 .Received()
@@ -226,12 +226,12 @@ namespace OpenFeature.Tests
             var testProvider = new TestProvider();
             await Api.Instance.SetProviderAsync(testProvider);
 
-            await testProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged);
+            await testProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, this.TestCancellationToken);
 
             var newTestProvider = new TestProvider();
             await Api.Instance.SetProviderAsync(newTestProvider);
 
-            await newTestProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged);
+            await newTestProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, this.TestCancellationToken);
 
             await Utils.AssertUntilAsync(
                 _ => eventHandler.Received(2).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderReady))
@@ -405,7 +405,7 @@ namespace OpenFeature.Tests
 
             client.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, clientEventHandler);
 
-            await defaultProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged);
+            await defaultProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, this.TestCancellationToken);
 
             // verify that the client received the event from the default provider as there is no named provider registered yet
             await Utils.AssertUntilAsync(
@@ -417,8 +417,8 @@ namespace OpenFeature.Tests
             await Api.Instance.SetProviderAsync(client.GetMetadata().Name!, clientProvider);
 
             // now, send another event for the default handler
-            await defaultProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged);
-            await clientProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged);
+            await defaultProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, this.TestCancellationToken);
+            await clientProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, this.TestCancellationToken);
 
             // now the client should have received only the event from the named provider
             await Utils.AssertUntilAsync(
@@ -481,7 +481,7 @@ namespace OpenFeature.Tests
             myClient.RemoveHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
             // send another event from the provider - this one should not be received
-            await testProvider.SendEventAsync(ProviderEventTypes.ProviderReady);
+            await testProvider.SendEventAsync(ProviderEventTypes.ProviderReady, this.TestCancellationToken);
 
             // wait a bit and make sure we only have received the first event, but nothing after removing the event handler
             await Utils.AssertUntilAsync(
@@ -513,7 +513,7 @@ namespace OpenFeature.Tests
         {
             var provider = new TestProvider();
             await Api.Instance.SetProviderAsync("5.3.5", provider);
-            _ = provider.SendEventAsync(type);
+            _ = provider.SendEventAsync(type, this.TestCancellationToken);
             await Utils.AssertUntilAsync(_ => Assert.True(provider.Status == status));
         }
     }

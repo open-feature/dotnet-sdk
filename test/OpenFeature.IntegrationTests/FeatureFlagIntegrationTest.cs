@@ -14,6 +14,13 @@ namespace OpenFeature.IntegrationTests;
 
 public class FeatureFlagIntegrationTest
 {
+    public FeatureFlagIntegrationTest()
+    {
+        this._testCancellationToken = TestContext.Current.CancellationToken;
+    }
+
+    private readonly CancellationToken _testCancellationToken;
+
     // TestUserId is "off", other users are "on"
     private const string FeatureA = "feature-a";
     private const string TestUserId = "123";
@@ -50,8 +57,8 @@ public class FeatureFlagIntegrationTest
         var requestUri = $"/features/{userId}/flags/{FeatureA}";
 
         // Act
-        var response = await client.GetAsync(requestUri).ConfigureAwait(true);
-        var responseContent = await response.Content.ReadFromJsonAsync<FeatureFlagResponse<bool>>().ConfigureAwait(true); ;
+        var response = await client.GetAsync(requestUri, _testCancellationToken).ConfigureAwait(true);
+        var responseContent = await response.Content.ReadFromJsonAsync<FeatureFlagResponse<bool>>(cancellationToken: _testCancellationToken).ConfigureAwait(true); ;
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue("Expected HTTP status code 200 OK.");
