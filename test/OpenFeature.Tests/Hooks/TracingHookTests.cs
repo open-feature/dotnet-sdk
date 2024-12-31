@@ -23,7 +23,7 @@ public class TracingHookTest
 
         var tracerProvider = Sdk.CreateTracerProviderBuilder()
             .AddSource("my-tracer")
-            .ConfigureResource(r => r.AddService("inmemory-test"))
+            .ConfigureResource(r => r.AddService("in-memory-test"))
             .AddInMemoryExporter(exportedItems)
             .Build();
 
@@ -32,14 +32,14 @@ public class TracingHookTest
 
         var span = tracer.StartActiveSpan("my-span");
 
-        var otelHook = new TracingHook();
+        var tracingHook = new TracingHook();
 
         var evaluationContext = EvaluationContext.Empty;
 
         var ctx = new HookContext<string>("my-flag", "foo", Constant.FlagValueType.String,
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
 
-        var hookTask = otelHook.AfterAsync(ctx,
+        var hookTask = tracingHook.AfterAsync(ctx,
             new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default"),
             new Dictionary<string, object>());
 
@@ -75,21 +75,21 @@ public class TracingHookTest
 
         var tracerProvider = Sdk.CreateTracerProviderBuilder()
             .AddSource("my-tracer")
-            .ConfigureResource(r => r.AddService("inmemory-test"))
+            .ConfigureResource(r => r.AddService("in-memory-test"))
             .AddInMemoryExporter(exportedItems)
             .Build();
 
 
         var tracer = tracerProvider.GetTracer("my-tracer");
 
-        var otelHook = new TracingHook();
+        var tracingHook = new TracingHook();
 
         var evaluationContext = EvaluationContext.Empty;
 
         var ctx = new HookContext<string>("my-flag", "foo", Constant.FlagValueType.String,
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
 
-        var hookTask = otelHook.AfterAsync(ctx,
+        var hookTask = tracingHook.AfterAsync(ctx,
             new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default"),
             new Dictionary<string, object>());
 
@@ -109,7 +109,7 @@ public class TracingHookTest
 
         var tracerProvider = Sdk.CreateTracerProviderBuilder()
             .AddSource("my-tracer")
-            .ConfigureResource(r => r.AddService("inmemory-test"))
+            .ConfigureResource(r => r.AddService("in-memory-test"))
             .AddInMemoryExporter(exportedItems)
             .Build();
 
@@ -118,14 +118,14 @@ public class TracingHookTest
 
         var span = tracer.StartActiveSpan("my-span");
 
-        var otelHook = new TracingHook();
+        var tracingHook = new TracingHook();
 
         var evaluationContext = EvaluationContext.Empty;
 
         var ctx = new HookContext<string>("my-flag", "foo", Constant.FlagValueType.String,
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
 
-        var hookTask = otelHook.ErrorAsync(ctx, new System.Exception("unexpected error"),
+        var hookTask = tracingHook.ErrorAsync(ctx, new System.Exception("unexpected error"),
             new Dictionary<string, object>());
 
         Assert.True(hookTask.IsCompleted);
@@ -158,21 +158,21 @@ public class TracingHookTest
 
         var tracerProvider = Sdk.CreateTracerProviderBuilder()
             .AddSource("my-tracer")
-            .ConfigureResource(r => r.AddService("inmemory-test"))
+            .ConfigureResource(r => r.AddService("in-memory-test"))
             .AddInMemoryExporter(exportedItems)
             .Build();
 
 
         var tracer = tracerProvider.GetTracer("my-tracer");
 
-        var otelHook = new TracingHook();
+        var tracingHook = new TracingHook();
 
         var evaluationContext = EvaluationContext.Empty;
 
         var ctx = new HookContext<string>("my-flag", "foo", Constant.FlagValueType.String,
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
 
-        var hookTask = otelHook.ErrorAsync(ctx, new System.Exception("unexpected error"),
+        var hookTask = tracingHook.ErrorAsync(ctx, new System.Exception("unexpected error"),
             new Dictionary<string, object>());
 
         Assert.True(hookTask.IsCompleted);
