@@ -75,7 +75,7 @@ public class MetricsHookTest : IDisposable
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
 
         // Act
-        await metricsHook.ErrorAsync(ctx, new Exception(), new Dictionary<string, object>()).ConfigureAwait(true);;
+        await metricsHook.ErrorAsync(ctx, new Exception(), new Dictionary<string, object>()).ConfigureAwait(true); ;
         this._meterProvider.ForceFlush();
 
         // Assert metrics
@@ -100,7 +100,7 @@ public class MetricsHookTest : IDisposable
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
 
         // Act
-        await metricsHook.FinallyAsync(ctx, new Dictionary<string, object>()).ConfigureAwait(true);;
+        await metricsHook.FinallyAsync(ctx, new Dictionary<string, object>()).ConfigureAwait(true); ;
         this._meterProvider.ForceFlush();
 
         // Assert metrics
@@ -126,7 +126,7 @@ public class MetricsHookTest : IDisposable
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
 
         // Act
-        await metricsHook.BeforeAsync(ctx, new Dictionary<string, object>()).ConfigureAwait(true);;
+        await metricsHook.BeforeAsync(ctx, new Dictionary<string, object>()).ConfigureAwait(true); ;
         this._meterProvider.ForceFlush();
 
         // Assert metrics
