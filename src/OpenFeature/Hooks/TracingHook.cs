@@ -35,7 +35,7 @@ public class TracingHook : Hook
     {
 #if NET9_0_OR_GREATER
         // For dotnet9 we should use the new API https://learn.microsoft.com/en-gb/dotnet/api/system.diagnostics.activity.addexception?view=net-9.0
-        // Activity.Current?.AddException(error);
+        Activity.Current?.AddException(error);
 #else
         var tagsCollection = new ActivityTagsCollection
         {
