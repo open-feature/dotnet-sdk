@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using OpenFeature.Hooks;
 using OpenFeature.Model;
 using OpenTelemetry;
@@ -48,15 +49,10 @@ public class TracingHookTest
         span.End();
 
         Assert.Single(exportedItems);
-
-        var rootSpan = exportedItems[0];
+        var rootSpan = exportedItems.First();
 
         Assert.Single(rootSpan.Events);
-
-        var eventsEnum = rootSpan.Events.GetEnumerator();
-        eventsEnum.MoveNext();
-
-        ActivityEvent ev = eventsEnum.Current;
+        ActivityEvent ev = rootSpan.Events.First();
         Assert.Equal("feature_flag", ev.Name);
 
         Assert.Contains(new KeyValuePair<string, object?>("feature_flag.key", "my-flag"), ev.Tags);
@@ -133,14 +129,10 @@ public class TracingHookTest
         span.End();
 
         Assert.Single(exportedItems);
-
-        var rootSpan = exportedItems[0];
+        var rootSpan = exportedItems.First();
 
         Assert.Single(rootSpan.Events);
-
-        var enumerator = rootSpan.Events.GetEnumerator();
-        enumerator.MoveNext();
-        var ev = enumerator.Current;
+        var ev = rootSpan.Events.First();
 
         Assert.Equal("exception", ev.Name);
 
