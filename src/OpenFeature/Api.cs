@@ -223,7 +223,7 @@ namespace OpenFeature
         /// Return the transaction context propagator.
         /// </summary>
         /// <returns><see cref="ITransactionContextPropagator"/>the registered transaction context propagator</returns>
-        public ITransactionContextPropagator GetTransactionContextPropagator()
+        internal ITransactionContextPropagator GetTransactionContextPropagator()
         {
             return this._transactionContextPropagator;
         }
