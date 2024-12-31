@@ -73,6 +73,26 @@ public class TracingHookTest : IDisposable
     }
 
     [Fact]
+    public async Task TestAfter_NoSpan()
+    {
+        // Arrange
+        var tracingHook = new TracingHook();
+        var evaluationContext = EvaluationContext.Empty;
+        var ctx = new HookContext<string>("my-flag", "foo", Constant.FlagValueType.String,
+            new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
+
+        // Act
+        await tracingHook.AfterAsync(ctx,
+            new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default"),
+            new Dictionary<string, object>());
+
+        this._tracerProvider.ForceFlush();
+
+        // Assert
+        Assert.Empty(this._exportedItems);
+    }
+
+    [Fact]
     public async Task TestError()
     {
         // Arrange
@@ -99,5 +119,24 @@ public class TracingHookTest : IDisposable
         Assert.Equal("exception", ev.Name);
 
         Assert.Contains(new KeyValuePair<string, object?>("exception.message", "unexpected error"), ev.Tags);
+    }
+
+    [Fact]
+    public async Task TestError_NoSpan()
+    {
+        // Arrange
+        var tracingHook = new TracingHook();
+        var evaluationContext = EvaluationContext.Empty;
+        var ctx = new HookContext<string>("my-flag", "foo", Constant.FlagValueType.String,
+            new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
+
+        // Act
+        await tracingHook.ErrorAsync(ctx, new Exception("unexpected error"),
+            new Dictionary<string, object>());
+
+        this._tracerProvider.ForceFlush();
+
+        // Assert
+        Assert.Empty(this._exportedItems);
     }
 }
