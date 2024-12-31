@@ -50,7 +50,7 @@ public class MetricsHookTest : IDisposable
         // Act
         await metricsHook.AfterAsync(ctx,
             new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default"),
-            new Dictionary<string, object>());
+            new Dictionary<string, object>()).ConfigureAwait(true);
         this._meterProvider.ForceFlush();
 
         // Assert metrics
@@ -75,7 +75,7 @@ public class MetricsHookTest : IDisposable
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
 
         // Act
-        await metricsHook.ErrorAsync(ctx, new Exception(), new Dictionary<string, object>());
+        await metricsHook.ErrorAsync(ctx, new Exception(), new Dictionary<string, object>()).ConfigureAwait(true);;
         this._meterProvider.ForceFlush();
 
         // Assert metrics
@@ -100,7 +100,7 @@ public class MetricsHookTest : IDisposable
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
 
         // Act
-        await metricsHook.FinallyAsync(ctx, new Dictionary<string, object>());
+        await metricsHook.FinallyAsync(ctx, new Dictionary<string, object>()).ConfigureAwait(true);;
         this._meterProvider.ForceFlush();
 
         // Assert metrics
@@ -126,7 +126,7 @@ public class MetricsHookTest : IDisposable
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
 
         // Act
-        await metricsHook.BeforeAsync(ctx, new Dictionary<string, object>());
+        await metricsHook.BeforeAsync(ctx, new Dictionary<string, object>()).ConfigureAwait(true);;
         this._meterProvider.ForceFlush();
 
         // Assert metrics

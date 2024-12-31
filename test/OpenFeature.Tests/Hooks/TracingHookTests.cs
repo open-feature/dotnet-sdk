@@ -54,7 +54,7 @@ public class TracingHookTest : IDisposable
         var span = this._tracer.StartActiveSpan("my-span");
         await tracingHook.AfterAsync(ctx,
             new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default"),
-            new Dictionary<string, object>());
+            new Dictionary<string, object>()).ConfigureAwait(true);;
         span.End();
 
         this._tracerProvider.ForceFlush();
@@ -84,7 +84,7 @@ public class TracingHookTest : IDisposable
         // Act
         await tracingHook.AfterAsync(ctx,
             new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default"),
-            new Dictionary<string, object>());
+            new Dictionary<string, object>()).ConfigureAwait(true);;
 
         this._tracerProvider.ForceFlush();
 
@@ -104,7 +104,7 @@ public class TracingHookTest : IDisposable
         // Act
         var span = this._tracer.StartActiveSpan("my-span");
         await tracingHook.ErrorAsync(ctx, new Exception("unexpected error"),
-            new Dictionary<string, object>());
+            new Dictionary<string, object>()).ConfigureAwait(true);;
         span.End();
 
         this._tracerProvider.ForceFlush();
@@ -132,7 +132,7 @@ public class TracingHookTest : IDisposable
 
         // Act
         await tracingHook.ErrorAsync(ctx, new Exception("unexpected error"),
-            new Dictionary<string, object>());
+            new Dictionary<string, object>()).ConfigureAwait(true);;
 
         this._tracerProvider.ForceFlush();
 
