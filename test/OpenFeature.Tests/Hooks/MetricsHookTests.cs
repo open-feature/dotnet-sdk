@@ -22,7 +22,7 @@ public class MetricsHookTest : IDisposable
         // Arrange metrics collector
         this._exportedItems = [];
         this._meterProvider = Sdk.CreateMeterProviderBuilder()
-            .AddMeter("*")
+            .AddMeter("OpenFeature")
             .ConfigureResource(r => r.AddService("open-feature"))
             .AddInMemoryExporter(this._exportedItems,
                 option => option.PeriodicExportingMetricReaderOptions =
