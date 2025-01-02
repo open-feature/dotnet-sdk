@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
@@ -243,6 +244,78 @@ namespace OpenFeature.Tests
 
             (await client1.GetBooleanValueAsync("test", false)).Should().BeTrue();
             (await client2.GetBooleanValueAsync("test", false)).Should().BeFalse();
+        }
+
+        [Fact]
+        public void SetTransactionContextPropagator_ShouldThrowArgumentNullException_WhenNullPropagatorIsPassed()
+        {
+            // Arrange
+            var api = Api.Instance;
+
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => api.SetTransactionContextPropagator(null!));
+        }
+
+        [Fact]
+        public void SetTransactionContextPropagator_ShouldSetPropagator_WhenValidPropagatorIsPassed()
+        {
+            // Arrange
+            var api = Api.Instance;
+            var mockPropagator = Substitute.For<ITransactionContextPropagator>();
+
+            // Act
+            api.SetTransactionContextPropagator(mockPropagator);
+
+            // Assert
+            Assert.Equal(mockPropagator, api.GetTransactionContextPropagator());
+        }
+
+        [Fact]
+        public void SetTransactionContext_ShouldThrowArgumentNullException_WhenEvaluationContextIsNull()
+        {
+            // Arrange
+            var api = Api.Instance;
+
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => api.SetTransactionContext(null!));
+        }
+
+        [Fact]
+        public void SetTransactionContext_ShouldSetTransactionContext_WhenValidEvaluationContextIsProvided()
+        {
+            // Arrange
+            var api = Api.Instance;
+            var evaluationContext = EvaluationContext.Builder()
+                .Set("initial", "yes")
+                .Build();
+            var mockPropagator = Substitute.For<ITransactionContextPropagator>();
+            mockPropagator.GetTransactionContext().Returns(evaluationContext);
+            api.SetTransactionContextPropagator(mockPropagator);
+            api.SetTransactionContext(evaluationContext);
+
+            // Act
+            api.SetTransactionContext(evaluationContext);
+            var result = api.GetTransactionContext();
+
+            // Assert
+            mockPropagator.Received().SetTransactionContext(evaluationContext);
+            Assert.Equal(evaluationContext, result);
+            Assert.Equal(evaluationContext.GetValue("initial"), result.GetValue("initial"));
+        }
+
+        [Fact]
+        public void GetTransactionContext_ShouldReturnEmptyEvaluationContext_WhenNoPropagatorIsSet()
+        {
+            // Arrange
+            var api = Api.Instance;
+            var context = EvaluationContext.Builder().Set("status", "not-ready").Build();
+            api.SetTransactionContext(context);
+
+            // Act
+            var result = api.GetTransactionContext();
+
+            // Assert
+            Assert.Equal(EvaluationContext.Empty, result);
         }
     }
 }

@@ -166,6 +166,9 @@ namespace OpenFeature.Tests
             var propInvocation = "4.3.4invocation";
             var propInvocationToOverwrite = "4.3.4invocationToOverwrite";
 
+            var propTransaction = "4.3.4transaction";
+            var propTransactionToOverwrite = "4.3.4transactionToOverwrite";
+
             var propHook = "4.3.4hook";
 
             // setup a cascade of overwriting properties
@@ -180,16 +183,28 @@ namespace OpenFeature.Tests
                 .Set(propClientToOverwrite, false)
                 .Build();
 
+            var transactionContext = new EvaluationContextBuilder()
+                .Set(propTransaction, true)
+                .Set(propInvocationToOverwrite, true)
+                .Set(propTransactionToOverwrite, false)
+                .Build();
+
             var invocationContext = new EvaluationContextBuilder()
                 .Set(propInvocation, true)
                 .Set(propClientToOverwrite, true)
+                .Set(propTransactionToOverwrite, true)
                 .Set(propInvocationToOverwrite, false)
                 .Build();
+
 
             var hookContext = new EvaluationContextBuilder()
                 .Set(propHook, true)
                 .Set(propInvocationToOverwrite, true)
                 .Build();
+
+            var transactionContextPropagator = new AsyncLocalTransactionContextPropagator();
+            transactionContextPropagator.SetTransactionContext(transactionContext);
+            Api.Instance.SetTransactionContextPropagator(transactionContextPropagator);
 
             var provider = Substitute.For<FeatureProvider>();
 
@@ -212,7 +227,9 @@ namespace OpenFeature.Tests
             _ = provider.Received(1).ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Is<EvaluationContext>(y =>
                 (y.GetValue(propGlobal).AsBoolean ?? false)
                 && (y.GetValue(propClient).AsBoolean ?? false)
+                && (y.GetValue(propTransaction).AsBoolean ?? false)
                 && (y.GetValue(propGlobalToOverwrite).AsBoolean ?? false)
+                && (y.GetValue(propTransactionToOverwrite).AsBoolean ?? false)
                 && (y.GetValue(propInvocation).AsBoolean ?? false)
                 && (y.GetValue(propClientToOverwrite).AsBoolean ?? false)
                 && (y.GetValue(propHook).AsBoolean ?? false)
