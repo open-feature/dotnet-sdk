@@ -4,7 +4,7 @@ using OpenFeature.Model;
 namespace OpenFeature;
 
 /// <summary>
-///  It is a no-op implementation of <see cref="ITransactionContextPropagator"/>
+///  This is a task transaction context implementation of <see cref="ITransactionContextPropagator"/>
 ///  It uses the <see cref="AsyncLocal{T}"/> to store the transaction context.
 /// </summary>
 public sealed class AsyncLocalTransactionContextPropagator : ITransactionContextPropagator
