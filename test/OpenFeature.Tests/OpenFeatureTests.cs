@@ -285,7 +285,9 @@ namespace OpenFeature.Tests
         {
             // Arrange
             var api = Api.Instance;
-            var evaluationContext = EvaluationContext.Empty;
+            var evaluationContext = EvaluationContext.Builder()
+                .Set("initial", "yes")
+                .Build();
             var mockPropagator = Substitute.For<ITransactionContextPropagator>();
             mockPropagator.GetTransactionContext().Returns(evaluationContext);
             api.SetTransactionContextPropagator(mockPropagator);
@@ -298,6 +300,7 @@ namespace OpenFeature.Tests
             // Assert
             mockPropagator.Received().SetTransactionContext(evaluationContext);
             Assert.Equal(evaluationContext, result);
+            Assert.Equal(evaluationContext.GetValue("initial"), result.GetValue("initial"));
         }
 
         [Fact]

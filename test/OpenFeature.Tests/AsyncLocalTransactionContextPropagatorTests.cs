@@ -23,7 +23,9 @@ public class AsyncLocalTransactionContextPropagatorTests
     {
         // Arrange
         var propagator = new AsyncLocalTransactionContextPropagator();
-        var evaluationContext = EvaluationContext.Empty;
+        var evaluationContext = EvaluationContext.Builder()
+            .Set("initial", "yes")
+            .Build();
 
         // Act
         propagator.SetTransactionContext(evaluationContext);
@@ -31,6 +33,7 @@ public class AsyncLocalTransactionContextPropagatorTests
 
         // Assert
         Assert.Equal(evaluationContext, context);
+        Assert.Equal(evaluationContext.GetValue("initial"), context.GetValue("initial"));
     }
 
     [Fact]
