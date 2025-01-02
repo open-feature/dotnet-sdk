@@ -215,13 +215,12 @@ namespace OpenFeature
             // New up an evaluation context if one was not provided.
             context ??= EvaluationContext.Empty;
 
-            // merge api, client, and invocation context.
-            var evaluationContext = Api.Instance.GetContext();
+            // merge api, client, transaction and invocation context
             var evaluationContextBuilder = EvaluationContext.Builder();
-            evaluationContextBuilder.Merge(evaluationContext);
-            evaluationContextBuilder.Merge(this.GetContext());
-            evaluationContextBuilder.Merge(context);
-            evaluationContextBuilder.Merge(Api.Instance.GetTransactionContext());
+            evaluationContextBuilder.Merge(Api.Instance.GetContext()); // API context
+            evaluationContextBuilder.Merge(this.GetContext()); // Client context
+            evaluationContextBuilder.Merge(Api.Instance.GetTransactionContext()); // Transaction context
+            evaluationContextBuilder.Merge(context); // Invocation context
 
             var allHooks = new List<Hook>()
                 .Concat(Api.Instance.GetHooks())
