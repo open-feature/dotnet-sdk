@@ -45,10 +45,10 @@ namespace OpenFeature.Tests
             invocationHook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(new ValueTask());
             clientHook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(new ValueTask());
             apiHook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(new ValueTask());
-            providerHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(new ValueTask());
-            invocationHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(new ValueTask());
-            clientHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(new ValueTask());
-            apiHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(new ValueTask());
+            providerHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(new ValueTask());
+            invocationHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(new ValueTask());
+            clientHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(new ValueTask());
+            apiHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(new ValueTask());
 
             var testProvider = new TestProvider();
             testProvider.AddHook(providerHook);
@@ -70,10 +70,10 @@ namespace OpenFeature.Tests
                 invocationHook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
                 clientHook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
                 apiHook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-                providerHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-                invocationHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-                clientHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-                apiHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+                providerHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+                invocationHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+                clientHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+                apiHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
             });
 
             _ = apiHook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
@@ -84,10 +84,10 @@ namespace OpenFeature.Tests
             _ = invocationHook.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
             _ = clientHook.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
             _ = apiHook.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-            _ = providerHook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-            _ = invocationHook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-            _ = clientHook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-            _ = apiHook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+            _ = providerHook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+            _ = invocationHook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+            _ = clientHook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+            _ = apiHook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
         }
 
         [Fact]
@@ -256,10 +256,12 @@ namespace OpenFeature.Tests
             };
             var hookContext = new HookContext<bool>("test", false, FlagValueType.Boolean,
                 new ClientMetadata(null, null), new Metadata(null), EvaluationContext.Empty);
+            var evaluationDetails =
+                new FlagEvaluationDetails<bool>("test", false, ErrorType.None, "testing", "testing");
 
             await hook.BeforeAsync(hookContext, hookHints);
-            await hook.AfterAsync(hookContext, new FlagEvaluationDetails<bool>("test", false, ErrorType.None, "testing", "testing"), hookHints);
-            await hook.FinallyAsync(hookContext, hookHints);
+            await hook.AfterAsync(hookContext, evaluationDetails, hookHints);
+            await hook.FinallyAsync(hookContext, evaluationDetails, hookHints);
             await hook.ErrorAsync(hookContext, new Exception(), hookHints);
 
             hookContext.ClientMetadata.Name.Should().BeNull();
@@ -286,7 +288,7 @@ namespace OpenFeature.Tests
             hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>()).Returns(EvaluationContext.Empty);
             featureProvider.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>()).Returns(new ResolutionDetails<bool>("test", false));
             _ = hook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>());
-            _ = hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>());
+            _ = hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>());
 
             await Api.Instance.SetProviderAsync(featureProvider);
             var client = Api.Instance.GetClient();
@@ -299,12 +301,12 @@ namespace OpenFeature.Tests
                 hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>());
                 featureProvider.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>());
                 hook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>());
-                hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>());
+                hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>());
             });
 
             _ = hook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>());
             _ = hook.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>());
-            _ = hook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>());
+            _ = hook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>());
             _ = featureProvider.Received(1).ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>());
         }
 
@@ -348,8 +350,8 @@ namespace OpenFeature.Tests
             featureProvider.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>()).Returns(new ResolutionDetails<bool>("test", false));
             hook2.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null).Returns(new ValueTask());
             hook1.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null).Returns(new ValueTask());
-            hook2.FinallyAsync(Arg.Any<HookContext<bool>>(), null).Returns(new ValueTask());
-            hook1.FinallyAsync(Arg.Any<HookContext<bool>>(), null).Throws(new Exception());
+            hook2.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null).Returns(new ValueTask());
+            hook1.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null).Throws(new Exception());
 
             await Api.Instance.SetProviderAsync(featureProvider);
             var client = Api.Instance.GetClient();
@@ -365,8 +367,8 @@ namespace OpenFeature.Tests
                 featureProvider.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>());
                 hook2.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null);
                 hook1.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null);
-                hook2.FinallyAsync(Arg.Any<HookContext<bool>>(), null);
-                hook1.FinallyAsync(Arg.Any<HookContext<bool>>(), null);
+                hook2.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null);
+                hook1.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null);
             });
 
             _ = hook1.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), null);
@@ -374,8 +376,8 @@ namespace OpenFeature.Tests
             _ = featureProvider.Received(1).ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>());
             _ = hook2.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null);
             _ = hook1.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null);
-            _ = hook2.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), null);
-            _ = hook1.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), null);
+            _ = hook2.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null);
+            _ = hook1.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null);
         }
 
         [Fact]
@@ -475,7 +477,7 @@ namespace OpenFeature.Tests
             hook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
                 .Returns(new ValueTask());
 
-            hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
+            hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
                 .Returns(new ValueTask());
 
             await Api.Instance.SetProviderAsync(featureProvider);
@@ -488,7 +490,7 @@ namespace OpenFeature.Tests
                 hook.Received().BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
                 featureProvider.Received().ResolveBooleanValueAsync("test", false, Arg.Any<EvaluationContext>());
                 hook.Received().AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
-                hook.Received().FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
+                hook.Received().FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
             });
         }
 
@@ -506,7 +508,7 @@ namespace OpenFeature.Tests
             // Sequence
             hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>()).Throws(exceptionToThrow);
             hook.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null).Returns(new ValueTask());
-            hook.FinallyAsync(Arg.Any<HookContext<bool>>(), null).Returns(new ValueTask());
+            hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null).Returns(new ValueTask());
 
             var client = Api.Instance.GetClient();
             client.AddHooks(hook);
@@ -517,13 +519,13 @@ namespace OpenFeature.Tests
             {
                 hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>());
                 hook.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
-                hook.FinallyAsync(Arg.Any<HookContext<bool>>(), null);
+                hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null);
             });
 
             resolvedFlag.Should().BeTrue();
             _ = hook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), null);
             _ = hook.Received(1).ErrorAsync(Arg.Any<HookContext<bool>>(), exceptionToThrow, null);
-            _ = hook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), null);
+            _ = hook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null);
         }
 
         [Fact]
@@ -553,7 +555,7 @@ namespace OpenFeature.Tests
             hook.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), Arg.Any<ImmutableDictionary<string, object>>())
                 .Returns(new ValueTask());
 
-            hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
+            hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
                 .Returns(new ValueTask());
 
             await Api.Instance.SetProviderAsync(featureProvider);
@@ -567,7 +569,7 @@ namespace OpenFeature.Tests
             {
                 hook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
                 hook.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
-                hook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
+                hook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
             });
 
             await featureProvider.DidNotReceive().ResolveBooleanValueAsync("test", false, Arg.Any<EvaluationContext>());
@@ -586,7 +588,7 @@ namespace OpenFeature.Tests
             hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>(), cts.Token).Returns(EvaluationContext.Empty);
             featureProvider.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>(), cts.Token).Returns(new ResolutionDetails<bool>("test", false));
             _ = hook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>(), cts.Token);
-            _ = hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>(), cts.Token);
+            _ = hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>(), cts.Token);
 
             await Api.Instance.SetProviderAsync(featureProvider);
             var client = Api.Instance.GetClient();
@@ -596,7 +598,7 @@ namespace OpenFeature.Tests
 
             _ = hook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>(), cts.Token);
             _ = hook.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>(), cts.Token);
-            _ = hook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>(), cts.Token);
+            _ = hook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>(), cts.Token);
         }
 
         [Fact]
@@ -623,7 +625,7 @@ namespace OpenFeature.Tests
             hook.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), Arg.Any<ImmutableDictionary<string, object>>())
                 .Returns(new ValueTask());
 
-            hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
+            hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
                 .Returns(new ValueTask());
 
             await Api.Instance.SetProviderAsync(featureProvider);
@@ -633,7 +635,7 @@ namespace OpenFeature.Tests
 
             _ = hook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), cts.Token);
             _ = hook.Received(1).ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), Arg.Any<ImmutableDictionary<string, object>>(), cts.Token);
-            _ = hook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), cts.Token);
+            _ = hook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), cts.Token);
 
             await featureProvider.DidNotReceive().ResolveBooleanValueAsync("test", false, Arg.Any<EvaluationContext>());
         }

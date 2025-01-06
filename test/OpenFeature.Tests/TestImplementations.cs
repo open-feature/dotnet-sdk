@@ -48,6 +48,7 @@ namespace OpenFeature.Tests
         }
 
         public override ValueTask FinallyAsync<T>(HookContext<T> context,
+            FlagEvaluationDetails<T> evaluationDetails,
             IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
         {
             Interlocked.Increment(ref this._finallyCallCount);

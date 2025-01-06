@@ -244,7 +244,7 @@ namespace OpenFeature
                 evaluationContextBuilder.Build()
             );
 
-            FlagEvaluationDetails<T> evaluation;
+            FlagEvaluationDetails<T>? evaluation = null;
             try
             {
                 var contextFromHooks = await this.TriggerBeforeHooksAsync(allHooks, hookContext, options, cancellationToken).ConfigureAwait(false);
@@ -297,7 +297,9 @@ namespace OpenFeature
             }
             finally
             {
-                await this.TriggerFinallyHooksAsync(allHooksReversed, hookContext, options, cancellationToken).ConfigureAwait(false);
+                evaluation ??= new FlagEvaluationDetails<T>(flagKey, defaultValue, ErrorType.General, Reason.Error, string.Empty,
+                    "Evaluation failed to return a result.");
+                await this.TriggerFinallyHooksAsync(allHooksReversed, evaluation, hookContext, options, cancellationToken).ConfigureAwait(false);
             }
 
             return evaluation;
@@ -351,14 +353,14 @@ namespace OpenFeature
             }
         }
 
-        private async Task TriggerFinallyHooksAsync<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
-            FlagEvaluationOptions? options, CancellationToken cancellationToken = default)
+        private async Task TriggerFinallyHooksAsync<T>(IReadOnlyList<Hook> hooks, FlagEvaluationDetails<T> evaluation,
+            HookContext<T> context, FlagEvaluationOptions? options, CancellationToken cancellationToken = default)
         {
             foreach (var hook in hooks)
             {
                 try
                 {
-                    await hook.FinallyAsync(context, options?.HookHints, cancellationToken).ConfigureAwait(false);
+                    await hook.FinallyAsync(context, evaluation, options?.HookHints, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
