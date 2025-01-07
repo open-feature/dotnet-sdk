@@ -85,7 +85,10 @@ public class MetricsHook : Hook
     }
 
     /// <inheritdoc/>
-    public override ValueTask FinallyAsync<T>(HookContext<T> context, IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
+    public override ValueTask FinallyAsync<T>(HookContext<T> context,
+        FlagEvaluationDetails<T> evaluationDetails,
+        IReadOnlyDictionary<string, object>? hints = null,
+        CancellationToken cancellationToken = default)
     {
         var tagList = new TagList
         {
@@ -95,6 +98,6 @@ public class MetricsHook : Hook
 
         this._evaluationActiveUpDownCounter.Add(-1, tagList);
 
-        return base.FinallyAsync(context, hints, cancellationToken);
+        return base.FinallyAsync(context, evaluationDetails, hints, cancellationToken);
     }
 }

@@ -98,9 +98,10 @@ public class MetricsHookTest : IDisposable
         var evaluationContext = EvaluationContext.Empty;
         var ctx = new HookContext<string>("my-flag", "foo", Constant.FlagValueType.String,
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
+        var evaluationDetails = new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default");
 
         // Act
-        await metricsHook.FinallyAsync(ctx, new Dictionary<string, object>()).ConfigureAwait(true);
+        await metricsHook.FinallyAsync(ctx, evaluationDetails, new Dictionary<string, object>()).ConfigureAwait(true);
         this._meterProvider.ForceFlush();
 
         // Assert metrics
