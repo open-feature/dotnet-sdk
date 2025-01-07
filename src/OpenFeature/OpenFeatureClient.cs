@@ -215,12 +215,12 @@ namespace OpenFeature
             // New up an evaluation context if one was not provided.
             context ??= EvaluationContext.Empty;
 
-            // merge api, client, and invocation context.
-            var evaluationContext = Api.Instance.GetContext();
+            // merge api, client, transaction and invocation context
             var evaluationContextBuilder = EvaluationContext.Builder();
-            evaluationContextBuilder.Merge(evaluationContext);
-            evaluationContextBuilder.Merge(this.GetContext());
-            evaluationContextBuilder.Merge(context);
+            evaluationContextBuilder.Merge(Api.Instance.GetContext()); // API context
+            evaluationContextBuilder.Merge(this.GetContext()); // Client context
+            evaluationContextBuilder.Merge(Api.Instance.GetTransactionContext()); // Transaction context
+            evaluationContextBuilder.Merge(context); // Invocation context
 
             var allHooks = new List<Hook>()
                 .Concat(Api.Instance.GetHooks())
@@ -244,7 +244,7 @@ namespace OpenFeature
                 evaluationContextBuilder.Build()
             );
 
-            FlagEvaluationDetails<T> evaluation;
+            FlagEvaluationDetails<T>? evaluation = null;
             try
             {
                 var contextFromHooks = await this.TriggerBeforeHooksAsync(allHooks, hookContext, options, cancellationToken).ConfigureAwait(false);
@@ -297,7 +297,9 @@ namespace OpenFeature
             }
             finally
             {
-                await this.TriggerFinallyHooksAsync(allHooksReversed, hookContext, options, cancellationToken).ConfigureAwait(false);
+                evaluation ??= new FlagEvaluationDetails<T>(flagKey, defaultValue, ErrorType.General, Reason.Error, string.Empty,
+                    "Evaluation failed to return a result.");
+                await this.TriggerFinallyHooksAsync(allHooksReversed, evaluation, hookContext, options, cancellationToken).ConfigureAwait(false);
             }
 
             return evaluation;
@@ -351,14 +353,14 @@ namespace OpenFeature
             }
         }
 
-        private async Task TriggerFinallyHooksAsync<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
-            FlagEvaluationOptions? options, CancellationToken cancellationToken = default)
+        private async Task TriggerFinallyHooksAsync<T>(IReadOnlyList<Hook> hooks, FlagEvaluationDetails<T> evaluation,
+            HookContext<T> context, FlagEvaluationOptions? options, CancellationToken cancellationToken = default)
         {
             foreach (var hook in hooks)
             {
                 try
                 {
-                    await hook.FinallyAsync(context, options?.HookHints, cancellationToken).ConfigureAwait(false);
+                    await hook.FinallyAsync(context, evaluation, options?.HookHints, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {

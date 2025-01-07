@@ -68,18 +68,19 @@ public async Task Example()
 
 ## 🌟 Features
 
-| Status | Features                | Description                                                                                                                        |
-| ------ | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| ✅      | [Providers](#providers) | Integrate with a commercial, open source, or in-house feature management tool.                                                     |
-| ✅      | [Targeting](#targeting) | Contextually-aware flag evaluation using [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context). |
-| ✅      | [Hooks](#hooks)         | Add functionality to various stages of the flag evaluation life-cycle.                                                             |
-| ✅      | [Tracking](#tracking)   | Associate user actions with feature flag evaluations.                                                                              |
-| ✅      | [Logging](#logging)     | Integrate with popular logging packages.                                                                                           |
-| ✅      | [Domains](#domains)     | Logically bind clients with providers.                                                                                             |
-| ✅      | [Eventing](#eventing)   | React to state changes in the provider or flag management system.                                                                  |
-| ✅      | [Shutdown](#shutdown)   | Gracefully clean up a provider during application shutdown.                                                                        |
-| ✅      | [Extending](#extending) | Extend OpenFeature with custom providers and hooks.                                                                                |
-| 🔬      | [DependencyInjection](#DependencyInjection) | Integrate OpenFeature with .NET's dependency injection for streamlined provider setup.                         |
+| Status | Features                                                            | Description                                                                                                                                                   |
+| ------ | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ✅      | [Providers](#providers)                                             | Integrate with a commercial, open source, or in-house feature management tool.                                                                                |
+| ✅      | [Targeting](#targeting)                                             | Contextually-aware flag evaluation using [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context).                            |
+| ✅      | [Hooks](#hooks)                                                     | Add functionality to various stages of the flag evaluation life-cycle.                                                                                        |
+| ✅      | [Tracking](#tracking)                                               | Associate user actions with feature flag evaluations.                                                                                                         |
+| ✅      | [Logging](#logging)                                                 | Integrate with popular logging packages.                                                                                                                      |
+| ✅      | [Domains](#domains)                                                 | Logically bind clients with providers.                                                                                                                        |
+| ✅      | [Eventing](#eventing)                                               | React to state changes in the provider or flag management system.                                                                                             |
+| ✅      | [Shutdown](#shutdown)                                               | Gracefully clean up a provider during application shutdown.                                                                                                   |
+| ✅      | [Transaction Context Propagation](#transaction-context-propagation) | Set a specific [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context) for a transaction (e.g. an HTTP request or a thread). |
+| ✅      | [Extending](#extending)                                             | Extend OpenFeature with custom providers and hooks.                                                                                                           |
+| 🔬      | [DependencyInjection](#DependencyInjection)                         | Integrate OpenFeature with .NET's dependency injection for streamlined provider setup.                                                                        |
 
 > Implemented: ✅ | In-progress: ⚠️ | Not implemented yet: ❌ | Experimental: 🔬
 
@@ -234,6 +235,28 @@ The OpenFeature API provides a close function to perform a cleanup of all regist
 await Api.Instance.ShutdownAsync();
 ```
 
+### Transaction Context Propagation
+
+Transaction context is a container for transaction-specific evaluation context (e.g. user id, user agent, IP).
+Transaction context can be set where specific data is available (e.g. an auth service or request handler) and by using the transaction context propagator it will automatically be applied to all flag evaluations within a transaction (e.g. a request or thread).
+By default, the `NoOpTransactionContextPropagator` is used, which doesn't store anything.
+To register a [AsyncLocal](https://learn.microsoft.com/en-us/dotnet/api/system.threading.asynclocal-1) context propagator, you can use the `SetTransactionContextPropagator` method as shown below.
+
+```csharp
+// registering the AsyncLocalTransactionContextPropagator
+Api.Instance.SetTransactionContextPropagator(new AsyncLocalTransactionContextPropagator());
+```
+Once you've registered a transaction context propagator, you can propagate the data into request-scoped transaction context.
+
+```csharp
+// adding userId to transaction context
+EvaluationContext transactionContext = EvaluationContext.Builder()
+    .Set("userId", userId)
+    .Build();
+Api.Instance.SetTransactionContext(transactionContext);
+```
+Additionally, you can develop a custom transaction context propagator by implementing the `TransactionContextPropagator` interface and registering it as shown above.
+
 ## Extending
 
 ### Develop a provider
@@ -305,7 +328,7 @@ public class MyHook : Hook
     // code to run if there's an error during before hooks or during flag evaluation
   }
 
-  public ValueTask FinallyAsync<T>(HookContext<T> context, IReadOnlyDictionary<string, object> hints = null)
+  public ValueTask FinallyAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> evaluationDetails, IReadOnlyDictionary<string, object> hints = null)
   {
     // code to run after all other stages, regardless of success/failure
   }
