@@ -22,6 +22,8 @@ namespace OpenFeature.Hooks
         /// </summary>
         public LoggingHook(ILogger logger, bool includeContext = false)
         {
+            if (logger == null) throw new ArgumentNullException(nameof(logger));
+
             this._logger = logger;
             this._includeContext = includeContext;
         }
@@ -78,19 +80,16 @@ namespace OpenFeature.Hooks
         }
 
         [LoggerMessage(
-            EventId = 0,
             Level = LogLevel.Debug,
             Message = "Before Flag Evaluation {Content}")]
         partial void HookBeforeStageExecuted(LoggingHookContent content);
 
         [LoggerMessage(
-            EventId = 0,
             Level = LogLevel.Error,
             Message = "Error during Flag Evaluation {Content}")]
         partial void HookErrorStageExecuted(LoggingHookContent content);
 
         [LoggerMessage(
-            EventId = 0,
             Level = LogLevel.Debug,
             Message = "After Flag Evaluation {Content}")]
         partial void HookAfterStageExecuted(LoggingHookContent content);
@@ -165,6 +164,12 @@ namespace OpenFeature.Hooks
 
                 if (value.IsBoolean)
                     return value.AsBoolean.ToString();
+
+                if (value.IsNumber)
+                {
+                    if (value.AsDouble != null) return value.AsDouble.ToString();
+                    if (value.AsInteger != null) return value.AsInteger.ToString();
+                }
 
                 if (value.IsDateTime)
                     return value.AsDateTime?.ToString("O");
