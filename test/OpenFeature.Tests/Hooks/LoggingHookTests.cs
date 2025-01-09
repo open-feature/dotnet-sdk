@@ -484,8 +484,7 @@ public class LoggingHookTests
         var record = logger.LatestRecord;
 
         // Raw string literals will convert tab to spaces (the File index style)
-        var tabSize = 4;
-        var message = record.Message.Replace("\t", new string(' ', tabSize));
+        var message = NormalizeLogRecord(record);
 
         Assert.Equal(
                 """
@@ -499,5 +498,173 @@ public class LoggingHookTests
                 """,
                 message
             );
+    }
+
+    [Fact]
+    public async Task Without_Domain_Returns_Missing()
+    {
+        // Arrange
+        var logger = new FakeLogger<LoggingHookTests>();
+
+        var clientMetadata = new ClientMetadata(null, "1.0.0");
+        var providerMetadata = new Metadata("provider");
+        var evaluationContext = EvaluationContext.Builder()
+            .Set("key_1", true)
+            .Build();
+
+        var context = new HookContext<bool>("test", false, FlagValueType.Object, clientMetadata,
+            providerMetadata, evaluationContext);
+
+        var details = new FlagEvaluationDetails<bool>("test", true, ErrorType.None, reason: null, variant: null);
+
+        var hook = new LoggingHook(logger, includeContext: true);
+
+        // Act
+        await hook.AfterAsync(context, details);
+
+        // Assert
+        var record = logger.LatestRecord;
+        var message = NormalizeLogRecord(record);
+
+        Assert.Equal(
+                """
+                After Flag Evaluation Domain:missing
+                ProviderName:provider
+                FlagKey:test
+                DefaultValue:False
+                Context:
+                    key_1:True
+
+                """,
+                message
+            );
+    }
+
+    [Fact]
+    public async Task Without_Provider_Returns_Missing()
+    {
+        // Arrange
+        var logger = new FakeLogger<LoggingHookTests>();
+
+        var clientMetadata = new ClientMetadata("client", "1.0.0");
+        var providerMetadata = new Metadata(null);
+        var evaluationContext = EvaluationContext.Builder()
+            .Set("key_1", true)
+            .Build();
+
+        var context = new HookContext<bool>("test", false, FlagValueType.Object, clientMetadata,
+            providerMetadata, evaluationContext);
+
+        var details = new FlagEvaluationDetails<bool>("test", true, ErrorType.None, reason: null, variant: null);
+
+        var hook = new LoggingHook(logger, includeContext: true);
+
+        // Act
+        await hook.AfterAsync(context, details);
+
+        // Assert
+        var record = logger.LatestRecord;
+        var message = NormalizeLogRecord(record);
+
+        Assert.Equal(
+                """
+                After Flag Evaluation Domain:client
+                ProviderName:missing
+                FlagKey:test
+                DefaultValue:False
+                Context:
+                    key_1:True
+
+                """,
+                message
+            );
+    }
+
+    [Fact]
+    public async Task Without_DefaultValue_Returns_Missing()
+    {
+        // Arrange
+        var logger = new FakeLogger<LoggingHookTests>();
+
+        var clientMetadata = new ClientMetadata("client", "1.0.0");
+        var providerMetadata = new Metadata("provider");
+        var evaluationContext = EvaluationContext.Builder()
+            .Set("key_1", true)
+            .Build();
+
+        var context = new HookContext<string>("test", null!, FlagValueType.Object, clientMetadata,
+            providerMetadata, evaluationContext);
+
+        var details = new FlagEvaluationDetails<string>("test", "true", ErrorType.None, reason: null, variant: null);
+
+        var hook = new LoggingHook(logger, includeContext: true);
+
+        // Act
+        await hook.AfterAsync(context, details);
+
+        // Assert
+        var record = logger.LatestRecord;
+        var message = NormalizeLogRecord(record);
+
+        Assert.Equal(
+                """
+                After Flag Evaluation Domain:client
+                ProviderName:provider
+                FlagKey:test
+                DefaultValue:missing
+                Context:
+                    key_1:True
+
+                """,
+                message
+            );
+    }
+
+    [Fact]
+    public async Task Without_EvaluationContextValue_Returns_Nothing()
+    {
+        // Arrange
+        var logger = new FakeLogger<LoggingHookTests>();
+
+        var clientMetadata = new ClientMetadata("client", "1.0.0");
+        var providerMetadata = new Metadata("provider");
+        var evaluationContext = EvaluationContext.Builder()
+            .Set("key_1", (string)null!)
+            .Build();
+
+        var context = new HookContext<bool>("test", false, FlagValueType.Object, clientMetadata,
+            providerMetadata, evaluationContext);
+
+        var details = new FlagEvaluationDetails<bool>("test", true, ErrorType.None, reason: null, variant: null);
+
+        var hook = new LoggingHook(logger, includeContext: true);
+
+        // Act
+        await hook.AfterAsync(context, details);
+
+        // Assert
+        var record = logger.LatestRecord;
+        var message = NormalizeLogRecord(record);
+
+        Assert.Equal(
+                """
+                After Flag Evaluation Domain:client
+                ProviderName:provider
+                FlagKey:test
+                DefaultValue:False
+                Context:
+                    key_1:
+
+                """,
+                message
+            );
+    }
+
+    private static string NormalizeLogRecord(FakeLogRecord record)
+    {
+        // Raw string literals will convert tab to spaces (the File index style)
+        const int tabSize = 4;
+
+        return record.Message.Replace("\t", new string(' ', tabSize));
     }
 }

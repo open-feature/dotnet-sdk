@@ -146,7 +146,7 @@ namespace OpenFeature.Hooks
                         stringBuilder.Append('\t');
                         stringBuilder.Append(kvp.Key);
                         stringBuilder.Append(':');
-                        stringBuilder.Append(GetValueString(kvp.Value) ?? "missing");
+                        stringBuilder.Append(GetValueString(kvp.Value));
                         stringBuilder.Append(Environment.NewLine);
                     }
                 }
@@ -167,8 +167,9 @@ namespace OpenFeature.Hooks
 
                 if (value.IsNumber)
                 {
+                    // Value.AsDouble will attempt to cast other numbers to double
+                    // There is an implicit conversation for int/long to double
                     if (value.AsDouble != null) return value.AsDouble.ToString();
-                    if (value.AsInteger != null) return value.AsInteger.ToString();
                 }
 
                 if (value.IsDateTime)
