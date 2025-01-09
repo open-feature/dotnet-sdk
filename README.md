@@ -153,6 +153,19 @@ var value = await client.GetBooleanValueAsync("boolFlag", false, context, new Fl
 
 The .NET SDK uses Microsoft.Extensions.Logging. See the [manual](https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line) for complete documentation.
 
+#### Logging Hook
+
+The .NET SDK includes a LoggingHook, which logs detailed information at key points during flag evaluation, using Microsoft.Extensions.Logging structured logging API. This hook can be particularly helpful for troubleshooting and debugging; simply attach it at the global, client or invocation level and ensure your log level is set to "debug".
+
+```csharp
+using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+var logger = loggerFactory.CreateLogger("Program");
+
+var client = Api.Instance.GetClient();
+client.AddHooks(new LoggingHook(logger));
+```
+See [hooks](#hooks) for more information on configuring hooks.
+
 ### Domains
 
 Clients can be assigned to a domain.
