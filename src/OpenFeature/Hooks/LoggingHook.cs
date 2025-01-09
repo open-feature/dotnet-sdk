@@ -33,14 +33,14 @@ namespace OpenFeature.Hooks
         {
             var evaluationContext = this._includeContext ? context.EvaluationContext : null;
 
-            var beforeLogContent = new LoggingHookContent(
+            var content = new LoggingHookContent(
                 context.ClientMetadata.Name,
                 context.ProviderMetadata.Name,
                 context.FlagKey,
                 context.DefaultValue?.ToString(),
                 evaluationContext);
 
-            this.HookBeforeStageExecuted(beforeLogContent);
+            this.HookBeforeStageExecuted(content);
 
             return base.BeforeAsync(context, hints, cancellationToken);
         }
@@ -50,14 +50,14 @@ namespace OpenFeature.Hooks
         {
             var evaluationContext = this._includeContext ? context.EvaluationContext : null;
 
-            var beforeLogContent = new LoggingHookContent(
+            var content = new LoggingHookContent(
                 context.ClientMetadata.Name,
                 context.ProviderMetadata.Name,
                 context.FlagKey,
                 context.DefaultValue?.ToString(),
                 evaluationContext);
 
-            this.HookErrorStageExecuted(beforeLogContent);
+            this.HookErrorStageExecuted(content);
 
             return base.ErrorAsync(context, error, hints, cancellationToken);
         }
@@ -67,14 +67,14 @@ namespace OpenFeature.Hooks
         {
             var evaluationContext = this._includeContext ? context.EvaluationContext : null;
 
-            var beforeLogContent = new LoggingHookContent(
+            var content = new LoggingHookContent(
                 context.ClientMetadata.Name,
                 context.ProviderMetadata.Name,
                 context.FlagKey,
                 context.DefaultValue?.ToString(),
                 evaluationContext);
 
-            this.HookAfterStageExecuted(beforeLogContent);
+            this.HookAfterStageExecuted(content);
 
             return base.AfterAsync(context, details, hints, cancellationToken);
         }
