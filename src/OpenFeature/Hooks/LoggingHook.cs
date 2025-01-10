@@ -22,9 +22,7 @@ namespace OpenFeature.Hooks
         /// </summary>
         public LoggingHook(ILogger logger, bool includeContext = false)
         {
-            if (logger == null) throw new ArgumentNullException(nameof(logger));
-
-            this._logger = logger;
+            this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this._includeContext = includeContext;
         }
 
@@ -122,32 +120,26 @@ namespace OpenFeature.Hooks
                 var stringBuilder = new StringBuilder();
 
                 stringBuilder.Append("Domain:");
-                stringBuilder.Append(this._domain);
-                stringBuilder.Append(Environment.NewLine);
+                stringBuilder.AppendLine(this._domain);
 
                 stringBuilder.Append("ProviderName:");
-                stringBuilder.Append(this._providerName);
-                stringBuilder.Append(Environment.NewLine);
+                stringBuilder.AppendLine(this._providerName);
 
                 stringBuilder.Append("FlagKey:");
-                stringBuilder.Append(this._flagKey);
-                stringBuilder.Append(Environment.NewLine);
+                stringBuilder.AppendLine(this._flagKey);
 
                 stringBuilder.Append("DefaultValue:");
-                stringBuilder.Append(this._defaultValue);
-                stringBuilder.Append(Environment.NewLine);
+                stringBuilder.AppendLine(this._defaultValue);
 
                 if (this._evaluationContext != null)
                 {
-                    stringBuilder.Append("Context:");
-                    stringBuilder.Append(Environment.NewLine);
+                    stringBuilder.AppendLine("Context:");
                     foreach (var kvp in this._evaluationContext.AsDictionary())
                     {
                         stringBuilder.Append('\t');
                         stringBuilder.Append(kvp.Key);
                         stringBuilder.Append(':');
-                        stringBuilder.Append(GetValueString(kvp.Value));
-                        stringBuilder.Append(Environment.NewLine);
+                        stringBuilder.AppendLine(GetValueString(kvp.Value));
                     }
                 }
 
