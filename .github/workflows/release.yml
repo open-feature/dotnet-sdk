@@ -44,7 +44,7 @@ jobs:
         run: dotnet restore
 
       - name: Pack
-        run: dotnet pack --no-restore
+        run: dotnet pack -c Release --no-restore
 
       - name: Publish to Nuget
         run: dotnet nuget push "src/**/*.nupkg" --api-key "${{ secrets.NUGET_TOKEN }}" --source https://api.nuget.org/v3/index.json
