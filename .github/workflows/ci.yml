@@ -39,10 +39,10 @@ jobs:
         run: dotnet restore
 
       - name: Build
-        run: dotnet build --no-restore
+        run: dotnet build -c Release --no-restore
 
       - name: Test
-        run: dotnet test --no-build --logger GitHubActions
+        run: dotnet test -c Release --no-build --logger GitHubActions
 
   packaging:
     needs: build
@@ -75,11 +75,11 @@ jobs:
 
       - name: Pack NuGet packages (CI versions)
         if: startsWith(github.ref, 'refs/heads/')
-        run: dotnet pack --no-restore --version-suffix "ci.$(date -u +%Y%m%dT%H%M%S)+sha.${GITHUB_SHA:0:9}"
+        run: dotnet pack -c Release --no-restore --version-suffix "ci.$(date -u +%Y%m%dT%H%M%S)+sha.${GITHUB_SHA:0:9}"
 
       - name: Pack NuGet packages (PR versions)
         if: startsWith(github.ref, 'refs/pull/')
-        run: dotnet pack --no-restore --version-suffix "pr.$(date -u +%Y%m%dT%H%M%S)+sha.${GITHUB_SHA:0:9}"
+        run: dotnet pack -c Release --no-restore --version-suffix "pr.$(date -u +%Y%m%dT%H%M%S)+sha.${GITHUB_SHA:0:9}"
 
       - name: Publish NuGet packages (base)
         if: github.event.pull_request.head.repo.fork == false
