@@ -1,5 +1,35 @@
 # Changelog
 
+## [2.3.0](https://github.com/open-feature/dotnet-sdk/compare/v2.2.0...v2.3.0) (2025-01-15)
+
+
+### 🐛 Bug Fixes
+
+* Adding Async Lifetime method to fix flaky unit tests ([#333](https://github.com/open-feature/dotnet-sdk/issues/333)) ([e14ab39](https://github.com/open-feature/dotnet-sdk/commit/e14ab39180d38544132e9fe92244b7b37255d2cf))
+
+
+### ✨ New Features
+
+* add dotnet 9 support, rm dotnet 6 ([#317](https://github.com/open-feature/dotnet-sdk/issues/317)) ([2774b0d](https://github.com/open-feature/dotnet-sdk/commit/2774b0d3c09f2f206834ca3fe2526e3eb3ca8087))
+* Add evaluation details to finally hook stage ([#335](https://github.com/open-feature/dotnet-sdk/issues/335)) ([2ef9955](https://github.com/open-feature/dotnet-sdk/commit/2ef995529d377826d467fa486f18af20bfeeba60))
+* Implement transaction context ([#312](https://github.com/open-feature/dotnet-sdk/issues/312)) ([1b5a0a9](https://github.com/open-feature/dotnet-sdk/commit/1b5a0a9823e4f68e9356536ad5aa8418d8ca815f))
+
+
+### 🧹 Chore
+
+* **deps:** update actions/upload-artifact action to v4.5.0 ([#332](https://github.com/open-feature/dotnet-sdk/issues/332)) ([fd68cb0](https://github.com/open-feature/dotnet-sdk/commit/fd68cb0bed0228607cc2369ef6822dd518c5fbec))
+* **deps:** update codecov/codecov-action action to v5 ([#316](https://github.com/open-feature/dotnet-sdk/issues/316)) ([6c4cd02](https://github.com/open-feature/dotnet-sdk/commit/6c4cd0273f85bc0be0b07753d47bf13a613bbf82))
+* **deps:** update codecov/codecov-action action to v5.1.2 ([#334](https://github.com/open-feature/dotnet-sdk/issues/334)) ([b9ebddf](https://github.com/open-feature/dotnet-sdk/commit/b9ebddfccb094f45a50e8196e43c087b4e97ffa4))
+* **deps:** update dependency coverlet.collector to 6.0.3 ([#336](https://github.com/open-feature/dotnet-sdk/issues/336)) ([8527b03](https://github.com/open-feature/dotnet-sdk/commit/8527b03fb020a9604463da80f305978baa85f172))
+* **deps:** update dependency coverlet.msbuild to 6.0.3 ([#337](https://github.com/open-feature/dotnet-sdk/issues/337)) ([26fd235](https://github.com/open-feature/dotnet-sdk/commit/26fd2356c1835271dee2f7b8b03b2c83e9cb2eea))
+* **deps:** update dependency dotnet-sdk to v9.0.101 ([#339](https://github.com/open-feature/dotnet-sdk/issues/339)) ([dd26ad6](https://github.com/open-feature/dotnet-sdk/commit/dd26ad6d35e134ab40a290e644d5f8bdc8e56c66))
+* **deps:** update dependency microsoft.net.test.sdk to 17.12.0 ([#322](https://github.com/open-feature/dotnet-sdk/issues/322)) ([6f5b049](https://github.com/open-feature/dotnet-sdk/commit/6f5b04997aee44c2023e75471932e9f5ff27b0be))
+
+
+### 📚 Documentation
+
+* disable space in link text lint rule ([#329](https://github.com/open-feature/dotnet-sdk/issues/329)) ([583b2a9](https://github.com/open-feature/dotnet-sdk/commit/583b2a9beab18ba70f8789b903d61a4c685560f0))
+
 ## [2.2.0](https://github.com/open-feature/dotnet-sdk/compare/v2.1.0...v2.2.0) (2024-12-12)
 
 
