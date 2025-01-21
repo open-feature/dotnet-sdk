@@ -385,7 +385,7 @@ services.AddOpenFeature(builder =>
     {
         // Resolve services or configurations as needed
         var configuration = provider.GetRequiredService<IConfiguration>();
-        var variants = new Dictionary<string, bool> { { "on", configuration.GetValue<bool>("FeatureFlags:Key") } };
+        var variants = new Dictionary<string, bool> { { "on", true } };
         var flags = new Dictionary<string, Flag>
         {
             { "feature-key", new Flag<bool>(variants, "on") }
