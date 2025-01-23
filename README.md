@@ -392,19 +392,21 @@ builder.Services.AddOpenFeature(featureBuilder => {
 You can register a custom provider, such as `InMemoryProvider`, with OpenFeature using the `AddProvider` method. This approach allows you to dynamically resolve services or configurations during registration.
 
 ```csharp
-services.AddOpenFeature()
-        .AddProvider(provider =>
+services.AddOpenFeature(builder =>
+{
+    builder.AddProvider(provider =>
+    {
+        // Resolve services or configurations as needed
+        var variants = new Dictionary<string, bool> { { "on", true } };
+        var flags = new Dictionary<string, Flag>
         {
-            // Resolve services or configurations as needed
-            var configuration = provider.GetRequiredService<IConfiguration>();
-            var flags = new Dictionary<string, Flag>
-            {
-                { "feature-key", new Flag<bool>(configuration.GetValue<bool>("FeatureFlags:Key")) }
-            };
+            { "feature-key", new Flag<bool>(variants, "on") }
+        };
 
-            // Register a custom provider, such as InMemoryProvider
-            return new InMemoryProvider(flags);
-        });
+        // Register a custom provider, such as InMemoryProvider
+        return new InMemoryProvider(flags);
+    });
+});     
 ```
 
 #### Adding a Domain-Scoped Provider
@@ -412,18 +414,21 @@ services.AddOpenFeature()
 You can also register a domain-scoped custom provider, enabling configurations specific to each domain:
 
 ```csharp
-services.AddOpenFeature()
-        .AddProvider("my-domain", (provider, domain) =>
+services.AddOpenFeature(builder =>
+{
+    builder.AddProvider("my-domain", (provider, domain) =>
+    {
+        // Resolve services or configurations as needed for the domain
+        var variants = new Dictionary<string, bool> { { "on", true } };
+        var flags = new Dictionary<string, Flag>
         {
-            // Resolve services or configurations as needed for the domain
-            var flags = new Dictionary<string, Flag>
-            {
-                { $"{domain}-feature-key", new Flag<bool>(true) }
-            };
+            { $"{domain}-feature-key", new Flag<bool>(variants, "on") }
+        };
 
-            // Register a domain-scoped custom provider such as InMemoryProvider
-            return new InMemoryProvider(flags);
-        });
+        // Register a domain-scoped custom provider such as InMemoryProvider
+        return new InMemoryProvider(flags);
+    });
+});
 ```
 
 <!-- x-hide-in-docs-start -->
