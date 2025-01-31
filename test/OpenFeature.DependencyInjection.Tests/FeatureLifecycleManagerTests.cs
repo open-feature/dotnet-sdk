@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -44,7 +43,7 @@ public class FeatureLifecycleManagerTests
         await _systemUnderTest.EnsureInitializedAsync().ConfigureAwait(true);
 
         // Assert
-        Api.Instance.GetProvider().Should().BeSameAs(featureProvider);
+        Assert.Equal(featureProvider, Api.Instance.GetProvider());
     }
 
     [Fact]
@@ -58,7 +57,8 @@ public class FeatureLifecycleManagerTests
 
         // Assert
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(act).ConfigureAwait(true);
-        exception.Should().NotBeNull();
-        exception.Message.Should().NotBeNullOrWhiteSpace();
+        Assert.NotNull(exception);
+        Assert.NotNull(exception.Message);
+        Assert.False(string.IsNullOrWhiteSpace(exception.Message));
     }
 }

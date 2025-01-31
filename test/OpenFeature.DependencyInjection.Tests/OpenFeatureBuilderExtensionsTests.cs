@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using OpenFeature.Model;
@@ -28,12 +27,11 @@ public partial class OpenFeatureBuilderExtensionsTests
             _systemUnderTest.AddContext((_, _) => { });
 
         // Assert
-        featureBuilder.Should().BeSameAs(_systemUnderTest, "The method should return the same builder instance.");
-        _systemUnderTest.IsContextConfigured.Should().BeTrue("The context should be configured.");
-        _services.Should().ContainSingle(serviceDescriptor =>
+        Assert.Equal(_systemUnderTest, featureBuilder);
+        Assert.True(_systemUnderTest.IsContextConfigured);
+        Assert.Single(_services, serviceDescriptor =>
             serviceDescriptor.ServiceType == typeof(EvaluationContext) &&
-            serviceDescriptor.Lifetime == ServiceLifetime.Transient,
-            "A transient service of type EvaluationContext should be added.");
+            serviceDescriptor.Lifetime == ServiceLifetime.Transient);
     }
 
     [Theory]
@@ -54,9 +52,9 @@ public partial class OpenFeatureBuilderExtensionsTests
         var context = serviceProvider.GetService<EvaluationContext>();
 
         // Assert
-        _systemUnderTest.IsContextConfigured.Should().BeTrue("The context should be configured.");
-        context.Should().NotBeNull("The EvaluationContext should be resolvable.");
-        delegateCalled.Should().BeTrue("The delegate should be invoked.");
+        Assert.True(_systemUnderTest.IsContextConfigured);
+        Assert.NotNull(context);
+        Assert.True(delegateCalled);
     }
 
 #if NET8_0_OR_GREATER
@@ -80,15 +78,14 @@ public partial class OpenFeatureBuilderExtensionsTests
         };
 
         // Assert
-        _systemUnderTest.IsContextConfigured.Should().BeFalse("The context should not be configured.");
-        _systemUnderTest.HasDefaultProvider.Should().Be(expectsDefaultProvider, "The default provider flag should be set correctly.");
-        _systemUnderTest.IsPolicyConfigured.Should().BeFalse("The policy should not be configured.");
-        _systemUnderTest.DomainBoundProviderRegistrationCount.Should().Be(expectsDomainBoundProvider, "The domain-bound provider count should be correct.");
-        featureBuilder.Should().BeSameAs(_systemUnderTest, "The method should return the same builder instance.");
-        _services.Should().ContainSingle(serviceDescriptor =>
+        Assert.False(_systemUnderTest.IsContextConfigured);
+        Assert.Equal(expectsDefaultProvider, _systemUnderTest.HasDefaultProvider);
+        Assert.False(_systemUnderTest.IsPolicyConfigured);
+        Assert.Equal(expectsDomainBoundProvider, _systemUnderTest.DomainBoundProviderRegistrationCount);
+        Assert.Equal(_systemUnderTest, featureBuilder);
+        Assert.Single(_services, serviceDescriptor =>
             serviceDescriptor.ServiceType == typeof(FeatureProvider) &&
-            serviceDescriptor.Lifetime == ServiceLifetime.Transient,
-            "A singleton service of type FeatureProvider should be added.");
+            serviceDescriptor.Lifetime == ServiceLifetime.Transient);
     }
 
     class TestOptions : OpenFeatureOptions { }
@@ -124,8 +121,8 @@ public partial class OpenFeatureBuilderExtensionsTests
         };
 
         // Assert
-        provider.Should().NotBeNull("The FeatureProvider should be resolvable.");
-        provider.Should().BeOfType<NoOpFeatureProvider>("The resolved provider should be of type DefaultFeatureProvider.");
+        Assert.NotNull(provider);
+        Assert.IsType<NoOpFeatureProvider>(provider);
     }
 
     [Theory]
@@ -172,11 +169,11 @@ public partial class OpenFeatureBuilderExtensionsTests
         };
 
         // Assert
-        _systemUnderTest.IsContextConfigured.Should().BeFalse("The context should not be configured.");
-        _systemUnderTest.HasDefaultProvider.Should().Be(expectsDefaultProvider, "The default provider flag should be set correctly.");
-        _systemUnderTest.IsPolicyConfigured.Should().BeFalse("The policy should not be configured.");
-        _systemUnderTest.DomainBoundProviderRegistrationCount.Should().Be(expectsDomainBoundProvider, "The domain-bound provider count should be correct.");
-        featureBuilder.Should().BeSameAs(_systemUnderTest, "The method should return the same builder instance.");
+        Assert.False(_systemUnderTest.IsContextConfigured);
+        Assert.Equal(expectsDefaultProvider, _systemUnderTest.HasDefaultProvider);
+        Assert.False(_systemUnderTest.IsPolicyConfigured);
+        Assert.Equal(expectsDomainBoundProvider, _systemUnderTest.DomainBoundProviderRegistrationCount);
+        Assert.Equal(_systemUnderTest, featureBuilder);
     }
 
     [Theory]
@@ -240,8 +237,8 @@ public partial class OpenFeatureBuilderExtensionsTests
             serviceProvider.GetRequiredKeyedService<FeatureProvider>(name);
 
         // Assert
-        featureBuilder.IsPolicyConfigured.Should().BeTrue("The policy should be configured.");
-        provider.Should().NotBeNull("The FeatureProvider should be resolvable.");
-        provider.Should().BeOfType<NoOpFeatureProvider>("The resolved provider should be of type DefaultFeatureProvider.");
+        Assert.True(featureBuilder.IsPolicyConfigured);
+        Assert.NotNull(provider);
+        Assert.IsType<NoOpFeatureProvider>(provider);
     }
 }
