@@ -58,7 +58,6 @@ public class FeatureLifecycleManagerTests
         // Assert
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(act).ConfigureAwait(true);
         Assert.NotNull(exception);
-        Assert.NotNull(exception.Message);
         Assert.False(string.IsNullOrWhiteSpace(exception.Message));
     }
 }

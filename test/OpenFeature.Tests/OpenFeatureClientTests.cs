@@ -94,7 +94,7 @@ namespace OpenFeature.Tests
             Assert.Equal(defaultDoubleValue, await client.GetDoubleValueAsync(flagName, defaultDoubleValue, EvaluationContext.Empty, emptyFlagOptions));
 
             Assert.Equal(defaultStringValue, await client.GetStringValueAsync(flagName, defaultStringValue));
-            Assert.Equal(defaultStringValue, await client.GetStringValueAsync(flagName, defaultStringValue, EvaluationContext.Empty, emptyFlagOptions));
+            Assert.Equal(defaultStringValue, await client.GetStringValueAsync(flagName, defaultStringValue, EvaluationContext.Empty));
             Assert.Equal(defaultStringValue, await client.GetStringValueAsync(flagName, defaultStringValue, EvaluationContext.Empty, emptyFlagOptions));
 
             Assert.Equivalent(defaultStructureValue, await client.GetObjectValueAsync(flagName, defaultStructureValue));
