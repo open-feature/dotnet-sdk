@@ -3,11 +3,17 @@
 ## [2.3.0](https://github.com/open-feature/dotnet-sdk/compare/v2.2.0...v2.3.0) (2025-01-31)
 
 
-### ⚠ BREAKING CHANGES
+#### Hook Changes
 
 The signature of the `finally` hook stage has been changed. The signature now includes the `evaluation details`, as per the [OpenFeature specification](https://openfeature.dev/specification/sections/hooks#requirement-438). Note that since hooks are still `experimental,` this does not constitute a change requiring a new major version. To migrate, update any hook that implements the `finally` stage to accept `evaluation details` as the second argument.
 
 * Add evaluation details to finally hook stage ([#335](https://github.com/open-feature/dotnet-sdk/issues/335)) ([2ef9955](https://github.com/open-feature/dotnet-sdk/commit/2ef995529d377826d467fa486f18af20bfeeba60))
+
+#### .NET 6
+
+Removed support for .NET 6.
+
+* add dotnet 9 support, rm dotnet 6 ([#317](https://github.com/open-feature/dotnet-sdk/issues/317)) ([2774b0d](https://github.com/open-feature/dotnet-sdk/commit/2774b0d3c09f2f206834ca3fe2526e3eb3ca8087))
 
 ### 🐛 Bug Fixes
 
