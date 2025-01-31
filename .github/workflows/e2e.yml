@@ -9,6 +9,7 @@ on:
     branches: [ main ]
     paths-ignore:
     - '**.md'
+  merge_group:
 
 jobs:
   e2e-tests:
