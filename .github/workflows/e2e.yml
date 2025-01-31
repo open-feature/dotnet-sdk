@@ -1,14 +1,14 @@
 name: E2E Test
 
 on:
-  push:
-    branches: [ main ]
-    paths-ignore:
-    - '**.md'
   pull_request:
-    branches: [ main ]
-    paths-ignore:
-    - '**.md'
+    types:
+      - opened
+      - synchronize
+      - reopened
+    branches:
+      - main
+  merge_group:
 
 jobs:
   e2e-tests:
