@@ -3,6 +3,12 @@
 ## [2.3.0](https://github.com/open-feature/dotnet-sdk/compare/v2.2.0...v2.3.0) (2025-01-31)
 
 
+### ⚠ BREAKING CHANGES
+
+The signature of the `finally` hook stage has been changed. The signature now includes the `evaluation details`, as per the [OpenFeature specification](https://openfeature.dev/specification/sections/hooks#requirement-438). Note that since hooks are still `experimental,` this does not constitute a change requiring a new major version. To migrate, update any hook that implements the `finally` stage to accept `evaluation details` as the second argument.
+
+* Add evaluation details to finally hook stage ([#335](https://github.com/open-feature/dotnet-sdk/issues/335)) ([2ef9955](https://github.com/open-feature/dotnet-sdk/commit/2ef995529d377826d467fa486f18af20bfeeba60))
+
 ### 🐛 Bug Fixes
 
 * Adding Async Lifetime method to fix flaky unit tests ([#333](https://github.com/open-feature/dotnet-sdk/issues/333)) ([e14ab39](https://github.com/open-feature/dotnet-sdk/commit/e14ab39180d38544132e9fe92244b7b37255d2cf))
