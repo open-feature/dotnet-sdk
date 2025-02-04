@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.3.1](https://github.com/open-feature/dotnet-sdk/compare/v2.3.0...v2.3.1) (2025-02-04)
+
+
+### 🐛 Bug Fixes
+
+* Fix SBOM release pipeline ([#367](https://github.com/open-feature/dotnet-sdk/issues/367)) ([dad6282](https://github.com/open-feature/dotnet-sdk/commit/dad62826404e1d2e679ef35560a1dd858c95ffdc))
+
+
+### 🧹 Chore
+
+* **deps:** pin dependencies ([#365](https://github.com/open-feature/dotnet-sdk/issues/365)) ([3160cd2](https://github.com/open-feature/dotnet-sdk/commit/3160cd2262739ba0a2981a9dc04fc0d278799546))
+* **deps:** update actions/upload-artifact action to v4.6.0 ([#341](https://github.com/open-feature/dotnet-sdk/issues/341)) ([cb7105b](https://github.com/open-feature/dotnet-sdk/commit/cb7105b21c4e0fc1674365f9fd6a4b26e95f45c3))
+* **deps:** update dependency autofixture to 5.0.0-preview0012 ([#351](https://github.com/open-feature/dotnet-sdk/issues/351)) ([9b0b319](https://github.com/open-feature/dotnet-sdk/commit/9b0b3195fa206f11c1acc7336c4e4f6252b8b2ad))
+* **deps:** update dependency coverlet.collector to 6.0.4 ([#347](https://github.com/open-feature/dotnet-sdk/issues/347)) ([e59034d](https://github.com/open-feature/dotnet-sdk/commit/e59034dd56038351f79a7e226adae268d172ccbb))
+* **deps:** update dependency coverlet.msbuild to 6.0.4 ([#348](https://github.com/open-feature/dotnet-sdk/issues/348)) ([5ebe4f6](https://github.com/open-feature/dotnet-sdk/commit/5ebe4f685ec0bf4d7d0acbf3790c908e04c5efd7))
+* **deps:** update dependency xunit to 2.9.3 ([#340](https://github.com/open-feature/dotnet-sdk/issues/340)) ([fb8e5aa](https://github.com/open-feature/dotnet-sdk/commit/fb8e5aa9d3a020de3ea57948130951d0d282f465))
+* **deps:** update dotnet monorepo ([#343](https://github.com/open-feature/dotnet-sdk/issues/343)) ([32dab9b](https://github.com/open-feature/dotnet-sdk/commit/32dab9ba0904a6b27fc53e21402ae95d5594ad01))
+* **deps:** update spec digest to 8d6eeb3 ([#366](https://github.com/open-feature/dotnet-sdk/issues/366)) ([0cb58db](https://github.com/open-feature/dotnet-sdk/commit/0cb58db59573f9f8266fc417083c91e86e499772))
+* update renovate config to extend the shared config ([#364](https://github.com/open-feature/dotnet-sdk/issues/364)) ([e3965db](https://github.com/open-feature/dotnet-sdk/commit/e3965dbc31561c9a09342f8808f1175974e14317))
+
 ## [2.3.0](https://github.com/open-feature/dotnet-sdk/compare/v2.2.0...v2.3.0) (2025-01-31)
 
 
