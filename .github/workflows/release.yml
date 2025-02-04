@@ -61,6 +61,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@3951f0dfe7a07e2313ec93c75700083e2005cbab # v4
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          dotnet-version: |
+            9.0.x
+          source-url: https://nuget.pkg.github.com/open-feature/index.json
+
       - name: Install CycloneDX.NET
         run: dotnet tool install CycloneDX
 
