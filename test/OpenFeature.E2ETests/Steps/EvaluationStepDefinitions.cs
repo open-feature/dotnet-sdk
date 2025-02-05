@@ -4,7 +4,7 @@ using OpenFeature.Constant;
 using OpenFeature.Extension;
 using OpenFeature.Model;
 using OpenFeature.Providers.Memory;
-using TechTalk.SpecFlow;
+using Reqnroll;
 using Xunit;
 
 namespace OpenFeature.E2ETests
