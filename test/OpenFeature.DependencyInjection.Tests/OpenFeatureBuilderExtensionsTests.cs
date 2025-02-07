@@ -28,7 +28,7 @@ public partial class OpenFeatureBuilderExtensionsTests
 
         // Assert
         Assert.Equal(_systemUnderTest, featureBuilder);
-        Assert.True(_systemUnderTest.IsContextConfigured);
+        Assert.True(_systemUnderTest.IsContextConfigured, "The context should be configured.");
         Assert.Single(_services, serviceDescriptor =>
             serviceDescriptor.ServiceType == typeof(EvaluationContext) &&
             serviceDescriptor.Lifetime == ServiceLifetime.Transient);
@@ -52,9 +52,9 @@ public partial class OpenFeatureBuilderExtensionsTests
         var context = serviceProvider.GetService<EvaluationContext>();
 
         // Assert
-        Assert.True(_systemUnderTest.IsContextConfigured);
+        Assert.True(_systemUnderTest.IsContextConfigured, "The context should be configured.");
         Assert.NotNull(context);
-        Assert.True(delegateCalled);
+        Assert.True(delegateCalled, "The delegate should be invoked.");
     }
 
 #if NET8_0_OR_GREATER
@@ -78,9 +78,9 @@ public partial class OpenFeatureBuilderExtensionsTests
         };
 
         // Assert
-        Assert.False(_systemUnderTest.IsContextConfigured);
+        Assert.False(_systemUnderTest.IsContextConfigured, "The context should not be configured.");
         Assert.Equal(expectsDefaultProvider, _systemUnderTest.HasDefaultProvider);
-        Assert.False(_systemUnderTest.IsPolicyConfigured);
+        Assert.False(_systemUnderTest.IsPolicyConfigured, "The policy should not be configured.");
         Assert.Equal(expectsDomainBoundProvider, _systemUnderTest.DomainBoundProviderRegistrationCount);
         Assert.Equal(_systemUnderTest, featureBuilder);
         Assert.Single(_services, serviceDescriptor =>
@@ -169,9 +169,9 @@ public partial class OpenFeatureBuilderExtensionsTests
         };
 
         // Assert
-        Assert.False(_systemUnderTest.IsContextConfigured);
+        Assert.False(_systemUnderTest.IsContextConfigured, "The context should not be configured.");
         Assert.Equal(expectsDefaultProvider, _systemUnderTest.HasDefaultProvider);
-        Assert.False(_systemUnderTest.IsPolicyConfigured);
+        Assert.False(_systemUnderTest.IsPolicyConfigured, "The policy should not be configured.");
         Assert.Equal(expectsDomainBoundProvider, _systemUnderTest.DomainBoundProviderRegistrationCount);
         Assert.Equal(_systemUnderTest, featureBuilder);
     }
@@ -237,7 +237,7 @@ public partial class OpenFeatureBuilderExtensionsTests
             serviceProvider.GetRequiredKeyedService<FeatureProvider>(name);
 
         // Assert
-        Assert.True(featureBuilder.IsPolicyConfigured);
+        Assert.True(featureBuilder.IsPolicyConfigured, "The policy should be configured.");
         Assert.NotNull(provider);
         Assert.IsType<NoOpFeatureProvider>(provider);
     }
