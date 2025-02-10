@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
@@ -37,12 +36,13 @@ namespace OpenFeature.Tests
 
             client.AddHooks(new[] { hook1, hook2 });
 
-            client.GetHooks().Should().ContainInOrder(hook1, hook2);
-            client.GetHooks().Count().Should().Be(2);
+            var expectedHooks = new[] { hook1, hook2 }.AsEnumerable();
+            Assert.Equal(expectedHooks, client.GetHooks());
 
             client.AddHooks(hook3);
-            client.GetHooks().Should().ContainInOrder(hook1, hook2, hook3);
-            client.GetHooks().Count().Should().Be(3);
+
+            expectedHooks = new[] { hook1, hook2, hook3 }.AsEnumerable();
+            Assert.Equal(expectedHooks, client.GetHooks());
 
             client.ClearHooks();
             Assert.Empty(client.GetHooks());
@@ -57,8 +57,8 @@ namespace OpenFeature.Tests
             var clientVersion = fixture.Create<string>();
             var client = Api.Instance.GetClient(domain, clientVersion);
 
-            client.GetMetadata().Name.Should().Be(domain);
-            client.GetMetadata().Version.Should().Be(clientVersion);
+            Assert.Equal(domain, client.GetMetadata().Name);
+            Assert.Equal(clientVersion, client.GetMetadata().Version);
         }
 
         [Fact]
@@ -81,25 +81,25 @@ namespace OpenFeature.Tests
             await Api.Instance.SetProviderAsync(new NoOpFeatureProvider());
             var client = Api.Instance.GetClient(domain, clientVersion);
 
-            (await client.GetBooleanValueAsync(flagName, defaultBoolValue)).Should().Be(defaultBoolValue);
-            (await client.GetBooleanValueAsync(flagName, defaultBoolValue, EvaluationContext.Empty)).Should().Be(defaultBoolValue);
-            (await client.GetBooleanValueAsync(flagName, defaultBoolValue, EvaluationContext.Empty, emptyFlagOptions)).Should().Be(defaultBoolValue);
+            Assert.Equal(defaultBoolValue, await client.GetBooleanValueAsync(flagName, defaultBoolValue));
+            Assert.Equal(defaultBoolValue, await client.GetBooleanValueAsync(flagName, defaultBoolValue, EvaluationContext.Empty));
+            Assert.Equal(defaultBoolValue, await client.GetBooleanValueAsync(flagName, defaultBoolValue, EvaluationContext.Empty, emptyFlagOptions));
 
-            (await client.GetIntegerValueAsync(flagName, defaultIntegerValue)).Should().Be(defaultIntegerValue);
-            (await client.GetIntegerValueAsync(flagName, defaultIntegerValue, EvaluationContext.Empty)).Should().Be(defaultIntegerValue);
-            (await client.GetIntegerValueAsync(flagName, defaultIntegerValue, EvaluationContext.Empty, emptyFlagOptions)).Should().Be(defaultIntegerValue);
+            Assert.Equal(defaultIntegerValue, await client.GetIntegerValueAsync(flagName, defaultIntegerValue));
+            Assert.Equal(defaultIntegerValue, await client.GetIntegerValueAsync(flagName, defaultIntegerValue, EvaluationContext.Empty));
+            Assert.Equal(defaultIntegerValue, await client.GetIntegerValueAsync(flagName, defaultIntegerValue, EvaluationContext.Empty, emptyFlagOptions));
 
-            (await client.GetDoubleValueAsync(flagName, defaultDoubleValue)).Should().Be(defaultDoubleValue);
-            (await client.GetDoubleValueAsync(flagName, defaultDoubleValue, EvaluationContext.Empty)).Should().Be(defaultDoubleValue);
-            (await client.GetDoubleValueAsync(flagName, defaultDoubleValue, EvaluationContext.Empty, emptyFlagOptions)).Should().Be(defaultDoubleValue);
+            Assert.Equal(defaultDoubleValue, await client.GetDoubleValueAsync(flagName, defaultDoubleValue));
+            Assert.Equal(defaultDoubleValue, await client.GetDoubleValueAsync(flagName, defaultDoubleValue, EvaluationContext.Empty));
+            Assert.Equal(defaultDoubleValue, await client.GetDoubleValueAsync(flagName, defaultDoubleValue, EvaluationContext.Empty, emptyFlagOptions));
 
-            (await client.GetStringValueAsync(flagName, defaultStringValue)).Should().Be(defaultStringValue);
-            (await client.GetStringValueAsync(flagName, defaultStringValue, EvaluationContext.Empty)).Should().Be(defaultStringValue);
-            (await client.GetStringValueAsync(flagName, defaultStringValue, EvaluationContext.Empty, emptyFlagOptions)).Should().Be(defaultStringValue);
+            Assert.Equal(defaultStringValue, await client.GetStringValueAsync(flagName, defaultStringValue));
+            Assert.Equal(defaultStringValue, await client.GetStringValueAsync(flagName, defaultStringValue, EvaluationContext.Empty));
+            Assert.Equal(defaultStringValue, await client.GetStringValueAsync(flagName, defaultStringValue, EvaluationContext.Empty, emptyFlagOptions));
 
-            (await client.GetObjectValueAsync(flagName, defaultStructureValue)).Should().BeEquivalentTo(defaultStructureValue);
-            (await client.GetObjectValueAsync(flagName, defaultStructureValue, EvaluationContext.Empty)).Should().BeEquivalentTo(defaultStructureValue);
-            (await client.GetObjectValueAsync(flagName, defaultStructureValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(defaultStructureValue);
+            Assert.Equivalent(defaultStructureValue, await client.GetObjectValueAsync(flagName, defaultStructureValue));
+            Assert.Equivalent(defaultStructureValue, await client.GetObjectValueAsync(flagName, defaultStructureValue, EvaluationContext.Empty));
+            Assert.Equivalent(defaultStructureValue, await client.GetObjectValueAsync(flagName, defaultStructureValue, EvaluationContext.Empty, emptyFlagOptions));
         }
 
         [Fact]
@@ -128,29 +128,29 @@ namespace OpenFeature.Tests
             var client = Api.Instance.GetClient(domain, clientVersion);
 
             var boolFlagEvaluationDetails = new FlagEvaluationDetails<bool>(flagName, defaultBoolValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
-            (await client.GetBooleanDetailsAsync(flagName, defaultBoolValue)).Should().BeEquivalentTo(boolFlagEvaluationDetails);
-            (await client.GetBooleanDetailsAsync(flagName, defaultBoolValue, EvaluationContext.Empty)).Should().BeEquivalentTo(boolFlagEvaluationDetails);
-            (await client.GetBooleanDetailsAsync(flagName, defaultBoolValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(boolFlagEvaluationDetails);
+            Assert.Equivalent(boolFlagEvaluationDetails, await client.GetBooleanDetailsAsync(flagName, defaultBoolValue));
+            Assert.Equivalent(boolFlagEvaluationDetails, await client.GetBooleanDetailsAsync(flagName, defaultBoolValue, EvaluationContext.Empty));
+            Assert.Equivalent(boolFlagEvaluationDetails, await client.GetBooleanDetailsAsync(flagName, defaultBoolValue, EvaluationContext.Empty, emptyFlagOptions));
 
             var integerFlagEvaluationDetails = new FlagEvaluationDetails<int>(flagName, defaultIntegerValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
-            (await client.GetIntegerDetailsAsync(flagName, defaultIntegerValue)).Should().BeEquivalentTo(integerFlagEvaluationDetails);
-            (await client.GetIntegerDetailsAsync(flagName, defaultIntegerValue, EvaluationContext.Empty)).Should().BeEquivalentTo(integerFlagEvaluationDetails);
-            (await client.GetIntegerDetailsAsync(flagName, defaultIntegerValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(integerFlagEvaluationDetails);
+            Assert.Equivalent(integerFlagEvaluationDetails, await client.GetIntegerDetailsAsync(flagName, defaultIntegerValue));
+            Assert.Equivalent(integerFlagEvaluationDetails, await client.GetIntegerDetailsAsync(flagName, defaultIntegerValue, EvaluationContext.Empty));
+            Assert.Equivalent(integerFlagEvaluationDetails, await client.GetIntegerDetailsAsync(flagName, defaultIntegerValue, EvaluationContext.Empty, emptyFlagOptions));
 
             var doubleFlagEvaluationDetails = new FlagEvaluationDetails<double>(flagName, defaultDoubleValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
-            (await client.GetDoubleDetailsAsync(flagName, defaultDoubleValue)).Should().BeEquivalentTo(doubleFlagEvaluationDetails);
-            (await client.GetDoubleDetailsAsync(flagName, defaultDoubleValue, EvaluationContext.Empty)).Should().BeEquivalentTo(doubleFlagEvaluationDetails);
-            (await client.GetDoubleDetailsAsync(flagName, defaultDoubleValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(doubleFlagEvaluationDetails);
+            Assert.Equivalent(doubleFlagEvaluationDetails, await client.GetDoubleDetailsAsync(flagName, defaultDoubleValue));
+            Assert.Equivalent(doubleFlagEvaluationDetails, await client.GetDoubleDetailsAsync(flagName, defaultDoubleValue, EvaluationContext.Empty));
+            Assert.Equivalent(doubleFlagEvaluationDetails, await client.GetDoubleDetailsAsync(flagName, defaultDoubleValue, EvaluationContext.Empty, emptyFlagOptions));
 
             var stringFlagEvaluationDetails = new FlagEvaluationDetails<string>(flagName, defaultStringValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
-            (await client.GetStringDetailsAsync(flagName, defaultStringValue)).Should().BeEquivalentTo(stringFlagEvaluationDetails);
-            (await client.GetStringDetailsAsync(flagName, defaultStringValue, EvaluationContext.Empty)).Should().BeEquivalentTo(stringFlagEvaluationDetails);
-            (await client.GetStringDetailsAsync(flagName, defaultStringValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(stringFlagEvaluationDetails);
+            Assert.Equivalent(stringFlagEvaluationDetails, await client.GetStringDetailsAsync(flagName, defaultStringValue));
+            Assert.Equivalent(stringFlagEvaluationDetails, await client.GetStringDetailsAsync(flagName, defaultStringValue, EvaluationContext.Empty));
+            Assert.Equivalent(stringFlagEvaluationDetails, await client.GetStringDetailsAsync(flagName, defaultStringValue, EvaluationContext.Empty, emptyFlagOptions));
 
             var structureFlagEvaluationDetails = new FlagEvaluationDetails<Value>(flagName, defaultStructureValue, ErrorType.None, NoOpProvider.ReasonNoOp, NoOpProvider.Variant);
-            (await client.GetObjectDetailsAsync(flagName, defaultStructureValue)).Should().BeEquivalentTo(structureFlagEvaluationDetails);
-            (await client.GetObjectDetailsAsync(flagName, defaultStructureValue, EvaluationContext.Empty)).Should().BeEquivalentTo(structureFlagEvaluationDetails);
-            (await client.GetObjectDetailsAsync(flagName, defaultStructureValue, EvaluationContext.Empty, emptyFlagOptions)).Should().BeEquivalentTo(structureFlagEvaluationDetails);
+            Assert.Equivalent(structureFlagEvaluationDetails, await client.GetObjectDetailsAsync(flagName, defaultStructureValue));
+            Assert.Equivalent(structureFlagEvaluationDetails, await client.GetObjectDetailsAsync(flagName, defaultStructureValue, EvaluationContext.Empty));
+            Assert.Equivalent(structureFlagEvaluationDetails, await client.GetObjectDetailsAsync(flagName, defaultStructureValue, EvaluationContext.Empty, emptyFlagOptions));
         }
 
         [Fact]
@@ -179,8 +179,8 @@ namespace OpenFeature.Tests
             var client = Api.Instance.GetClient(domain, clientVersion, mockedLogger);
 
             var evaluationDetails = await client.GetObjectDetailsAsync(flagName, defaultValue);
-            evaluationDetails.ErrorType.Should().Be(ErrorType.TypeMismatch);
-            evaluationDetails.ErrorMessage.Should().Be(new InvalidCastException().Message);
+            Assert.Equal(ErrorType.TypeMismatch, evaluationDetails.ErrorType);
+            Assert.Equal(new InvalidCastException().Message, evaluationDetails.ErrorMessage);
 
             _ = mockedFeatureProvider.Received(1).ResolveStructureValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>());
 
@@ -290,7 +290,7 @@ namespace OpenFeature.Tests
             await Api.Instance.SetProviderAsync(featureProviderMock);
             var client = Api.Instance.GetClient(domain, clientVersion);
 
-            (await client.GetBooleanValueAsync(flagName, defaultValue)).Should().Be(defaultValue);
+            Assert.Equal(defaultValue, await client.GetBooleanValueAsync(flagName, defaultValue));
 
             _ = featureProviderMock.Received(1).ResolveBooleanValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>());
         }
@@ -312,7 +312,7 @@ namespace OpenFeature.Tests
             await Api.Instance.SetProviderAsync(featureProviderMock);
             var client = Api.Instance.GetClient(domain, clientVersion);
 
-            (await client.GetStringValueAsync(flagName, defaultValue)).Should().Be(defaultValue);
+            Assert.Equal(defaultValue, await client.GetStringValueAsync(flagName, defaultValue));
 
             _ = featureProviderMock.Received(1).ResolveStringValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>());
         }
@@ -334,7 +334,7 @@ namespace OpenFeature.Tests
             await Api.Instance.SetProviderAsync(featureProviderMock);
             var client = Api.Instance.GetClient(domain, clientVersion);
 
-            (await client.GetIntegerValueAsync(flagName, defaultValue)).Should().Be(defaultValue);
+            Assert.Equal(defaultValue, await client.GetIntegerValueAsync(flagName, defaultValue));
 
             _ = featureProviderMock.Received(1).ResolveIntegerValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>());
         }
@@ -356,7 +356,7 @@ namespace OpenFeature.Tests
             await Api.Instance.SetProviderAsync(featureProviderMock);
             var client = Api.Instance.GetClient(domain, clientVersion);
 
-            (await client.GetDoubleValueAsync(flagName, defaultValue)).Should().Be(defaultValue);
+            Assert.Equal(defaultValue, await client.GetDoubleValueAsync(flagName, defaultValue));
 
             _ = featureProviderMock.Received(1).ResolveDoubleValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>());
         }
@@ -378,7 +378,7 @@ namespace OpenFeature.Tests
             await Api.Instance.SetProviderAsync(featureProviderMock);
             var client = Api.Instance.GetClient(domain, clientVersion);
 
-            (await client.GetObjectValueAsync(flagName, defaultValue)).Should().Be(defaultValue);
+            Assert.Equal(defaultValue, await client.GetObjectValueAsync(flagName, defaultValue));
 
             _ = featureProviderMock.Received(1).ResolveStructureValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>());
         }
@@ -402,9 +402,9 @@ namespace OpenFeature.Tests
             var client = Api.Instance.GetClient(domain, clientVersion);
             var response = await client.GetObjectDetailsAsync(flagName, defaultValue);
 
-            response.ErrorType.Should().Be(ErrorType.ParseError);
-            response.Reason.Should().Be(Reason.Error);
-            response.ErrorMessage.Should().Be(testMessage);
+            Assert.Equal(ErrorType.ParseError, response.ErrorType);
+            Assert.Equal(Reason.Error, response.Reason);
+            Assert.Equal(testMessage, response.ErrorMessage);
             _ = featureProviderMock.Received(1).ResolveStructureValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>());
         }
 
@@ -427,9 +427,9 @@ namespace OpenFeature.Tests
             var client = Api.Instance.GetClient(domain, clientVersion);
             var response = await client.GetObjectDetailsAsync(flagName, defaultValue);
 
-            response.ErrorType.Should().Be(ErrorType.ParseError);
-            response.Reason.Should().Be(Reason.Error);
-            response.ErrorMessage.Should().Be(testMessage);
+            Assert.Equal(ErrorType.ParseError, response.ErrorType);
+            Assert.Equal(Reason.Error, response.Reason);
+            Assert.Equal(testMessage, response.ErrorMessage);
             _ = featureProviderMock.Received(1).ResolveStructureValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>());
         }
 
@@ -456,9 +456,9 @@ namespace OpenFeature.Tests
             client.AddHooks(testHook);
             var response = await client.GetObjectDetailsAsync(flagName, defaultValue);
 
-            response.ErrorType.Should().Be(ErrorType.ParseError);
-            response.Reason.Should().Be(Reason.Error);
-            response.ErrorMessage.Should().Be(testMessage);
+            Assert.Equal(ErrorType.ParseError, response.ErrorType);
+            Assert.Equal(Reason.Error, response.Reason);
+            Assert.Equal(testMessage, response.ErrorMessage);
             _ = featureProviderMock.Received(1)
                 .ResolveStructureValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>());
 
@@ -501,8 +501,8 @@ namespace OpenFeature.Tests
             cts.Cancel(); // cancel before awaiting
 
             var response = await task;
-            response.Value.Should().Be(defaultString);
-            response.Reason.Should().Be(cancelledReason);
+            Assert.Equal(defaultString, response.Value);
+            Assert.Equal(cancelledReason, response.Reason);
             _ = featureProviderMock.Received(1).ResolveStringValueAsync(flagName, defaultString, Arg.Any<EvaluationContext>(), cts.Token);
         }
 
@@ -538,7 +538,7 @@ namespace OpenFeature.Tests
             var expected = new ResolutionDetails<bool>(flagName, boolValue, errorType, reason, variant, errorMessage, flagMetadata);
             var result = expected.ToFlagEvaluationDetails();
 
-            result.Should().BeEquivalentTo(expected);
+            Assert.Equivalent(expected, result);
         }
 
         [Fact]
