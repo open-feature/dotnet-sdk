@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
-using FluentAssertions;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using OpenFeature.Constant;
@@ -122,11 +121,11 @@ namespace OpenFeature.Tests
             var context = new HookContext<Structure>("test", testStructure, FlagValueType.Object, clientMetadata,
                 providerMetadata, EvaluationContext.Empty);
 
-            context.ClientMetadata.Should().BeSameAs(clientMetadata);
-            context.ProviderMetadata.Should().BeSameAs(providerMetadata);
-            context.FlagKey.Should().Be("test");
-            context.DefaultValue.Should().BeSameAs(testStructure);
-            context.FlagValueType.Should().Be(FlagValueType.Object);
+            Assert.Equal(clientMetadata, context.ClientMetadata);
+            Assert.Equal(providerMetadata, context.ProviderMetadata);
+            Assert.Equal("test", context.FlagKey);
+            Assert.Equal(testStructure, context.DefaultValue);
+            Assert.Equal(FlagValueType.Object, context.FlagValueType);
         }
 
         [Fact]
@@ -264,9 +263,9 @@ namespace OpenFeature.Tests
             await hook.FinallyAsync(hookContext, evaluationDetails, hookHints);
             await hook.ErrorAsync(hookContext, new Exception(), hookHints);
 
-            hookContext.ClientMetadata.Name.Should().BeNull();
-            hookContext.ClientMetadata.Version.Should().BeNull();
-            hookContext.ProviderMetadata.Name.Should().BeNull();
+            Assert.Null(hookContext.ClientMetadata.Name);
+            Assert.Null(hookContext.ClientMetadata.Version);
+            Assert.Null(hookContext.ProviderMetadata.Name);
         }
 
         [Fact]
@@ -329,8 +328,8 @@ namespace OpenFeature.Tests
                 new FlagEvaluationOptions(hook3, ImmutableDictionary<string, object>.Empty));
 
             Assert.Single(Api.Instance.GetHooks());
-            client.GetHooks().Count().Should().Be(1);
-            testProvider.GetProviderHooks().Count.Should().Be(1);
+            Assert.Single(client.GetHooks());
+            Assert.Single(testProvider.GetProviderHooks());
         }
 
         [Fact]
@@ -356,7 +355,7 @@ namespace OpenFeature.Tests
             await Api.Instance.SetProviderAsync(featureProvider);
             var client = Api.Instance.GetClient();
             client.AddHooks(new[] { hook1, hook2 });
-            client.GetHooks().Count().Should().Be(2);
+            Assert.Equal(2, client.GetHooks().Count());
 
             await client.GetBooleanValueAsync("test", false);
 
@@ -522,7 +521,7 @@ namespace OpenFeature.Tests
                 hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null);
             });
 
-            resolvedFlag.Should().BeTrue();
+            Assert.True(resolvedFlag);
             _ = hook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), null);
             _ = hook.Received(1).ErrorAsync(Arg.Any<HookContext<bool>>(), exceptionToThrow, null);
             _ = hook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null);
@@ -563,7 +562,7 @@ namespace OpenFeature.Tests
 
             var resolvedFlag = await client.GetBooleanValueAsync("test", true, config: flagOptions);
 
-            resolvedFlag.Should().BeTrue();
+            Assert.True(resolvedFlag);
 
             Received.InOrder(() =>
             {
