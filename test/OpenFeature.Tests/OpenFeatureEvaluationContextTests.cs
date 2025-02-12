@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using AutoFixture;
-using FluentAssertions;
 using OpenFeature.Model;
 using OpenFeature.Tests.Internal;
 using Xunit;
@@ -91,34 +90,34 @@ namespace OpenFeature.Tests
 
             var context = contextBuilder.Build();
 
-            context.TargetingKey.Should().Be("targeting_key");
+            Assert.Equal("targeting_key", context.TargetingKey);
             var targetingKeyValue = context.GetValue(context.TargetingKey!);
-            targetingKeyValue.IsString.Should().BeTrue();
-            targetingKeyValue.AsString.Should().Be("userId");
+            Assert.True(targetingKeyValue.IsString);
+            Assert.Equal("userId", targetingKeyValue.AsString);
 
             var value1 = context.GetValue("key1");
-            value1.IsString.Should().BeTrue();
-            value1.AsString.Should().Be("value");
+            Assert.True(value1.IsString);
+            Assert.Equal("value", value1.AsString);
 
             var value2 = context.GetValue("key2");
-            value2.IsNumber.Should().BeTrue();
-            value2.AsInteger.Should().Be(1);
+            Assert.True(value2.IsNumber);
+            Assert.Equal(1, value2.AsInteger);
 
             var value3 = context.GetValue("key3");
-            value3.IsBoolean.Should().Be(true);
-            value3.AsBoolean.Should().Be(true);
+            Assert.True(value3.IsBoolean);
+            Assert.True(value3.AsBoolean);
 
             var value4 = context.GetValue("key4");
-            value4.IsDateTime.Should().BeTrue();
-            value4.AsDateTime.Should().Be(now);
+            Assert.True(value4.IsDateTime);
+            Assert.Equal(now, value4.AsDateTime);
 
             var value5 = context.GetValue("key5");
-            value5.IsStructure.Should().BeTrue();
-            value5.AsStructure.Should().Equal(structure);
+            Assert.True(value5.IsStructure);
+            Assert.Equal(structure, value5.AsStructure);
 
             var value6 = context.GetValue("key6");
-            value6.IsNumber.Should().BeTrue();
-            value6.AsDouble.Should().Be(1.0);
+            Assert.True(value6.IsNumber);
+            Assert.Equal(1.0, value6.AsDouble);
         }
 
         [Fact]
@@ -146,11 +145,11 @@ namespace OpenFeature.Tests
             var count = 0;
             foreach (var keyValue in context)
             {
-                context.GetValue(keyValue.Key).AsString.Should().Be(keyValue.Value.AsString);
+                Assert.Equal(keyValue.Value.AsString, context.GetValue(keyValue.Key).AsString);
                 count++;
             }
 
-            context.Count.Should().Be(count);
+            Assert.Equal(count, context.Count);
         }
 
         [Fact]
