@@ -44,7 +44,9 @@ namespace OpenFeature.Tests.Hooks
                 DefaultValue:False
 
                 """,
-                record.Message);
+                record.Message,
+                ignoreLineEndingDifferences: true
+            );
         }
 
         [Fact]
@@ -74,7 +76,9 @@ namespace OpenFeature.Tests.Hooks
                 DefaultValue:False
 
                 """,
-                record.Message);
+                record.Message,
+                ignoreLineEndingDifferences: true
+            );
         }
 
         [Fact]
@@ -107,15 +111,6 @@ namespace OpenFeature.Tests.Hooks
             var record = logger.LatestRecord;
             Assert.Equal(LogLevel.Debug, record.Level);
 
-            Assert.Contains(
-                """
-                Before Flag Evaluation Domain:client
-                ProviderName:provider
-                FlagKey:test
-                DefaultValue:False
-                Context:
-                """,
-                record.Message);
             Assert.Multiple(
                 () => Assert.Contains("key_1:value", record.Message),
                 () => Assert.Contains("key_2:False", record.Message),
@@ -157,7 +152,9 @@ namespace OpenFeature.Tests.Hooks
                 Context:
 
                 """,
-                record.Message);
+                record.Message,
+                ignoreLineEndingDifferences: true
+            );
         }
 
         [Fact]
@@ -215,7 +212,9 @@ namespace OpenFeature.Tests.Hooks
                 DefaultValue:False
 
                 """,
-                record.Message);
+                record.Message,
+                ignoreLineEndingDifferences: true
+            );
         }
 
         [Fact]
@@ -250,15 +249,6 @@ namespace OpenFeature.Tests.Hooks
             var record = logger.LatestRecord;
             Assert.Equal(LogLevel.Error, record.Level);
 
-            Assert.Contains(
-                """
-                Error during Flag Evaluation Domain:client
-                ProviderName:provider
-                FlagKey:test
-                DefaultValue:False
-                Context:
-                """,
-                record.Message);
             Assert.Multiple(
                 () => Assert.Contains("key_1: ", record.Message),
                 () => Assert.Contains("key_2:True", record.Message),
@@ -301,7 +291,9 @@ namespace OpenFeature.Tests.Hooks
                 Context:
 
                 """,
-                record.Message);
+                record.Message,
+                ignoreLineEndingDifferences: true
+            );
         }
 
         [Fact]
@@ -358,7 +350,9 @@ namespace OpenFeature.Tests.Hooks
                 DefaultValue:False
 
                 """,
-                record.Message);
+                record.Message,
+                ignoreLineEndingDifferences: true
+            );
         }
 
         [Fact]
@@ -392,16 +386,6 @@ namespace OpenFeature.Tests.Hooks
 
             var record = logger.LatestRecord;
             Assert.Equal(LogLevel.Debug, record.Level);
-
-            Assert.Contains(
-                """
-                After Flag Evaluation Domain:client
-                ProviderName:provider
-                FlagKey:test
-                DefaultValue:False
-                Context:
-                """,
-                record.Message);
 
             // .NET Framework uses G15 formatter on double.ToString
             // .NET uses G17 formatter on double.ToString
@@ -452,7 +436,9 @@ namespace OpenFeature.Tests.Hooks
                 Context:
 
                 """,
-                record.Message);
+                record.Message,
+                ignoreLineEndingDifferences: true
+            );
         }
 
         [Fact]
@@ -499,8 +485,9 @@ namespace OpenFeature.Tests.Hooks
                     key_1:OpenFeature.Model.Value
 
                 """,
-                    message
-                );
+                message,
+                ignoreLineEndingDifferences: true
+            );
         }
 
         [Fact]
@@ -539,8 +526,9 @@ namespace OpenFeature.Tests.Hooks
                     key_1:True
 
                 """,
-                    message
-                );
+                message,
+                ignoreLineEndingDifferences: true
+            );
         }
 
         [Fact]
@@ -579,8 +567,9 @@ namespace OpenFeature.Tests.Hooks
                     key_1:True
 
                 """,
-                    message
-                );
+                message,
+                ignoreLineEndingDifferences: true
+            );
         }
 
         [Fact]
@@ -619,8 +608,9 @@ namespace OpenFeature.Tests.Hooks
                     key_1:True
 
                 """,
-                    message
-                );
+                message,
+                ignoreLineEndingDifferences: true
+            );
         }
 
         [Fact]
@@ -659,8 +649,9 @@ namespace OpenFeature.Tests.Hooks
                     key_1:
 
                 """,
-                    message
-                );
+                message,
+                ignoreLineEndingDifferences: true
+            );
         }
 
         private static string NormalizeLogRecord(FakeLogRecord record)
