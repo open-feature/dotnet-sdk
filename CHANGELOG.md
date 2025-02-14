@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.3.2](https://github.com/open-feature/dotnet-sdk/compare/v2.3.1...v2.3.2) (2025-02-14)
+
+
+### 🐛 Bug Fixes
+
+* Update project name in solution file ([#380](https://github.com/open-feature/dotnet-sdk/issues/380)) ([1f13258](https://github.com/open-feature/dotnet-sdk/commit/1f13258737fa051289d51cf5a064e03b0dc936c8))
+
+
+### 🧹 Chore
+
+* **deps:** update dependency microsoft.net.test.sdk to 17.13.0 ([#375](https://github.com/open-feature/dotnet-sdk/issues/375)) ([7a735f8](https://github.com/open-feature/dotnet-sdk/commit/7a735f8d8b82b79b205f71716e5cf300a7fff276))
+* **deps:** update dependency reqnroll.xunit to 2.3.0 ([#378](https://github.com/open-feature/dotnet-sdk/issues/378)) ([96ba568](https://github.com/open-feature/dotnet-sdk/commit/96ba5686c2ba31996603f464fe7e5df9efa01a92))
+* **deps:** update dotnet monorepo ([#379](https://github.com/open-feature/dotnet-sdk/issues/379)) ([53ced91](https://github.com/open-feature/dotnet-sdk/commit/53ced9118ffcb8cda5142dc2f80465416922030b))
+* **deps:** update dotnet monorepo to 9.0.2 ([#377](https://github.com/open-feature/dotnet-sdk/issues/377)) ([3bdc79b](https://github.com/open-feature/dotnet-sdk/commit/3bdc79bbaa8d73c4747916d307c431990397cdde))
+* **deps:** update github/codeql-action digest to 9e8d078 ([#371](https://github.com/open-feature/dotnet-sdk/issues/371)) ([e74e8e7](https://github.com/open-feature/dotnet-sdk/commit/e74e8e7a58d90e46bbcd5d7e9433545412e07bbd))
+* **deps:** update spec digest to 54952f3 ([#373](https://github.com/open-feature/dotnet-sdk/issues/373)) ([1e8b230](https://github.com/open-feature/dotnet-sdk/commit/1e8b2307369710ea0b5ae0e8a8f1f1293ea066dc))
+* remove FluentAssertions ([#361](https://github.com/open-feature/dotnet-sdk/issues/361)) ([4ecfd24](https://github.com/open-feature/dotnet-sdk/commit/4ecfd249181cf8fe372810a1fc3369347c6302fc))
+* Replace SpecFlow with Reqnroll for testing framework ([#368](https://github.com/open-feature/dotnet-sdk/issues/368)) ([ed6ee2c](https://github.com/open-feature/dotnet-sdk/commit/ed6ee2c502b16e49c91c6363ae6b3f54401a85cb)), closes [#354](https://github.com/open-feature/dotnet-sdk/issues/354)
+
 ## [2.3.1](https://github.com/open-feature/dotnet-sdk/compare/v2.3.0...v2.3.1) (2025-02-04)
 
 
