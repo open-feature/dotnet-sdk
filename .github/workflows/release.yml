@@ -5,12 +5,18 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   release-please:
+    permissions:
+      contents: write # for googleapis/release-please-action to create release commit
+      pull-requests: write # for googleapis/release-please-action to create release PR
     runs-on: ubuntu-latest
 
     steps:
-      - uses: google-github-actions/release-please-action@db8f2c60ee802b3748b512940dde88eabd7b7e01 # v3
+      - uses: googleapis/release-please-action@db8f2c60ee802b3748b512940dde88eabd7b7e01 # v3
         id: release
         with:
           command: manifest
@@ -52,6 +58,8 @@ jobs:
 
   sbom:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # upload sbom to a release
     needs: release-please
     continue-on-error: true
     if: ${{ needs.release-please.outputs.release_created }}
