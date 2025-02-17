@@ -1,6 +1,5 @@
 using System.Net.Http.Json;
 using System.Text.Json;
-using FluentAssertions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
@@ -54,10 +53,10 @@ public class FeatureFlagIntegrationTest
         var responseContent = await response.Content.ReadFromJsonAsync<FeatureFlagResponse<bool>>().ConfigureAwait(true); ;
 
         // Assert
-        response.IsSuccessStatusCode.Should().BeTrue("Expected HTTP status code 200 OK.");
-        responseContent.Should().NotBeNull("Expected response content to be non-null.");
-        responseContent!.FeatureName.Should().Be(FeatureA, "Expected feature name to be 'feature-a'.");
-        responseContent.FeatureValue.Should().Be(expectedResult, "Expected feature value to match the expected result.");
+        Assert.True(response.IsSuccessStatusCode, "Expected HTTP status code 200 OK.");
+        Assert.NotNull(responseContent);
+        Assert.Equal(FeatureA, responseContent!.FeatureName);
+        Assert.Equal(expectedResult, responseContent.FeatureValue);
     }
 
     private static async Task<TestServer> CreateServerAsync(Action<IServiceCollection>? configureServices = null)

@@ -1,5 +1,4 @@
 using System;
-using FluentAssertions;
 using OpenFeature.Constant;
 using OpenFeature.Error;
 using OpenFeature.Extension;
@@ -18,7 +17,8 @@ namespace OpenFeature.Tests
         public void FeatureProviderException_Should_Resolve_Description(ErrorType errorType, string errorDescription)
         {
             var ex = new FeatureProviderException(errorType);
-            ex.ErrorType.GetDescription().Should().Be(errorDescription);
+
+            Assert.Equal(errorDescription, ex.ErrorType.GetDescription());
         }
 
         [Theory]
@@ -27,9 +27,10 @@ namespace OpenFeature.Tests
         public void FeatureProviderException_Should_Allow_Custom_ErrorCode_Messages(ErrorType errorCode, string message)
         {
             var ex = new FeatureProviderException(errorCode, message, new ArgumentOutOfRangeException("flag"));
-            ex.ErrorType.Should().Be(errorCode);
-            ex.Message.Should().Be(message);
-            ex.InnerException.Should().BeOfType<ArgumentOutOfRangeException>();
+
+            Assert.Equal(errorCode, ex.ErrorType);
+            Assert.Equal(message, ex.Message);
+            Assert.IsType<ArgumentOutOfRangeException>(ex.InnerException);
         }
 
         private enum TestEnum
