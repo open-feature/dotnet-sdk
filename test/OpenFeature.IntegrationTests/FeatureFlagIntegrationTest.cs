@@ -27,7 +27,7 @@ public class FeatureFlagIntegrationTest
     public async Task VerifyFeatureFlagBehaviorAcrossServiceLifetimesAsync(string userId, bool expectedResult, ServiceLifetime serviceLifetime)
     {
         // Arrange
-        using var server = await CreateServerAsync(services =>
+        using var server = await CreateServerAsync(serviceLifetime, services =>
         {
             switch (serviceLifetime)
             {
@@ -59,7 +59,7 @@ public class FeatureFlagIntegrationTest
         Assert.Equal(expectedResult, responseContent.FeatureValue);
     }
 
-    private static async Task<TestServer> CreateServerAsync(Action<IServiceCollection>? configureServices = null)
+    private static async Task<TestServer> CreateServerAsync(ServiceLifetime serviceLifetime, Action<IServiceCollection>? configureServices = null)
     {
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.UseTestServer();
@@ -82,8 +82,17 @@ public class FeatureFlagIntegrationTest
             });
             cfg.AddInMemoryProvider(provider =>
             {
-                var flagService = provider.GetRequiredService<IFeatureFlagConfigurationService>();
-                return flagService.GetFlags();
+                if (serviceLifetime == ServiceLifetime.Scoped)
+                {
+                    using var scoped = provider.CreateScope();
+                    var flagService = scoped.ServiceProvider.GetRequiredService<IFeatureFlagConfigurationService>();
+                    return flagService.GetFlags();
+                }
+                else
+                {
+                    var flagService = provider.GetRequiredService<IFeatureFlagConfigurationService>();
+                    return flagService.GetFlags();
+                }
             });
         });
 
