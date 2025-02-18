@@ -38,8 +38,8 @@ namespace OpenFeature.E2ETests
         {
         }
 
-        [Given(@"a provider is registered")]
-        public void GivenAProviderIsRegistered()
+        [Given("a stable provider")]
+        public void GivenAStableProvider()
         {
             var memProvider = new InMemoryProvider(this.e2eFlagConfig);
             Api.Instance.SetProviderAsync(memProvider).Wait();
