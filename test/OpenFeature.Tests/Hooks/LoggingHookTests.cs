@@ -89,12 +89,13 @@ namespace OpenFeature.Tests.Hooks
 
             var clientMetadata = new ClientMetadata("client", "1.0.0");
             var providerMetadata = new Metadata("provider");
+            var timestamp = DateTime.Parse("2025-01-01T11:00:00.0000000Z");
             var evaluationContext = EvaluationContext.Builder()
                 .Set("key_1", "value")
                 .Set("key_2", false)
                 .Set("key_3", 1.531)
                 .Set("key_4", 42)
-                .Set("key_5", DateTime.Parse("2025-01-01T11:00:00.0000000Z"))
+                .Set("key_5", timestamp)
                 .Build();
 
             var context = new HookContext<bool>("test", false, FlagValueType.Object, clientMetadata,
@@ -116,7 +117,7 @@ namespace OpenFeature.Tests.Hooks
                 () => Assert.Contains("key_2:False", record.Message),
                 () => Assert.Contains("key_3:1.531", record.Message),
                 () => Assert.Contains("key_4:42", record.Message),
-                () => Assert.Contains("key_5:2025-01-01T11:00:00.0000000+00:00", record.Message)
+                () => Assert.Contains($"key_5:{timestamp:O}", record.Message)
             );
         }
 
@@ -225,12 +226,14 @@ namespace OpenFeature.Tests.Hooks
 
             var clientMetadata = new ClientMetadata("client", "1.0.0");
             var providerMetadata = new Metadata("provider");
+
+            var timestamp = DateTime.Parse("2099-01-01T01:00:00.0000000Z");
             var evaluationContext = EvaluationContext.Builder()
                 .Set("key_1", " ")
                 .Set("key_2", true)
                 .Set("key_3", 0.002154)
                 .Set("key_4", -15)
-                .Set("key_5", DateTime.Parse("2099-01-01T01:00:00.0000000Z"))
+                .Set("key_5", timestamp)
                 .Build();
 
             var context = new HookContext<bool>("test", false, FlagValueType.Object, clientMetadata,
@@ -254,7 +257,7 @@ namespace OpenFeature.Tests.Hooks
                 () => Assert.Contains("key_2:True", record.Message),
                 () => Assert.Contains("key_3:0.002154", record.Message),
                 () => Assert.Contains("key_4:-15", record.Message),
-                () => Assert.Contains("key_5:2099-01-01T01:00:00.0000000+00:00", record.Message)
+                () => Assert.Contains($"key_5:{timestamp:O}", record.Message)
             );
         }
 
