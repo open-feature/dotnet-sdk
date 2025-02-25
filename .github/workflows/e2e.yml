@@ -31,7 +31,6 @@ jobs:
       - name: Initialize Tests
         run: |
           git submodule update --init --recursive
-          cp spec/specification/assets/gherkin/*.feature test/OpenFeature.E2ETests/Features/
 
       - name: Run Tests
         run: dotnet test test/OpenFeature.E2ETests/ --configuration Release --logger GitHubActions
