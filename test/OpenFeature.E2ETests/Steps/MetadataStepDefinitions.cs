@@ -15,7 +15,7 @@ public class MetadataStepDefinitions
     private FlagEvaluationDetails<bool> _boolResult = null!;
     private FlagEvaluationDetails<Value> _objResult = null!;
 
-    private static FeatureClient? _client;
+    private FeatureClient? _client;
     private static readonly IDictionary<string, Flag> E2EFlagConfig = new Dictionary<string, Flag>
     {
         {
@@ -35,14 +35,14 @@ public class MetadataStepDefinitions
     {
         var memProvider = new InMemoryProvider(E2EFlagConfig);
         Api.Instance.SetProviderAsync(memProvider).Wait();
-        _client = Api.Instance.GetClient("TestClient", "1.0.0");
+        this._client = Api.Instance.GetClient("TestClient", "1.0.0");
     }
 
     [When("the flag was evaluated with details")]
     [Scope(Scenario = "Returns metadata")]
     public async Task WhenTheFlagWasEvaluatedWithDetails()
     {
-        this._boolResult = await _client!.GetBooleanDetailsAsync("metadata-flag", true).ConfigureAwait(false);
+        this._boolResult = await this._client!.GetBooleanDetailsAsync("metadata-flag", true).ConfigureAwait(false);
     }
 
     [Then("the resolved metadata should contain")]
@@ -95,7 +95,7 @@ public class MetadataStepDefinitions
     public void WhenTheFlagWasEvaluatedWithDetails_NoMetadata(string key, string flag_Type, object default_Value)
     {
         var defaultValue = new Value(default_Value);
-        this._objResult = _client!.GetObjectDetailsAsync(key, defaultValue).Result;
+        this._objResult = this._client!.GetObjectDetailsAsync(key, defaultValue).Result;
     }
 
     [Then("the resolved metadata is empty")]
