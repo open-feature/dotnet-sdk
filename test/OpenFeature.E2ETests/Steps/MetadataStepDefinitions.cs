@@ -101,6 +101,6 @@ public class MetadataStepDefinitions
     [Then("the resolved metadata is empty")]
     public void ThenTheResolvedMetadataIsEmpty()
     {
-        // ScenarioContext.StepIsPending();
+        Assert.Null(this._objResult.FlagMetadata?.Count);
     }
 }
