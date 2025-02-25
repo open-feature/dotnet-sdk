@@ -19,6 +19,7 @@ namespace OpenFeature.Providers.Memory
         private readonly Dictionary<string, T> _variants;
         private readonly string _defaultVariant;
         private readonly Func<EvaluationContext, string>? _contextEvaluator;
+        private readonly ImmutableMetadata? _flagMetadata;
 
         /// <summary>
         /// Flag representation for the in-memory provider.
@@ -26,11 +27,13 @@ namespace OpenFeature.Providers.Memory
         /// <param name="variants">dictionary of variants and their corresponding values</param>
         /// <param name="defaultVariant">default variant (should match 1 key in variants dictionary)</param>
         /// <param name="contextEvaluator">optional context-sensitive evaluation function</param>
-        public Flag(Dictionary<string, T> variants, string defaultVariant, Func<EvaluationContext, string>? contextEvaluator = null)
+        /// <param name="flagMetadata">optional metadata for the flag</param>
+        public Flag(Dictionary<string, T> variants, string defaultVariant, Func<EvaluationContext, string>? contextEvaluator = null, ImmutableMetadata? flagMetadata = null)
         {
             this._variants = variants;
             this._defaultVariant = defaultVariant;
             this._contextEvaluator = contextEvaluator;
+            this._flagMetadata = flagMetadata;
         }
 
         internal ResolutionDetails<T> Evaluate(string flagKey, T _, EvaluationContext? evaluationContext)
@@ -44,7 +47,8 @@ namespace OpenFeature.Providers.Memory
                         flagKey,
                         value,
                         variant: this._defaultVariant,
-                        reason: Reason.Static
+                        reason: Reason.Static,
+                        flagMetadata: this._flagMetadata
                     );
                 }
                 else
@@ -65,7 +69,8 @@ namespace OpenFeature.Providers.Memory
                         flagKey,
                         value,
                         variant: variant,
-                        reason: Reason.TargetingMatch
+                        reason: Reason.TargetingMatch,
+                        flagMetadata: this._flagMetadata
                     );
                 }
             }
