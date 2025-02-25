@@ -39,6 +39,7 @@ public class MetadataStepDefinitions
     }
 
     [When("the flag was evaluated with details")]
+    [Scope(Scenario = "Returns metadata")]
     public async Task WhenTheFlagWasEvaluatedWithDetails()
     {
         this._boolResult = await _client!.GetBooleanDetailsAsync("metadata-flag", true).ConfigureAwait(false);
@@ -51,10 +52,16 @@ public class MetadataStepDefinitions
     }
 
     [Given(@"a ""(.*)"" with key ""(.*)"" and a default value ""(.*)""")]
-    public async Task GivenAFlagWithKeyAndADefaultValue(string key, string flag_Type, object default_Value)
+    public void GivenAFlagWithKeyAndADefaultValue(string key, string flag_Type, object default_Value)
+    {
+        // This is a no-op, as the flag is already defined in the provider
+    }
+
+    [When(@"the flag was evaluated with details")]
+    public void WhenTheFlagWasEvaluatedWithDetails_NoMetadata(string key, string flag_Type, object default_Value)
     {
         var defaultValue = new Value(default_Value);
-        this._objResult = await _client!.GetObjectDetailsAsync(key, defaultValue).ConfigureAwait(false);
+        this._objResult = _client!.GetObjectDetailsAsync(key, defaultValue).Result;
     }
 
     [Then("the resolved metadata is empty")]
