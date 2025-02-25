@@ -16,7 +16,7 @@ public class MetadataStepDefinitions
     private FlagEvaluationDetails<Value> _objResult = null!;
 
     private static FeatureClient? _client;
-    private static IDictionary<string, Flag> E2EFlagConfig = new Dictionary<string, Flag>
+    private static readonly IDictionary<string, Flag> E2EFlagConfig = new Dictionary<string, Flag>
     {
         {
             "metadata-flag", new Flag<bool>(

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using OpenFeature.Providers.Memory;
 using Reqnroll;
 
 namespace OpenFeature.E2ETests.Steps;
@@ -6,10 +8,15 @@ namespace OpenFeature.E2ETests.Steps;
 [Scope(Feature = "Evaluation details through hooks")]
 public class HooksStepDefinitions
 {
+    private static FeatureClient? _client;
+    private static readonly IDictionary<string, Flag> E2EFlagConfig = new Dictionary<string, Flag>();
+
     [Given(@"a stable provider")]
     public void GivenAStableProvider()
     {
-        ScenarioContext.StepIsPending();
+        var memProvider = new InMemoryProvider(E2EFlagConfig);
+        Api.Instance.SetProviderAsync(memProvider).Wait();
+        _client = Api.Instance.GetClient("TestClient", "1.0.0");
     }
 
     [Given(@"a client with added hook")]
