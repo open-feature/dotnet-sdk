@@ -32,12 +32,6 @@ public class MetadataStepDefinitions
         _client = Api.Instance.GetClient("TestClient", "1.0.0");
     }
 
-    [Given("a Boolean-flag with key \"metadata-flag\" and a default value \"true\"")]
-    public void GivenABooleanFlagWithKeyMetadataFlagAndADefaultValueTrue()
-    {
-        // This is a no-op, as the flag is already defined in the provider
-    }
-
     [When("the flag was evaluated with details")]
     [Scope(Scenario = "Returns metadata")]
     public async Task WhenTheFlagWasEvaluatedWithDetails()
@@ -53,6 +47,24 @@ public class MetadataStepDefinitions
 
     [Given(@"a Boolean-flag with key ""(.*)"" and a default value ""(.*)""")]
     public void GivenABoolean_FlagWithKeyAndADefaultValue(string key, string defaultType)
+    {
+        // This is a no-op, as the flag is already defined in the provider
+    }
+
+    [Given(@"a Float-flag with key ""(.*)"" and a default value ""(.*)""")]
+    public void GivenAFloat_FlagWithKeyAndADefaultValue(string key, string defaultType)
+    {
+        // This is a no-op, as the flag is already defined in the provider
+    }
+
+    [Given(@"a Integer-flag with key ""(.*)"" and a default value ""(.*)""")]
+    public void GivenAnInteger_FlagWithKeyAndADefaultValue(string key, string defaultType)
+    {
+        // This is a no-op, as the flag is already defined in the provider
+    }
+
+    [Given(@"a String-flag with key ""(.*)"" and a default value ""(.*)""")]
+    public void GivenAString_FlagWithKeyAndADefaultValue(string key, string defaultType)
     {
         // This is a no-op, as the flag is already defined in the provider
     }
