@@ -10,6 +10,7 @@ using Xunit;
 namespace OpenFeature.E2ETests.Steps
 {
     [Binding]
+    [Scope(Feature = "Flag evaluation")]
     public class EvaluationStepDefinitions
     {
         private static FeatureClient? _client;
