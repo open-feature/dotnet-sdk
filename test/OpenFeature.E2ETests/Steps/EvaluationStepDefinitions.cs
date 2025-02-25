@@ -7,7 +7,7 @@ using OpenFeature.Providers.Memory;
 using Reqnroll;
 using Xunit;
 
-namespace OpenFeature.E2ETests
+namespace OpenFeature.E2ETests.Steps
 {
     [Binding]
     public class EvaluationStepDefinitions
