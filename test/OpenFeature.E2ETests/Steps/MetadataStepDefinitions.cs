@@ -51,8 +51,8 @@ public class MetadataStepDefinitions
         ScenarioContext.StepIsPending();
     }
 
-    [Given(@"a ""(.*)"" with key ""(.*)"" and a default value ""(.*)""")]
-    public void GivenAFlagWithKeyAndADefaultValue(string key, string flag_Type, object default_Value)
+    [Given(@"a Boolean-flag with key ""(.*)"" and a default value ""(.*)""")]
+    public void GivenABoolean_FlagWithKeyAndADefaultValue(string key, string defaultType)
     {
         // This is a no-op, as the flag is already defined in the provider
     }
