@@ -74,7 +74,7 @@ public class MetadataStepDefinitions : BaseStepDefinitions
             this.Key = key;
             this.Value = value;
 
-            this.MetadataType = FlagTypesUtil.ToEnum(metadataType);;
+            this.MetadataType = FlagTypesUtil.ToEnum(metadataType);
         }
 
         public string Key { get; }
