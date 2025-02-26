@@ -70,31 +70,16 @@ public class MetadataStepDefinitions
     [Scope(Scenario = "Returns metadata")]
     public void ThenTheResolvedMetadataShouldContain(DataTable itemsTable)
     {
-        var items = itemsTable.Rows.ToDictionary(row => row["key"], row => (row["value"], row["metadata_type"]));
+        var items = itemsTable.Rows.Select(row => new DataTableRows(row["key"], row["value"], row["metadata_type"])).ToList();
         var metadata = (this._objResult as FlagEvaluationDetails<bool>)?.FlagMetadata;
 
-#if NET8_0_OR_GREATER
-        foreach (var (key, (value, metadataType)) in items)
-        {
-            var actual = metadataType switch
-            {
-                "Boolean" => metadata!.GetBool(key).ToString(),
-                "Integer" => metadata!.GetInt(key).ToString(),
-                "Float" => metadata!.GetDouble(key).ToString(),
-                "String" => metadata!.GetString(key),
-                _ => null
-            };
-
-            Assert.Equal(value.ToLowerInvariant(), actual?.ToLowerInvariant());
-        }
-#else
         foreach (var item in items)
         {
             var key = item.Key;
-            var value = item.Value.value;
-            var metadataType = item.Value.metadata_type;
+            var value = item.Value;
+            var metadataType = item.MetadataType;
 
-            string actual = null;
+            string? actual = null!;
             switch (metadataType)
             {
                 case "Boolean":
@@ -113,7 +98,6 @@ public class MetadataStepDefinitions
 
             Assert.Equal(value.ToLowerInvariant(), actual?.ToLowerInvariant());
         }
-#endif
     }
 
     [Given(@"a Boolean-flag with key ""(.*)"" and a default value ""(.*)""")]
@@ -197,4 +181,6 @@ public class MetadataStepDefinitions
         String,
         Boolean
     }
+
+    private record DataTableRows(string Key, string Value, string MetadataType);
 }
