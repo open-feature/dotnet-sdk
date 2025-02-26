@@ -182,5 +182,17 @@ public class MetadataStepDefinitions
         Boolean
     }
 
-    private record DataTableRows(string Key, string Value, string MetadataType);
+    private class DataTableRows
+    {
+        public DataTableRows(string key, string value, string metadataType)
+        {
+            this.Key = key;
+            this.Value = value;
+            this.MetadataType = metadataType;
+        }
+
+        public string Key { get; }
+        public string Value { get; }
+        public string MetadataType { get; }
+    }
 }
