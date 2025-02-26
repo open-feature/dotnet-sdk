@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
 using NSubstitute;
 using OpenFeature.Constant;
 using OpenFeature.Model;
@@ -21,7 +20,7 @@ namespace OpenFeature.Tests
             var openFeature = Api.Instance;
             var openFeature2 = Api.Instance;
 
-            openFeature.Should().BeSameAs(openFeature2);
+            Assert.Equal(openFeature2, openFeature);
         }
 
         [Fact]
@@ -104,8 +103,8 @@ namespace OpenFeature.Tests
             var defaultClient = openFeature.GetProviderMetadata();
             var domainScopedClient = openFeature.GetProviderMetadata(TestProvider.DefaultName);
 
-            defaultClient?.Name.Should().Be(NoOpProvider.NoOpProviderName);
-            domainScopedClient?.Name.Should().Be(TestProvider.DefaultName);
+            Assert.Equal(NoOpProvider.NoOpProviderName, defaultClient?.Name);
+            Assert.Equal(TestProvider.DefaultName, domainScopedClient?.Name);
         }
 
         [Fact]
@@ -118,7 +117,7 @@ namespace OpenFeature.Tests
 
             var defaultClient = openFeature.GetProviderMetadata();
 
-            defaultClient?.Name.Should().Be(TestProvider.DefaultName);
+            Assert.Equal(TestProvider.DefaultName, defaultClient?.Name);
         }
 
         [Fact]
@@ -131,7 +130,7 @@ namespace OpenFeature.Tests
             await openFeature.SetProviderAsync(name, new TestProvider());
             await openFeature.SetProviderAsync(name, new NoOpFeatureProvider());
 
-            openFeature.GetProviderMetadata(name)?.Name.Should().Be(NoOpProvider.NoOpProviderName);
+            Assert.Equal(NoOpProvider.NoOpProviderName, openFeature.GetProviderMetadata(name)?.Name);
         }
 
         [Fact]
@@ -147,7 +146,7 @@ namespace OpenFeature.Tests
             var clientA = openFeature.GetProvider("a");
             var clientB = openFeature.GetProvider("b");
 
-            clientA.Should().Be(clientB);
+            Assert.Equal(clientB, clientA);
         }
 
         [Fact]
@@ -164,16 +163,16 @@ namespace OpenFeature.Tests
 
             openFeature.AddHooks(hook1);
 
-            openFeature.GetHooks().Should().Contain(hook1);
+            Assert.Contains(hook1, openFeature.GetHooks());
             Assert.Single(openFeature.GetHooks());
 
             openFeature.AddHooks(hook2);
-            openFeature.GetHooks().Should().ContainInOrder(hook1, hook2);
-            openFeature.GetHooks().Count().Should().Be(2);
+            var expectedHooks = new[] { hook1, hook2 }.AsEnumerable();
+            Assert.Equal(expectedHooks, openFeature.GetHooks());
 
             openFeature.AddHooks(new[] { hook3, hook4 });
-            openFeature.GetHooks().Should().ContainInOrder(hook1, hook2, hook3, hook4);
-            openFeature.GetHooks().Count().Should().Be(4);
+            expectedHooks = new[] { hook1, hook2, hook3, hook4 }.AsEnumerable();
+            Assert.Equal(expectedHooks, openFeature.GetHooks());
 
             openFeature.ClearHooks();
             Assert.Empty(openFeature.GetHooks());
@@ -187,8 +186,8 @@ namespace OpenFeature.Tests
             var openFeature = Api.Instance;
             var metadata = openFeature.GetProviderMetadata();
 
-            metadata.Should().NotBeNull();
-            metadata?.Name.Should().Be(NoOpProvider.NoOpProviderName);
+            Assert.NotNull(metadata);
+            Assert.Equal(NoOpProvider.NoOpProviderName, metadata?.Name);
         }
 
         [Theory]
@@ -201,9 +200,9 @@ namespace OpenFeature.Tests
             var openFeature = Api.Instance;
             var client = openFeature.GetClient(name, version);
 
-            client.Should().NotBeNull();
-            client.GetMetadata().Name.Should().Be(name);
-            client.GetMetadata().Version.Should().Be(version);
+            Assert.NotNull(client);
+            Assert.Equal(name, client.GetMetadata().Name);
+            Assert.Equal(version, client.GetMetadata().Version);
         }
 
         [Fact]
@@ -213,19 +212,19 @@ namespace OpenFeature.Tests
 
             Api.Instance.SetContext(context);
 
-            Api.Instance.GetContext().Should().BeSameAs(context);
+            Assert.Equal(context, Api.Instance.GetContext());
 
             context = EvaluationContext.Builder().Build();
 
             Api.Instance.SetContext(context);
 
-            Api.Instance.GetContext().Should().BeSameAs(context);
+            Assert.Equal(context, Api.Instance.GetContext());
         }
 
         [Fact]
         public void Should_Always_Have_Provider()
         {
-            Api.Instance.GetProvider().Should().NotBeNull();
+            Assert.NotNull(Api.Instance.GetProvider());
         }
 
         [Fact]
@@ -239,11 +238,11 @@ namespace OpenFeature.Tests
             var client1 = openFeature.GetClient("client1");
             var client2 = openFeature.GetClient("client2");
 
-            client1.GetMetadata().Name.Should().Be("client1");
-            client2.GetMetadata().Name.Should().Be("client2");
+            Assert.Equal("client1", client1.GetMetadata().Name);
+            Assert.Equal("client2", client2.GetMetadata().Name);
 
-            (await client1.GetBooleanValueAsync("test", false)).Should().BeTrue();
-            (await client2.GetBooleanValueAsync("test", false)).Should().BeFalse();
+            Assert.True(await client1.GetBooleanValueAsync("test", false));
+            Assert.False(await client2.GetBooleanValueAsync("test", false));
         }
 
         [Fact]

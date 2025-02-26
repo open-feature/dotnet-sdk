@@ -1,6 +1,5 @@
 using System.Net.Http.Json;
 using System.Text.Json;
-using FluentAssertions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
@@ -28,7 +27,7 @@ public class FeatureFlagIntegrationTest
     public async Task VerifyFeatureFlagBehaviorAcrossServiceLifetimesAsync(string userId, bool expectedResult, ServiceLifetime serviceLifetime)
     {
         // Arrange
-        using var server = await CreateServerAsync(services =>
+        using var server = await CreateServerAsync(serviceLifetime, services =>
         {
             switch (serviceLifetime)
             {
@@ -54,13 +53,13 @@ public class FeatureFlagIntegrationTest
         var responseContent = await response.Content.ReadFromJsonAsync<FeatureFlagResponse<bool>>().ConfigureAwait(true); ;
 
         // Assert
-        response.IsSuccessStatusCode.Should().BeTrue("Expected HTTP status code 200 OK.");
-        responseContent.Should().NotBeNull("Expected response content to be non-null.");
-        responseContent!.FeatureName.Should().Be(FeatureA, "Expected feature name to be 'feature-a'.");
-        responseContent.FeatureValue.Should().Be(expectedResult, "Expected feature value to match the expected result.");
+        Assert.True(response.IsSuccessStatusCode, "Expected HTTP status code 200 OK.");
+        Assert.NotNull(responseContent);
+        Assert.Equal(FeatureA, responseContent!.FeatureName);
+        Assert.Equal(expectedResult, responseContent.FeatureValue);
     }
 
-    private static async Task<TestServer> CreateServerAsync(Action<IServiceCollection>? configureServices = null)
+    private static async Task<TestServer> CreateServerAsync(ServiceLifetime serviceLifetime, Action<IServiceCollection>? configureServices = null)
     {
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.UseTestServer();
@@ -83,8 +82,17 @@ public class FeatureFlagIntegrationTest
             });
             cfg.AddInMemoryProvider(provider =>
             {
-                var flagService = provider.GetRequiredService<IFeatureFlagConfigurationService>();
-                return flagService.GetFlags();
+                if (serviceLifetime == ServiceLifetime.Scoped)
+                {
+                    using var scoped = provider.CreateScope();
+                    var flagService = scoped.ServiceProvider.GetRequiredService<IFeatureFlagConfigurationService>();
+                    return flagService.GetFlags();
+                }
+                else
+                {
+                    var flagService = provider.GetRequiredService<IFeatureFlagConfigurationService>();
+                    return flagService.GetFlags();
+                }
             });
         });
 

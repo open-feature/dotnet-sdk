@@ -1,25 +1,25 @@
 name: E2E Test
 
 on:
-  push:
-    branches: [ main ]
-    paths-ignore:
-    - '**.md'
   pull_request:
-    branches: [ main ]
-    paths-ignore:
-    - '**.md'
+    types:
+      - opened
+      - synchronize
+      - reopened
+    branches:
+      - main
+  merge_group:
 
 jobs:
   e2e-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           fetch-depth: 0
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@3951f0dfe7a07e2313ec93c75700083e2005cbab # v4
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:

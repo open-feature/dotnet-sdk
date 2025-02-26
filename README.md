@@ -9,8 +9,8 @@
 
 [![Specification](https://img.shields.io/static/v1?label=specification&message=v0.7.0&color=yellow&style=for-the-badge)](https://github.com/open-feature/spec/releases/tag/v0.7.0)
 [
-  ![Release](https://img.shields.io/static/v1?label=release&message=v2.2.0&color=blue&style=for-the-badge) <!-- x-release-please-version -->
-](https://github.com/open-feature/dotnet-sdk/releases/tag/v2.2.0) <!-- x-release-please-version -->
+  ![Release](https://img.shields.io/static/v1?label=release&message=v2.3.1&color=blue&style=for-the-badge) <!-- x-release-please-version -->
+](https://github.com/open-feature/dotnet-sdk/releases/tag/v2.3.1) <!-- x-release-please-version -->
 
 [![Slack](https://img.shields.io/badge/slack-%40cncf%2Fopenfeature-brightgreen?style=flat&logo=slack)](https://cloud-native.slack.com/archives/C0344AANLA1)
 [![Codecov](https://codecov.io/gh/open-feature/dotnet-sdk/branch/main/graph/badge.svg?token=MONAVJBXUJ)](https://codecov.io/gh/open-feature/dotnet-sdk)
@@ -152,6 +152,19 @@ var value = await client.GetBooleanValueAsync("boolFlag", false, context, new Fl
 ### Logging
 
 The .NET SDK uses Microsoft.Extensions.Logging. See the [manual](https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line) for complete documentation.
+
+#### Logging Hook
+
+The .NET SDK includes a LoggingHook, which logs detailed information at key points during flag evaluation, using Microsoft.Extensions.Logging structured logging API. This hook can be particularly helpful for troubleshooting and debugging; simply attach it at the global, client or invocation level and ensure your log level is set to "debug".
+
+```csharp
+using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+var logger = loggerFactory.CreateLogger("Program");
+
+var client = Api.Instance.GetClient();
+client.AddHooks(new LoggingHook(logger));
+```
+See [hooks](#hooks) for more information on configuring hooks.
 
 ### Domains
 
@@ -379,19 +392,21 @@ builder.Services.AddOpenFeature(featureBuilder => {
 You can register a custom provider, such as `InMemoryProvider`, with OpenFeature using the `AddProvider` method. This approach allows you to dynamically resolve services or configurations during registration.
 
 ```csharp
-services.AddOpenFeature()
-        .AddProvider(provider =>
+services.AddOpenFeature(builder =>
+{
+    builder.AddProvider(provider =>
+    {
+        // Resolve services or configurations as needed
+        var variants = new Dictionary<string, bool> { { "on", true } };
+        var flags = new Dictionary<string, Flag>
         {
-            // Resolve services or configurations as needed
-            var configuration = provider.GetRequiredService<IConfiguration>();
-            var flags = new Dictionary<string, Flag>
-            {
-                { "feature-key", new Flag<bool>(configuration.GetValue<bool>("FeatureFlags:Key")) }
-            };
+            { "feature-key", new Flag<bool>(variants, "on") }
+        };
 
-            // Register a custom provider, such as InMemoryProvider
-            return new InMemoryProvider(flags);
-        });
+        // Register a custom provider, such as InMemoryProvider
+        return new InMemoryProvider(flags);
+    });
+});     
 ```
 
 #### Adding a Domain-Scoped Provider
@@ -399,18 +414,21 @@ services.AddOpenFeature()
 You can also register a domain-scoped custom provider, enabling configurations specific to each domain:
 
 ```csharp
-services.AddOpenFeature()
-        .AddProvider("my-domain", (provider, domain) =>
+services.AddOpenFeature(builder =>
+{
+    builder.AddProvider("my-domain", (provider, domain) =>
+    {
+        // Resolve services or configurations as needed for the domain
+        var variants = new Dictionary<string, bool> { { "on", true } };
+        var flags = new Dictionary<string, Flag>
         {
-            // Resolve services or configurations as needed for the domain
-            var flags = new Dictionary<string, Flag>
-            {
-                { $"{domain}-feature-key", new Flag<bool>(true) }
-            };
+            { $"{domain}-feature-key", new Flag<bool>(variants, "on") }
+        };
 
-            // Register a domain-scoped custom provider such as InMemoryProvider
-            return new InMemoryProvider(flags);
-        });
+        // Register a domain-scoped custom provider such as InMemoryProvider
+        return new InMemoryProvider(flags);
+    });
+});
 ```
 
 ### Trace Hook
