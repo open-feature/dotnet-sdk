@@ -241,4 +241,35 @@ public class ImmutableMetadataTest
         // Assert
         Assert.Null(result);
     }
+
+    [Fact]
+    public void Count_ShouldReturnCountOfMetadata()
+    {
+        // Arrange
+        var metadata = new Dictionary<string, object>
+        {
+            {
+                "wrongKey", new object()
+            },
+            {
+                "stringKey", "11"
+            },
+            {
+                "doubleKey", 1.2
+            },
+            {
+                "intKey", 1
+            },
+            {
+                "boolKey", true
+            }
+        };
+        var flagMetadata = new ImmutableMetadata(metadata);
+
+        // Act
+        var result = flagMetadata.Count;
+
+        // Assert
+        Assert.Equal(metadata.Count, result);
+    }
 }
