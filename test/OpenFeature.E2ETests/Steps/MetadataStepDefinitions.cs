@@ -12,8 +12,10 @@ namespace OpenFeature.E2ETests.Steps;
 [Scope(Feature = "Metadata")]
 public class MetadataStepDefinitions
 {
-    private FlagEvaluationDetails<bool> _boolResult = null!;
     private FlagEvaluationDetails<Value> _objResult = null!;
+
+    private string _flagKey = null!;
+    private object _defaultValue = null!;
 
     private FeatureClient? _client;
     private static readonly IDictionary<string, Flag> E2EFlagConfig = new Dictionary<string, Flag>
@@ -27,6 +29,30 @@ public class MetadataStepDefinitions
                     { "string", "1.0.2" }, { "integer", 2 }, { "float", 0.1 }, { "boolean", true }
                 })
             )
+        },
+        {
+            "boolean-flag", new Flag<bool>(
+                variants: new Dictionary<string, bool> { { "on", true }, { "off", false } },
+                defaultVariant: "on"
+            )
+        },
+        {
+            "integer-flag", new Flag<int>(
+                variants: new Dictionary<string, int> { { "23", 23 }, { "42", 42 } },
+                defaultVariant: "23"
+            )
+        },
+        {
+            "float-flag", new Flag<double>(
+                variants: new Dictionary<string, double> { { "2.3", 2.3 }, { "4.2", 4.2 } },
+                defaultVariant: "2.3"
+            )
+        },
+        {
+            "string-flag", new Flag<string>(
+                variants: new Dictionary<string, string> { { "value", "value" }, { "value2", "value2" } },
+                defaultVariant: "value"
+            )
         }
     };
 
@@ -38,19 +64,12 @@ public class MetadataStepDefinitions
         this._client = Api.Instance.GetClient("TestClient", "1.0.0");
     }
 
-    [When("the flag was evaluated with details")]
-    [Scope(Scenario = "Returns metadata")]
-    public async Task WhenTheFlagWasEvaluatedWithDetails()
-    {
-        this._boolResult = await this._client!.GetBooleanDetailsAsync("metadata-flag", true).ConfigureAwait(false);
-    }
-
     [Then("the resolved metadata should contain")]
     [Scope(Scenario = "Returns metadata")]
     public void ThenTheResolvedMetadataShouldContain(DataTable itemsTable)
     {
         var items = itemsTable.Rows.ToDictionary(row => row["key"], row => (row["value"], row["metadata_type"]));
-        var metadata = this._boolResult.FlagMetadata;
+        var metadata = this._objResult.FlagMetadata;
 
 #if NET8_0_OR_GREATER
         foreach (var (key, (value, metadataType)) in items)
@@ -98,32 +117,36 @@ public class MetadataStepDefinitions
     [Given(@"a Boolean-flag with key ""(.*)"" and a default value ""(.*)""")]
     public void GivenABoolean_FlagWithKeyAndADefaultValue(string key, string defaultType)
     {
-        // This is a no-op, as the flag is already defined in the provider
+        this._flagKey = key;
+        this._defaultValue = defaultType;
     }
 
     [Given(@"a Float-flag with key ""(.*)"" and a default value ""(.*)""")]
     public void GivenAFloat_FlagWithKeyAndADefaultValue(string key, string defaultType)
     {
-        // This is a no-op, as the flag is already defined in the provider
+        this._flagKey = key;
+        this._defaultValue = defaultType;
     }
 
     [Given(@"a Integer-flag with key ""(.*)"" and a default value ""(.*)""")]
     public void GivenAnInteger_FlagWithKeyAndADefaultValue(string key, string defaultType)
     {
-        // This is a no-op, as the flag is already defined in the provider
+        this._flagKey = key;
+        this._defaultValue = defaultType;
     }
 
     [Given(@"a String-flag with key ""(.*)"" and a default value ""(.*)""")]
     public void GivenAString_FlagWithKeyAndADefaultValue(string key, string defaultType)
     {
-        // This is a no-op, as the flag is already defined in the provider
+        this._flagKey = key;
+        this._defaultValue = defaultType;
     }
 
     [When(@"the flag was evaluated with details")]
-    public void WhenTheFlagWasEvaluatedWithDetails_NoMetadata(string key, string flag_Type, object default_Value)
+    public async Task WhenTheFlagWasEvaluatedWithDetails_NoMetadata()
     {
-        var defaultValue = new Value(default_Value);
-        this._objResult = this._client!.GetObjectDetailsAsync(key, defaultValue).Result;
+        var defaultValue = new Value(this._defaultValue);
+        this._objResult = await this._client!.GetObjectDetailsAsync(this._flagKey, defaultValue).ConfigureAwait(false);
     }
 
     [Then("the resolved metadata is empty")]
