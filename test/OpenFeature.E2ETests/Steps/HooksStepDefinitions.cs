@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using OpenFeature.Model;
-using OpenFeature.Providers.Memory;
 using Reqnroll;
 using Xunit;
 
@@ -11,46 +10,15 @@ namespace OpenFeature.E2ETests.Steps;
 
 [Binding]
 [Scope(Feature = "Evaluation details through hooks")]
-public class HooksStepDefinitions
+public class HooksStepDefinitions : BaseStepDefinitions
 {
-    private FeatureClient? _client;
     private TestHook? _testHook;
-
-    private static readonly IDictionary<string, Flag> E2EFlagConfig = new Dictionary<string, Flag>
-    {
-        {
-            "boolean-flag", new Flag<bool>(
-                variants: new Dictionary<string, bool> { { "on", true }, { "off", false } },
-                defaultVariant: "on"
-            )
-        }
-    };
-
-    [Given(@"a stable provider")]
-    public void GivenAStableProvider()
-    {
-        var memProvider = new InMemoryProvider(E2EFlagConfig);
-        Api.Instance.SetProviderAsync(memProvider).Wait();
-        this._client = Api.Instance.GetClient("TestClient", "1.0.0");
-    }
 
     [Given(@"a client with added hook")]
     public void GivenAClientWithAddedHook()
     {
         this._testHook = new TestHook();
-        this._client!.AddHooks(this._testHook);
-    }
-
-    [Given(@"a boolean-flag with key ""(.*)"" and a default value ""(.*)""")]
-    public async Task GivenABoolean_FlagWithKeyAndADefaultValue(string key, string defaultValue)
-    {
-        _ = await this._client!.GetBooleanValueAsync(key, bool.Parse(defaultValue)).ConfigureAwait(false);
-    }
-
-    [When(@"the flag was evaluated with details")]
-    public void WhenTheFlagWasEvaluatedWithDetails()
-    {
-        // This is a no-op, the flag evaluation is done in the Then step
+        this.Client!.AddHooks(this._testHook);
     }
 
     [Then(@"the ""(.*)"" hook should have been executed")]
@@ -76,12 +44,6 @@ public class HooksStepDefinitions
                 this.CheckWrongFlag(table);
                 break;
         }
-    }
-
-    [Given(@"a string-flag with key ""(.*)"" and a default value ""(.*)""")]
-    public async Task GivenAString_FlagWithKeyAndADefaultValue(string key, string defaultValue)
-    {
-        _ = await this._client!.GetStringValueAsync(key, defaultValue).ConfigureAwait(false);
     }
 
     private static void CheckCorrectFlag(Table table)
