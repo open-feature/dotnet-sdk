@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,10 +13,11 @@ namespace OpenFeature.E2ETests.Steps;
 [Scope(Feature = "Metadata")]
 public class MetadataStepDefinitions
 {
-    private FlagEvaluationDetails<Value> _objResult = null!;
+    private object _objResult = null!;
 
     private string _flagKey = null!;
-    private object _defaultValue = null!;
+    private string _defaultValue = null!;
+    private FlagType? _flagType;
 
     private FeatureClient? _client;
     private static readonly IDictionary<string, Flag> E2EFlagConfig = new Dictionary<string, Flag>
@@ -69,7 +71,7 @@ public class MetadataStepDefinitions
     public void ThenTheResolvedMetadataShouldContain(DataTable itemsTable)
     {
         var items = itemsTable.Rows.ToDictionary(row => row["key"], row => (row["value"], row["metadata_type"]));
-        var metadata = this._objResult.FlagMetadata;
+        var metadata = (this._objResult as FlagEvaluationDetails<bool>)?.FlagMetadata;
 
 #if NET8_0_OR_GREATER
         foreach (var (key, (value, metadataType)) in items)
@@ -119,6 +121,7 @@ public class MetadataStepDefinitions
     {
         this._flagKey = key;
         this._defaultValue = defaultType;
+        this._flagType = FlagType.Boolean;
     }
 
     [Given(@"a Float-flag with key ""(.*)"" and a default value ""(.*)""")]
@@ -126,6 +129,7 @@ public class MetadataStepDefinitions
     {
         this._flagKey = key;
         this._defaultValue = defaultType;
+        this._flagType = FlagType.Float;
     }
 
     [Given(@"a Integer-flag with key ""(.*)"" and a default value ""(.*)""")]
@@ -133,6 +137,7 @@ public class MetadataStepDefinitions
     {
         this._flagKey = key;
         this._defaultValue = defaultType;
+        this._flagType = FlagType.Integer;
     }
 
     [Given(@"a String-flag with key ""(.*)"" and a default value ""(.*)""")]
@@ -140,18 +145,56 @@ public class MetadataStepDefinitions
     {
         this._flagKey = key;
         this._defaultValue = defaultType;
+        this._flagType = FlagType.String;
     }
 
     [When(@"the flag was evaluated with details")]
-    public async Task WhenTheFlagWasEvaluatedWithDetails_NoMetadata()
+    public async Task WhenTheFlagWasEvaluatedWithDetails()
     {
-        var defaultValue = new Value(this._defaultValue);
-        this._objResult = await this._client!.GetObjectDetailsAsync(this._flagKey, defaultValue).ConfigureAwait(false);
+        switch (this._flagType)
+        {
+            case FlagType.Boolean:
+                this._objResult = await this._client!.GetBooleanDetailsAsync(this._flagKey, bool.Parse(this._defaultValue)).ConfigureAwait(false);
+                break;
+            case FlagType.Float:
+                this._objResult = await this._client!.GetDoubleDetailsAsync(this._flagKey, double.Parse(this._defaultValue)).ConfigureAwait(false);
+                break;
+            case FlagType.Integer:
+                this._objResult = await this._client!.GetIntegerDetailsAsync(this._flagKey, int.Parse(this._defaultValue)).ConfigureAwait(false);
+                break;
+            case FlagType.String:
+                this._objResult = await this._client!.GetStringDetailsAsync(this._flagKey, this._defaultValue).ConfigureAwait(false);
+                break;
+        }
     }
 
     [Then("the resolved metadata is empty")]
     public void ThenTheResolvedMetadataIsEmpty()
     {
-        Assert.Null(this._objResult.FlagMetadata?.Count);
+        switch (this._flagType)
+        {
+            case FlagType.Boolean:
+                Assert.Null((this._objResult as FlagEvaluationDetails<bool>)?.FlagMetadata?.Count);
+                break;
+            case FlagType.Float:
+                Assert.Null((this._objResult as FlagEvaluationDetails<double>)?.FlagMetadata?.Count);
+                break;
+            case FlagType.Integer:
+                Assert.Null((this._objResult as FlagEvaluationDetails<int>)?.FlagMetadata?.Count);
+                break;
+            case FlagType.String:
+                Assert.Null((this._objResult as FlagEvaluationDetails<string>)?.FlagMetadata?.Count);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
+
+    private enum FlagType
+    {
+        Integer,
+        Float,
+        String,
+        Boolean
     }
 }
