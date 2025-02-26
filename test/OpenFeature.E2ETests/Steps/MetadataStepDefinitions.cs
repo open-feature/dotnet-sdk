@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using OpenFeature.E2ETests.Utils;
 using OpenFeature.Model;
 using Reqnroll;
 using Xunit;
@@ -26,16 +27,16 @@ public class MetadataStepDefinitions : BaseStepDefinitions
             string? actual = null!;
             switch (metadataType)
             {
-                case "Boolean":
+                case FlagType.Boolean:
                     actual = metadata!.GetBool(key).ToString();
                     break;
-                case "Integer":
+                case FlagType.Integer:
                     actual = metadata!.GetInt(key).ToString();
                     break;
-                case "Float":
+                case FlagType.Float:
                     actual = metadata!.GetDouble(key).ToString();
                     break;
-                case "String":
+                case FlagType.String:
                     actual = metadata!.GetString(key);
                     break;
             }
@@ -72,11 +73,12 @@ public class MetadataStepDefinitions : BaseStepDefinitions
         {
             this.Key = key;
             this.Value = value;
-            this.MetadataType = metadataType;
+
+            this.MetadataType = FlagTypesUtil.ToEnum(metadataType);;
         }
 
         public string Key { get; }
         public string Value { get; }
-        public string MetadataType { get; }
+        public FlagType MetadataType { get; }
     }
 }

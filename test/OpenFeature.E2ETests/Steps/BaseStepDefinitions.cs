@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using OpenFeature.E2ETests.Utils;
 using OpenFeature.Model;
 using OpenFeature.Providers.Memory;
 using Reqnroll;
@@ -120,12 +121,4 @@ public class BaseStepDefinitions
             )
         }
     };
-
-    internal enum FlagType
-    {
-        Integer,
-        Float,
-        String,
-        Boolean
-    }
 }
