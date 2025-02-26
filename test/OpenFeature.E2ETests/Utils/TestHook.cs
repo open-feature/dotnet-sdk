@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using OpenFeature.Model;
 
 namespace OpenFeature.E2ETests.Utils;
 
+[ExcludeFromCodeCoverage]
 internal class TestHook : Hook
 {
     private int _afterCount;

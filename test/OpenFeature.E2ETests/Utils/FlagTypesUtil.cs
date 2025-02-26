@@ -1,8 +1,10 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace OpenFeature.E2ETests.Utils;
 
-public class FlagTypesUtil
+[ExcludeFromCodeCoverage]
+internal static class FlagTypesUtil
 {
     internal static FlagType ToEnum(string flagType)
     {
