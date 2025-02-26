@@ -15,6 +15,7 @@ public class HooksStepDefinitions
 {
     private FeatureClient? _client;
     private TestHook? _testHook;
+
     private static readonly IDictionary<string, Flag> E2EFlagConfig = new Dictionary<string, Flag>
     {
         {
@@ -53,21 +54,42 @@ public class HooksStepDefinitions
     }
 
     [Then(@"the ""(.*)"" hook should have been executed")]
-    public void ThenTheHookShouldHaveBeenExecuted(string before)
+    public void ThenTheHookShouldHaveBeenExecuted(string hook)
     {
-        Assert.Equal(1, this._testHook!.BeforeCount);
+        this.CheckHookExecution(hook);
     }
 
     [Then(@"the ""(.*)"" hooks should be called with evaluation details")]
     public void ThenTheHooksShouldBeCalledWithEvaluationDetails(string hook, Table table)
     {
+        this.CheckHookExecution(hook);
+        // TODO: Check the evaluation details
         ScenarioContext.StepIsPending();
     }
 
     [Given(@"a string-flag with key ""(.*)"" and a default value ""(.*)""")]
-    public void GivenAString_FlagWithKeyAndADefaultValue(string p0, string p1)
+    public async Task GivenAString_FlagWithKeyAndADefaultValue(string key, string defaultValue)
     {
-        ScenarioContext.StepIsPending();
+        _ = await this._client!.GetStringValueAsync(key, defaultValue).ConfigureAwait(false);
+    }
+
+    private void CheckHookExecution(string hook)
+    {
+        switch (hook)
+        {
+            case "before":
+                Assert.Equal(1, this._testHook!.BeforeCount);
+                break;
+            case "after":
+                Assert.Equal(1, this._testHook!.AfterCount);
+                break;
+            case "error":
+                Assert.Equal(1, this._testHook!.ErrorCount);
+                break;
+            case "finally":
+                Assert.Equal(1, this._testHook!.FinallyCount);
+                break;
+        }
     }
 }
 
@@ -78,28 +100,32 @@ class TestHook : Hook
     private int _errorCount;
     private int _finallyCount;
 
-    public override ValueTask AfterAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details, IReadOnlyDictionary<string, object>? hints = null,
+    public override ValueTask AfterAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
+        IReadOnlyDictionary<string, object>? hints = null,
         CancellationToken cancellationToken = default)
     {
         this._afterCount++;
         return base.AfterAsync(context, details, hints, cancellationToken);
     }
 
-    public override ValueTask ErrorAsync<T>(HookContext<T> context, Exception error, IReadOnlyDictionary<string, object>? hints = null,
+    public override ValueTask ErrorAsync<T>(HookContext<T> context, Exception error,
+        IReadOnlyDictionary<string, object>? hints = null,
         CancellationToken cancellationToken = default)
     {
         this._errorCount++;
         return base.ErrorAsync(context, error, hints, cancellationToken);
     }
 
-    public override ValueTask FinallyAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> evaluationDetails, IReadOnlyDictionary<string, object>? hints = null,
+    public override ValueTask FinallyAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> evaluationDetails,
+        IReadOnlyDictionary<string, object>? hints = null,
         CancellationToken cancellationToken = default)
     {
         this._finallyCount++;
         return base.FinallyAsync(context, evaluationDetails, hints, cancellationToken);
     }
 
-    public override ValueTask<EvaluationContext> BeforeAsync<T>(HookContext<T> context, IReadOnlyDictionary<string, object>? hints = null,
+    public override ValueTask<EvaluationContext> BeforeAsync<T>(HookContext<T> context,
+        IReadOnlyDictionary<string, object>? hints = null,
         CancellationToken cancellationToken = default)
     {
         this._beforeCount++;
