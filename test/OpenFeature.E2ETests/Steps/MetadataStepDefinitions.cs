@@ -52,7 +52,7 @@ public class MetadataStepDefinitions
         var items = itemsTable.Rows.ToDictionary(row => row["key"], row => (row["value"], row["metadata_type"]));
         var metadata = this._boolResult.FlagMetadata;
 
-        #if NET8_0_OR_GREATER
+#if NET8_0_OR_GREATER
         foreach (var (key, (value, metadataType)) in items)
         {
             var actual = metadataType switch
@@ -66,7 +66,7 @@ public class MetadataStepDefinitions
 
             Assert.Equal(value.ToLowerInvariant(), actual?.ToLowerInvariant());
         }
-        #else
+#else
         foreach (var item in items)
         {
             var key = item.Key;
