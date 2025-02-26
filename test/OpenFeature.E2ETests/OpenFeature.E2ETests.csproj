@@ -36,9 +36,4 @@
     <Copy SourceFiles="@(GherkinFiles)" DestinationFolder="Features/"/>
   </Target>
 
-  <ItemGroup>
-    <None Update="xunit.runner.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
 </Project>
