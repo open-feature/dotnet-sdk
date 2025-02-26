@@ -52,6 +52,7 @@ public class MetadataStepDefinitions
         var items = itemsTable.Rows.ToDictionary(row => row["key"], row => (row["value"], row["metadata_type"]));
         var metadata = this._boolResult.FlagMetadata;
 
+        #if NET8_0_OR_GREATER
         foreach (var (key, (value, metadataType)) in items)
         {
             var actual = metadataType switch
@@ -65,6 +66,33 @@ public class MetadataStepDefinitions
 
             Assert.Equal(value.ToLowerInvariant(), actual?.ToLowerInvariant());
         }
+        #else
+        foreach (var item in items)
+        {
+            var key = item.Key;
+            var value = item.Value.value;
+            var metadataType = item.Value.metadata_type;
+
+            string actual = null;
+            switch (metadataType)
+            {
+                case "Boolean":
+                    actual = metadata!.GetBool(key).ToString();
+                    break;
+                case "Integer":
+                    actual = metadata!.GetInt(key).ToString();
+                    break;
+                case "Float":
+                    actual = metadata!.GetDouble(key).ToString();
+                    break;
+                case "String":
+                    actual = metadata!.GetString(key);
+                    break;
+            }
+
+            Assert.Equal(value.ToLowerInvariant(), actual?.ToLowerInvariant());
+        }
+#endif
     }
 
     [Given(@"a Boolean-flag with key ""(.*)"" and a default value ""(.*)""")]
