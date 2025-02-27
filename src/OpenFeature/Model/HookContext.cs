@@ -10,20 +10,22 @@ namespace OpenFeature.Model
     /// <seealso href="https://github.com/open-feature/spec/blob/v0.5.2/specification/sections/04-hooks.md#41-hook-context"/>
     public sealed class HookContext<T>
     {
+        private readonly SharedHookContext<T> _shared;
+
         /// <summary>
         /// Feature flag being evaluated
         /// </summary>
-        public string FlagKey { get; }
+        public string FlagKey => this._shared.FlagKey;
 
         /// <summary>
         /// Default value if flag fails to be evaluated
         /// </summary>
-        public T DefaultValue { get; }
+        public T DefaultValue => this._shared.DefaultValue;
 
         /// <summary>
         /// The value type of the flag
         /// </summary>
-        public FlagValueType FlagValueType { get; }
+        public FlagValueType FlagValueType => this._shared.FlagValueType;
 
         /// <summary>
         /// User defined evaluation context used in the evaluation process
@@ -34,12 +36,17 @@ namespace OpenFeature.Model
         /// <summary>
         /// Client metadata
         /// </summary>
-        public ClientMetadata ClientMetadata { get; }
+        public ClientMetadata ClientMetadata => this._shared.ClientMetadata;
 
         /// <summary>
         /// Provider metadata
         /// </summary>
-        public Metadata ProviderMetadata { get; }
+        public Metadata ProviderMetadata => this._shared.ProviderMetadata;
+
+        /// <summary>
+        /// Hook data
+        /// </summary>
+        public HookData Data { get; }
 
         /// <summary>
         /// Initialize a new instance of <see cref="HookContext{T}"/>
@@ -58,23 +65,27 @@ namespace OpenFeature.Model
             Metadata? providerMetadata,
             EvaluationContext? evaluationContext)
         {
-            this.FlagKey = flagKey ?? throw new ArgumentNullException(nameof(flagKey));
-            this.DefaultValue = defaultValue;
-            this.FlagValueType = flagValueType;
-            this.ClientMetadata = clientMetadata ?? throw new ArgumentNullException(nameof(clientMetadata));
-            this.ProviderMetadata = providerMetadata ?? throw new ArgumentNullException(nameof(providerMetadata));
+            this._shared = new SharedHookContext<T>(
+                flagKey, defaultValue, flagValueType, clientMetadata, providerMetadata);
+
             this.EvaluationContext = evaluationContext ?? throw new ArgumentNullException(nameof(evaluationContext));
+            this.Data = new HookData();
+        }
+
+        internal HookContext(SharedHookContext<T>? sharedHookContext, EvaluationContext? evaluationContext,
+            HookData? hookData)
+        {
+            this._shared = sharedHookContext ?? throw new ArgumentNullException(nameof(sharedHookContext));
+            this.EvaluationContext = evaluationContext ?? throw new ArgumentNullException(nameof(evaluationContext));
+            this.Data = hookData ?? throw new ArgumentNullException(nameof(hookData));
         }
 
         internal HookContext<T> WithNewEvaluationContext(EvaluationContext context)
         {
             return new HookContext<T>(
-                this.FlagKey,
-                this.DefaultValue,
-                this.FlagValueType,
-                this.ClientMetadata,
-                this.ProviderMetadata,
-                context
+                this._shared,
+                context,
+                this.Data
             );
         }
     }
