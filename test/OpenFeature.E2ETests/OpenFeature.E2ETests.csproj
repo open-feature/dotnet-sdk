@@ -29,4 +29,11 @@
     <ProjectReference Include="..\..\src\OpenFeature\OpenFeature.csproj" />
   </ItemGroup>
 
+  <Target Name="GherkinRestore" BeforeTargets="CoreBuild">
+    <ItemGroup>
+      <GherkinFiles Include="..\..\spec\specification\assets\gherkin\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(GherkinFiles)" DestinationFolder="Features/"/>
+  </Target>
+
 </Project>
