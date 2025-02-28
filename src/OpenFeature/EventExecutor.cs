@@ -208,10 +208,9 @@ namespace OpenFeature
             }
         }
 
-        private async Task ProcessFeatureProviderEventsAsync(object? providerRef)
+        private async Task ProcessFeatureProviderEventsAsync(FeatureProvider provider)
         {
-            var typedProviderRef = (FeatureProvider?)providerRef;
-            if (typedProviderRef?.GetEventChannel() is not { Reader: { } reader })
+            if (provider.GetEventChannel() is not { Reader: { } reader })
             {
                 return;
             }
@@ -224,8 +223,8 @@ namespace OpenFeature
                 switch (item)
                 {
                     case ProviderEventPayload eventPayload:
-                        UpdateProviderStatus(typedProviderRef, eventPayload);
-                        await this.EventChannel.Writer.WriteAsync(new Event { Provider = typedProviderRef, EventPayload = eventPayload }).ConfigureAwait(false);
+                        UpdateProviderStatus(provider, eventPayload);
+                        await this.EventChannel.Writer.WriteAsync(new Event { Provider = provider, EventPayload = eventPayload }).ConfigureAwait(false);
                         break;
                 }
             }
