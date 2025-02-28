@@ -10,8 +10,6 @@ using OpenFeature.Model;
 
 namespace OpenFeature
 {
-    internal delegate Task ShutdownDelegate(CancellationToken cancellationToken);
-
     internal sealed partial class EventExecutor : IAsyncDisposable
     {
         private readonly object _lockObj = new object();
@@ -28,8 +26,7 @@ namespace OpenFeature
         public EventExecutor()
         {
             this._logger = NullLogger<EventExecutor>.Instance;
-            var eventProcessing = new Thread(this.ProcessEventAsync);
-            eventProcessing.Start();
+            Task.Run(this.ProcessEventAsync);
         }
 
         public ValueTask DisposeAsync() => new(this.ShutdownAsync());
@@ -234,7 +231,7 @@ namespace OpenFeature
                 switch (item)
                 {
                     case ProviderEventPayload eventPayload:
-                        this.UpdateProviderStatus(typedProviderRef, eventPayload);
+                        UpdateProviderStatus(typedProviderRef, eventPayload);
                         await this.EventChannel.Writer.WriteAsync(new Event { Provider = typedProviderRef, EventPayload = eventPayload }).ConfigureAwait(false);
                         break;
                 }
@@ -242,12 +239,14 @@ namespace OpenFeature
         }
 
         // Method to process events
-        private async void ProcessEventAsync()
+        private async Task ProcessEventAsync()
         {
             while (await this.EventChannel.Reader.WaitToReadAsync().ConfigureAwait(false))
             {
                 if (!this.EventChannel.Reader.TryRead(out var item))
+                {
                     continue;
+                }
 
                 switch (item)
                 {
@@ -309,7 +308,7 @@ namespace OpenFeature
         }
 
         // map events to provider status as per spec: https://openfeature.dev/specification/sections/events/#requirement-535
-        private void UpdateProviderStatus(FeatureProvider provider, ProviderEventPayload eventPayload)
+        private static void UpdateProviderStatus(FeatureProvider provider, ProviderEventPayload eventPayload)
         {
             switch (eventPayload.Type)
             {
