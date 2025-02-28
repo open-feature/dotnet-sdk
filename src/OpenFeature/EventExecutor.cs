@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -143,8 +142,7 @@ namespace OpenFeature
             if (!this.IsProviderActive(newProvider))
             {
                 this._activeSubscriptions.Add(newProvider);
-                var featureProviderEventProcessing = new Thread(this.ProcessFeatureProviderEventsAsync);
-                featureProviderEventProcessing.Start(newProvider);
+                Task.Run(() => this.ProcessFeatureProviderEventsAsync(newProvider));
             }
 
             if (oldProvider != null && !this.IsProviderBound(oldProvider))
@@ -211,7 +209,7 @@ namespace OpenFeature
             }
         }
 
-        private async void ProcessFeatureProviderEventsAsync(object? providerRef)
+        private async Task ProcessFeatureProviderEventsAsync(object? providerRef)
         {
             var typedProviderRef = (FeatureProvider?)providerRef;
             if (typedProviderRef?.GetEventChannel() is not { Reader: { } reader })
