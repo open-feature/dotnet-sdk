@@ -33,7 +33,7 @@ namespace OpenFeature
         /// <summary>
         /// The event channel of the provider.
         /// </summary>
-        protected readonly Channel<object> EventChannel = Channel.CreateBounded<object>(1);
+        protected readonly Channel<object>? EventChannel = Channel.CreateBounded<object>(1);
 
         /// <summary>
         /// Metadata describing the provider.
@@ -140,7 +140,7 @@ namespace OpenFeature
         /// Returns the event channel of the provider.
         /// </summary>
         /// <returns>The event channel of the provider</returns>
-        public virtual Channel<object> GetEventChannel() => this.EventChannel;
+        public virtual Channel<object>? GetEventChannel() => this.EventChannel;
 
         /// <summary>
         /// Track a user action or application state, usually representing a business objective or outcome. The implementation of this method is optional.

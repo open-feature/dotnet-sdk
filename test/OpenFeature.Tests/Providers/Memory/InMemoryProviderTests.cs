@@ -227,7 +227,7 @@ namespace OpenFeature.Tests.Providers.Memory
                 )
             }});
 
-            var res = await provider.GetEventChannel().Reader.ReadAsync() as ProviderEventPayload;
+            var res = await provider.GetEventChannel()!.Reader.ReadAsync() as ProviderEventPayload;
             Assert.Equal(ProviderEventTypes.ProviderConfigurationChanged, res?.Type);
 
             await Assert.ThrowsAsync<FlagNotFoundException>(() => provider.ResolveBooleanValueAsync("old-flag", false, EvaluationContext.Empty));
