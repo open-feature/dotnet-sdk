@@ -188,11 +188,11 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     }
 
     [When(@"a flag with key ""(.*)"" is evaluated with default value ""(.*)""")]
-    public void Givenaflagwithkeyisevaluatedwithdefaultvalue(string flagKey, string defaultValue)
+    public async Task Givenaflagwithkeyisevaluatedwithdefaultvalue(string flagKey, string defaultValue)
     {
         this._contextAwareFlagKey = flagKey;
         this._contextAwareDefaultValue = defaultValue;
-        this._contextAwareValue = this.Client?.GetStringValueAsync(flagKey, this._contextAwareDefaultValue, this._context).Result;
+        this._contextAwareValue = await this.Client!.GetStringValueAsync(flagKey, this._contextAwareDefaultValue, this._context).ConfigureAwait(false);
     }
 
     [Then(@"the resolved string response should be ""(.*)""")]
@@ -202,18 +202,18 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     }
 
     [Then(@"the resolved flag value is ""(.*)"" when the context is empty")]
-    public void Giventheresolvedflagvalueiswhenthecontextisempty(string expected)
+    public async Task Giventheresolvedflagvalueiswhenthecontextisempty(string expected)
     {
-        string? emptyContextValue = this.Client?.GetStringValueAsync(this._contextAwareFlagKey!, this._contextAwareDefaultValue!, EvaluationContext.Empty).Result;
+        string? emptyContextValue = await this.Client!.GetStringValueAsync(this._contextAwareFlagKey!, this._contextAwareDefaultValue!, EvaluationContext.Empty).ConfigureAwait(false);
         Assert.Equal(expected, emptyContextValue);
     }
 
     [When(@"a non-existent string flag with key ""(.*)"" is evaluated with details and a default value ""(.*)""")]
-    public void Whenanonexistentstringflagwithkeyisevaluatedwithdetailsandadefaultvalue(string flagKey, string defaultValue)
+    public async Task Whenanonexistentstringflagwithkeyisevaluatedwithdetailsandadefaultvalue(string flagKey, string defaultValue)
     {
         this._notFoundFlagKey = flagKey;
         this._notFoundDefaultValue = defaultValue;
-        this._notFoundDetails = this.Client?.GetStringDetailsAsync(this._notFoundFlagKey, this._notFoundDefaultValue).Result;
+        this._notFoundDetails = await this.Client!.GetStringDetailsAsync(this._notFoundFlagKey, this._notFoundDefaultValue).ConfigureAwait(false);
     }
 
     [Then(@"the default string value should be returned")]
@@ -230,11 +230,11 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     }
 
     [When(@"a string flag with key ""(.*)"" is evaluated as an integer, with details and a default value (.*)")]
-    public void Whenastringflagwithkeyisevaluatedasanintegerwithdetailsandadefaultvalue(string flagKey, int defaultValue)
+    public async Task Whenastringflagwithkeyisevaluatedasanintegerwithdetailsandadefaultvalue(string flagKey, int defaultValue)
     {
         this._typeErrorFlagKey = flagKey;
         this._typeErrorDefaultValue = defaultValue;
-        this._typeErrorDetails = this.Client?.GetIntegerDetailsAsync(this._typeErrorFlagKey, this._typeErrorDefaultValue).Result;
+        this._typeErrorDetails = await this.Client!.GetIntegerDetailsAsync(this._typeErrorFlagKey, this._typeErrorDefaultValue).ConfigureAwait(false);
     }
 
     [Then(@"the default integer value should be returned")]
