@@ -11,14 +11,14 @@ namespace OpenFeature
 {
     internal sealed partial class EventExecutor : IAsyncDisposable
     {
-        private readonly object _lockObj = new object();
+        private readonly object _lockObj = new();
         public readonly Channel<object> EventChannel = Channel.CreateBounded<object>(1);
         private FeatureProvider? _defaultProvider;
-        private readonly Dictionary<string, FeatureProvider> _namedProviderReferences = new Dictionary<string, FeatureProvider>();
-        private readonly List<FeatureProvider> _activeSubscriptions = new List<FeatureProvider>();
+        private readonly Dictionary<string, FeatureProvider> _namedProviderReferences = [];
+        private readonly List<FeatureProvider> _activeSubscriptions = [];
 
-        private readonly Dictionary<ProviderEventTypes, List<EventHandlerDelegate>> _apiHandlers = new Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>();
-        private readonly Dictionary<string, Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>> _clientHandlers = new Dictionary<string, Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>>();
+        private readonly Dictionary<ProviderEventTypes, List<EventHandlerDelegate>> _apiHandlers = [];
+        private readonly Dictionary<string, Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>> _clientHandlers = [];
 
         private ILogger _logger;
 
@@ -38,7 +38,7 @@ namespace OpenFeature
             {
                 if (!this._apiHandlers.TryGetValue(eventType, out var eventHandlers))
                 {
-                    eventHandlers = new List<EventHandlerDelegate>();
+                    eventHandlers = [];
                     this._apiHandlers[eventType] = eventHandlers;
                 }
 
@@ -66,13 +66,13 @@ namespace OpenFeature
                 // check if there is already a list of handlers for the given client and event type
                 if (!this._clientHandlers.TryGetValue(client, out var registry))
                 {
-                    registry = new Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>();
+                    registry = [];
                     this._clientHandlers[client] = registry;
                 }
 
                 if (!this._clientHandlers[client].TryGetValue(eventType, out var eventHandlers))
                 {
-                    eventHandlers = new List<EventHandlerDelegate>();
+                    eventHandlers = [];
                     this._clientHandlers[client][eventType] = eventHandlers;
                 }
 
@@ -123,16 +123,15 @@ namespace OpenFeature
             }
             lock (this._lockObj)
             {
-                var newProvider = provider;
                 FeatureProvider? oldProvider = null;
                 if (this._namedProviderReferences.TryGetValue(client, out var foundOldProvider))
                 {
                     oldProvider = foundOldProvider;
                 }
 
-                this._namedProviderReferences[client] = newProvider;
+                this._namedProviderReferences[client] = provider;
 
-                this.StartListeningAndShutdownOld(newProvider, oldProvider);
+                this.StartListeningAndShutdownOld(provider, oldProvider);
             }
         }
 
@@ -271,17 +270,14 @@ namespace OpenFeature
         {
             foreach (var keyAndValue in this._namedProviderReferences)
             {
-                if (keyAndValue.Value == e.Provider && keyAndValue.Key != null)
+                if (keyAndValue.Value == e.Provider
+                    && this._clientHandlers.TryGetValue(keyAndValue.Key, out var clientRegistry)
+                    && e.EventPayload?.Type != null
+                    && clientRegistry.TryGetValue(e.EventPayload.Type, out var clientEventHandlers))
                 {
-                    if (this._clientHandlers.TryGetValue(keyAndValue.Key, out var clientRegistry))
+                    foreach (var eventHandler in clientEventHandlers)
                     {
-                        if (e.EventPayload?.Type != null && clientRegistry.TryGetValue(e.EventPayload.Type, out var clientEventHandlers))
-                        {
-                            foreach (var eventHandler in clientEventHandlers)
-                            {
-                                this.InvokeEventHandler(eventHandler, e);
-                            }
-                        }
+                        this.InvokeEventHandler(eventHandler, e);
                     }
                 }
             }
