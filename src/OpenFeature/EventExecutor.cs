@@ -183,35 +183,31 @@ namespace OpenFeature
             }
             var status = provider.Status;
 
-            var message = "";
-            if (status == ProviderStatus.Ready && eventType == ProviderEventTypes.ProviderReady)
+            var message = status switch
             {
-                message = "Provider is ready";
-            }
-            else if (status == ProviderStatus.Error && eventType == ProviderEventTypes.ProviderError)
+                ProviderStatus.Ready when eventType == ProviderEventTypes.ProviderReady => "Provider is ready",
+                ProviderStatus.Error when eventType == ProviderEventTypes.ProviderError => "Provider is in error state",
+                ProviderStatus.Stale when eventType == ProviderEventTypes.ProviderStale => "Provider is in stale state",
+                _ => string.Empty
+            };
+
+            if (string.IsNullOrWhiteSpace(message))
             {
-                message = "Provider is in error state";
-            }
-            else if (status == ProviderStatus.Stale && eventType == ProviderEventTypes.ProviderStale)
-            {
-                message = "Provider is in stale state";
+                return;
             }
 
-            if (message != "")
+            try
             {
-                try
+                handler.Invoke(new ProviderEventPayload
                 {
-                    handler.Invoke(new ProviderEventPayload
-                    {
-                        ProviderName = provider.GetMetadata()?.Name,
-                        Type = eventType,
-                        Message = message
-                    });
-                }
-                catch (Exception exc)
-                {
-                    this.ErrorRunningHandler(exc);
-                }
+                    ProviderName = provider.GetMetadata()?.Name,
+                    Type = eventType,
+                    Message = message
+                });
+            }
+            catch (Exception exc)
+            {
+                this.ErrorRunningHandler(exc);
             }
         }
 
