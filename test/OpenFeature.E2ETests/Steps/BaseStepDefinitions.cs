@@ -103,21 +103,60 @@ public class BaseStepDefinitions
             )
         },
         {
+            "string-flag", new Flag<string>(
+                variants: new Dictionary<string, string>() { { "greeting", "hi" }, { "parting", "bye" } },
+                defaultVariant: "greeting"
+            )
+        },
+        {
             "integer-flag", new Flag<int>(
-                variants: new Dictionary<string, int> { { "23", 23 }, { "42", 42 } },
-                defaultVariant: "23"
+                variants: new Dictionary<string, int>() { { "one", 1 }, { "ten", 10 } },
+                defaultVariant: "ten"
             )
         },
         {
             "float-flag", new Flag<double>(
-                variants: new Dictionary<string, double> { { "2.3", 2.3 }, { "4.2", 4.2 } },
-                defaultVariant: "2.3"
+                variants: new Dictionary<string, double>() { { "tenth", 0.1 }, { "half", 0.5 } },
+                defaultVariant: "half"
             )
         },
         {
-            "string-flag", new Flag<string>(
-                variants: new Dictionary<string, string> { { "value", "value" }, { "value2", "value2" } },
-                defaultVariant: "value"
+            "object-flag", new Flag<Value>(
+                variants: new Dictionary<string, Value>()
+                {
+                    { "empty", new Value() },
+                    {
+                        "template", new Value(Structure.Builder()
+                            .Set("showImages", true)
+                            .Set("title", "Check out these pics!")
+                            .Set("imagesPerPage", 100).Build()
+                        )
+                    }
+                },
+                defaultVariant: "template"
+            )
+        },
+        {
+            "context-aware", new Flag<string>(
+                variants: new Dictionary<string, string>() { { "internal", "INTERNAL" }, { "external", "EXTERNAL" } },
+                defaultVariant: "external",
+                (context) =>
+                {
+                    if (context.GetValue("fn").AsString == "Sulisław"
+                        && context.GetValue("ln").AsString == "Świętopełk"
+                        && context.GetValue("age").AsInteger == 29
+                        && context.GetValue("customer").AsBoolean == false)
+                    {
+                        return "internal";
+                    }
+                    else return "external";
+                }
+            )
+        },
+        {
+            "wrong-flag", new Flag<string>(
+                variants: new Dictionary<string, string>() { { "one", "uno" }, { "two", "dos" } },
+                defaultVariant: "one"
             )
         }
     };
