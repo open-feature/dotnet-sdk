@@ -7,7 +7,9 @@
   "files.exclude": {
     // excludes compilation result
     "**/obj/": true,
-    "**/bin/": true
+    "**/bin/": true,
+    "BenchmarkDotNet.Artifacts/": true,
+    ".idea/": true
   },
   "cucumber.glue": [
     // sets the location of the step definition classes
