@@ -1,0 +1,20 @@
+{
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    // shows *.feature.cs files as nested items
+    "*.feature": "${capture}.feature.cs"
+  },
+  "files.exclude": {
+    // excludes compilation result
+    "**/obj/": true,
+    "**/bin/": true
+  },
+  "cucumber.glue": [
+    // sets the location of the step definition classes
+    "test/OpenFeature.E2ETests/Steps/*.cs"
+  ],
+  "cucumber.features": [
+    // sets the location of the feature files
+    "test/OpenFeature.E2ETests/Features/*.feature"
+  ]
+}
