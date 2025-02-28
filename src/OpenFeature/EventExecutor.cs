@@ -244,64 +244,75 @@ namespace OpenFeature
                     continue;
                 }
 
-                switch (item)
+                if (item is not Event e)
                 {
-                    case Event e:
-                        lock (this._lockObj)
-                        {
-                            if (e.EventPayload?.Type != null && this._apiHandlers.TryGetValue(e.EventPayload.Type, out var eventHandlers))
-                            {
-                                foreach (var eventHandler in eventHandlers)
-                                {
-                                    this.InvokeEventHandler(eventHandler, e);
-                                }
-                            }
-
-                            // look for client handlers and call invoke method there
-                            foreach (var keyAndValue in this._namedProviderReferences)
-                            {
-                                if (keyAndValue.Value == e.Provider && keyAndValue.Key != null)
-                                {
-                                    if (this._clientHandlers.TryGetValue(keyAndValue.Key, out var clientRegistry))
-                                    {
-                                        if (e.EventPayload?.Type != null && clientRegistry.TryGetValue(e.EventPayload.Type, out var clientEventHandlers))
-                                        {
-                                            foreach (var eventHandler in clientEventHandlers)
-                                            {
-                                                this.InvokeEventHandler(eventHandler, e);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (e.Provider != this._defaultProvider)
-                            {
-                                break;
-                            }
-                            // handling the default provider - invoke event handlers for clients which are not bound
-                            // to a particular feature provider
-                            foreach (var keyAndValues in this._clientHandlers)
-                            {
-                                if (this._namedProviderReferences.TryGetValue(keyAndValues.Key, out _))
-                                {
-                                    // if there is an association for the client to a specific feature provider, then continue
-                                    continue;
-                                }
-                                if (e.EventPayload?.Type != null && keyAndValues.Value.TryGetValue(e.EventPayload.Type, out var clientEventHandlers))
-                                {
-                                    foreach (var eventHandler in clientEventHandlers)
-                                    {
-                                        this.InvokeEventHandler(eventHandler, e);
-                                    }
-                                }
-                            }
-                        }
-                        break;
+                    continue;
                 }
 
+                lock (this._lockObj)
+                {
+                    this.ProcessApiHandlers(e);
+                    this.ProcessClientHandlers(e);
+                    this.ProcessDefaultProviderHandlers(e);
+                }
             }
         }
+
+        private void ProcessApiHandlers(Event e)
+        {
+            if (e.EventPayload?.Type != null && this._apiHandlers.TryGetValue(e.EventPayload.Type, out var eventHandlers))
+            {
+                foreach (var eventHandler in eventHandlers)
+                {
+                    this.InvokeEventHandler(eventHandler, e);
+                }
+            }
+        }
+
+        private void ProcessClientHandlers(Event e)
+        {
+            foreach (var keyAndValue in this._namedProviderReferences)
+            {
+                if (keyAndValue.Value == e.Provider && keyAndValue.Key != null)
+                {
+                    if (this._clientHandlers.TryGetValue(keyAndValue.Key, out var clientRegistry))
+                    {
+                        if (e.EventPayload?.Type != null && clientRegistry.TryGetValue(e.EventPayload.Type, out var clientEventHandlers))
+                        {
+                            foreach (var eventHandler in clientEventHandlers)
+                            {
+                                this.InvokeEventHandler(eventHandler, e);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void ProcessDefaultProviderHandlers(Event e)
+        {
+            if (e.Provider != this._defaultProvider)
+            {
+                return;
+            }
+
+            foreach (var keyAndValues in this._clientHandlers)
+            {
+                if (this._namedProviderReferences.ContainsKey(keyAndValues.Key))
+                {
+                    continue;
+                }
+
+                if (e.EventPayload?.Type != null && keyAndValues.Value.TryGetValue(e.EventPayload.Type, out var clientEventHandlers))
+                {
+                    foreach (var eventHandler in clientEventHandlers)
+                    {
+                        this.InvokeEventHandler(eventHandler, e);
+                    }
+                }
+            }
+        }
+
 
         // map events to provider status as per spec: https://openfeature.dev/specification/sections/events/#requirement-535
         private static void UpdateProviderStatus(FeatureProvider provider, ProviderEventPayload eventPayload)
