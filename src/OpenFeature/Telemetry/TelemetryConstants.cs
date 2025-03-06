@@ -4,7 +4,7 @@ namespace OpenFeature.Telemetry;
 /// The attributes of an OpenTelemetry compliant event for flag evaluation.
 /// <see href="https://opentelemetry.io/docs/specs/semconv/feature-flags/feature-flags-logs/"/>
 /// </summary>
-public static class TelemetryAttributes
+public static class TelemetryConstants
 {
     /// <summary>
     /// The lookup key of the feature flag.
