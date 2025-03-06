@@ -4,18 +4,19 @@ using OpenFeature.Model;
 
 namespace OpenFeature.Telemetry;
 
-public class EvaluationEvent
-{
-    public string Name { get; set; }
-    public Dictionary<string, object?> Attributes { get; set; }
-    public Dictionary<string, object> Body { get; set; }
-}
-
+/// <summary>
+/// Factory class for creating evaluation events for feature flags.
+/// </summary>
 public static class EvaluationEventFactory
 {
-
     private const string EventName = "feature_flag.evaluation";
 
+    /// <summary>
+    /// Creates an evaluation event based on the provided hook context and flag evaluation details.
+    /// </summary>
+    /// <param name="hookContext">The context of the hook containing flag key and provider metadata.</param>
+    /// <param name="details">The details of the flag evaluation including reason, variant, and metadata.</param>
+    /// <returns>An instance of <see cref="EvaluationEvent"/> containing the event name, attributes, and body.</returns>
     public static EvaluationEvent CreateEvaluationEvent(HookContext<Value> hookContext, FlagEvaluationDetails<Value> details)
     {
         var attributes = new Dictionary<string, object?>
@@ -24,7 +25,7 @@ public static class EvaluationEventFactory
             { TelemetryConstants.Provider, hookContext.ProviderMetadata.Name }
         };
 
-        attributes[TelemetryConstants.Reason] = !string.IsNullOrWhiteSpace(details.Reason) ? details.Reason?.ToLowerInvariant() : "unknown";
+        attributes[TelemetryConstants.Reason] = !string.IsNullOrWhiteSpace(details.Reason) ? details.Reason?.ToLowerInvariant() : Reason.Unknown;
 
         var body = new Dictionary<string, object>();
 
@@ -47,11 +48,6 @@ public static class EvaluationEventFactory
             }
         }
 
-        return new EvaluationEvent
-        {
-            Name = EventName,
-            Attributes = attributes,
-            Body = body
-        };
+        return new EvaluationEvent(EventName, attributes, body);
     }
 }
