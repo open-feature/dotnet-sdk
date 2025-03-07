@@ -10,8 +10,6 @@ namespace OpenFeature.E2ETests.Steps;
 [Binding]
 public class BaseStepDefinitions
 {
-    internal object Result = null!;
-
     protected readonly State State;
 
     public BaseStepDefinitions(State state)
@@ -67,19 +65,19 @@ public class BaseStepDefinitions
         switch (flag.Type)
         {
             case FlagType.Boolean:
-                this.Result = await this.State.Client!
+                this.State.FlagEvaluationDetailsResult = await this.State.Client!
                     .GetBooleanDetailsAsync(flag.Key, bool.Parse(flag.DefaultValue)).ConfigureAwait(false);
                 break;
             case FlagType.Float:
-                this.Result = await this.State.Client!
+                this.State.FlagEvaluationDetailsResult = await this.State.Client!
                     .GetDoubleDetailsAsync(flag.Key, double.Parse(flag.DefaultValue)).ConfigureAwait(false);
                 break;
             case FlagType.Integer:
-                this.Result = await this.State.Client!
+                this.State.FlagEvaluationDetailsResult = await this.State.Client!
                     .GetIntegerDetailsAsync(flag.Key, int.Parse(flag.DefaultValue)).ConfigureAwait(false);
                 break;
             case FlagType.String:
-                this.Result = await this.State.Client!.GetStringDetailsAsync(flag.Key, flag.DefaultValue)
+                this.State.FlagEvaluationDetailsResult = await this.State.Client!.GetStringDetailsAsync(flag.Key, flag.DefaultValue)
                     .ConfigureAwait(false);
                 break;
         }

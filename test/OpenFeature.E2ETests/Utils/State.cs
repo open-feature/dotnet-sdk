@@ -4,4 +4,5 @@ public class State
 {
     public FeatureClient? Client;
     public FlagState? Flag;
+    public object? FlagEvaluationDetailsResult;
 }
