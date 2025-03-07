@@ -29,11 +29,7 @@ public static class EvaluationEventBuilder
 
         var body = new Dictionary<string, object>();
 
-        if (!string.IsNullOrWhiteSpace(details.Variant))
-        {
-            attributes[TelemetryConstants.Variant] = details.Variant ?? details.Value.ToString();
-        }
-
+        attributes[TelemetryConstants.Variant] = details.Variant;
         attributes[TelemetryFlagMetadata.ContextId] = details.FlagMetadata?.GetString(TelemetryFlagMetadata.ContextId);
         attributes[TelemetryFlagMetadata.FlagSetId] = details.FlagMetadata?.GetString(TelemetryFlagMetadata.FlagSetId);
         attributes[TelemetryFlagMetadata.Version] = details.FlagMetadata?.GetString(TelemetryFlagMetadata.Version);
