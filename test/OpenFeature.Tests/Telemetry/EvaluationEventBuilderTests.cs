@@ -105,5 +105,27 @@ namespace OpenFeature.Tests.Telemetry
             Assert.Null(evaluationEvent.Attributes[TelemetryFlagMetadata.FlagSetId]);
             Assert.Null(evaluationEvent.Attributes[TelemetryFlagMetadata.Version]);
         }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void Build_ShouldHandleMissingReason(string? reason)
+        {
+            // Arrange
+            var clientMetadata = new ClientMetadata("client", "1.0.0");
+            var providerMetadata = new Metadata("provider");
+            var hookContext = new HookContext<Value>("flagKey", new Value("value"), FlagValueType.Object, clientMetadata,
+                providerMetadata, EvaluationContext.Empty);
+            var flagMetadata = new ImmutableMetadata();
+            var details = new FlagEvaluationDetails<Value>("flagKey", new Value("value"), ErrorType.None,
+                reason: reason, variant: "", flagMetadata: flagMetadata);
+
+            // Act
+            var evaluationEvent = EvaluationEventBuilder.Build(hookContext, details);
+
+            // Assert
+            Assert.Equal(Reason.Unknown, evaluationEvent.Attributes[TelemetryConstants.Reason]);
+        }
     }
 }

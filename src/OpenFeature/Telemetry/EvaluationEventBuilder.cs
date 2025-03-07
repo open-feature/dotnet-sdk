@@ -25,10 +25,10 @@ public static class EvaluationEventBuilder
             { TelemetryConstants.Provider, hookContext.ProviderMetadata.Name }
         };
 
-        attributes[TelemetryConstants.Reason] = !string.IsNullOrWhiteSpace(details.Reason) ? details.Reason?.ToLowerInvariant() : Reason.Unknown;
 
         var body = new Dictionary<string, object>();
 
+        attributes[TelemetryConstants.Reason] = !string.IsNullOrWhiteSpace(details.Reason) ? details.Reason?.ToLowerInvariant() : Reason.Unknown;
         attributes[TelemetryConstants.Variant] = details.Variant;
         attributes[TelemetryFlagMetadata.ContextId] = details.FlagMetadata?.GetString(TelemetryFlagMetadata.ContextId);
         attributes[TelemetryFlagMetadata.FlagSetId] = details.FlagMetadata?.GetString(TelemetryFlagMetadata.FlagSetId);
