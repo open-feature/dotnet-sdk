@@ -19,7 +19,7 @@ internal static class FlagTypesUtil
     }
 }
 
-internal enum FlagType
+public enum FlagType
 {
     Integer,
     Float,

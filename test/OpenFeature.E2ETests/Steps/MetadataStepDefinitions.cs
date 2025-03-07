@@ -52,7 +52,8 @@ public class MetadataStepDefinitions : BaseStepDefinitions
     [Then("the resolved metadata is empty")]
     public void ThenTheResolvedMetadataIsEmpty()
     {
-        switch (this.FlagTypeEnum)
+        var flag = this.State.Flag!;
+        switch (flag.Type)
         {
             case FlagType.Boolean:
                 Assert.Null((this.Result as FlagEvaluationDetails<bool>)?.FlagMetadata?.Count);

@@ -10,9 +10,6 @@ namespace OpenFeature.E2ETests.Steps;
 [Binding]
 public class BaseStepDefinitions
 {
-    private string _flagKey = null!;
-    private string _defaultValue = null!;
-    internal FlagType? FlagTypeEnum;
     internal object Result = null!;
 
     protected readonly State State;
@@ -34,57 +31,55 @@ public class BaseStepDefinitions
     [Given(@"a boolean-flag with key ""(.*)"" and a default value ""(.*)""")]
     public void GivenABoolean_FlagWithKeyAndADefaultValue(string key, string defaultType)
     {
-        this._flagKey = key;
-        this._defaultValue = defaultType;
-        this.FlagTypeEnum = FlagType.Boolean;
+        var flagState = new FlagState(key, defaultType, FlagType.Boolean);
+        this.State.Flag = flagState;
     }
 
     [Given(@"a Float-flag with key ""(.*)"" and a default value ""(.*)""")]
     [Given(@"a float-flag with key ""(.*)"" and a default value ""(.*)""")]
     public void GivenAFloat_FlagWithKeyAndADefaultValue(string key, string defaultType)
     {
-        this._flagKey = key;
-        this._defaultValue = defaultType;
-        this.FlagTypeEnum = FlagType.Float;
+        var flagState = new FlagState(key, defaultType, FlagType.Float);
+        this.State.Flag = flagState;
     }
 
     [Given(@"a Integer-flag with key ""(.*)"" and a default value ""(.*)""")]
     [Given(@"a integer-flag with key ""(.*)"" and a default value ""(.*)""")]
     public void GivenAnInteger_FlagWithKeyAndADefaultValue(string key, string defaultType)
     {
-        this._flagKey = key;
-        this._defaultValue = defaultType;
-        this.FlagTypeEnum = FlagType.Integer;
+        var flagState = new FlagState(key, defaultType, FlagType.Integer);
+        this.State.Flag = flagState;
     }
 
     [Given(@"a String-flag with key ""(.*)"" and a default value ""(.*)""")]
     [Given(@"a string-flag with key ""(.*)"" and a default value ""(.*)""")]
     public void GivenAString_FlagWithKeyAndADefaultValue(string key, string defaultType)
     {
-        this._flagKey = key;
-        this._defaultValue = defaultType;
-        this.FlagTypeEnum = FlagType.String;
+        var flagState = new FlagState(key, defaultType, FlagType.String);
+        this.State.Flag = flagState;
     }
 
     [When(@"the flag was evaluated with details")]
     public async Task WhenTheFlagWasEvaluatedWithDetails()
     {
-        switch (this.FlagTypeEnum)
+        var flag = this.State.Flag!;
+
+        switch (flag.Type)
         {
             case FlagType.Boolean:
                 this.Result = await this.State.Client!
-                    .GetBooleanDetailsAsync(this._flagKey, bool.Parse(this._defaultValue)).ConfigureAwait(false);
+                    .GetBooleanDetailsAsync(flag.Key, bool.Parse(flag.DefaultValue)).ConfigureAwait(false);
                 break;
             case FlagType.Float:
                 this.Result = await this.State.Client!
-                    .GetDoubleDetailsAsync(this._flagKey, double.Parse(this._defaultValue)).ConfigureAwait(false);
+                    .GetDoubleDetailsAsync(flag.Key, double.Parse(flag.DefaultValue)).ConfigureAwait(false);
                 break;
             case FlagType.Integer:
                 this.Result = await this.State.Client!
-                    .GetIntegerDetailsAsync(this._flagKey, int.Parse(this._defaultValue)).ConfigureAwait(false);
+                    .GetIntegerDetailsAsync(flag.Key, int.Parse(flag.DefaultValue)).ConfigureAwait(false);
                 break;
             case FlagType.String:
-                this.Result = await this.State.Client!.GetStringDetailsAsync(this._flagKey, this._defaultValue)
+                this.Result = await this.State.Client!.GetStringDetailsAsync(flag.Key, flag.DefaultValue)
                     .ConfigureAwait(false);
                 break;
         }
