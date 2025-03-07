@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using OpenFeature.Constant;
+using OpenFeature.E2ETests.Utils;
 using OpenFeature.Extension;
 using OpenFeature.Model;
 using Reqnroll;
@@ -11,6 +12,10 @@ namespace OpenFeature.E2ETests.Steps;
 [Scope(Feature = "Flag evaluation")]
 public class EvaluationStepDefinitions : BaseStepDefinitions
 {
+    public EvaluationStepDefinitions(State state) : base(state)
+    {
+    }
+
     private bool? _booleanFlagValue;
     private string? _stringFlagValue;
     private int? _intFlagValue;
@@ -35,7 +40,7 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     [When(@"a boolean flag with key ""(.*)"" is evaluated with default value ""(.*)""")]
     public async Task Whenabooleanflagwithkeyisevaluatedwithdefaultvalue(string flagKey, bool defaultValue)
     {
-        this._booleanFlagValue = await this.Client!.GetBooleanValueAsync(flagKey, defaultValue).ConfigureAwait(false);
+        this._booleanFlagValue = await this.State.Client!.GetBooleanValueAsync(flagKey, defaultValue).ConfigureAwait(false);
     }
 
     [Then(@"the resolved boolean value should be ""(.*)""")]
@@ -47,7 +52,7 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     [When(@"a string flag with key ""(.*)"" is evaluated with default value ""(.*)""")]
     public async Task Whenastringflagwithkeyisevaluatedwithdefaultvalue(string flagKey, string defaultValue)
     {
-        this._stringFlagValue = await this.Client!.GetStringValueAsync(flagKey, defaultValue).ConfigureAwait(false);
+        this._stringFlagValue = await this.State.Client!.GetStringValueAsync(flagKey, defaultValue).ConfigureAwait(false);
     }
 
     [Then(@"the resolved string value should be ""(.*)""")]
@@ -59,7 +64,7 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     [When(@"an integer flag with key ""(.*)"" is evaluated with default value (.*)")]
     public async Task Whenanintegerflagwithkeyisevaluatedwithdefaultvalue(string flagKey, int defaultValue)
     {
-        this._intFlagValue = await this.Client!.GetIntegerValueAsync(flagKey, defaultValue).ConfigureAwait(false);
+        this._intFlagValue = await this.State.Client!.GetIntegerValueAsync(flagKey, defaultValue).ConfigureAwait(false);
     }
 
     [Then(@"the resolved integer value should be (.*)")]
@@ -71,7 +76,7 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     [When(@"a float flag with key ""(.*)"" is evaluated with default value (.*)")]
     public async Task Whenafloatflagwithkeyisevaluatedwithdefaultvalue(string flagKey, double defaultValue)
     {
-        this._doubleFlagValue = await this.Client!.GetDoubleValueAsync(flagKey, defaultValue).ConfigureAwait(false);
+        this._doubleFlagValue = await this.State.Client!.GetDoubleValueAsync(flagKey, defaultValue).ConfigureAwait(false);
     }
 
     [Then(@"the resolved float value should be (.*)")]
@@ -83,7 +88,7 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     [When(@"an object flag with key ""(.*)"" is evaluated with a null default value")]
     public async Task Whenanobjectflagwithkeyisevaluatedwithanulldefaultvalue(string flagKey)
     {
-        this._objectFlagValue = await this.Client!.GetObjectValueAsync(flagKey, new Value()).ConfigureAwait(false);
+        this._objectFlagValue = await this.State.Client!.GetObjectValueAsync(flagKey, new Value()).ConfigureAwait(false);
     }
 
     [Then(@"the resolved object value should be contain fields ""(.*)"", ""(.*)"", and ""(.*)"", with values ""(.*)"", ""(.*)"" and (.*), respectively")]
@@ -98,7 +103,7 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     [When(@"a boolean flag with key ""(.*)"" is evaluated with details and default value ""(.*)""")]
     public async Task Whenabooleanflagwithkeyisevaluatedwithdetailsanddefaultvalue(string flagKey, bool defaultValue)
     {
-        this._booleanFlagDetails = await this.Client!.GetBooleanDetailsAsync(flagKey, defaultValue).ConfigureAwait(false);
+        this._booleanFlagDetails = await this.State.Client!.GetBooleanDetailsAsync(flagKey, defaultValue).ConfigureAwait(false);
     }
 
     [Then(@"the resolved boolean details value should be ""(.*)"", the variant should be ""(.*)"", and the reason should be ""(.*)""")]
@@ -113,7 +118,7 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     [When(@"a string flag with key ""(.*)"" is evaluated with details and default value ""(.*)""")]
     public async Task Whenastringflagwithkeyisevaluatedwithdetailsanddefaultvalue(string flagKey, string defaultValue)
     {
-        this._stringFlagDetails = await this.Client!.GetStringDetailsAsync(flagKey, defaultValue).ConfigureAwait(false);
+        this._stringFlagDetails = await this.State.Client!.GetStringDetailsAsync(flagKey, defaultValue).ConfigureAwait(false);
     }
 
     [Then(@"the resolved string details value should be ""(.*)"", the variant should be ""(.*)"", and the reason should be ""(.*)""")]
@@ -128,7 +133,7 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     [When(@"an integer flag with key ""(.*)"" is evaluated with details and default value (.*)")]
     public async Task Whenanintegerflagwithkeyisevaluatedwithdetailsanddefaultvalue(string flagKey, int defaultValue)
     {
-        this._intFlagDetails = await this.Client!.GetIntegerDetailsAsync(flagKey, defaultValue).ConfigureAwait(false);
+        this._intFlagDetails = await this.State.Client!.GetIntegerDetailsAsync(flagKey, defaultValue).ConfigureAwait(false);
     }
 
     [Then(@"the resolved integer details value should be (.*), the variant should be ""(.*)"", and the reason should be ""(.*)""")]
@@ -143,7 +148,7 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     [When(@"a float flag with key ""(.*)"" is evaluated with details and default value (.*)")]
     public async Task Whenafloatflagwithkeyisevaluatedwithdetailsanddefaultvalue(string flagKey, double defaultValue)
     {
-        this._doubleFlagDetails = await this.Client!.GetDoubleDetailsAsync(flagKey, defaultValue).ConfigureAwait(false);
+        this._doubleFlagDetails = await this.State.Client!.GetDoubleDetailsAsync(flagKey, defaultValue).ConfigureAwait(false);
     }
 
     [Then(@"the resolved float details value should be (.*), the variant should be ""(.*)"", and the reason should be ""(.*)""")]
@@ -158,7 +163,7 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     [When(@"an object flag with key ""(.*)"" is evaluated with details and a null default value")]
     public async Task Whenanobjectflagwithkeyisevaluatedwithdetailsandanulldefaultvalue(string flagKey)
     {
-        this._objectFlagDetails = await this.Client!.GetObjectDetailsAsync(flagKey, new Value()).ConfigureAwait(false);
+        this._objectFlagDetails = await this.State.Client!.GetObjectDetailsAsync(flagKey, new Value()).ConfigureAwait(false);
     }
 
     [Then(@"the resolved object details value should be contain fields ""(.*)"", ""(.*)"", and ""(.*)"", with values ""(.*)"", ""(.*)"" and (.*), respectively")]
@@ -192,7 +197,7 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     {
         this._contextAwareFlagKey = flagKey;
         this._contextAwareDefaultValue = defaultValue;
-        this._contextAwareValue = await this.Client!.GetStringValueAsync(flagKey, this._contextAwareDefaultValue, this._context).ConfigureAwait(false);
+        this._contextAwareValue = await this.State.Client!.GetStringValueAsync(flagKey, this._contextAwareDefaultValue, this._context).ConfigureAwait(false);
     }
 
     [Then(@"the resolved string response should be ""(.*)""")]
@@ -204,7 +209,7 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     [Then(@"the resolved flag value is ""(.*)"" when the context is empty")]
     public async Task Giventheresolvedflagvalueiswhenthecontextisempty(string expected)
     {
-        string? emptyContextValue = await this.Client!.GetStringValueAsync(this._contextAwareFlagKey!, this._contextAwareDefaultValue!, EvaluationContext.Empty).ConfigureAwait(false);
+        string? emptyContextValue = await this.State.Client!.GetStringValueAsync(this._contextAwareFlagKey!, this._contextAwareDefaultValue!, EvaluationContext.Empty).ConfigureAwait(false);
         Assert.Equal(expected, emptyContextValue);
     }
 
@@ -213,7 +218,7 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     {
         this._notFoundFlagKey = flagKey;
         this._notFoundDefaultValue = defaultValue;
-        this._notFoundDetails = await this.Client!.GetStringDetailsAsync(this._notFoundFlagKey, this._notFoundDefaultValue).ConfigureAwait(false);
+        this._notFoundDetails = await this.State.Client!.GetStringDetailsAsync(this._notFoundFlagKey, this._notFoundDefaultValue).ConfigureAwait(false);
     }
 
     [Then(@"the default string value should be returned")]
@@ -234,7 +239,7 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     {
         this._typeErrorFlagKey = flagKey;
         this._typeErrorDefaultValue = defaultValue;
-        this._typeErrorDetails = await this.Client!.GetIntegerDetailsAsync(this._typeErrorFlagKey, this._typeErrorDefaultValue).ConfigureAwait(false);
+        this._typeErrorDetails = await this.State.Client!.GetIntegerDetailsAsync(this._typeErrorFlagKey, this._typeErrorDefaultValue).ConfigureAwait(false);
     }
 
     [Then(@"the default integer value should be returned")]

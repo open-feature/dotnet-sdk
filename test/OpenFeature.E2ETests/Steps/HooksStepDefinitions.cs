@@ -8,13 +8,17 @@ namespace OpenFeature.E2ETests.Steps;
 [Scope(Feature = "Evaluation details through hooks")]
 public class HooksStepDefinitions : BaseStepDefinitions
 {
+    public HooksStepDefinitions(State state) : base(state)
+    {
+    }
+
     private TestHook? _testHook;
 
     [Given(@"a client with added hook")]
     public void GivenAClientWithAddedHook()
     {
         this._testHook = new TestHook();
-        this.Client!.AddHooks(this._testHook);
+        this.State.Client!.AddHooks(this._testHook);
     }
 
     [Then(@"the ""(.*)"" hook should have been executed")]

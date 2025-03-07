@@ -10,18 +10,24 @@ namespace OpenFeature.E2ETests.Steps;
 [Binding]
 public class BaseStepDefinitions
 {
-    internal FeatureClient? Client;
     private string _flagKey = null!;
     private string _defaultValue = null!;
     internal FlagType? FlagTypeEnum;
     internal object Result = null!;
+
+    protected readonly State State;
+
+    public BaseStepDefinitions(State state)
+    {
+        this.State = state;
+    }
 
     [Given(@"a stable provider")]
     public void GivenAStableProvider()
     {
         var memProvider = new InMemoryProvider(E2EFlagConfig);
         Api.Instance.SetProviderAsync(memProvider).Wait();
-        this.Client = Api.Instance.GetClient("TestClient", "1.0.0");
+        this.State.Client = Api.Instance.GetClient("TestClient", "1.0.0");
     }
 
     [Given(@"a Boolean-flag with key ""(.*)"" and a default value ""(.*)""")]
@@ -66,19 +72,19 @@ public class BaseStepDefinitions
         switch (this.FlagTypeEnum)
         {
             case FlagType.Boolean:
-                this.Result = await this.Client!
+                this.Result = await this.State.Client!
                     .GetBooleanDetailsAsync(this._flagKey, bool.Parse(this._defaultValue)).ConfigureAwait(false);
                 break;
             case FlagType.Float:
-                this.Result = await this.Client!
+                this.Result = await this.State.Client!
                     .GetDoubleDetailsAsync(this._flagKey, double.Parse(this._defaultValue)).ConfigureAwait(false);
                 break;
             case FlagType.Integer:
-                this.Result = await this.Client!
+                this.Result = await this.State.Client!
                     .GetIntegerDetailsAsync(this._flagKey, int.Parse(this._defaultValue)).ConfigureAwait(false);
                 break;
             case FlagType.String:
-                this.Result = await this.Client!.GetStringDetailsAsync(this._flagKey, this._defaultValue)
+                this.Result = await this.State.Client!.GetStringDetailsAsync(this._flagKey, this._defaultValue)
                     .ConfigureAwait(false);
                 break;
         }

@@ -11,6 +11,10 @@ namespace OpenFeature.E2ETests.Steps;
 [Scope(Feature = "Metadata")]
 public class MetadataStepDefinitions : BaseStepDefinitions
 {
+    MetadataStepDefinitions(State state) : base(state)
+    {
+    }
+
     [Then("the resolved metadata should contain")]
     [Scope(Scenario = "Returns metadata")]
     public void ThenTheResolvedMetadataShouldContain(DataTable itemsTable)
