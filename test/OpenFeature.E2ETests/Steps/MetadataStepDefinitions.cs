@@ -11,12 +11,16 @@ namespace OpenFeature.E2ETests.Steps;
 [Scope(Feature = "Metadata")]
 public class MetadataStepDefinitions : BaseStepDefinitions
 {
+    MetadataStepDefinitions(State state) : base(state)
+    {
+    }
+
     [Then("the resolved metadata should contain")]
     [Scope(Scenario = "Returns metadata")]
     public void ThenTheResolvedMetadataShouldContain(DataTable itemsTable)
     {
         var items = itemsTable.Rows.Select(row => new DataTableRows(row["key"], row["value"], row["metadata_type"])).ToList();
-        var metadata = (this.Result as FlagEvaluationDetails<bool>)?.FlagMetadata;
+        var metadata = (this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<bool>)?.FlagMetadata;
 
         foreach (var item in items)
         {
@@ -48,37 +52,23 @@ public class MetadataStepDefinitions : BaseStepDefinitions
     [Then("the resolved metadata is empty")]
     public void ThenTheResolvedMetadataIsEmpty()
     {
-        switch (this.FlagTypeEnum)
+        var flag = this.State.Flag!;
+        switch (flag.Type)
         {
             case FlagType.Boolean:
-                Assert.Null((this.Result as FlagEvaluationDetails<bool>)?.FlagMetadata?.Count);
+                Assert.Null((this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<bool>)?.FlagMetadata?.Count);
                 break;
             case FlagType.Float:
-                Assert.Null((this.Result as FlagEvaluationDetails<double>)?.FlagMetadata?.Count);
+                Assert.Null((this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<double>)?.FlagMetadata?.Count);
                 break;
             case FlagType.Integer:
-                Assert.Null((this.Result as FlagEvaluationDetails<int>)?.FlagMetadata?.Count);
+                Assert.Null((this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<int>)?.FlagMetadata?.Count);
                 break;
             case FlagType.String:
-                Assert.Null((this.Result as FlagEvaluationDetails<string>)?.FlagMetadata?.Count);
+                Assert.Null((this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<string>)?.FlagMetadata?.Count);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
-    }
-
-    private class DataTableRows
-    {
-        public DataTableRows(string key, string value, string metadataType)
-        {
-            this.Key = key;
-            this.Value = value;
-
-            this.MetadataType = FlagTypesUtil.ToEnum(metadataType);
-        }
-
-        public string Key { get; }
-        public string Value { get; }
-        public FlagType MetadataType { get; }
     }
 }
