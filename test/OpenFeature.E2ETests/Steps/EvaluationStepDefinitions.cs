@@ -17,12 +17,6 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     }
 
     private EvaluationContext? _context;
-    private string? _notFoundFlagKey;
-    private string? _notFoundDefaultValue;
-    private FlagEvaluationDetails<string>? _notFoundDetails;
-    private string? _typeErrorFlagKey;
-    private int _typeErrorDefaultValue;
-    private FlagEvaluationDetails<int>? _typeErrorDetails;
 
     [When(@"a boolean flag with key ""(.*)"" is evaluated with default value ""(.*)""")]
     public async Task Whenabooleanflagwithkeyisevaluatedwithdefaultvalue(string flagKey, bool defaultValue)
@@ -224,42 +218,46 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     [When(@"a non-existent string flag with key ""(.*)"" is evaluated with details and a default value ""(.*)""")]
     public async Task Whenanonexistentstringflagwithkeyisevaluatedwithdetailsandadefaultvalue(string flagKey, string defaultValue)
     {
-        this._notFoundFlagKey = flagKey;
-        this._notFoundDefaultValue = defaultValue;
-        this._notFoundDetails = await this.State.Client!.GetStringDetailsAsync(this._notFoundFlagKey, this._notFoundDefaultValue).ConfigureAwait(false);
+        this.State.Flag = new FlagState(flagKey, defaultValue, FlagType.String);
+        this.State.FlagEvaluationDetailsResult = await this.State.Client!.GetStringDetailsAsync(flagKey, defaultValue).ConfigureAwait(false);
     }
 
     [Then(@"the default string value should be returned")]
     public void Thenthedefaultstringvalueshouldbereturned()
     {
-        Assert.Equal(this._notFoundDefaultValue, this._notFoundDetails?.Value);
+        var result = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<string>;
+        var defaultValue = this.State.Flag!.DefaultValue;
+        Assert.Equal(defaultValue, result?.Value);
     }
 
     [Then(@"the reason should indicate an error and the error code should indicate a missing flag with ""(.*)""")]
     public void Giventhereasonshouldindicateanerrorandtheerrorcodeshouldindicateamissingflagwith(string errorCode)
     {
-        Assert.Equal(Reason.Error, this._notFoundDetails?.Reason);
-        Assert.Equal(errorCode, this._notFoundDetails?.ErrorType.GetDescription());
+        var result = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<string>;
+        Assert.Equal(Reason.Error, result?.Reason);
+        Assert.Equal(errorCode, result?.ErrorType.GetDescription());
     }
 
     [When(@"a string flag with key ""(.*)"" is evaluated as an integer, with details and a default value (.*)")]
     public async Task Whenastringflagwithkeyisevaluatedasanintegerwithdetailsandadefaultvalue(string flagKey, int defaultValue)
     {
-        this._typeErrorFlagKey = flagKey;
-        this._typeErrorDefaultValue = defaultValue;
-        this._typeErrorDetails = await this.State.Client!.GetIntegerDetailsAsync(this._typeErrorFlagKey, this._typeErrorDefaultValue).ConfigureAwait(false);
+        this.State.Flag = new FlagState(flagKey, defaultValue.ToString(), FlagType.String);
+        this.State.FlagEvaluationDetailsResult = await this.State.Client!.GetIntegerDetailsAsync(flagKey, defaultValue).ConfigureAwait(false);
     }
 
     [Then(@"the default integer value should be returned")]
     public void Thenthedefaultintegervalueshouldbereturned()
     {
-        Assert.Equal(this._typeErrorDefaultValue, this._typeErrorDetails?.Value);
+        var result = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<int>;
+        var defaultValue = int.Parse(this.State.Flag!.DefaultValue);
+        Assert.Equal(defaultValue, result?.Value);
     }
 
     [Then(@"the reason should indicate an error and the error code should indicate a type mismatch with ""(.*)""")]
     public void Giventhereasonshouldindicateanerrorandtheerrorcodeshouldindicateatypemismatchwith(string errorCode)
     {
-        Assert.Equal(Reason.Error, this._typeErrorDetails?.Reason);
-        Assert.Equal(errorCode, this._typeErrorDetails?.ErrorType.GetDescription());
+        var result = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<int>;
+        Assert.Equal(Reason.Error, result?.Reason);
+        Assert.Equal(errorCode, result?.ErrorType.GetDescription());
     }
 }
