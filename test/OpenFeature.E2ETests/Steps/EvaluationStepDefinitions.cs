@@ -16,11 +16,6 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     {
     }
 
-    private FlagEvaluationDetails<bool>? _booleanFlagDetails;
-    private FlagEvaluationDetails<string>? _stringFlagDetails;
-    private FlagEvaluationDetails<int>? _intFlagDetails;
-    private FlagEvaluationDetails<double>? _doubleFlagDetails;
-    private FlagEvaluationDetails<Value>? _objectFlagDetails;
     private string? _contextAwareFlagKey;
     private string? _contextAwareDefaultValue;
     private string? _contextAwareValue;
@@ -107,13 +102,14 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     [When(@"a boolean flag with key ""(.*)"" is evaluated with details and default value ""(.*)""")]
     public async Task Whenabooleanflagwithkeyisevaluatedwithdetailsanddefaultvalue(string flagKey, bool defaultValue)
     {
-        this._booleanFlagDetails = await this.State.Client!.GetBooleanDetailsAsync(flagKey, defaultValue).ConfigureAwait(false);
+        this.State.Flag = new FlagState(flagKey, defaultValue.ToString(), FlagType.Boolean);
+        this.State.FlagEvaluationDetailsResult = await this.State.Client!.GetBooleanDetailsAsync(flagKey, defaultValue).ConfigureAwait(false);
     }
 
     [Then(@"the resolved boolean details value should be ""(.*)"", the variant should be ""(.*)"", and the reason should be ""(.*)""")]
     public void Thentheresolvedbooleandetailsvalueshouldbethevariantshouldbeandthereasonshouldbe(bool expectedValue, string expectedVariant, string expectedReason)
     {
-        var result = this._booleanFlagDetails;
+        var result = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<bool>;
         Assert.Equal(expectedValue, result?.Value);
         Assert.Equal(expectedVariant, result?.Variant);
         Assert.Equal(expectedReason, result?.Reason);
@@ -122,13 +118,14 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     [When(@"a string flag with key ""(.*)"" is evaluated with details and default value ""(.*)""")]
     public async Task Whenastringflagwithkeyisevaluatedwithdetailsanddefaultvalue(string flagKey, string defaultValue)
     {
-        this._stringFlagDetails = await this.State.Client!.GetStringDetailsAsync(flagKey, defaultValue).ConfigureAwait(false);
+        this.State.Flag = new FlagState(flagKey, defaultValue, FlagType.String);
+        this.State.FlagEvaluationDetailsResult = await this.State.Client!.GetStringDetailsAsync(flagKey, defaultValue).ConfigureAwait(false);
     }
 
     [Then(@"the resolved string details value should be ""(.*)"", the variant should be ""(.*)"", and the reason should be ""(.*)""")]
     public void Thentheresolvedstringdetailsvalueshouldbethevariantshouldbeandthereasonshouldbe(string expectedValue, string expectedVariant, string expectedReason)
     {
-        var result = this._stringFlagDetails;
+        var result = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<string>;
         Assert.Equal(expectedValue, result?.Value);
         Assert.Equal(expectedVariant, result?.Variant);
         Assert.Equal(expectedReason, result?.Reason);
@@ -137,13 +134,14 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     [When(@"an integer flag with key ""(.*)"" is evaluated with details and default value (.*)")]
     public async Task Whenanintegerflagwithkeyisevaluatedwithdetailsanddefaultvalue(string flagKey, int defaultValue)
     {
-        this._intFlagDetails = await this.State.Client!.GetIntegerDetailsAsync(flagKey, defaultValue).ConfigureAwait(false);
+        this.State.Flag = new FlagState(flagKey, defaultValue.ToString(), FlagType.Integer);
+        this.State.FlagEvaluationDetailsResult = await this.State.Client!.GetIntegerDetailsAsync(flagKey, defaultValue).ConfigureAwait(false);
     }
 
     [Then(@"the resolved integer details value should be (.*), the variant should be ""(.*)"", and the reason should be ""(.*)""")]
     public void Thentheresolvedintegerdetailsvalueshouldbethevariantshouldbeandthereasonshouldbe(int expectedValue, string expectedVariant, string expectedReason)
     {
-        var result = this._intFlagDetails;
+        var result = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<int>;
         Assert.Equal(expectedValue, result?.Value);
         Assert.Equal(expectedVariant, result?.Variant);
         Assert.Equal(expectedReason, result?.Reason);
@@ -152,13 +150,14 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     [When(@"a float flag with key ""(.*)"" is evaluated with details and default value (.*)")]
     public async Task Whenafloatflagwithkeyisevaluatedwithdetailsanddefaultvalue(string flagKey, double defaultValue)
     {
-        this._doubleFlagDetails = await this.State.Client!.GetDoubleDetailsAsync(flagKey, defaultValue).ConfigureAwait(false);
+        this.State.Flag = new FlagState(flagKey, defaultValue.ToString(), FlagType.Float);
+        this.State.FlagEvaluationDetailsResult = await this.State.Client!.GetDoubleDetailsAsync(flagKey, defaultValue).ConfigureAwait(false);
     }
 
     [Then(@"the resolved float details value should be (.*), the variant should be ""(.*)"", and the reason should be ""(.*)""")]
     public void Thentheresolvedfloatdetailsvalueshouldbethevariantshouldbeandthereasonshouldbe(double expectedValue, string expectedVariant, string expectedReason)
     {
-        var result = this._doubleFlagDetails;
+        var result = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<double>;
         Assert.Equal(expectedValue, result?.Value);
         Assert.Equal(expectedVariant, result?.Variant);
         Assert.Equal(expectedReason, result?.Reason);
@@ -167,13 +166,16 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     [When(@"an object flag with key ""(.*)"" is evaluated with details and a null default value")]
     public async Task Whenanobjectflagwithkeyisevaluatedwithdetailsandanulldefaultvalue(string flagKey)
     {
-        this._objectFlagDetails = await this.State.Client!.GetObjectDetailsAsync(flagKey, new Value()).ConfigureAwait(false);
+        this.State.Flag = new FlagState(flagKey, null!, FlagType.Object);
+        this.State.FlagEvaluationDetailsResult = await this.State.Client!.GetObjectDetailsAsync(flagKey, new Value()).ConfigureAwait(false);
     }
 
     [Then(@"the resolved object details value should be contain fields ""(.*)"", ""(.*)"", and ""(.*)"", with values ""(.*)"", ""(.*)"" and (.*), respectively")]
     public void Thentheresolvedobjectdetailsvalueshouldbecontainfieldsandwithvaluesandrespectively(string boolField, string stringField, string numberField, bool boolValue, string stringValue, int numberValue)
     {
-        var value = this._objectFlagDetails?.Value;
+        var result = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<Value>;
+        var value = result?.Value;
+        Assert.NotNull(value);
         Assert.Equal(boolValue, value?.AsStructure?[boolField].AsBoolean);
         Assert.Equal(stringValue, value?.AsStructure?[stringField].AsString);
         Assert.Equal(numberValue, value?.AsStructure?[numberField].AsInteger);
@@ -182,8 +184,10 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     [Then(@"the variant should be ""(.*)"", and the reason should be ""(.*)""")]
     public void Giventhevariantshouldbeandthereasonshouldbe(string expectedVariant, string expectedReason)
     {
-        Assert.Equal(expectedVariant, this._objectFlagDetails?.Variant);
-        Assert.Equal(expectedReason, this._objectFlagDetails?.Reason);
+        var result = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<Value>;
+        Assert.NotNull(result);
+        Assert.Equal(expectedVariant, result?.Variant);
+        Assert.Equal(expectedReason, result?.Reason);
     }
 
     [When(@"context contains keys ""(.*)"", ""(.*)"", ""(.*)"", ""(.*)"" with values ""(.*)"", ""(.*)"", (.*), ""(.*)""")]
