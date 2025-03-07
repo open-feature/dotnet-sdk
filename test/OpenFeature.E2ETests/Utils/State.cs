@@ -6,4 +6,5 @@ public class State
     public FlagState? Flag;
     public object? FlagEvaluationDetailsResult;
     public TestHook? TestHook;
+    public object? FlagResult;
 }

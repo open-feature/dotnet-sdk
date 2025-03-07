@@ -24,5 +24,6 @@ public enum FlagType
     Integer,
     Float,
     String,
-    Boolean
+    Boolean,
+    Object
 }

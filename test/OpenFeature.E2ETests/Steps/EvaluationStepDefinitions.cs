@@ -16,11 +16,6 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     {
     }
 
-    private bool? _booleanFlagValue;
-    private string? _stringFlagValue;
-    private int? _intFlagValue;
-    private double? _doubleFlagValue;
-    private Value? _objectFlagValue;
     private FlagEvaluationDetails<bool>? _booleanFlagDetails;
     private FlagEvaluationDetails<string>? _stringFlagDetails;
     private FlagEvaluationDetails<int>? _intFlagDetails;
@@ -40,61 +35,70 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     [When(@"a boolean flag with key ""(.*)"" is evaluated with default value ""(.*)""")]
     public async Task Whenabooleanflagwithkeyisevaluatedwithdefaultvalue(string flagKey, bool defaultValue)
     {
-        this._booleanFlagValue = await this.State.Client!.GetBooleanValueAsync(flagKey, defaultValue).ConfigureAwait(false);
+        this.State.Flag = new FlagState(flagKey, defaultValue.ToString(), FlagType.Boolean);
+        this.State.FlagResult = await this.State.Client!.GetBooleanValueAsync(flagKey, defaultValue).ConfigureAwait(false);
     }
 
     [Then(@"the resolved boolean value should be ""(.*)""")]
     public void Thentheresolvedbooleanvalueshouldbe(bool expectedValue)
     {
-        Assert.Equal(expectedValue, this._booleanFlagValue);
+        var result = this.State.FlagResult as bool?;
+        Assert.Equal(expectedValue, result);
     }
 
     [When(@"a string flag with key ""(.*)"" is evaluated with default value ""(.*)""")]
     public async Task Whenastringflagwithkeyisevaluatedwithdefaultvalue(string flagKey, string defaultValue)
     {
-        this._stringFlagValue = await this.State.Client!.GetStringValueAsync(flagKey, defaultValue).ConfigureAwait(false);
+        this.State.Flag = new FlagState(flagKey, defaultValue, FlagType.String);
+        this.State.FlagResult = await this.State.Client!.GetStringValueAsync(flagKey, defaultValue).ConfigureAwait(false);
     }
 
     [Then(@"the resolved string value should be ""(.*)""")]
     public void Thentheresolvedstringvalueshouldbe(string expected)
     {
-        Assert.Equal(expected, this._stringFlagValue);
+        var result = this.State.FlagResult as string;
+        Assert.Equal(expected, result);
     }
 
     [When(@"an integer flag with key ""(.*)"" is evaluated with default value (.*)")]
     public async Task Whenanintegerflagwithkeyisevaluatedwithdefaultvalue(string flagKey, int defaultValue)
     {
-        this._intFlagValue = await this.State.Client!.GetIntegerValueAsync(flagKey, defaultValue).ConfigureAwait(false);
+        this.State.Flag = new FlagState(flagKey, defaultValue.ToString(), FlagType.Integer);
+        this.State.FlagResult = await this.State.Client!.GetIntegerValueAsync(flagKey, defaultValue).ConfigureAwait(false);
     }
 
     [Then(@"the resolved integer value should be (.*)")]
     public void Thentheresolvedintegervalueshouldbe(int expected)
     {
-        Assert.Equal(expected, this._intFlagValue);
+        var result = this.State.FlagResult as int?;
+        Assert.Equal(expected, result);
     }
 
     [When(@"a float flag with key ""(.*)"" is evaluated with default value (.*)")]
     public async Task Whenafloatflagwithkeyisevaluatedwithdefaultvalue(string flagKey, double defaultValue)
     {
-        this._doubleFlagValue = await this.State.Client!.GetDoubleValueAsync(flagKey, defaultValue).ConfigureAwait(false);
+        this.State.Flag = new FlagState(flagKey, defaultValue.ToString(), FlagType.Float);
+        this.State.FlagResult = await this.State.Client!.GetDoubleValueAsync(flagKey, defaultValue).ConfigureAwait(false);
     }
 
     [Then(@"the resolved float value should be (.*)")]
     public void Thentheresolvedfloatvalueshouldbe(double expected)
     {
-        Assert.Equal(expected, this._doubleFlagValue);
+        var result = this.State.FlagResult as double?;
+        Assert.Equal(expected, result);
     }
 
     [When(@"an object flag with key ""(.*)"" is evaluated with a null default value")]
     public async Task Whenanobjectflagwithkeyisevaluatedwithanulldefaultvalue(string flagKey)
     {
-        this._objectFlagValue = await this.State.Client!.GetObjectValueAsync(flagKey, new Value()).ConfigureAwait(false);
+        this.State.Flag = new FlagState(flagKey, null!, FlagType.Object);
+        this.State.FlagResult = await this.State.Client!.GetObjectValueAsync(flagKey, new Value()).ConfigureAwait(false);
     }
 
     [Then(@"the resolved object value should be contain fields ""(.*)"", ""(.*)"", and ""(.*)"", with values ""(.*)"", ""(.*)"" and (.*), respectively")]
     public void Thentheresolvedobjectvalueshouldbecontainfieldsandwithvaluesandrespectively(string boolField, string stringField, string numberField, bool boolValue, string stringValue, int numberValue)
     {
-        Value? value = this._objectFlagValue;
+        Value? value = this.State.FlagResult as Value;
         Assert.Equal(boolValue, value?.AsStructure?[boolField].AsBoolean);
         Assert.Equal(stringValue, value?.AsStructure?[stringField].AsString);
         Assert.Equal(numberValue, value?.AsStructure?[numberField].AsInteger);
