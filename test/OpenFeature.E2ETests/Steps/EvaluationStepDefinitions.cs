@@ -16,8 +16,6 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     {
     }
 
-    private EvaluationContext? _context;
-
     [When(@"a boolean flag with key ""(.*)"" is evaluated with default value ""(.*)""")]
     public async Task Whenabooleanflagwithkeyisevaluatedwithdefaultvalue(string flagKey, bool defaultValue)
     {
@@ -184,7 +182,7 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     [When(@"context contains keys ""(.*)"", ""(.*)"", ""(.*)"", ""(.*)"" with values ""(.*)"", ""(.*)"", (.*), ""(.*)""")]
     public void Whencontextcontainskeyswithvalues(string field1, string field2, string field3, string field4, string value1, string value2, int value3, string value4)
     {
-        this._context = new EvaluationContextBuilder()
+        this.State.EvaluationContext = new EvaluationContextBuilder()
             .Set(field1, value1)
             .Set(field2, value2)
             .Set(field3, value3)
@@ -195,7 +193,7 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     public async Task Givenaflagwithkeyisevaluatedwithdefaultvalue(string flagKey, string defaultValue)
     {
         this.State.Flag = new FlagState(flagKey, defaultValue, FlagType.String);
-        this.State.FlagResult = await this.State.Client!.GetStringValueAsync(flagKey, defaultValue, this._context).ConfigureAwait(false);
+        this.State.FlagResult = await this.State.Client!.GetStringValueAsync(flagKey, defaultValue, this.State.EvaluationContext).ConfigureAwait(false);
     }
 
     [Then(@"the resolved string response should be ""(.*)""")]

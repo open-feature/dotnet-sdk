@@ -1,3 +1,5 @@
+using OpenFeature.Model;
+
 namespace OpenFeature.E2ETests.Utils;
 
 public class State
@@ -7,4 +9,5 @@ public class State
     public object? FlagEvaluationDetailsResult;
     public TestHook? TestHook;
     public object? FlagResult;
+    public EvaluationContext? EvaluationContext;
 }
