@@ -16,9 +16,6 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     {
     }
 
-    private string? _contextAwareFlagKey;
-    private string? _contextAwareDefaultValue;
-    private string? _contextAwareValue;
     private EvaluationContext? _context;
     private string? _notFoundFlagKey;
     private string? _notFoundDefaultValue;
@@ -203,21 +200,24 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
     [When(@"a flag with key ""(.*)"" is evaluated with default value ""(.*)""")]
     public async Task Givenaflagwithkeyisevaluatedwithdefaultvalue(string flagKey, string defaultValue)
     {
-        this._contextAwareFlagKey = flagKey;
-        this._contextAwareDefaultValue = defaultValue;
-        this._contextAwareValue = await this.State.Client!.GetStringValueAsync(flagKey, this._contextAwareDefaultValue, this._context).ConfigureAwait(false);
+        this.State.Flag = new FlagState(flagKey, defaultValue, FlagType.String);
+        this.State.FlagResult = await this.State.Client!.GetStringValueAsync(flagKey, defaultValue, this._context).ConfigureAwait(false);
     }
 
     [Then(@"the resolved string response should be ""(.*)""")]
     public void Thentheresolvedstringresponseshouldbe(string expected)
     {
-        Assert.Equal(expected, this._contextAwareValue);
+        var result = this.State.FlagResult as string;
+        Assert.Equal(expected, result);
     }
 
     [Then(@"the resolved flag value is ""(.*)"" when the context is empty")]
     public async Task Giventheresolvedflagvalueiswhenthecontextisempty(string expected)
     {
-        string? emptyContextValue = await this.State.Client!.GetStringValueAsync(this._contextAwareFlagKey!, this._contextAwareDefaultValue!, EvaluationContext.Empty).ConfigureAwait(false);
+        var key = this.State.Flag!.Key;
+        var defaultValue = this.State.Flag.DefaultValue;
+
+        string? emptyContextValue = await this.State.Client!.GetStringValueAsync(key, defaultValue, EvaluationContext.Empty).ConfigureAwait(false);
         Assert.Equal(expected, emptyContextValue);
     }
 
