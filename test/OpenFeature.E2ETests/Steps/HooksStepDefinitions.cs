@@ -8,13 +8,15 @@ namespace OpenFeature.E2ETests.Steps;
 [Scope(Feature = "Evaluation details through hooks")]
 public class HooksStepDefinitions : BaseStepDefinitions
 {
-    private TestHook? _testHook;
+    public HooksStepDefinitions(State state) : base(state)
+    {
+    }
 
     [Given(@"a client with added hook")]
     public void GivenAClientWithAddedHook()
     {
-        this._testHook = new TestHook();
-        this.Client!.AddHooks(this._testHook);
+        this.State.TestHook = new TestHook();
+        this.State.Client!.AddHooks(this.State.TestHook);
     }
 
     [Then(@"the ""(.*)"" hook should have been executed")]
@@ -116,16 +118,16 @@ public class HooksStepDefinitions : BaseStepDefinitions
         switch (hook)
         {
             case "before":
-                Assert.Equal(1, this._testHook!.BeforeCount);
+                Assert.Equal(1, this.State.TestHook!.BeforeCount);
                 break;
             case "after":
-                Assert.Equal(1, this._testHook!.AfterCount);
+                Assert.Equal(1, this.State.TestHook!.AfterCount);
                 break;
             case "error":
-                Assert.Equal(1, this._testHook!.ErrorCount);
+                Assert.Equal(1, this.State.TestHook!.ErrorCount);
                 break;
             case "finally":
-                Assert.Equal(1, this._testHook!.FinallyCount);
+                Assert.Equal(1, this.State.TestHook!.FinallyCount);
                 break;
         }
     }

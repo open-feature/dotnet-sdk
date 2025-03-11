@@ -8,7 +8,7 @@ using OpenFeature.Model;
 namespace OpenFeature.E2ETests.Utils;
 
 [ExcludeFromCodeCoverage]
-internal class TestHook : Hook
+public class TestHook : Hook
 {
     private int _afterCount;
     private int _beforeCount;
