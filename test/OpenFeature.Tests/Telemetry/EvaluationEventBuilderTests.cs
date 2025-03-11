@@ -58,7 +58,7 @@ namespace OpenFeature.Tests.Telemetry
             var evaluationEvent = EvaluationEventBuilder.Build(hookContext, details);
 
             // Assert
-            Assert.Equal("General", evaluationEvent.Attributes[TelemetryConstants.ErrorCode]);
+            Assert.Equal("general", evaluationEvent.Attributes[TelemetryConstants.ErrorCode]);
             Assert.Equal("errorMessage", evaluationEvent.Attributes[TelemetryConstants.ErrorMessage]);
         }
 

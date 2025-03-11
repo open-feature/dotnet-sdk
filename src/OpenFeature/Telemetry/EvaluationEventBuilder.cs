@@ -36,7 +36,7 @@ public static class EvaluationEventBuilder
 
         if (details.ErrorType != ErrorType.None)
         {
-            attributes[TelemetryConstants.ErrorCode] = details.ErrorType.ToString();
+            attributes[TelemetryConstants.ErrorCode] = details.ErrorType.ToString()?.ToLowerInvariant();
 
             if (!string.IsNullOrWhiteSpace(details.ErrorMessage))
             {
