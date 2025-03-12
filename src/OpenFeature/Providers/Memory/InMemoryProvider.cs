@@ -66,10 +66,7 @@ namespace OpenFeature.Providers.Memory
                 Message = "flags changed",
             };
 
-            if (this.EventChannel != null)
-            {
-                await this.EventChannel.Writer.WriteAsync(@event).ConfigureAwait(false);
-            }
+            await this.EventChannel.Writer.WriteAsync(@event).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>

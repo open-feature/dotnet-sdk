@@ -150,7 +150,7 @@ namespace OpenFeature.Tests
 
         internal ValueTask SendEventAsync(ProviderEventTypes eventType, CancellationToken cancellationToken = default)
         {
-            return this.EventChannel!.Writer.WriteAsync(new ProviderEventPayload { Type = eventType, ProviderName = this.GetMetadata().Name, }, cancellationToken);
+            return this.EventChannel.Writer.WriteAsync(new ProviderEventPayload { Type = eventType, ProviderName = this.GetMetadata().Name, }, cancellationToken);
         }
     }
 }
