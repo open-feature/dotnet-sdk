@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using NSubstitute;
 using OpenFeature.Constant;
@@ -47,12 +48,14 @@ namespace OpenFeature.Tests
         {
             var providerA = Substitute.For<FeatureProvider>();
             providerA.Status.Returns(ProviderStatus.NotReady);
+            providerA.GetEventChannel().Returns(Channel.CreateBounded<object>(1));
 
             await Api.Instance.SetProviderAsync(providerA);
             await providerA.Received(1).InitializeAsync(Api.Instance.GetContext());
 
             var providerB = Substitute.For<FeatureProvider>();
             providerB.Status.Returns(ProviderStatus.NotReady);
+            providerB.GetEventChannel().Returns(Channel.CreateBounded<object>(1));
 
             await Api.Instance.SetProviderAsync(providerB);
             await providerB.Received(1).InitializeAsync(Api.Instance.GetContext());
@@ -60,12 +63,14 @@ namespace OpenFeature.Tests
 
             var providerC = Substitute.For<FeatureProvider>();
             providerC.Status.Returns(ProviderStatus.NotReady);
+            providerC.GetEventChannel().Returns(Channel.CreateBounded<object>(1));
 
             await Api.Instance.SetProviderAsync("named", providerC);
             await providerC.Received(1).InitializeAsync(Api.Instance.GetContext());
 
             var providerD = Substitute.For<FeatureProvider>();
             providerD.Status.Returns(ProviderStatus.NotReady);
+            providerD.GetEventChannel().Returns(Channel.CreateBounded<object>(1));
 
             await Api.Instance.SetProviderAsync("named", providerD);
             await providerD.Received(1).InitializeAsync(Api.Instance.GetContext());
