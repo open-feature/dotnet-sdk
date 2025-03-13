@@ -147,7 +147,7 @@ namespace OpenFeature
             if (oldProvider != null && !this.IsProviderBound(oldProvider))
             {
                 this._activeSubscriptions.Remove(oldProvider);
-                oldProvider.GetEventChannel()?.Writer.Complete();
+                oldProvider.GetEventChannel().Writer.Complete();
             }
         }
 
