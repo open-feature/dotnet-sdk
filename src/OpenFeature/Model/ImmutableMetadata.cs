@@ -85,4 +85,6 @@ public sealed class ImmutableMetadata
 
         return value is T tValue ? tValue : null;
     }
+
+    internal int Count => this._metadata.Count;
 }
