@@ -491,7 +491,7 @@ namespace OpenFeature.Tests
             hook1.BeforeAsync(Arg.Any<HookContext<bool>>(), null).Returns(EvaluationContext.Empty);
             hook2.BeforeAsync(Arg.Any<HookContext<bool>>(), null).Returns(EvaluationContext.Empty);
             featureProvider1.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>()).Throws(new Exception());
-            hook2.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null).Returns(new ValueTask());
+            hook2.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null).Throws(new Exception());
             hook1.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null).Returns(new ValueTask());
 
             await Api.Instance.SetProviderAsync(featureProvider1);
