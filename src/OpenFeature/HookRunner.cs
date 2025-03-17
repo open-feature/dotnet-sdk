@@ -29,7 +29,7 @@ namespace OpenFeature
         /// The hooks for the evaluation, these should be in the correct order for the before evaluation stage
         /// </param>
         /// <param name="evaluationContext">
-        /// The initial evaluation context, this can be updates as the hooks execute
+        /// The initial evaluation context, this can be updated as the hooks execute
         /// </param>
         /// <param name="sharedHookContext">
         /// Contents of the initial hook context excluding the evaluation context and hook data
