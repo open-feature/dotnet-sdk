@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using OpenFeature.Model;
@@ -45,9 +44,6 @@ namespace OpenFeature
         /// <exception cref="KeyNotFoundException">
         /// Thrown when the context does not contain the specified key
         /// </exception>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown when the key is <see langword="null" />
-        /// </exception>
         public object Get(string key)
         {
             return this._data[key];
@@ -87,6 +83,20 @@ namespace OpenFeature
         public IReadOnlyDictionary<string, object> AsDictionary()
         {
             return this._data;
+        }
+
+        /// <summary>
+        /// Gets or sets the value associated with the specified key.
+        /// </summary>
+        /// <param name="key">The key of the value to get or set</param>
+        /// <returns>The value associated with the specified key</returns>
+        /// <exception cref="KeyNotFoundException">
+        /// Thrown when getting a value and the context does not contain the specified key
+        /// </exception>
+        public object this[string key]
+        {
+            get => this.Get(key);
+            set => this.Set(key, value);
         }
     }
 }

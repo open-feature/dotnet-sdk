@@ -39,6 +39,26 @@ public class HookDataTests
     }
 
     [Fact]
+    public void HookData_Can_Set_And_Get_Data_Using_Indexer()
+    {
+        var hookData = new HookData();
+        hookData["bool"] = true;
+        hookData["string"] = "string";
+        hookData["int"] = 1;
+        hookData["double"] = 1.2;
+        hookData["float"] = 1.2f;
+        var structure = Structure.Builder().Build();
+        hookData["structure"] = structure;
+
+        Assert.True((bool)hookData["bool"]);
+        Assert.Equal("string", hookData["string"]);
+        Assert.Equal(1, hookData["int"]);
+        Assert.Equal(1.2, hookData["double"]);
+        Assert.Equal(1.2f, hookData["float"]);
+        Assert.Same(structure, hookData["structure"]);
+    }
+
+    [Fact]
     public void HookData_Can_Be_Enumerated()
     {
         var asList = new List<KeyValuePair<string, object>>();
@@ -97,5 +117,21 @@ public class HookDataTests
         Assert.Equal(1.2f, asDictionary["float"]);
         Assert.Equal(1, asDictionary["int"]);
         Assert.Equal("string", asDictionary["string"]);
+    }
+
+    [Fact]
+    public void HookData_Get_Should_Throw_When_Key_Not_Found()
+    {
+        var hookData = new HookData();
+
+        Assert.Throws<KeyNotFoundException>(() => hookData.Get("nonexistent"));
+    }
+
+    [Fact]
+    public void HookData_Indexer_Should_Throw_When_Key_Not_Found()
+    {
+        var hookData = new HookData();
+
+        Assert.Throws<KeyNotFoundException>(() => _ = hookData["nonexistent"]);
     }
 }
