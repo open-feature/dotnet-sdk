@@ -13,7 +13,7 @@
     <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.3" />
     <PackageVersion Include="System.Collections.Immutable" Version="9.0.3" />
     <PackageVersion Include="System.Threading.Channels" Version="9.0.3" />
-    <PackageVersion Include="System.ValueTuple" Version="4.5.0" />
+    <PackageVersion Include="System.ValueTuple" Version="4.6.0" />
   </ItemGroup>
 
   <ItemGroup Label="test">
