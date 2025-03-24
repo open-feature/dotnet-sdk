@@ -1,5 +1,46 @@
 # Changelog
 
+## [2.3.2](https://github.com/open-feature/dotnet-sdk/compare/v2.3.1...v2.3.2) (2025-03-24)
+
+
+### 🐛 Bug Fixes
+
+* Address issue with newline characters when running Logging Hook Unit Tests on linux ([#374](https://github.com/open-feature/dotnet-sdk/issues/374)) ([a98334e](https://github.com/open-feature/dotnet-sdk/commit/a98334edfc0a6a14ff60e362bd7aa198b70ff255))
+* Remove virtual GetEventChannel from FeatureProvider ([#401](https://github.com/open-feature/dotnet-sdk/issues/401)) ([00a4e4a](https://github.com/open-feature/dotnet-sdk/commit/00a4e4ab2ccb8984cd3ca57bad6d25e688b1cf8c))
+* Update project name in solution file ([#380](https://github.com/open-feature/dotnet-sdk/issues/380)) ([1f13258](https://github.com/open-feature/dotnet-sdk/commit/1f13258737fa051289d51cf5a064e03b0dc936c8))
+
+
+### 🧹 Chore
+
+* Correct LoggingHookTest timestamp handling. ([#386](https://github.com/open-feature/dotnet-sdk/issues/386)) ([c69a6e5](https://github.com/open-feature/dotnet-sdk/commit/c69a6e5d71a6d652017a0d46c8390554a1dec59e))
+* **deps:** update actions/setup-dotnet digest to 67a3573 ([#402](https://github.com/open-feature/dotnet-sdk/issues/402)) ([2e2c489](https://github.com/open-feature/dotnet-sdk/commit/2e2c4898479b3544d663c08ddd2dc011ca482b43))
+* **deps:** update actions/upload-artifact action to v4.6.1 ([#385](https://github.com/open-feature/dotnet-sdk/issues/385)) ([accf571](https://github.com/open-feature/dotnet-sdk/commit/accf57181b34c600cb775a93b173f644d8c445d1))
+* **deps:** update actions/upload-artifact action to v4.6.2 ([#406](https://github.com/open-feature/dotnet-sdk/issues/406)) ([16c92b7](https://github.com/open-feature/dotnet-sdk/commit/16c92b7814f49aceab6e6d46a8835c2bdc0f3363))
+* **deps:** update codecov/codecov-action action to v5.4.0 ([#392](https://github.com/open-feature/dotnet-sdk/issues/392)) ([06e4e3a](https://github.com/open-feature/dotnet-sdk/commit/06e4e3a7ee11aff5c53eeba2259a840956bc4d5d))
+* **deps:** update dependency dotnet-sdk to v9.0.202 ([#405](https://github.com/open-feature/dotnet-sdk/issues/405)) ([a4beaae](https://github.com/open-feature/dotnet-sdk/commit/a4beaaea375b3184578d259cd5ca481d23055a54))
+* **deps:** update dependency microsoft.net.test.sdk to 17.13.0 ([#375](https://github.com/open-feature/dotnet-sdk/issues/375)) ([7a735f8](https://github.com/open-feature/dotnet-sdk/commit/7a735f8d8b82b79b205f71716e5cf300a7fff276))
+* **deps:** update dependency reqnroll.xunit to 2.3.0 ([#378](https://github.com/open-feature/dotnet-sdk/issues/378)) ([96ba568](https://github.com/open-feature/dotnet-sdk/commit/96ba5686c2ba31996603f464fe7e5df9efa01a92))
+* **deps:** update dependency reqnroll.xunit to 2.4.0 ([#396](https://github.com/open-feature/dotnet-sdk/issues/396)) ([b30350b](https://github.com/open-feature/dotnet-sdk/commit/b30350bd49f4a8709b69a3eb2db1152d5a4b7f6c))
+* **deps:** update dependency system.valuetuple to 4.6.0 ([#403](https://github.com/open-feature/dotnet-sdk/issues/403)) ([75468d2](https://github.com/open-feature/dotnet-sdk/commit/75468d28ba4d8200c7199fe89d6d1a63f3bdd674))
+* **deps:** update dotnet monorepo ([#379](https://github.com/open-feature/dotnet-sdk/issues/379)) ([53ced91](https://github.com/open-feature/dotnet-sdk/commit/53ced9118ffcb8cda5142dc2f80465416922030b))
+* **deps:** update dotnet monorepo to 9.0.2 ([#377](https://github.com/open-feature/dotnet-sdk/issues/377)) ([3bdc79b](https://github.com/open-feature/dotnet-sdk/commit/3bdc79bbaa8d73c4747916d307c431990397cdde))
+* **deps:** update github/codeql-action digest to 1b549b9 ([#407](https://github.com/open-feature/dotnet-sdk/issues/407)) ([ae9fc79](https://github.com/open-feature/dotnet-sdk/commit/ae9fc79bcb9847efcb62673f5aa59df403cece78))
+* **deps:** update github/codeql-action digest to 5f8171a ([#404](https://github.com/open-feature/dotnet-sdk/issues/404)) ([73a5040](https://github.com/open-feature/dotnet-sdk/commit/73a504022d8ba4cbe508a4f0b76f9b73f58c17a6))
+* **deps:** update github/codeql-action digest to 6bb031a ([#398](https://github.com/open-feature/dotnet-sdk/issues/398)) ([9b6feab](https://github.com/open-feature/dotnet-sdk/commit/9b6feab50085ee7dfcca190fe42f583c072ae50d))
+* **deps:** update github/codeql-action digest to 9e8d078 ([#371](https://github.com/open-feature/dotnet-sdk/issues/371)) ([e74e8e7](https://github.com/open-feature/dotnet-sdk/commit/e74e8e7a58d90e46bbcd5d7e9433545412e07bbd))
+* **deps:** update github/codeql-action digest to b56ba49 ([#384](https://github.com/open-feature/dotnet-sdk/issues/384)) ([cc2990f](https://github.com/open-feature/dotnet-sdk/commit/cc2990ff8e7bf5148ab1cd867d9bfabfc0b7af8a))
+* **deps:** update spec digest to 0cd553d ([#389](https://github.com/open-feature/dotnet-sdk/issues/389)) ([85075ac](https://github.com/open-feature/dotnet-sdk/commit/85075ac7f46783dd1bcfdbbe6bd10d81eb9adb8a))
+* **deps:** update spec digest to 54952f3 ([#373](https://github.com/open-feature/dotnet-sdk/issues/373)) ([1e8b230](https://github.com/open-feature/dotnet-sdk/commit/1e8b2307369710ea0b5ae0e8a8f1f1293ea066dc))
+* **deps:** update spec digest to a69f748 ([#382](https://github.com/open-feature/dotnet-sdk/issues/382)) ([4977542](https://github.com/open-feature/dotnet-sdk/commit/4977542515bff302c7a88f3fa301bb129d7ea8cf))
+* remove FluentAssertions ([#361](https://github.com/open-feature/dotnet-sdk/issues/361)) ([4ecfd24](https://github.com/open-feature/dotnet-sdk/commit/4ecfd249181cf8fe372810a1fc3369347c6302fc))
+* Replace SpecFlow with Reqnroll for testing framework ([#368](https://github.com/open-feature/dotnet-sdk/issues/368)) ([ed6ee2c](https://github.com/open-feature/dotnet-sdk/commit/ed6ee2c502b16e49c91c6363ae6b3f54401a85cb)), closes [#354](https://github.com/open-feature/dotnet-sdk/issues/354)
+* update release please repo, specify action permissions ([#369](https://github.com/open-feature/dotnet-sdk/issues/369)) ([63846ad](https://github.com/open-feature/dotnet-sdk/commit/63846ad1033399e9c84ad5946367c5eef2663b5b))
+
+
+### 🔄 Refactoring
+
+* Improve EventExecutor ([#393](https://github.com/open-feature/dotnet-sdk/issues/393)) ([46274a2](https://github.com/open-feature/dotnet-sdk/commit/46274a21d74b5cfffd4cfbc30e5e49e2dc1f256c))
+
 ## [2.3.1](https://github.com/open-feature/dotnet-sdk/compare/v2.3.0...v2.3.1) (2025-02-04)
 
 
