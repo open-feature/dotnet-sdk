@@ -10,4 +10,5 @@ public class State
     public TestHook? TestHook;
     public object? FlagResult;
     public EvaluationContext? EvaluationContext;
+    public string? Level;
 }
