@@ -11,6 +11,12 @@ public class ContextMergingDefinitions : BaseStepDefinitions
     {
     }
 
+    [Given(@"a stable provider with retrievable context is registered")]
+    public void GivenAStableProviderWithRetrievableContextIsRegistered()
+    {
+        this.GivenAStableProvider();
+    }
+
     [Given(@"A context entry with key ""(.*)"" and value ""(.*)"" is added to the ""(.*)"" level")]
     public void GivenAContextEntryWithKeyAndValueIsAddedToTheLevel(string aPI, string p1, string aPI2)
     {
@@ -37,12 +43,6 @@ public class ContextMergingDefinitions : BaseStepDefinitions
 
     [Given(@"Context entries for each level from API level down to the ""(.*)"" level, with key ""(.*)"" and value ""(.*)""")]
     public void GivenContextEntriesForEachLevelFromApiLevelDownToTheLevelWithKeyAndValue(string aPI, string key, string aPI2)
-    {
-        ScenarioContext.StepIsPending();
-    }
-
-    [Given(@"a stable provider with retrievable context is registered")]
-    public void GivenAStableProviderWithRetrievableContextIsRegistered()
     {
         ScenarioContext.StepIsPending();
     }
