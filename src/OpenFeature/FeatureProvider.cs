@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 using OpenFeature.Constant;
 using OpenFeature.Model;
 
-[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")] // required to allow NSubstitute mocking of internal methods
-
 namespace OpenFeature
 {
     /// <summary>
