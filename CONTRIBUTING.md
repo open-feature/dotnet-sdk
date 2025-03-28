@@ -63,13 +63,13 @@ dotnet test test/OpenFeature.Tests/
 
 #### E2E tests
 
-To be able to run the e2e tests, first we need to initialize the submodule and copy the test files:
+To be able to run the e2e tests, first we need to initialize the submodule.
 
 ```bash
-git submodule update --init --recursive && cp spec/specification/assets/gherkin/evaluation.feature test/OpenFeature.E2ETests/Features/
+git submodule update --init --recursive
 ```
 
-Now you can run the tests using:
+Since all the spec files are copied during the build process. Now you can run the tests using:
 
 ```bash
 dotnet test test/OpenFeature.E2ETests/
