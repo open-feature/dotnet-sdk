@@ -12,9 +12,10 @@ On all platforms, the minimum requirements are:
 ### Linux or MacOS
 
 -   JetBrains Rider 2022.2+ or Visual Studio 2022+ for Mac or Visual Studio Code
+
 ### Windows
 
--   Jetbrains Rider 2022.2+ or Visual Studio 2022+ or Visual Studio Code
+-   JetBrains Rider 2022.2+ or Visual Studio 2022+ or Visual Studio Code
 -   .NET Framework 4.6.2+
 
 ## Pull Request
@@ -128,6 +129,7 @@ Please make sure you follow the latest [conventions](https://www.conventionalcom
 -   test: Adding missing tests or correcting existing tests
 
 If you want to point out a breaking change, you should use `!` after the type. For example: `feat!: excellent new feature`.
+
 ## Design Choices
 
 As with other OpenFeature SDKs, dotnet-sdk follows the
