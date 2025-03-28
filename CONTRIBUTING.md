@@ -11,8 +11,7 @@ On all platforms, the minimum requirements are:
 
 ### Linux or MacOS
 
--   Jetbrains Rider 2022.2+ or Visual Studio 2022+ for Mac or Visual Studio Code
-
+-   JetBrains Rider 2022.2+ or Visual Studio 2022+ for Mac or Visual Studio Code
 ### Windows
 
 -   Jetbrains Rider 2022.2+ or Visual Studio 2022+ or Visual Studio Code
