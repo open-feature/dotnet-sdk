@@ -115,7 +115,19 @@ on each other), the owner should try to get people aligned by:
 ## Automated Changelog
 
 Each time a release is published the changelogs will be generated automatically using [googleapis/release-please-action](https://github.com/googleapis/release-please-action). The tool will organise the changes based on the PR labels.
-Please make sure you follow the latest [conventions](https://www.conventionalcommits.org/en/v1.0.0/). We use an automation to check if the pull request respects the desired conventions. You can check it [here](https://github.com/open-feature/dotnet-sdk/actions/workflows/lint-pr.yml).
+Please make sure you follow the latest [conventions](https://www.conventionalcommits.org/en/v1.0.0/). We use an automation to check if the pull request respects the desired conventions. You can check it [here](https://github.com/open-feature/dotnet-sdk/actions/workflows/lint-pr.yml). Must be one of the following:
+
+-   build: Changes that affect the build system or external dependencies (example scopes: nuget)
+-   ci: Changes to our CI configuration files and scripts (example scopes: GitHub Actions, Coverage)
+-   docs: Documentation only changes
+-   feat: A new feature
+-   fix: A bug fix
+-   perf: A code change that improves performance
+-   refactor: A code change that neither fixes a bug nor adds a feature
+-   style: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
+-   test: Adding missing tests or correcting existing tests
+
+If you want to point out a breaking change, you should use `!` after the type. For example: `feat!: excelent new feature`.
 
 ## Design Choices
 
