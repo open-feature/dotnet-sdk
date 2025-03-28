@@ -127,8 +127,7 @@ Please make sure you follow the latest [conventions](https://www.conventionalcom
 -   style: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
 -   test: Adding missing tests or correcting existing tests
 
-If you want to point out a breaking change, you should use `!` after the type. For example: `feat!: excelent new feature`.
-
+If you want to point out a breaking change, you should use `!` after the type. For example: `feat!: excellent new feature`.
 ## Design Choices
 
 As with other OpenFeature SDKs, dotnet-sdk follows the
