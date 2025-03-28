@@ -115,19 +115,8 @@ on each other), the owner should try to get people aligned by:
 
 ## Automated Changelog
 
-Each time a release is published the changelogs will be generated automatically using [dotnet-releaser](https://github.com/xoofx/dotnet-releaser/blob/main/doc/changelog_user_guide.md#13-categories). The tool will organise the changes based on the PR labels.
-
--   🚨 Breaking Changes = `breaking-change`
--   ✨ New Features = `feature`
--   🐛 Bug Fixes = `bug`
--   🚀 Enhancements = `enhancement`
--   🧰 Maintenance = `maintenance`
--   🏭 Tests = `tests`, `test`
--   🛠 Examples = `examples`
--   📚 Documentation = `documentation`
--   🌎 Accessibility = `translations`
--   📦 Dependencies = `dependencies`
--   🧰 Misc = `misc`
+Each time a release is published the changelogs will be generated automatically using [googleapis/release-please-action](https://github.com/googleapis/release-please-action). The tool will organise the changes based on the PR labels.
+Please make sure you follow the latest [conventions](https://www.conventionalcommits.org/en/v1.0.0/). We use an automation to check if the pull request respects the desired conventions. You can check it [here](https://github.com/open-feature/dotnet-sdk/actions/workflows/lint-pr.yml).
 
 ## Design Choices
 
