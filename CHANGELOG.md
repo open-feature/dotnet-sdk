@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.3](https://github.com/open-feature/dotnet-sdk/compare/v2.3.2...v2.3.3) (2025-03-28)
+
+
+### 🔄 Refactoring
+
+* simplify the InternalsVisibleTo usage ([#408](https://github.com/open-feature/dotnet-sdk/issues/408)) ([4043d3d](https://github.com/open-feature/dotnet-sdk/commit/4043d3d7610b398e6be035a0e1bf28e7c81ebf18))
+
 ## [2.3.2](https://github.com/open-feature/dotnet-sdk/compare/v2.3.1...v2.3.2) (2025-03-24)
 
 
