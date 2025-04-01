@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.4.0](https://github.com/open-feature/dotnet-sdk/compare/v2.3.2...v2.4.0) (2025-04-01)
+
+
+### ✨ New Features
+
+* update FeatureLifecycleStateOptions.StopState default to Stopped ([#414](https://github.com/open-feature/dotnet-sdk/issues/414)) ([6c23f21](https://github.com/open-feature/dotnet-sdk/commit/6c23f21d56ef6cc6adce7f798ee302924c227e1f))
+
+
+### 📚 Documentation
+
+* Update contributing guidelines ([#413](https://github.com/open-feature/dotnet-sdk/issues/413)) ([84ea288](https://github.com/open-feature/dotnet-sdk/commit/84ea288a3bc6e5ec8a797312f36e44c28d03c95c))
+
+
+### 🔄 Refactoring
+
+* simplify the InternalsVisibleTo usage ([#408](https://github.com/open-feature/dotnet-sdk/issues/408)) ([4043d3d](https://github.com/open-feature/dotnet-sdk/commit/4043d3d7610b398e6be035a0e1bf28e7c81ebf18))
+
 ## [2.3.2](https://github.com/open-feature/dotnet-sdk/compare/v2.3.1...v2.3.2) (2025-03-24)
 
 
