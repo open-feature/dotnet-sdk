@@ -112,7 +112,7 @@ namespace OpenFeature.Providers.Memory
                 return value.Evaluate(flagKey, defaultValue, context);
             }
 
-            throw new TypeMismatchException($"flag {flagKey} is not of type ${typeof(T)}");
+            throw new TypeMismatchException($"flag {flagKey} is not of type {typeof(T)}");
         }
     }
 }
