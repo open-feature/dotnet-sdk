@@ -15,7 +15,6 @@ namespace OpenFeature.Providers.Memory
     /// <seealso href="https://openfeature.dev/specification/appendix-a#in-memory-provider">In Memory Provider specification</seealso>
     public class InMemoryProvider : FeatureProvider
     {
-
         private readonly Metadata _metadata = new Metadata("InMemory");
 
         private Dictionary<string, Flag> _flags;
@@ -103,7 +102,7 @@ namespace OpenFeature.Providers.Memory
         {
             if (!this._flags.TryGetValue(flagKey, out var flag))
             {
-                throw new FlagNotFoundException($"flag {flagKey} not found");
+                return new ResolutionDetails<T>(flagKey, defaultValue, ErrorType.FlagNotFound, Reason.Error);
             }
 
             // This check returns False if a floating point flag is evaluated as an integer flag, and vice-versa.
