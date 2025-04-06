@@ -42,9 +42,7 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          dotnet-version: |
-            8.0.x
-            9.0.x
+          global-json-file: global.json
           source-url: https://nuget.pkg.github.com/open-feature/index.json
 
       - name: Install dependencies
@@ -74,8 +72,7 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          dotnet-version: |
-            9.0.x
+          global-json-file: global.json
           source-url: https://nuget.pkg.github.com/open-feature/index.json
 
       - name: Install CycloneDX.NET
@@ -87,5 +84,4 @@ jobs:
       - name: Attach SBOM to artifact
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        run:
-          gh release upload ${{ needs.release-please.outputs.release_tag_name }} bom.json
+        run: gh release upload ${{ needs.release-please.outputs.release_tag_name }} bom.json
