@@ -154,7 +154,7 @@ var value = await client.GetBooleanValueAsync("boolFlag", false, context, new Fl
 ### Logging
 
 The .NET SDK uses Microsoft.Extensions.Logging. See the [manual](https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line) for complete documentation.
-Note that in accordance with the OpenFeature specification, the SDK doesn't generally log messages during flag evaluation.
+Note that in accordance with the OpenFeature specification, the SDK doesn't generally log messages during flag evaluation. If you need further troubleshooting, please look into the `Logging Hook` section.
 
 #### Logging Hook
 
