@@ -276,7 +276,6 @@ namespace OpenFeature
                 else
                 {
                     var exception = new FeatureProviderException(evaluation.ErrorType, evaluation.ErrorMessage);
-                    this.FlagEvaluationErrorWithDescription(flagKey, evaluation.ErrorType.GetDescription(), exception);
                     await this.TriggerErrorHooksAsync(allHooksReversed, hookContext, exception, options, cancellationToken)
                         .ConfigureAwait(false);
                 }
