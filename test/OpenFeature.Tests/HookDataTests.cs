@@ -39,16 +39,17 @@ public class HookDataTests
     }
 
     [Fact]
-    public void HookData_Can_Chain_Set() {
+    public void HookData_Can_Chain_Set()
+    {
         var structure = Structure.Builder().Build();
 
         var hookData = new HookData();
         hookData.Set("bool", true)
-        .Set("string", "string")
-        .Set("int", 1)
-        .Set("double", 1.2)
-        .Set("float", 1.2f)
-        .Set("structure", structure);
+            .Set("string", "string")
+            .Set("int", 1)
+            .Set("double", 1.2)
+            .Set("float", 1.2f)
+            .Set("structure", structure);
 
         Assert.True((bool)hookData.Get("bool"));
         Assert.Equal("string", hookData.Get("string"));
