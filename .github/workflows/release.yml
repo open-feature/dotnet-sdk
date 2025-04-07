@@ -54,7 +54,13 @@ jobs:
         run: dotnet pack -c Release --no-restore
 
       - name: Publish to Nuget
-        run: dotnet nuget push "src/**/*.nupkg" --api-key "${{ secrets.NUGET_TOKEN }}" --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push artifacts/packages/*.nupkg --api-key "${{ secrets.NUGET_TOKEN }}" --source https://api.nuget.org/v3/index.json
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+        with:
+          name: packages
+          path: artifacts/packages
 
   sbom:
     runs-on: ubuntu-latest
@@ -87,5 +93,20 @@ jobs:
       - name: Attach SBOM to artifact
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        run:
-          gh release upload ${{ needs.release-please.outputs.release_tag_name }} bom.json
+        run: gh release upload ${{ needs.release-please.outputs.release_tag_name }} bom.json
+
+  attestation:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+    needs: release-please
+    continue-on-error: true
+    if: ${{ needs.release-please.outputs.release_created }}
+
+    steps:
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@c074443f1aee8d4aeeae555aebba3282517141b2 # v2.2.3
+        with:
+          subject-path: "artifacts/packages/*.nupkg"
