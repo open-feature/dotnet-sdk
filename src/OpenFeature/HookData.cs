@@ -28,9 +28,11 @@ namespace OpenFeature
         /// </summary>
         /// <param name="key">The key for the value</param>
         /// <param name="value">The value to set</param>
-        public void Set(string key, object value)
+        /// <returns>This hook data instance</returns>
+        public HookData Set(string key, object value)
         {
             this._data[key] = value;
+            return this;
         }
 
         /// <summary>
