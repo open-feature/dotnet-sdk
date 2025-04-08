@@ -26,7 +26,7 @@ jobs:
           submodules: recursive
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@3951f0dfe7a07e2313ec93c75700083e2005cbab # v4
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -61,7 +61,7 @@ jobs:
           submodules: recursive
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@3951f0dfe7a07e2313ec93c75700083e2005cbab # v4
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -87,7 +87,7 @@ jobs:
 
       - name: Publish NuGet packages (fork)
         if: github.event.pull_request.head.repo.fork == true
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: nupkgs
           path: src/**/*.nupkg
