@@ -14,5 +14,5 @@ public class FeatureLifecycleStateOptions
     /// <summary>
     /// Gets or sets the state during the feature shutdown lifecycle.
     /// </summary>
-    public FeatureStopState StopState { get; set; } = FeatureStopState.Stopping;
+    public FeatureStopState StopState { get; set; } = FeatureStopState.Stopped;
 }

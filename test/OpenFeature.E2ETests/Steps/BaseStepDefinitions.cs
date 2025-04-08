@@ -10,75 +10,74 @@ namespace OpenFeature.E2ETests.Steps;
 [Binding]
 public class BaseStepDefinitions
 {
-    internal FeatureClient? Client;
-    private string _flagKey = null!;
-    private string _defaultValue = null!;
-    internal FlagType? FlagTypeEnum;
-    internal object Result = null!;
+    protected readonly State State;
+
+    public BaseStepDefinitions(State state)
+    {
+        this.State = state;
+    }
 
     [Given(@"a stable provider")]
     public void GivenAStableProvider()
     {
         var memProvider = new InMemoryProvider(E2EFlagConfig);
         Api.Instance.SetProviderAsync(memProvider).Wait();
-        this.Client = Api.Instance.GetClient("TestClient", "1.0.0");
+        this.State.Client = Api.Instance.GetClient("TestClient", "1.0.0");
     }
 
     [Given(@"a Boolean-flag with key ""(.*)"" and a default value ""(.*)""")]
     [Given(@"a boolean-flag with key ""(.*)"" and a default value ""(.*)""")]
     public void GivenABoolean_FlagWithKeyAndADefaultValue(string key, string defaultType)
     {
-        this._flagKey = key;
-        this._defaultValue = defaultType;
-        this.FlagTypeEnum = FlagType.Boolean;
+        var flagState = new FlagState(key, defaultType, FlagType.Boolean);
+        this.State.Flag = flagState;
     }
 
     [Given(@"a Float-flag with key ""(.*)"" and a default value ""(.*)""")]
     [Given(@"a float-flag with key ""(.*)"" and a default value ""(.*)""")]
     public void GivenAFloat_FlagWithKeyAndADefaultValue(string key, string defaultType)
     {
-        this._flagKey = key;
-        this._defaultValue = defaultType;
-        this.FlagTypeEnum = FlagType.Float;
+        var flagState = new FlagState(key, defaultType, FlagType.Float);
+        this.State.Flag = flagState;
     }
 
     [Given(@"a Integer-flag with key ""(.*)"" and a default value ""(.*)""")]
     [Given(@"a integer-flag with key ""(.*)"" and a default value ""(.*)""")]
     public void GivenAnInteger_FlagWithKeyAndADefaultValue(string key, string defaultType)
     {
-        this._flagKey = key;
-        this._defaultValue = defaultType;
-        this.FlagTypeEnum = FlagType.Integer;
+        var flagState = new FlagState(key, defaultType, FlagType.Integer);
+        this.State.Flag = flagState;
     }
 
     [Given(@"a String-flag with key ""(.*)"" and a default value ""(.*)""")]
     [Given(@"a string-flag with key ""(.*)"" and a default value ""(.*)""")]
     public void GivenAString_FlagWithKeyAndADefaultValue(string key, string defaultType)
     {
-        this._flagKey = key;
-        this._defaultValue = defaultType;
-        this.FlagTypeEnum = FlagType.String;
+        var flagState = new FlagState(key, defaultType, FlagType.String);
+        this.State.Flag = flagState;
     }
 
     [When(@"the flag was evaluated with details")]
     public async Task WhenTheFlagWasEvaluatedWithDetails()
     {
-        switch (this.FlagTypeEnum)
+        var flag = this.State.Flag!;
+
+        switch (flag.Type)
         {
             case FlagType.Boolean:
-                this.Result = await this.Client!
-                    .GetBooleanDetailsAsync(this._flagKey, bool.Parse(this._defaultValue)).ConfigureAwait(false);
+                this.State.FlagEvaluationDetailsResult = await this.State.Client!
+                    .GetBooleanDetailsAsync(flag.Key, bool.Parse(flag.DefaultValue)).ConfigureAwait(false);
                 break;
             case FlagType.Float:
-                this.Result = await this.Client!
-                    .GetDoubleDetailsAsync(this._flagKey, double.Parse(this._defaultValue)).ConfigureAwait(false);
+                this.State.FlagEvaluationDetailsResult = await this.State.Client!
+                    .GetDoubleDetailsAsync(flag.Key, double.Parse(flag.DefaultValue)).ConfigureAwait(false);
                 break;
             case FlagType.Integer:
-                this.Result = await this.Client!
-                    .GetIntegerDetailsAsync(this._flagKey, int.Parse(this._defaultValue)).ConfigureAwait(false);
+                this.State.FlagEvaluationDetailsResult = await this.State.Client!
+                    .GetIntegerDetailsAsync(flag.Key, int.Parse(flag.DefaultValue)).ConfigureAwait(false);
                 break;
             case FlagType.String:
-                this.Result = await this.Client!.GetStringDetailsAsync(this._flagKey, this._defaultValue)
+                this.State.FlagEvaluationDetailsResult = await this.State.Client!.GetStringDetailsAsync(flag.Key, flag.DefaultValue)
                     .ConfigureAwait(false);
                 break;
         }
@@ -103,21 +102,60 @@ public class BaseStepDefinitions
             )
         },
         {
+            "string-flag", new Flag<string>(
+                variants: new Dictionary<string, string>() { { "greeting", "hi" }, { "parting", "bye" } },
+                defaultVariant: "greeting"
+            )
+        },
+        {
             "integer-flag", new Flag<int>(
-                variants: new Dictionary<string, int> { { "23", 23 }, { "42", 42 } },
-                defaultVariant: "23"
+                variants: new Dictionary<string, int>() { { "one", 1 }, { "ten", 10 } },
+                defaultVariant: "ten"
             )
         },
         {
             "float-flag", new Flag<double>(
-                variants: new Dictionary<string, double> { { "2.3", 2.3 }, { "4.2", 4.2 } },
-                defaultVariant: "2.3"
+                variants: new Dictionary<string, double>() { { "tenth", 0.1 }, { "half", 0.5 } },
+                defaultVariant: "half"
             )
         },
         {
-            "string-flag", new Flag<string>(
-                variants: new Dictionary<string, string> { { "value", "value" }, { "value2", "value2" } },
-                defaultVariant: "value"
+            "object-flag", new Flag<Value>(
+                variants: new Dictionary<string, Value>()
+                {
+                    { "empty", new Value() },
+                    {
+                        "template", new Value(Structure.Builder()
+                            .Set("showImages", true)
+                            .Set("title", "Check out these pics!")
+                            .Set("imagesPerPage", 100).Build()
+                        )
+                    }
+                },
+                defaultVariant: "template"
+            )
+        },
+        {
+            "context-aware", new Flag<string>(
+                variants: new Dictionary<string, string>() { { "internal", "INTERNAL" }, { "external", "EXTERNAL" } },
+                defaultVariant: "external",
+                (context) =>
+                {
+                    if (context.GetValue("fn").AsString == "Sulisław"
+                        && context.GetValue("ln").AsString == "Świętopełk"
+                        && context.GetValue("age").AsInteger == 29
+                        && context.GetValue("customer").AsBoolean == false)
+                    {
+                        return "internal";
+                    }
+                    else return "external";
+                }
+            )
+        },
+        {
+            "wrong-flag", new Flag<string>(
+                variants: new Dictionary<string, string>() { { "one", "uno" }, { "two", "dos" } },
+                defaultVariant: "one"
             )
         }
     };

@@ -65,6 +65,7 @@ namespace OpenFeature.Providers.Memory
                 FlagsChanged = changed, // emit all
                 Message = "flags changed",
             };
+
             await this.EventChannel.Writer.WriteAsync(@event).ConfigureAwait(false);
         }
 

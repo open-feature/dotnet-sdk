@@ -1,12 +1,9 @@
 using System.Collections.Immutable;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using OpenFeature.Constant;
 using OpenFeature.Model;
-
-[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")] // required to allow NSubstitute mocking of internal methods
 
 namespace OpenFeature
 {
@@ -140,7 +137,7 @@ namespace OpenFeature
         /// Returns the event channel of the provider.
         /// </summary>
         /// <returns>The event channel of the provider</returns>
-        public virtual Channel<object> GetEventChannel() => this.EventChannel;
+        public Channel<object> GetEventChannel() => this.EventChannel;
 
         /// <summary>
         /// Track a user action or application state, usually representing a business objective or outcome. The implementation of this method is optional.
