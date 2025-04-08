@@ -54,7 +54,7 @@ jobs:
         run: dotnet pack -c Release --no-restore
 
       - name: Publish to Nuget
-        run: dotnet nuget push artifacts/packages/*.nupkg --api-key "${{ secrets.NUGET_TOKEN }}" --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push "src/**/*.nupkg" --api-key "${{ secrets.NUGET_TOKEN }}" --source https://api.nuget.org/v3/index.json
 
       - name: Upload artifacts
         uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
