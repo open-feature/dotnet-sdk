@@ -20,4 +20,4 @@ jobs:
           dotnet-version: 9.0.x
 
       - name: dotnet format
-        run: dotnet format --verify-no-changes OpenFeature.sln
+        run: dotnet format --verify-no-changes OpenFeature.slnx
