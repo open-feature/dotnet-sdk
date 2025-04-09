@@ -100,7 +100,7 @@ public class BaseStepDefinitions
         if (this.State.ContextPrecedenceLevels == null)
             this.State.ContextPrecedenceLevels = new string[0];
 
-        foreach (var level in this.State.ContextPrecedenceLevels )
+        foreach (var level in this.State.ContextPrecedenceLevels)
         {
             var context = EvaluationContext.Builder()
                 .Set(key, value)
