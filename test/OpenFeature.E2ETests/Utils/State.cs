@@ -10,4 +10,6 @@ public class State
     public TestHook? TestHook;
     public object? FlagResult;
     public EvaluationContext? EvaluationContext;
+    public EvaluationContext? InvocationEvaluationContext;
+    public string[]? ContextPrecedenceLevels;
 }
