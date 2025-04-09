@@ -30,6 +30,10 @@ jobs:
   release:
     runs-on: ubuntu-latest
     needs: release-please
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
     if: ${{ needs.release-please.outputs.release_created }}
 
     steps:
@@ -55,6 +59,11 @@ jobs:
 
       - name: Publish to Nuget
         run: dotnet nuget push "src/**/*.nupkg" --api-key "${{ secrets.NUGET_TOKEN }}" --source https://api.nuget.org/v3/index.json
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@c074443f1aee8d4aeeae555aebba3282517141b2 # v2.2.3
+        with:
+          subject-path: "src/**/*.nupkg"
 
   sbom:
     runs-on: ubuntu-latest
@@ -87,5 +96,4 @@ jobs:
       - name: Attach SBOM to artifact
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        run:
-          gh release upload ${{ needs.release-please.outputs.release_tag_name }} bom.json
+        run: gh release upload ${{ needs.release-please.outputs.release_tag_name }} bom.json
