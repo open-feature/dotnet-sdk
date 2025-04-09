@@ -184,7 +184,7 @@ namespace OpenFeature.Tests
 
             _ = mockedFeatureProvider.Received(1).ResolveStructureValueAsync(flagName, defaultValue, Arg.Any<EvaluationContext>());
 
-            mockedLogger.Received(1).IsEnabled(LogLevel.Error);
+            mockedLogger.Received(0).IsEnabled(LogLevel.Error);
         }
 
         [Fact]
