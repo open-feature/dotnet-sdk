@@ -21,10 +21,10 @@ public class BaseStepDefinitions
     }
 
     [Given(@"a stable provider")]
-    public void GivenAStableProvider()
+    public async Task GivenAStableProvider()
     {
         var memProvider = new InMemoryProvider(E2EFlagConfig);
-        Api.Instance.SetProviderAsync(memProvider).Wait();
+        await Api.Instance.SetProviderAsync(memProvider).ConfigureAwait(false);
         this.State.Client = Api.Instance.GetClient("TestClient", "1.0.0");
     }
 
@@ -61,10 +61,10 @@ public class BaseStepDefinitions
     }
 
     [Given("a stable provider with retrievable context is registered")]
-    public void GivenAStableProviderWithRetrievableContextIsRegistered()
+    public async Task GivenAStableProviderWithRetrievableContextIsRegistered()
     {
         var memProvider = new InMemoryProvider(E2EFlagConfig);
-        Api.Instance.SetProviderAsync(memProvider).Wait();
+        await Api.Instance.SetProviderAsync(memProvider).ConfigureAwait(false);
 
         var hook = new MockHook((ctx) => this.State.EvaluationContext = ctx);
         Api.Instance.AddHooks(hook);
