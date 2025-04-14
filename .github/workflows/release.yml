@@ -23,6 +23,7 @@ jobs:
           token: ${{secrets.RELEASE_PLEASE_ACTION_TOKEN}}
           default-branch: main
           signoff: "OpenFeature Bot <109696520+openfeaturebot@users.noreply.github.com>"
+          release-type: simple
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       release_tag_name: ${{ steps.release.outputs.tag_name }}
@@ -46,9 +47,7 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          dotnet-version: |
-            8.0.x
-            9.0.x
+          global-json-file: global.json
           source-url: https://nuget.pkg.github.com/open-feature/index.json
 
       - name: Install dependencies
@@ -83,8 +82,7 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          dotnet-version: |
-            9.0.x
+          global-json-file: global.json
           source-url: https://nuget.pkg.github.com/open-feature/index.json
 
       - name: Install CycloneDX.NET
