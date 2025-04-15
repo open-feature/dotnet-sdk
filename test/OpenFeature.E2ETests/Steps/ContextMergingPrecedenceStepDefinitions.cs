@@ -16,14 +16,16 @@ public class ContextMergingPrecedenceStepDefinitions : BaseStepDefinitions
     [When("Some flag was evaluated")]
     public async Task WhenSomeFlagWasEvaluated()
     {
-        this.State.Flag = new FlagState("boolean-flag", "true".ToString(), FlagType.Boolean);
+        this.State.Flag = new FlagState("boolean-flag", "true", FlagType.Boolean);
         this.State.FlagResult = await this.State.Client!.GetBooleanValueAsync("boolean-flag", true, this.State.InvocationEvaluationContext).ConfigureAwait(false);
     }
 
     [Then(@"The merged context contains an entry with key ""(.*)"" and value ""(.*)""")]
     public void ThenTheMergedContextContainsAnEntryWithKeyAndValue(string key, string value)
     {
-        var mergedContext = this.State.EvaluationContext!;
+        var provider = this.State.ContextStoringProvider;
+
+        var mergedContext = provider!.EvaluationContext!;
 
         Assert.NotNull(mergedContext);
 

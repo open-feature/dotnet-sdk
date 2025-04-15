@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -63,11 +62,9 @@ public class BaseStepDefinitions
     [Given("a stable provider with retrievable context is registered")]
     public async Task GivenAStableProviderWithRetrievableContextIsRegistered()
     {
-        var memProvider = new InMemoryProvider(E2EFlagConfig);
-        await Api.Instance.SetProviderAsync(memProvider).ConfigureAwait(false);
+        this.State.ContextStoringProvider = new ContextStoringProvider();
 
-        var hook = new MockHook((ctx) => this.State.EvaluationContext = ctx);
-        Api.Instance.AddHooks(hook);
+        await Api.Instance.SetProviderAsync(this.State.ContextStoringProvider).ConfigureAwait(false);
 
         Api.Instance.SetTransactionContextPropagator(new AsyncLocalTransactionContextPropagator());
 
@@ -81,7 +78,7 @@ public class BaseStepDefinitions
             .Set(key, value)
             .Build();
 
-        this.InitialiseContext(level, context);
+        this.InitializeContext(level, context);
     }
 
     [Given("A table with levels of increasing precedence")]
@@ -106,7 +103,7 @@ public class BaseStepDefinitions
                 .Set(key, value)
                 .Build();
 
-            this.InitialiseContext(level, context);
+            this.InitializeContext(level, context);
         }
     }
 
@@ -135,7 +132,7 @@ public class BaseStepDefinitions
                 break;
         }
     }
-    private void InitialiseContext(string level, EvaluationContext context)
+    private void InitializeContext(string level, EvaluationContext context)
     {
         switch (level)
         {
@@ -168,22 +165,19 @@ public class BaseStepDefinitions
                 }
             case "Before Hooks": // Assumed before hooks is the same as Invocation
                 {
-                    if (this.State.InvocationEvaluationContext != null)
+                    if (this.State.Client != null)
                     {
-                        this.State.InvocationEvaluationContext = EvaluationContext.Builder()
-                            .Merge(context)
-                            .Merge(this.State.InvocationEvaluationContext!)
-                            .Build();
+                        this.State.Client.AddHooks(new BeforeHook(context));
                     }
                     else
                     {
-                        this.State.InvocationEvaluationContext = context;
+                        throw new PendingStepException("You must initialise a FeatureClient before adding some EvaluationContext");
                     }
 
                     break;
                 }
             default:
-                break;
+                throw new PendingStepException("Context level not defined");
         }
     }
 
@@ -264,21 +258,18 @@ public class BaseStepDefinitions
         }
     };
 
-    public class MockHook : Hook
+    public class BeforeHook : Hook
     {
-        private readonly Func<EvaluationContext, EvaluationContext> mergedFinallyContext;
+        private readonly EvaluationContext context;
 
-        public MockHook(Func<EvaluationContext, EvaluationContext> mergedFinallyContext)
+        public BeforeHook(EvaluationContext context)
         {
-            this.mergedFinallyContext = mergedFinallyContext;
+            this.context = context;
         }
 
-        public override ValueTask FinallyAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> evaluationDetails, IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
+        public override ValueTask<EvaluationContext> BeforeAsync<T>(HookContext<T> context, IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
         {
-            this.mergedFinallyContext(context.EvaluationContext);
-
-            return base.FinallyAsync(context, evaluationDetails, hints, cancellationToken);
+            return new ValueTask<EvaluationContext>(this.context);
         }
     }
-
 }
