@@ -8,7 +8,7 @@
 
 <!-- x-hide-in-docs-end -->
 
-[![Specification](https://img.shields.io/static/v1?label=specification&message=v0.7.0&color=yellow&style=for-the-badge)](https://github.com/open-feature/spec/releases/tag/v0.7.0)
+[![Specification](https://img.shields.io/static/v1?label=specification&message=v0.8.0&color=yellow&style=for-the-badge)](https://github.com/open-feature/spec/releases/tag/v0.8.0)
 [
 ![Release](https://img.shields.io/static/v1?label=release&message=v2.4.0&color=blue&style=for-the-badge) <!-- x-release-please-version -->
 ](https://github.com/open-feature/dotnet-sdk/releases/tag/v2.4.0) <!-- x-release-please-version -->
