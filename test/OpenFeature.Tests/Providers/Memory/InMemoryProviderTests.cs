@@ -175,9 +175,14 @@ namespace OpenFeature.Tests.Providers.Memory
         }
 
         [Fact]
-        public async Task MissingFlag_ShouldThrow()
+        public async Task MissingFlag_ShouldReturnFlagNotFoundEvaluationFlag()
         {
-            await Assert.ThrowsAsync<FlagNotFoundException>(() => this.commonProvider.ResolveBooleanValueAsync("missing-flag", false, EvaluationContext.Empty));
+            // Act
+            var result = await this.commonProvider.ResolveBooleanValueAsync("missing-flag", false, EvaluationContext.Empty);
+
+            // Assert
+            Assert.Equal(Reason.Error, result.Reason);
+            Assert.Equal(ErrorType.FlagNotFound, result.ErrorType);
         }
 
         [Fact]
@@ -230,7 +235,11 @@ namespace OpenFeature.Tests.Providers.Memory
             var res = await provider.GetEventChannel().Reader.ReadAsync() as ProviderEventPayload;
             Assert.Equal(ProviderEventTypes.ProviderConfigurationChanged, res?.Type);
 
-            await Assert.ThrowsAsync<FlagNotFoundException>(() => provider.ResolveBooleanValueAsync("old-flag", false, EvaluationContext.Empty));
+            // old flag should be gone
+            var oldFlag = await provider.ResolveBooleanValueAsync("old-flag", false, EvaluationContext.Empty);
+
+            Assert.Equal(Reason.Error, oldFlag.Reason);
+            Assert.Equal(ErrorType.FlagNotFound, oldFlag.ErrorType);
 
             // new flag should be present, old gone (defaults), handler run.
             ResolutionDetails<string> detailsAfter = await provider.ResolveStringValueAsync("new-flag", "nope", EvaluationContext.Empty);

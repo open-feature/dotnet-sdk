@@ -276,7 +276,6 @@ namespace OpenFeature
                 else
                 {
                     var exception = new FeatureProviderException(evaluation.ErrorType, evaluation.ErrorMessage);
-                    this.FlagEvaluationErrorWithDescription(flagKey, evaluation.ErrorType.GetDescription(), exception);
                     await this.TriggerErrorHooksAsync(allHooksReversed, hookContext, exception, options, cancellationToken)
                         .ConfigureAwait(false);
                 }
@@ -290,7 +289,6 @@ namespace OpenFeature
             }
             catch (Exception ex)
             {
-                this.FlagEvaluationError(flagKey, ex);
                 var errorCode = ex is InvalidCastException ? ErrorType.TypeMismatch : ErrorType.General;
                 evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, errorCode, Reason.Error, string.Empty, ex.Message);
                 await this.TriggerErrorHooksAsync(allHooksReversed, hookContext, ex, options, cancellationToken).ConfigureAwait(false);
@@ -396,9 +394,6 @@ namespace OpenFeature
 
         [LoggerMessage(100, LogLevel.Debug, "Hook {HookName} returned null, nothing to merge back into context")]
         partial void HookReturnedNull(string hookName);
-
-        [LoggerMessage(101, LogLevel.Error, "Error while evaluating flag {FlagKey}")]
-        partial void FlagEvaluationError(string flagKey, Exception exception);
 
         [LoggerMessage(102, LogLevel.Error, "Error while evaluating flag {FlagKey}: {ErrorType}")]
         partial void FlagEvaluationErrorWithDescription(string flagKey, string errorType, Exception exception);
