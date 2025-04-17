@@ -19,7 +19,7 @@ public static class TelemetryConstants
     /// <summary>
     /// A semantic identifier for an evaluated flag value.
     /// </summary>
-    public const string Variant = "feature_flag.variant";
+    public const string Variant = "feature_flag.result.variant";
 
     /// <summary>
     /// The unique identifier for the flag evaluation context. For example, the targeting key.
@@ -29,17 +29,17 @@ public static class TelemetryConstants
     /// <summary>
     /// A message explaining the nature of an error occurring during flag evaluation.
     /// </summary>
-    public const string ErrorMessage = "feature_flag.evaluation.error.message";
+    public const string ErrorMessage = "error.message";
 
     /// <summary>
     /// The reason code which shows how a feature flag value was determined.
     /// </summary>
-    public const string Reason = "feature_flag.evaluation.reason";
+    public const string Reason = "feature_flag.result.reason";
 
     /// <summary>
     /// Describes a class of error the operation ended with.
     /// </summary>
-    public const string Provider = "feature_flag.provider_name";
+    public const string Provider = "feature_flag.provider.name";
 
     /// <summary>
     /// The identifier of the flag set to which the feature flag belongs.
