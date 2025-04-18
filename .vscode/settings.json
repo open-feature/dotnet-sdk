@@ -1,4 +1,5 @@
 {
+  "dotnet.defaultSolution": "OpenFeature.slnx",
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
     // shows *.feature.cs files as nested items
