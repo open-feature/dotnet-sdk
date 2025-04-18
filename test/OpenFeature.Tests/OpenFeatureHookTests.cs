@@ -207,6 +207,7 @@ namespace OpenFeature.Tests
                 .Returns(EvaluationContext.Empty).AndDoes(info =>
                 {
                     info.Arg<HookContext<bool>>().Data.Set("hook-1-value-a", true);
+                    info.Arg<HookContext<bool>>().Data.Set("same", true);
                 });
             hook1.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(),
                 Arg.Any<ImmutableDictionary<string, object>>()).Returns(new ValueTask()).AndDoes(info =>
@@ -218,6 +219,7 @@ namespace OpenFeature.Tests
                 .Returns(EvaluationContext.Empty).AndDoes(info =>
                 {
                     info.Arg<HookContext<bool>>().Data.Set("hook-2-value-a", false);
+                    info.Arg<HookContext<bool>>().Data.Set("same", false);
                 });
             hook2.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(),
                 Arg.Any<ImmutableDictionary<string, object>>()).Returns(new ValueTask()).AndDoes(info =>
@@ -229,10 +231,11 @@ namespace OpenFeature.Tests
             var client = Api.Instance.GetClient("test", "1.0.0");
 
             await client.GetBooleanValueAsync("test", false, EvaluationContext.Empty,
-                new FlagEvaluationOptions(ImmutableList.Create(hook1, hook2), ImmutableDictionary<string, object>.Empty));
+                new FlagEvaluationOptions(ImmutableList.Create(hook1, hook2),
+                    ImmutableDictionary<string, object>.Empty));
 
             _ = hook1.Received(1).AfterAsync(Arg.Is<HookContext<bool>>(hookContext =>
-                (bool)hookContext.Data.Get("hook-1-value-a") == true
+                (bool)hookContext.Data.Get("hook-1-value-a") == true && (bool)hookContext.Data.Get("same") == true
             ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
             _ = hook1.Received(1).FinallyAsync(Arg.Is<HookContext<bool>>(hookContext =>
                 (bool)hookContext.Data.Get("hook-1-value-a") == true &&
@@ -240,7 +243,7 @@ namespace OpenFeature.Tests
             ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
 
             _ = hook2.Received(1).AfterAsync(Arg.Is<HookContext<bool>>(hookContext =>
-                (bool)hookContext.Data.Get("hook-2-value-a") == false
+                (bool)hookContext.Data.Get("hook-2-value-a") == false && (bool)hookContext.Data.Get("same") == false
             ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
             _ = hook2.Received(1).FinallyAsync(Arg.Is<HookContext<bool>>(hookContext =>
                 (bool)hookContext.Data.Get("hook-2-value-a") == false &&
