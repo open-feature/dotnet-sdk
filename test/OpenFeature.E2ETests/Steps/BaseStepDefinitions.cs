@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using OpenFeature.E2ETests.Utils;
 using OpenFeature.Model;
@@ -18,10 +20,10 @@ public class BaseStepDefinitions
     }
 
     [Given(@"a stable provider")]
-    public void GivenAStableProvider()
+    public async Task GivenAStableProvider()
     {
         var memProvider = new InMemoryProvider(E2EFlagConfig);
-        Api.Instance.SetProviderAsync(memProvider).Wait();
+        await Api.Instance.SetProviderAsync(memProvider).ConfigureAwait(false);
         this.State.Client = Api.Instance.GetClient("TestClient", "1.0.0");
     }
 
@@ -57,6 +59,54 @@ public class BaseStepDefinitions
         this.State.Flag = flagState;
     }
 
+    [Given("a stable provider with retrievable context is registered")]
+    public async Task GivenAStableProviderWithRetrievableContextIsRegistered()
+    {
+        this.State.ContextStoringProvider = new ContextStoringProvider();
+
+        await Api.Instance.SetProviderAsync(this.State.ContextStoringProvider).ConfigureAwait(false);
+
+        Api.Instance.SetTransactionContextPropagator(new AsyncLocalTransactionContextPropagator());
+
+        this.State.Client = Api.Instance.GetClient("TestClient", "1.0.0");
+    }
+
+    [Given(@"A context entry with key ""(.*)"" and value ""(.*)"" is added to the ""(.*)"" level")]
+    public void GivenAContextEntryWithKeyAndValueIsAddedToTheLevel(string key, string value, string level)
+    {
+        var context = EvaluationContext.Builder()
+            .Set(key, value)
+            .Build();
+
+        this.InitializeContext(level, context);
+    }
+
+    [Given("A table with levels of increasing precedence")]
+    public void GivenATableWithLevelsOfIncreasingPrecedence(DataTable dataTable)
+    {
+        var items = dataTable.Rows.ToList();
+
+        var levels = items.Select(r => r.Values.First());
+
+        this.State.ContextPrecedenceLevels = levels.ToArray();
+    }
+
+    [Given(@"Context entries for each level from API level down to the ""(.*)"" level, with key ""(.*)"" and value ""(.*)""")]
+    public void GivenContextEntriesForEachLevelFromAPILevelDownToTheLevelWithKeyAndValue(string currentLevel, string key, string value)
+    {
+        if (this.State.ContextPrecedenceLevels == null)
+            this.State.ContextPrecedenceLevels = new string[0];
+
+        foreach (var level in this.State.ContextPrecedenceLevels)
+        {
+            var context = EvaluationContext.Builder()
+                .Set(key, value)
+                .Build();
+
+            this.InitializeContext(level, context);
+        }
+    }
+
     [When(@"the flag was evaluated with details")]
     public async Task WhenTheFlagWasEvaluatedWithDetails()
     {
@@ -80,6 +130,54 @@ public class BaseStepDefinitions
                 this.State.FlagEvaluationDetailsResult = await this.State.Client!.GetStringDetailsAsync(flag.Key, flag.DefaultValue)
                     .ConfigureAwait(false);
                 break;
+        }
+    }
+    private void InitializeContext(string level, EvaluationContext context)
+    {
+        switch (level)
+        {
+            case "API":
+                {
+                    Api.Instance.SetContext(context);
+                    break;
+                }
+            case "Transaction":
+                {
+                    Api.Instance.SetTransactionContext(context);
+                    break;
+                }
+            case "Client":
+                {
+                    if (this.State.Client != null)
+                    {
+                        this.State.Client.SetContext(context);
+                    }
+                    else
+                    {
+                        throw new PendingStepException("You must initialise a FeatureClient before adding some EvaluationContext");
+                    }
+                    break;
+                }
+            case "Invocation":
+                {
+                    this.State.InvocationEvaluationContext = context;
+                    break;
+                }
+            case "Before Hooks": // Assumed before hooks is the same as Invocation
+                {
+                    if (this.State.Client != null)
+                    {
+                        this.State.Client.AddHooks(new BeforeHook(context));
+                    }
+                    else
+                    {
+                        throw new PendingStepException("You must initialise a FeatureClient before adding some EvaluationContext");
+                    }
+
+                    break;
+                }
+            default:
+                throw new PendingStepException("Context level not defined");
         }
     }
 
@@ -159,4 +257,19 @@ public class BaseStepDefinitions
             )
         }
     };
+
+    public class BeforeHook : Hook
+    {
+        private readonly EvaluationContext context;
+
+        public BeforeHook(EvaluationContext context)
+        {
+            this.context = context;
+        }
+
+        public override ValueTask<EvaluationContext> BeforeAsync<T>(HookContext<T> context, IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
+        {
+            return new ValueTask<EvaluationContext>(this.context);
+        }
+    }
 }

@@ -12,6 +12,9 @@ on:
 
 jobs:
   build-test-report:
+    permissions:
+      contents: read
+      pull-requests: write
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
@@ -24,19 +27,17 @@ jobs:
           fetch-depth: 0
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@3951f0dfe7a07e2313ec93c75700083e2005cbab # v4
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          dotnet-version: |
-            8.0.x
-            9.0.x
+          global-json-file: global.json
           source-url: https://nuget.pkg.github.com/open-feature/index.json
 
       - name: Run Test
         run: dotnet test --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 
-      - uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
+      - uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
         with:
           name: Code Coverage for ${{ matrix.os }}
           fail_ci_if_error: true

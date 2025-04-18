@@ -2,19 +2,22 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths-ignore:
-    - '**.md'
+      - "**.md"
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths-ignore:
-    - '**.md'
+      - "**.md"
 
 jobs:
   build:
+    permissions:
+      contents: read
+      pull-requests: write
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest ]
+        os: [ubuntu-latest, windows-latest]
 
     runs-on: ${{ matrix.os }}
 
@@ -26,13 +29,11 @@ jobs:
           submodules: recursive
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@3951f0dfe7a07e2313ec93c75700083e2005cbab # v4
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          dotnet-version: |
-            8.0.x
-            9.0.x
+          global-json-file: global.json
           source-url: https://nuget.pkg.github.com/open-feature/index.json
 
       - name: Restore
@@ -50,6 +51,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
+      attestations: write
 
     runs-on: ubuntu-latest
 
@@ -61,13 +64,11 @@ jobs:
           submodules: recursive
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@3951f0dfe7a07e2313ec93c75700083e2005cbab # v4
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          dotnet-version: |
-            8.0.x
-            9.0.x
+          global-json-file: global.json
           source-url: https://nuget.pkg.github.com/open-feature/index.json
 
       - name: Restore
@@ -87,7 +88,7 @@ jobs:
 
       - name: Publish NuGet packages (fork)
         if: github.event.pull_request.head.repo.fork == true
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: nupkgs
           path: src/**/*.nupkg
