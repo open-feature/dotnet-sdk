@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -222,32 +223,29 @@ namespace OpenFeature
             evaluationContextBuilder.Merge(Api.Instance.GetTransactionContext()); // Transaction context
             evaluationContextBuilder.Merge(context); // Invocation context
 
-            var allHooks = new List<Hook>()
+            var allHooks = ImmutableList.CreateBuilder<Hook>()
                 .Concat(Api.Instance.GetHooks())
                 .Concat(this.GetHooks())
                 .Concat(options?.Hooks ?? Enumerable.Empty<Hook>())
                 .Concat(provider.GetProviderHooks())
-                .ToList()
-                .AsReadOnly();
+                .ToImmutableList();
 
-            var allHooksReversed = allHooks
-                .AsEnumerable()
-                .Reverse()
-                .ToList()
-                .AsReadOnly();
-
-            var hookContext = new HookContext<T>(
+            var sharedHookContext = new SharedHookContext<T>(
                 flagKey,
                 defaultValue,
-                flagValueType, this._metadata,
-                provider.GetMetadata(),
-                evaluationContextBuilder.Build()
+                flagValueType,
+                this._metadata,
+                provider.GetMetadata()
             );
 
             FlagEvaluationDetails<T>? evaluation = null;
+            var hookRunner = new HookRunner<T>(allHooks, evaluationContextBuilder.Build(), sharedHookContext,
+                this._logger);
+
             try
             {
-                var contextFromHooks = await this.TriggerBeforeHooksAsync(allHooks, hookContext, options, cancellationToken).ConfigureAwait(false);
+                var evaluationContextFromHooks = await hookRunner.TriggerBeforeHooksAsync(options?.HookHints, cancellationToken)
+                    .ConfigureAwait(false);
 
                 // short circuit evaluation entirely if provider is in a bad state
                 if (provider.Status == ProviderStatus.NotReady)
@@ -260,23 +258,24 @@ namespace OpenFeature
                 }
 
                 evaluation =
-                    (await resolveValueDelegate.Invoke(flagKey, defaultValue, contextFromHooks.EvaluationContext, cancellationToken).ConfigureAwait(false))
+                    (await resolveValueDelegate
+                        .Invoke(flagKey, defaultValue, evaluationContextFromHooks, cancellationToken)
+                        .ConfigureAwait(false))
                     .ToFlagEvaluationDetails();
 
                 if (evaluation.ErrorType == ErrorType.None)
                 {
-                    await this.TriggerAfterHooksAsync(
-                        allHooksReversed,
-                        hookContext,
+                    await hookRunner.TriggerAfterHooksAsync(
                         evaluation,
-                        options,
+                        options?.HookHints,
                         cancellationToken
                     ).ConfigureAwait(false);
                 }
                 else
                 {
                     var exception = new FeatureProviderException(evaluation.ErrorType, evaluation.ErrorMessage);
-                    await this.TriggerErrorHooksAsync(allHooksReversed, hookContext, exception, options, cancellationToken)
+                    this.FlagEvaluationErrorWithDescription(flagKey, evaluation.ErrorType.GetDescription(), exception);
+                    await hookRunner.TriggerErrorHooksAsync(exception, options?.HookHints, cancellationToken)
                         .ConfigureAwait(false);
                 }
             }
@@ -285,86 +284,27 @@ namespace OpenFeature
                 this.FlagEvaluationErrorWithDescription(flagKey, ex.ErrorType.GetDescription(), ex);
                 evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, ex.ErrorType, Reason.Error,
                     string.Empty, ex.Message);
-                await this.TriggerErrorHooksAsync(allHooksReversed, hookContext, ex, options, cancellationToken).ConfigureAwait(false);
+                await hookRunner.TriggerErrorHooksAsync(ex, options?.HookHints, cancellationToken)
+                    .ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 var errorCode = ex is InvalidCastException ? ErrorType.TypeMismatch : ErrorType.General;
-                evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, errorCode, Reason.Error, string.Empty, ex.Message);
-                await this.TriggerErrorHooksAsync(allHooksReversed, hookContext, ex, options, cancellationToken).ConfigureAwait(false);
+                evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, errorCode, Reason.Error, string.Empty,
+                    ex.Message);
+                await hookRunner.TriggerErrorHooksAsync(ex, options?.HookHints, cancellationToken)
+                    .ConfigureAwait(false);
             }
             finally
             {
-                evaluation ??= new FlagEvaluationDetails<T>(flagKey, defaultValue, ErrorType.General, Reason.Error, string.Empty,
+                evaluation ??= new FlagEvaluationDetails<T>(flagKey, defaultValue, ErrorType.General, Reason.Error,
+                    string.Empty,
                     "Evaluation failed to return a result.");
-                await this.TriggerFinallyHooksAsync(allHooksReversed, evaluation, hookContext, options, cancellationToken).ConfigureAwait(false);
+                await hookRunner.TriggerFinallyHooksAsync(evaluation, options?.HookHints, cancellationToken)
+                    .ConfigureAwait(false);
             }
 
             return evaluation;
-        }
-
-        private async Task<HookContext<T>> TriggerBeforeHooksAsync<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
-            FlagEvaluationOptions? options, CancellationToken cancellationToken = default)
-        {
-            var evalContextBuilder = EvaluationContext.Builder();
-            evalContextBuilder.Merge(context.EvaluationContext);
-
-            foreach (var hook in hooks)
-            {
-                var resp = await hook.BeforeAsync(context, options?.HookHints, cancellationToken).ConfigureAwait(false);
-                if (resp != null)
-                {
-                    evalContextBuilder.Merge(resp);
-                    context = context.WithNewEvaluationContext(evalContextBuilder.Build());
-                }
-                else
-                {
-                    this.HookReturnedNull(hook.GetType().Name);
-                }
-            }
-
-            return context.WithNewEvaluationContext(evalContextBuilder.Build());
-        }
-
-        private async Task TriggerAfterHooksAsync<T>(IReadOnlyList<Hook> hooks, HookContext<T> context,
-            FlagEvaluationDetails<T> evaluationDetails, FlagEvaluationOptions? options, CancellationToken cancellationToken = default)
-        {
-            foreach (var hook in hooks)
-            {
-                await hook.AfterAsync(context, evaluationDetails, options?.HookHints, cancellationToken).ConfigureAwait(false);
-            }
-        }
-
-        private async Task TriggerErrorHooksAsync<T>(IReadOnlyList<Hook> hooks, HookContext<T> context, Exception exception,
-            FlagEvaluationOptions? options, CancellationToken cancellationToken = default)
-        {
-            foreach (var hook in hooks)
-            {
-                try
-                {
-                    await hook.ErrorAsync(context, exception, options?.HookHints, cancellationToken).ConfigureAwait(false);
-                }
-                catch (Exception e)
-                {
-                    this.ErrorHookError(hook.GetType().Name, e);
-                }
-            }
-        }
-
-        private async Task TriggerFinallyHooksAsync<T>(IReadOnlyList<Hook> hooks, FlagEvaluationDetails<T> evaluation,
-            HookContext<T> context, FlagEvaluationOptions? options, CancellationToken cancellationToken = default)
-        {
-            foreach (var hook in hooks)
-            {
-                try
-                {
-                    await hook.FinallyAsync(context, evaluation, options?.HookHints, cancellationToken).ConfigureAwait(false);
-                }
-                catch (Exception e)
-                {
-                    this.FinallyHookError(hook.GetType().Name, e);
-                }
-            }
         }
 
         /// <summary>
@@ -392,16 +332,13 @@ namespace OpenFeature
             this._providerAccessor.Invoke().Track(trackingEventName, evaluationContextBuilder.Build(), trackingEventDetails);
         }
 
+        [LoggerMessage(101, LogLevel.Error, "Error while evaluating flag {FlagKey}")]
+        partial void FlagEvaluationError(string flagKey, Exception exception);
+
         [LoggerMessage(100, LogLevel.Debug, "Hook {HookName} returned null, nothing to merge back into context")]
         partial void HookReturnedNull(string hookName);
 
         [LoggerMessage(102, LogLevel.Error, "Error while evaluating flag {FlagKey}: {ErrorType}")]
         partial void FlagEvaluationErrorWithDescription(string flagKey, string errorType, Exception exception);
-
-        [LoggerMessage(103, LogLevel.Error, "Error while executing Error hook {HookName}")]
-        partial void ErrorHookError(string hookName, Exception exception);
-
-        [LoggerMessage(104, LogLevel.Error, "Error while executing Finally hook {HookName}")]
-        partial void FinallyHookError(string hookName, Exception exception);
     }
 }
