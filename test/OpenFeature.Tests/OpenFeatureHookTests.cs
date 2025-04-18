@@ -239,7 +239,8 @@ namespace OpenFeature.Tests
             ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
             _ = hook1.Received(1).FinallyAsync(Arg.Is<HookContext<bool>>(hookContext =>
                 (bool)hookContext.Data.Get("hook-1-value-a") == true &&
-                (string)hookContext.Data.Get("hook-1-value-b") == "test-value-hook-1" && hookContext.Data.Count == 2
+                (bool)hookContext.Data.Get("same") == true &&
+                (string)hookContext.Data.Get("hook-1-value-b") == "test-value-hook-1" && hookContext.Data.Count == 3
             ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
 
             _ = hook2.Received(1).AfterAsync(Arg.Is<HookContext<bool>>(hookContext =>
@@ -247,7 +248,8 @@ namespace OpenFeature.Tests
             ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
             _ = hook2.Received(1).FinallyAsync(Arg.Is<HookContext<bool>>(hookContext =>
                 (bool)hookContext.Data.Get("hook-2-value-a") == false &&
-                (string)hookContext.Data.Get("hook-2-value-b") == "test-value-hook-2" && hookContext.Data.Count == 2
+                (bool)hookContext.Data.Get("same") == false &&
+                (string)hookContext.Data.Get("hook-2-value-b") == "test-value-hook-2" && hookContext.Data.Count == 3
             ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
         }
 
