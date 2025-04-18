@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.5.0](https://github.com/open-feature/dotnet-sdk/compare/v2.4.0...v2.5.0) (2025-04-18)
+
+
+### ✨ New Features
+
+* Add support for hook data. ([#387](https://github.com/open-feature/dotnet-sdk/issues/387)) ([4563512](https://github.com/open-feature/dotnet-sdk/commit/456351216ce9113d84b56d0bce1dad39430a26cd))
+
+
+### 🧹 Chore
+
+* **deps:** update codecov/codecov-action action to v5.4.2 ([#432](https://github.com/open-feature/dotnet-sdk/issues/432)) ([c692ec2](https://github.com/open-feature/dotnet-sdk/commit/c692ec2a26eb4007ff428e54eaa67ea22fd20728))
+* **deps:** update spec digest to 18cde17 ([#395](https://github.com/open-feature/dotnet-sdk/issues/395)) ([5608dfb](https://github.com/open-feature/dotnet-sdk/commit/5608dfbd441b99531add8e89ad842ea9d613f707))
+* **workflows:** Add permissions for contents and pull-requests ([#439](https://github.com/open-feature/dotnet-sdk/issues/439)) ([568722a](https://github.com/open-feature/dotnet-sdk/commit/568722a4ab1f863d8509dc4a172ac9c29f267825))
+
 ## [2.4.0](https://github.com/open-feature/dotnet-sdk/compare/v2.3.2...v2.4.0) (2025-04-14)
 
 
