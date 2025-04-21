@@ -90,7 +90,7 @@ namespace OpenFeature.Tests
         }
 
         [Fact]
-        [Specification("4.1.1", "Hook context MUST provide: the `flag key`, `flag value type`, `evaluation context`, and the `default value`.")]
+        [Specification("4.1.1", "Hook context MUST provide: the `flag key`, `flag value type`, `evaluation context`, `default value`, and `hook data`.")]
         public void Hook_Context_Should_Not_Allow_Nulls()
         {
             Assert.Throws<ArgumentNullException>(() =>
@@ -108,6 +108,19 @@ namespace OpenFeature.Tests
             Assert.Throws<ArgumentNullException>(() =>
                 new HookContext<Structure>("test", Structure.Empty, FlagValueType.Object, new ClientMetadata(null, null),
                     new Metadata(null), null));
+
+            Assert.Throws<ArgumentNullException>(() => new SharedHookContext<Structure>("test", Structure.Empty, FlagValueType.Object,
+                new ClientMetadata(null, null), new Metadata(null)).ToHookContext(null));
+
+            Assert.Throws<ArgumentNullException>(() =>
+                new HookContext<Structure>(null, EvaluationContext.Empty,
+                    new HookData()));
+
+            Assert.Throws<ArgumentNullException>(() =>
+                new HookContext<Structure>(
+                    new SharedHookContext<Structure>("test", Structure.Empty, FlagValueType.Object,
+                        new ClientMetadata(null, null), new Metadata(null)), EvaluationContext.Empty,
+                    null));
         }
 
         [Fact]
@@ -149,6 +162,95 @@ namespace OpenFeature.Tests
 
             _ = hook1.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
             _ = hook2.Received(1).BeforeAsync(Arg.Is<HookContext<bool>>(a => a.EvaluationContext.GetValue("test").AsString == "test"), Arg.Any<ImmutableDictionary<string, object>>());
+        }
+
+        [Fact]
+        [Specification("4.1.5", "The `hook data` MUST be mutable.")]
+        public async Task HookData_Must_Be_Mutable()
+        {
+            var hook = Substitute.For<Hook>();
+
+            hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
+                .Returns(EvaluationContext.Empty).AndDoes(info =>
+                {
+                    info.Arg<HookContext<bool>>().Data.Set("test-a", true);
+                });
+            hook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(),
+                Arg.Any<ImmutableDictionary<string, object>>()).Returns(new ValueTask()).AndDoes(info =>
+            {
+                info.Arg<HookContext<bool>>().Data.Set("test-b", "test-value");
+            });
+
+            await Api.Instance.SetProviderAsync(new NoOpFeatureProvider());
+            var client = Api.Instance.GetClient("test", "1.0.0");
+
+            await client.GetBooleanValueAsync("test", false, EvaluationContext.Empty,
+                new FlagEvaluationOptions(ImmutableList.Create(hook), ImmutableDictionary<string, object>.Empty));
+
+            _ = hook.Received(1).AfterAsync(Arg.Is<HookContext<bool>>(hookContext =>
+                (bool)hookContext.Data.Get("test-a") == true
+            ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
+            _ = hook.Received(1).FinallyAsync(Arg.Is<HookContext<bool>>(hookContext =>
+                (bool)hookContext.Data.Get("test-a") == true && (string)hookContext.Data.Get("test-b") == "test-value"
+            ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
+        }
+
+        [Fact]
+        [Specification("4.3.2",
+            "`Hook data` **MUST** must be created before the first `stage` invoked in a hook for a specific evaluation and propagated between each `stage` of the hook. The hook data is not shared between different hooks.")]
+        public async Task HookData_Must_Be_Unique_Per_Hook()
+        {
+            var hook1 = Substitute.For<Hook>();
+            var hook2 = Substitute.For<Hook>();
+
+            hook1.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
+                .Returns(EvaluationContext.Empty).AndDoes(info =>
+                {
+                    info.Arg<HookContext<bool>>().Data.Set("hook-1-value-a", true);
+                    info.Arg<HookContext<bool>>().Data.Set("same", true);
+                });
+            hook1.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(),
+                Arg.Any<ImmutableDictionary<string, object>>()).Returns(new ValueTask()).AndDoes(info =>
+            {
+                info.Arg<HookContext<bool>>().Data.Set("hook-1-value-b", "test-value-hook-1");
+            });
+
+            hook2.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
+                .Returns(EvaluationContext.Empty).AndDoes(info =>
+                {
+                    info.Arg<HookContext<bool>>().Data.Set("hook-2-value-a", false);
+                    info.Arg<HookContext<bool>>().Data.Set("same", false);
+                });
+            hook2.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(),
+                Arg.Any<ImmutableDictionary<string, object>>()).Returns(new ValueTask()).AndDoes(info =>
+            {
+                info.Arg<HookContext<bool>>().Data.Set("hook-2-value-b", "test-value-hook-2");
+            });
+
+            await Api.Instance.SetProviderAsync(new NoOpFeatureProvider());
+            var client = Api.Instance.GetClient("test", "1.0.0");
+
+            await client.GetBooleanValueAsync("test", false, EvaluationContext.Empty,
+                new FlagEvaluationOptions(ImmutableList.Create(hook1, hook2),
+                    ImmutableDictionary<string, object>.Empty));
+
+            _ = hook1.Received(1).AfterAsync(Arg.Is<HookContext<bool>>(hookContext =>
+                (bool)hookContext.Data.Get("hook-1-value-a") == true && (bool)hookContext.Data.Get("same") == true
+            ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
+            _ = hook1.Received(1).FinallyAsync(Arg.Is<HookContext<bool>>(hookContext =>
+                (bool)hookContext.Data.Get("hook-1-value-a") == true &&
+                (bool)hookContext.Data.Get("same") == true &&
+                (string)hookContext.Data.Get("hook-1-value-b") == "test-value-hook-1" && hookContext.Data.Count == 3
+            ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
+
+            _ = hook2.Received(1).AfterAsync(Arg.Is<HookContext<bool>>(hookContext =>
+                (bool)hookContext.Data.Get("hook-2-value-a") == false && (bool)hookContext.Data.Get("same") == false
+            ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
+            _ = hook2.Received(1).FinallyAsync(Arg.Is<HookContext<bool>>(hookContext =>
+                (bool)hookContext.Data.Get("hook-2-value-a") == false &&
+                (bool)hookContext.Data.Get("same") == false &&
+                (string)hookContext.Data.Get("hook-2-value-b") == "test-value-hook-2" && hookContext.Data.Count == 3
+            ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
         }
 
         [Fact]
@@ -394,7 +496,7 @@ namespace OpenFeature.Tests
             hook1.BeforeAsync(Arg.Any<HookContext<bool>>(), null).Returns(EvaluationContext.Empty);
             hook2.BeforeAsync(Arg.Any<HookContext<bool>>(), null).Returns(EvaluationContext.Empty);
             featureProvider1.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>()).Throws(new Exception());
-            hook2.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null).Returns(new ValueTask());
+            hook2.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null).Throws(new Exception());
             hook1.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null).Returns(new ValueTask());
 
             await Api.Instance.SetProviderAsync(featureProvider1);
