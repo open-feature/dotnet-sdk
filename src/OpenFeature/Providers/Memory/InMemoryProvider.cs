@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using OpenFeature.Constant;
-using OpenFeature.Error;
 using OpenFeature.Model;
 
 namespace OpenFeature.Providers.Memory
@@ -112,7 +111,7 @@ namespace OpenFeature.Providers.Memory
                 return value.Evaluate(flagKey, defaultValue, context);
             }
 
-            throw new TypeMismatchException($"flag {flagKey} is not of type {typeof(T)}");
+            return new ResolutionDetails<T>(flagKey, defaultValue, ErrorType.TypeMismatch, Reason.Error);
         }
     }
 }
