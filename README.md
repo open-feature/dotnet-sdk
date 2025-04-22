@@ -336,13 +336,13 @@ public class MyHook : Hook
   }
 
   public ValueTask AfterAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
-      IReadOnlyDictionary<string, object> hints = null)
+      IReadOnlyDictionary<string, object>? hints = null)
   {
     // code to run after successful flag evaluation
   }
 
   public ValueTask ErrorAsync<T>(HookContext<T> context, Exception error,
-      IReadOnlyDictionary<string, object> hints = null)
+      IReadOnlyDictionary<string, object>? hints = null)
   {
     // code to run if there's an error during before hooks or during flag evaluation
   }
@@ -352,6 +352,29 @@ public class MyHook : Hook
     // code to run after all other stages, regardless of success/failure
   }
 }
+```
+
+Hooks support passing per-evaluation data between that stages using `hook data`. The below example hook uses `hook data` to measure the duration between the execution of the `before` and `after` stage.
+
+```csharp
+    class TimingHook : Hook
+    {
+        public ValueTask<EvaluationContext> BeforeAsync<T>(HookContext<T> context,
+            IReadOnlyDictionary<string, object>? hints = null)
+        {
+            context.Data.Set("beforeTime", DateTime.Now);
+            return ValueTask.FromResult(context.EvaluationContext);
+        }
+
+        public ValueTask AfterAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
+            IReadOnlyDictionary<string, object>? hints = null)
+        {
+            var beforeTime = context.Data.Get("beforeTime") as DateTime?;
+            var duration = DateTime.Now - beforeTime;
+            Console.WriteLine($"Duration: {duration}");
+            return ValueTask.CompletedTask;
+        }
+    }
 ```
 
 Built a new hook? [Let us know](https://github.com/open-feature/openfeature.dev/issues/new?assignees=&labels=hook&projects=&template=document-hook.yaml&title=%5BHook%5D%3A+) so we can add it to the docs!
