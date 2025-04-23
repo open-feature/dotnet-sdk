@@ -14,6 +14,8 @@ jobs:
     permissions:
       contents: write # for googleapis/release-please-action to create release commit
       pull-requests: write # for googleapis/release-please-action to create release PR
+      packages: read # for internal nuget reading
+      
     runs-on: ubuntu-latest
 
     steps:
