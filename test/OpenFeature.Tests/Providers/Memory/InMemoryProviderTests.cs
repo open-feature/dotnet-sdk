@@ -186,9 +186,14 @@ namespace OpenFeature.Tests.Providers.Memory
         }
 
         [Fact]
-        public async Task MismatchedFlag_ShouldThrow()
+        public async Task MismatchedFlag_ShouldReturnTypeMismatchError()
         {
-            await Assert.ThrowsAsync<TypeMismatchException>(() => this.commonProvider.ResolveStringValueAsync("boolean-flag", "nope", EvaluationContext.Empty));
+            // Act
+            var result = await this.commonProvider.ResolveStringValueAsync("boolean-flag", "nope", EvaluationContext.Empty);
+
+            // Assert
+            Assert.Equal(Reason.Error, result.Reason);
+            Assert.Equal(ErrorType.TypeMismatch, result.ErrorType);
         }
 
         [Fact]
