@@ -43,7 +43,7 @@ namespace OpenFeature
         /// Sets the default feature provider. In order to wait for the provider to be set, and initialization to complete,
         /// await the returned task.
         /// </summary>
-        /// <remarks>The provider cannot be set to null. Attempting to set the provider to null has no effect.</remarks>
+        /// <remarks>The provider cannot be set to null. Attempting to set the provider to null has no effect. May throw an exception if <paramref name="featureProvider"/> cannot be initialized.</remarks>
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
         public async Task SetProviderAsync(FeatureProvider featureProvider)
         {
@@ -56,8 +56,10 @@ namespace OpenFeature
         /// Binds the feature provider to the given domain. In order to wait for the provider to be set, and
         /// initialization to complete, await the returned task.
         /// </summary>
+        /// <remarks>The provider cannot be set to null. Attempting to set the provider to null has no effect. May throw an exception if <paramref name="featureProvider"/> cannot be initialized.</remarks>
         /// <param name="domain">An identifier which logically binds clients with providers</param>
         /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
+        /// <exception cref="ArgumentNullException">domain cannot be null or empty</exception>
         public async Task SetProviderAsync(string domain, FeatureProvider featureProvider)
         {
             if (string.IsNullOrWhiteSpace(domain))
