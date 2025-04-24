@@ -2,5 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "github>open-feature/community-tooling"
-  ]
+  ],
+  "dependencyDashboardApproval": true,
+  "recreateWhen": "never"
 }
