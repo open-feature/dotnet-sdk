@@ -148,6 +148,9 @@ dotnet_diagnostic.RS0041.severity = suggestion
 # CA2007: Do not directly await a Task
 dotnet_diagnostic.CA2007.severity = error
 
+# IDE0161: Convert to file-scoped namespace
+csharp_style_namespace_declarations = file_scoped:warning
+
 [obj/**.cs]
 generated_code = true
 

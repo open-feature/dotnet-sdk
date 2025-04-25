@@ -53,7 +53,14 @@ dotnet add package OpenFeature
 public async Task Example()
 {
     // Register your feature flag provider
-    await Api.Instance.SetProviderAsync(new InMemoryProvider());
+    try
+    {
+        await Api.Instance.SetProviderAsync(new InMemoryProvider());
+    }
+    catch (Exception ex)
+    {
+        // Log error
+    }
 
     // Create a new client
     FeatureClient client = Api.Instance.GetClient();
@@ -63,7 +70,7 @@ public async Task Example()
 
     if ( v2Enabled )
     {
-        //Do some work
+        // Do some work
     }
 }
 ```
@@ -96,8 +103,17 @@ If the provider you're looking for hasn't been created yet, see the [develop a p
 Once you've added a provider as a dependency, it can be registered with OpenFeature like this:
 
 ```csharp
-await Api.Instance.SetProviderAsync(new MyProvider());
+try
+{
+    await Api.Instance.SetProviderAsync(new MyProvider());
+}
+catch (Exception ex)
+{
+    // Log error
+}
 ```
+
+When calling `SetProviderAsync` an exception may be thrown if the provider cannot be initialized. This may occur if the provider has not been configured correctly. See the documentation for the provider you are using for more information on how to configure the provider correctly.
 
 In some situations, it may be beneficial to register multiple providers in the same application.
 This is possible using [domains](#domains), which is covered in more detail below.
@@ -177,11 +193,18 @@ A domain is a logical identifier which can be used to associate clients with a p
 If a domain has no associated provider, the default provider is used.
 
 ```csharp
-// registering the default provider
-await Api.Instance.SetProviderAsync(new LocalProvider());
+try
+{
+    // registering the default provider
+    await Api.Instance.SetProviderAsync(new LocalProvider());
 
-// registering a provider to a domain
-await Api.Instance.SetProviderAsync("clientForCache", new CachedProvider());
+    // registering a provider to a domain
+    await Api.Instance.SetProviderAsync("clientForCache", new CachedProvider());
+}
+catch (Exception ex)
+{
+    // Log error
+}
 
 // a client backed by default provider
 FeatureClient clientDefault = Api.Instance.GetClient();
@@ -224,8 +247,15 @@ EventHandlerDelegate callback = EventHandler;
 
 var myClient = Api.Instance.GetClient("my-client");
 
-var provider = new ExampleProvider();
-await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name, provider);
+try
+{
+    var provider = new ExampleProvider();
+    await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name, provider);
+}
+catch (Exception ex)
+{
+    // Log error
+}
 
 myClient.AddHandler(ProviderEventTypes.ProviderReady, callback);
 ```
