@@ -9,6 +9,9 @@ on:
 jobs:
   check-format:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
       - name: Check out code
@@ -17,7 +20,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
         with:
-          dotnet-version: 9.0.x
+          global-json-file: global.json
 
       - name: dotnet format
         run: dotnet format --verify-no-changes OpenFeature.sln

@@ -1,24 +1,23 @@
 using OpenFeature.Constant;
 using OpenFeature.Model;
 
-namespace OpenFeature
+namespace OpenFeature;
+
+/// <summary>
+/// Defines the methods required for handling events.
+/// </summary>
+public interface IEventBus
 {
     /// <summary>
-    /// Defines the methods required for handling events.
+    /// Adds an Event Handler for the given event type.
     /// </summary>
-    public interface IEventBus
-    {
-        /// <summary>
-        /// Adds an Event Handler for the given event type.
-        /// </summary>
-        /// <param name="type">The type of the event</param>
-        /// <param name="handler">Implementation of the <see cref="EventHandlerDelegate"/></param>
-        void AddHandler(ProviderEventTypes type, EventHandlerDelegate handler);
-        /// <summary>
-        /// Removes an Event Handler for the given event type.
-        /// </summary>
-        /// <param name="type">The type of the event</param>
-        /// <param name="handler">Implementation of the <see cref="EventHandlerDelegate"/></param>
-        void RemoveHandler(ProviderEventTypes type, EventHandlerDelegate handler);
-    }
+    /// <param name="type">The type of the event</param>
+    /// <param name="handler">Implementation of the <see cref="EventHandlerDelegate"/></param>
+    void AddHandler(ProviderEventTypes type, EventHandlerDelegate handler);
+    /// <summary>
+    /// Removes an Event Handler for the given event type.
+    /// </summary>
+    /// <param name="type">The type of the event</param>
+    /// <param name="handler">Implementation of the <see cref="EventHandlerDelegate"/></param>
+    void RemoveHandler(ProviderEventTypes type, EventHandlerDelegate handler);
 }

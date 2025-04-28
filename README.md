@@ -1,21 +1,23 @@
 <!-- markdownlint-disable MD033 MD039 -->
 <!-- x-hide-in-docs-start -->
 <!-- NuGet doesn't support most HTML tags. Disabling dark mode support until https://github.com/NuGet/NuGetGallery/issues/8644 is resolved. -->
+
 ![OpenFeature Dark Logo](https://raw.githubusercontent.com/open-feature/community/0e23508c163a6a1ac8c0ced3e4bd78faafe627c7/assets/logo/horizontal/black/openfeature-horizontal-black.svg)
 
 ## .NET SDK
 
 <!-- x-hide-in-docs-end -->
 
-[![Specification](https://img.shields.io/static/v1?label=specification&message=v0.7.0&color=yellow&style=for-the-badge)](https://github.com/open-feature/spec/releases/tag/v0.7.0)
+[![Specification](https://img.shields.io/static/v1?label=specification&message=v0.8.0&color=yellow&style=for-the-badge)](https://github.com/open-feature/spec/releases/tag/v0.8.0)
 [
-  ![Release](https://img.shields.io/static/v1?label=release&message=v2.3.2&color=blue&style=for-the-badge) <!-- x-release-please-version -->
-](https://github.com/open-feature/dotnet-sdk/releases/tag/v2.3.2) <!-- x-release-please-version -->
+![Release](https://img.shields.io/static/v1?label=release&message=v2.5.0&color=blue&style=for-the-badge) <!-- x-release-please-version -->
+](https://github.com/open-feature/dotnet-sdk/releases/tag/v2.5.0) <!-- x-release-please-version -->
 
 [![Slack](https://img.shields.io/badge/slack-%40cncf%2Fopenfeature-brightgreen?style=flat&logo=slack)](https://cloud-native.slack.com/archives/C0344AANLA1)
 [![Codecov](https://codecov.io/gh/open-feature/dotnet-sdk/branch/main/graph/badge.svg?token=MONAVJBXUJ)](https://codecov.io/gh/open-feature/dotnet-sdk)
 [![NuGet](https://img.shields.io/nuget/vpre/OpenFeature)](https://www.nuget.org/packages/OpenFeature)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6250/badge)](https://www.bestpractices.dev/en/projects/6250)
+
 <!-- x-hide-in-docs-start -->
 
 [OpenFeature](https://openfeature.dev) is an open specification that provides a vendor-agnostic, community-driven API for feature flagging that works with your favorite feature flag management tool or in-house solution.
@@ -51,7 +53,14 @@ dotnet add package OpenFeature
 public async Task Example()
 {
     // Register your feature flag provider
-    await Api.Instance.SetProviderAsync(new InMemoryProvider());
+    try
+    {
+        await Api.Instance.SetProviderAsync(new InMemoryProvider());
+    }
+    catch (Exception ex)
+    {
+        // Log error
+    }
 
     // Create a new client
     FeatureClient client = Api.Instance.GetClient();
@@ -61,7 +70,7 @@ public async Task Example()
 
     if ( v2Enabled )
     {
-        //Do some work
+        // Do some work
     }
 }
 ```
@@ -70,17 +79,17 @@ public async Task Example()
 
 | Status | Features                                                            | Description                                                                                                                                                   |
 | ------ | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ✅      | [Providers](#providers)                                             | Integrate with a commercial, open source, or in-house feature management tool.                                                                                |
-| ✅      | [Targeting](#targeting)                                             | Contextually-aware flag evaluation using [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context).                            |
-| ✅      | [Hooks](#hooks)                                                     | Add functionality to various stages of the flag evaluation life-cycle.                                                                                        |
-| ✅      | [Tracking](#tracking)                                               | Associate user actions with feature flag evaluations.                                                                                                         |
-| ✅      | [Logging](#logging)                                                 | Integrate with popular logging packages.                                                                                                                      |
-| ✅      | [Domains](#domains)                                                 | Logically bind clients with providers.                                                                                                                        |
-| ✅      | [Eventing](#eventing)                                               | React to state changes in the provider or flag management system.                                                                                             |
-| ✅      | [Shutdown](#shutdown)                                               | Gracefully clean up a provider during application shutdown.                                                                                                   |
-| ✅      | [Transaction Context Propagation](#transaction-context-propagation) | Set a specific [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context) for a transaction (e.g. an HTTP request or a thread). |
-| ✅      | [Extending](#extending)                                             | Extend OpenFeature with custom providers and hooks.                                                                                                           |
-| 🔬      | [DependencyInjection](#DependencyInjection)                         | Integrate OpenFeature with .NET's dependency injection for streamlined provider setup.                                                                        |
+| ✅     | [Providers](#providers)                                             | Integrate with a commercial, open source, or in-house feature management tool.                                                                                |
+| ✅     | [Targeting](#targeting)                                             | Contextually-aware flag evaluation using [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context).                            |
+| ✅     | [Hooks](#hooks)                                                     | Add functionality to various stages of the flag evaluation life-cycle.                                                                                        |
+| ✅     | [Tracking](#tracking)                                               | Associate user actions with feature flag evaluations.                                                                                                         |
+| ✅     | [Logging](#logging)                                                 | Integrate with popular logging packages.                                                                                                                      |
+| ✅     | [Domains](#domains)                                                 | Logically bind clients with providers.                                                                                                                        |
+| ✅     | [Eventing](#eventing)                                               | React to state changes in the provider or flag management system.                                                                                             |
+| ✅     | [Shutdown](#shutdown)                                               | Gracefully clean up a provider during application shutdown.                                                                                                   |
+| ✅     | [Transaction Context Propagation](#transaction-context-propagation) | Set a specific [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context) for a transaction (e.g. an HTTP request or a thread). |
+| ✅     | [Extending](#extending)                                             | Extend OpenFeature with custom providers and hooks.                                                                                                           |
+| 🔬     | [DependencyInjection](#DependencyInjection)                         | Integrate OpenFeature with .NET's dependency injection for streamlined provider setup.                                                                        |
 
 > Implemented: ✅ | In-progress: ⚠️ | Not implemented yet: ❌ | Experimental: 🔬
 
@@ -94,8 +103,17 @@ If the provider you're looking for hasn't been created yet, see the [develop a p
 Once you've added a provider as a dependency, it can be registered with OpenFeature like this:
 
 ```csharp
-await Api.Instance.SetProviderAsync(new MyProvider());
+try
+{
+    await Api.Instance.SetProviderAsync(new MyProvider());
+}
+catch (Exception ex)
+{
+    // Log error
+}
 ```
+
+When calling `SetProviderAsync` an exception may be thrown if the provider cannot be initialized. This may occur if the provider has not been configured correctly. See the documentation for the provider you are using for more information on how to configure the provider correctly.
 
 In some situations, it may be beneficial to register multiple providers in the same application.
 This is possible using [domains](#domains), which is covered in more detail below.
@@ -152,6 +170,7 @@ var value = await client.GetBooleanValueAsync("boolFlag", false, context, new Fl
 ### Logging
 
 The .NET SDK uses Microsoft.Extensions.Logging. See the [manual](https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line) for complete documentation.
+Note that in accordance with the OpenFeature specification, the SDK doesn't generally log messages during flag evaluation. If you need further troubleshooting, please look into the `Logging Hook` section.
 
 #### Logging Hook
 
@@ -164,6 +183,7 @@ var logger = loggerFactory.CreateLogger("Program");
 var client = Api.Instance.GetClient();
 client.AddHooks(new LoggingHook(logger));
 ```
+
 See [hooks](#hooks) for more information on configuring hooks.
 
 ### Domains
@@ -173,11 +193,18 @@ A domain is a logical identifier which can be used to associate clients with a p
 If a domain has no associated provider, the default provider is used.
 
 ```csharp
-// registering the default provider
-await Api.Instance.SetProviderAsync(new LocalProvider());
+try
+{
+    // registering the default provider
+    await Api.Instance.SetProviderAsync(new LocalProvider());
 
-// registering a provider to a domain
-await Api.Instance.SetProviderAsync("clientForCache", new CachedProvider());
+    // registering a provider to a domain
+    await Api.Instance.SetProviderAsync("clientForCache", new CachedProvider());
+}
+catch (Exception ex)
+{
+    // Log error
+}
 
 // a client backed by default provider
 FeatureClient clientDefault = Api.Instance.GetClient();
@@ -220,8 +247,15 @@ EventHandlerDelegate callback = EventHandler;
 
 var myClient = Api.Instance.GetClient("my-client");
 
-var provider = new ExampleProvider();
-await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name, provider);
+try
+{
+    var provider = new ExampleProvider();
+    await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name, provider);
+}
+catch (Exception ex)
+{
+    // Log error
+}
 
 myClient.AddHandler(ProviderEventTypes.ProviderReady, callback);
 ```
@@ -259,6 +293,7 @@ To register a [AsyncLocal](https://learn.microsoft.com/en-us/dotnet/api/system.t
 // registering the AsyncLocalTransactionContextPropagator
 Api.Instance.SetTransactionContextPropagator(new AsyncLocalTransactionContextPropagator());
 ```
+
 Once you've registered a transaction context propagator, you can propagate the data into request-scoped transaction context.
 
 ```csharp
@@ -268,6 +303,7 @@ EvaluationContext transactionContext = EvaluationContext.Builder()
     .Build();
 Api.Instance.SetTransactionContext(transactionContext);
 ```
+
 Additionally, you can develop a custom transaction context propagator by implementing the `TransactionContextPropagator` interface and registering it as shown above.
 
 ## Extending
@@ -330,13 +366,13 @@ public class MyHook : Hook
   }
 
   public ValueTask AfterAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
-      IReadOnlyDictionary<string, object> hints = null)
+      IReadOnlyDictionary<string, object>? hints = null)
   {
     // code to run after successful flag evaluation
   }
 
   public ValueTask ErrorAsync<T>(HookContext<T> context, Exception error,
-      IReadOnlyDictionary<string, object> hints = null)
+      IReadOnlyDictionary<string, object>? hints = null)
   {
     // code to run if there's an error during before hooks or during flag evaluation
   }
@@ -348,22 +384,51 @@ public class MyHook : Hook
 }
 ```
 
+Hooks support passing per-evaluation data between that stages using `hook data`. The below example hook uses `hook data` to measure the duration between the execution of the `before` and `after` stage.
+
+```csharp
+    class TimingHook : Hook
+    {
+        public ValueTask<EvaluationContext> BeforeAsync<T>(HookContext<T> context,
+            IReadOnlyDictionary<string, object>? hints = null)
+        {
+            context.Data.Set("beforeTime", DateTime.Now);
+            return ValueTask.FromResult(context.EvaluationContext);
+        }
+
+        public ValueTask AfterAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
+            IReadOnlyDictionary<string, object>? hints = null)
+        {
+            var beforeTime = context.Data.Get("beforeTime") as DateTime?;
+            var duration = DateTime.Now - beforeTime;
+            Console.WriteLine($"Duration: {duration}");
+            return ValueTask.CompletedTask;
+        }
+    }
+```
+
 Built a new hook? [Let us know](https://github.com/open-feature/openfeature.dev/issues/new?assignees=&labels=hook&projects=&template=document-hook.yaml&title=%5BHook%5D%3A+) so we can add it to the docs!
 
 ### DependencyInjection
+
 > [!NOTE]
 > The OpenFeature.DependencyInjection and OpenFeature.Hosting packages are currently experimental. They streamline the integration of OpenFeature within .NET applications, allowing for seamless configuration and lifecycle management of feature flag providers using dependency injection and hosting services.
 
 #### Installation
+
 To set up dependency injection and hosting capabilities for OpenFeature, install the following packages:
+
 ```sh
 dotnet add package OpenFeature.DependencyInjection
 dotnet add package OpenFeature.Hosting
 ```
+
 #### Usage Examples
+
 For a basic configuration, you can use the InMemoryProvider. This provider is simple and well-suited for development and testing purposes.
 
 **Basic Configuration:**
+
 ```csharp
 builder.Services.AddOpenFeature(featureBuilder => {
     featureBuilder
@@ -372,8 +437,10 @@ builder.Services.AddOpenFeature(featureBuilder => {
         .AddInMemoryProvider();
 });
 ```
+
 **Domain-Scoped Provider Configuration:**
 <br />To set up multiple providers with a selection policy, define logic for choosing the default provider. This example designates `name1` as the default provider:
+
 ```csharp
 builder.Services.AddOpenFeature(featureBuilder => {
     featureBuilder
@@ -389,6 +456,7 @@ builder.Services.AddOpenFeature(featureBuilder => {
 ```
 
 ### Registering a Custom Provider
+
 You can register a custom provider, such as `InMemoryProvider`, with OpenFeature using the `AddProvider` method. This approach allows you to dynamically resolve services or configurations during registration.
 
 ```csharp
@@ -406,7 +474,7 @@ services.AddOpenFeature(builder =>
         // Register a custom provider, such as InMemoryProvider
         return new InMemoryProvider(flags);
     });
-});     
+});
 ```
 
 #### Adding a Domain-Scoped Provider
@@ -547,6 +615,7 @@ namespace OpenFeatureTestApp
 After running this example, you should be able to see some metrics being generated into the console.
 
 <!-- x-hide-in-docs-start -->
+
 ## ⭐️ Support the project
 
 -   Give this repo a ⭐️!
@@ -565,4 +634,5 @@ Interested in contributing? Great, we'd love your help! To get started, take a l
 [![Contrib Rocks](https://contrib.rocks/image?repo=open-feature/dotnet-sdk)](https://github.com/open-feature/dotnet-sdk/graphs/contributors)
 
 Made with [contrib.rocks](https://contrib.rocks).
+
 <!-- x-hide-in-docs-end -->

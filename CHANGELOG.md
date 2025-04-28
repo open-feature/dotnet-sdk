@@ -1,5 +1,66 @@
 # Changelog
 
+## [2.5.0](https://github.com/open-feature/dotnet-sdk/compare/v2.4.0...v2.5.0) (2025-04-25)
+
+
+### ✨ New Features
+
+* Add support for hook data. ([#387](https://github.com/open-feature/dotnet-sdk/issues/387)) ([4563512](https://github.com/open-feature/dotnet-sdk/commit/456351216ce9113d84b56d0bce1dad39430a26cd))
+
+
+### 🧹 Chore
+
+* add NuGet auditing ([#454](https://github.com/open-feature/dotnet-sdk/issues/454)) ([42ab536](https://github.com/open-feature/dotnet-sdk/commit/42ab5368d3d8f874f175ab9ad3077f177a592398))
+* Change file scoped namespaces and cleanup job ([#453](https://github.com/open-feature/dotnet-sdk/issues/453)) ([1e74a04](https://github.com/open-feature/dotnet-sdk/commit/1e74a04f2b76c128a09c95dfd0b06803f2ef77bf))
+* **deps:** update codecov/codecov-action action to v5.4.2 ([#432](https://github.com/open-feature/dotnet-sdk/issues/432)) ([c692ec2](https://github.com/open-feature/dotnet-sdk/commit/c692ec2a26eb4007ff428e54eaa67ea22fd20728))
+* **deps:** update github/codeql-action digest to 28deaed ([#446](https://github.com/open-feature/dotnet-sdk/issues/446)) ([dfecd0c](https://github.com/open-feature/dotnet-sdk/commit/dfecd0c6a4467e5c1afe481e785e3e0f179beb25))
+* **deps:** update spec digest to 18cde17 ([#395](https://github.com/open-feature/dotnet-sdk/issues/395)) ([5608dfb](https://github.com/open-feature/dotnet-sdk/commit/5608dfbd441b99531add8e89ad842ea9d613f707))
+* **deps:** update spec digest to 2ba05d8 ([#452](https://github.com/open-feature/dotnet-sdk/issues/452)) ([eb688c4](https://github.com/open-feature/dotnet-sdk/commit/eb688c412983511c7ec0744df95e4a113f610c5f))
+* **deps:** update spec digest to 36944c6 ([#450](https://github.com/open-feature/dotnet-sdk/issues/450)) ([e162169](https://github.com/open-feature/dotnet-sdk/commit/e162169af0b5518f12527a8601d6dfcdf379b4f7))
+* **deps:** update spec digest to d27e000 ([#455](https://github.com/open-feature/dotnet-sdk/issues/455)) ([e0ec8ca](https://github.com/open-feature/dotnet-sdk/commit/e0ec8ca28303b7df71699063b02b6967cdc37bcd))
+* packages read in release please ([1acc00f](https://github.com/open-feature/dotnet-sdk/commit/1acc00fa7a6a38152d97fd7efc9f7e8befb1c3ed))
+* update release permissions ([d0bf40b](https://github.com/open-feature/dotnet-sdk/commit/d0bf40b9b40adc57a2a008a9497098b3cd1a05a7))
+* **workflows:** Add permissions for contents and pull-requests ([#439](https://github.com/open-feature/dotnet-sdk/issues/439)) ([568722a](https://github.com/open-feature/dotnet-sdk/commit/568722a4ab1f863d8509dc4a172ac9c29f267825))
+
+
+### 📚 Documentation
+
+* update documentation on SetProviderAsync ([#449](https://github.com/open-feature/dotnet-sdk/issues/449)) ([858b286](https://github.com/open-feature/dotnet-sdk/commit/858b286dba2313239141c20ec6770504d340fbe0))
+* Update README with spec version ([#437](https://github.com/open-feature/dotnet-sdk/issues/437)) ([7318b81](https://github.com/open-feature/dotnet-sdk/commit/7318b8126df9f0ddd5651fdd9fe32da2e4819290)), closes [#204](https://github.com/open-feature/dotnet-sdk/issues/204)
+
+
+### 🔄 Refactoring
+
+* InMemoryProvider throwing when types mismatched ([#442](https://github.com/open-feature/dotnet-sdk/issues/442)) ([8ecf50d](https://github.com/open-feature/dotnet-sdk/commit/8ecf50db2cab3a266de5c6c5216714570cfc6a52))
+
+## [2.4.0](https://github.com/open-feature/dotnet-sdk/compare/v2.3.2...v2.4.0) (2025-04-14)
+
+
+### 🐛 Bug Fixes
+
+* Refactor error handling and improve documentation ([#417](https://github.com/open-feature/dotnet-sdk/issues/417)) ([b0b168f](https://github.com/open-feature/dotnet-sdk/commit/b0b168ffc051e3a6c55f66ea6af4208e7d64419d))
+
+
+### ✨ New Features
+
+* update FeatureLifecycleStateOptions.StopState default to Stopped ([#414](https://github.com/open-feature/dotnet-sdk/issues/414)) ([6c23f21](https://github.com/open-feature/dotnet-sdk/commit/6c23f21d56ef6cc6adce7f798ee302924c227e1f))
+
+
+### 🧹 Chore
+
+* **deps:** update github/codeql-action digest to 45775bd ([#419](https://github.com/open-feature/dotnet-sdk/issues/419)) ([2bed467](https://github.com/open-feature/dotnet-sdk/commit/2bed467317ab0afa6d3e3718e89a5bb05453d649))
+* restrict publish to environment ([#431](https://github.com/open-feature/dotnet-sdk/issues/431)) ([0c222cb](https://github.com/open-feature/dotnet-sdk/commit/0c222cb5e90203e8f4740207d3dd82ec12179594))
+
+
+### 📚 Documentation
+
+* Update contributing guidelines ([#413](https://github.com/open-feature/dotnet-sdk/issues/413)) ([84ea288](https://github.com/open-feature/dotnet-sdk/commit/84ea288a3bc6e5ec8a797312f36e44c28d03c95c))
+
+
+### 🔄 Refactoring
+
+* simplify the InternalsVisibleTo usage ([#408](https://github.com/open-feature/dotnet-sdk/issues/408)) ([4043d3d](https://github.com/open-feature/dotnet-sdk/commit/4043d3d7610b398e6be035a0e1bf28e7c81ebf18))
+
 ## [2.3.2](https://github.com/open-feature/dotnet-sdk/compare/v2.3.1...v2.3.2) (2025-03-24)
 
 
