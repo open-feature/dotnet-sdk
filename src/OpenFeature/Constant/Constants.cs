@@ -1,9 +1,8 @@
-namespace OpenFeature.Constant
+namespace OpenFeature.Constant;
+
+internal static class NoOpProvider
 {
-    internal static class NoOpProvider
-    {
-        public const string NoOpProviderName = "No-op Provider";
-        public const string ReasonNoOp = "No-op";
-        public const string Variant = "No-op";
-    }
+    public const string NoOpProviderName = "No-op Provider";
+    public const string ReasonNoOp = "No-op";
+    public const string Variant = "No-op";
 }

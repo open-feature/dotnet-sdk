@@ -1,12 +1,11 @@
 using BenchmarkDotNet.Running;
 
-namespace OpenFeature.Benchmark
+namespace OpenFeature.Benchmark;
+
+internal class Program
 {
-    internal class Program
+    static void Main(string[] args)
     {
-        static void Main(string[] args)
-        {
-            BenchmarkRunner.Run<OpenFeatureClientBenchmarks>();
-        }
+        BenchmarkRunner.Run<OpenFeatureClientBenchmarks>();
     }
 }
