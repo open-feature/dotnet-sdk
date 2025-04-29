@@ -262,4 +262,26 @@ public static partial class OpenFeatureBuilderExtensions
     /// <returns>The configured <see cref="OpenFeatureBuilder"/> instance.</returns>
     public static OpenFeatureBuilder AddPolicyName(this OpenFeatureBuilder builder, Action<PolicyNameOptions> configureOptions)
         => AddPolicyName<PolicyNameOptions>(builder, configureOptions);
+
+    /// <summary>
+    /// Adds a feature hook to the service collection using a factory method. Hooks added here are not domain-bound.
+    /// </summary>
+    /// <typeparam name="THook">The type of<see cref="Hook"/> to be added.</typeparam>
+    /// <param name="builder">The <see cref="OpenFeatureBuilder"/> instance.</param>
+    /// <param name="implementationFactory"></param>
+    /// <returns></returns>
+    public static OpenFeatureBuilder AddHook<THook>(this OpenFeatureBuilder builder, Func<IServiceProvider, THook> implementationFactory)
+        where THook : Hook
+    {
+        var hookName = typeof(THook).Name;
+
+        builder.Services.PostConfigure<OpenFeatureOptions>(options => options.AddHookName(hookName));
+
+        builder.Services.AddKeyedSingleton<Hook>(hookName, (serviceProvider, key) =>
+        {
+            return implementationFactory(serviceProvider);
+        });
+
+        return builder;
+    }
 }
