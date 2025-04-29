@@ -241,4 +241,34 @@ public partial class OpenFeatureBuilderExtensionsTests
         Assert.NotNull(provider);
         Assert.IsType<NoOpFeatureProvider>(provider);
     }
+
+    [Fact]
+    public void AddHook_AddsHookAsKeyedService()
+    {
+        // Arrange
+        _systemUnderTest.AddHook(sp => new NoOpHook());
+
+        var serviceProvider = _services.BuildServiceProvider();
+
+        // Act
+        var hook = serviceProvider.GetKeyedService<Hook>("NoOpHook");
+
+        // Assert
+        Assert.NotNull(hook);
+    }
+
+    [Fact]
+    public void AddHook_AddsNameNameToOpenFeatureOptions()
+    {
+        // Arrange
+        _systemUnderTest.AddHook(sp => new NoOpHook());
+
+        var serviceProvider = _services.BuildServiceProvider();
+
+        // Act
+        var options = serviceProvider.GetRequiredService<IOptions<OpenFeatureOptions>>();
+
+        // Assert
+        Assert.Contains(options.Value.HookNames, t => t == "NoOpHook");
+    }
 }

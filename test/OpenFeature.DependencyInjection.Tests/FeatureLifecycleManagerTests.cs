@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using NSubstitute;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging.Abstractions;
 using OpenFeature.DependencyInjection.Internal;
 using Xunit;
 
@@ -9,27 +8,18 @@ namespace OpenFeature.DependencyInjection.Tests;
 
 public class FeatureLifecycleManagerTests
 {
-    private readonly FeatureLifecycleManager _systemUnderTest;
-    private readonly IServiceProvider _mockServiceProvider;
+    private readonly IServiceCollection _serviceCollection;
 
     public FeatureLifecycleManagerTests()
     {
         Api.Instance.SetContext(null);
         Api.Instance.ClearHooks();
 
-        _mockServiceProvider = Substitute.For<IServiceProvider>();
-
-        var options = new OpenFeatureOptions();
-        options.AddDefaultProviderName();
-        var optionsMock = Substitute.For<IOptions<OpenFeatureOptions>>();
-        optionsMock.Value.Returns(options);
-
-        _mockServiceProvider.GetService<IOptions<OpenFeatureOptions>>().Returns(optionsMock);
-
-        _systemUnderTest = new FeatureLifecycleManager(
-            Api.Instance,
-            _mockServiceProvider,
-            Substitute.For<ILogger<FeatureLifecycleManager>>());
+        _serviceCollection = new ServiceCollection()
+            .Configure<OpenFeatureOptions>(options =>
+            {
+                options.AddDefaultProviderName();
+            });
     }
 
     [Fact]
@@ -37,10 +27,13 @@ public class FeatureLifecycleManagerTests
     {
         // Arrange
         var featureProvider = new NoOpFeatureProvider();
-        _mockServiceProvider.GetService(typeof(FeatureProvider)).Returns(featureProvider);
+        _serviceCollection.AddSingleton<FeatureProvider>(featureProvider);
+
+        var serviceProvider = _serviceCollection.BuildServiceProvider();
+        var sut = new FeatureLifecycleManager(Api.Instance, serviceProvider, NullLogger<FeatureLifecycleManager>.Instance);
 
         // Act
-        await _systemUnderTest.EnsureInitializedAsync().ConfigureAwait(true);
+        await sut.EnsureInitializedAsync().ConfigureAwait(true);
 
         // Assert
         Assert.Equal(featureProvider, Api.Instance.GetProvider());
@@ -50,14 +43,42 @@ public class FeatureLifecycleManagerTests
     public async Task EnsureInitializedAsync_ShouldThrowException_WhenProviderDoesNotExist()
     {
         // Arrange
-        _mockServiceProvider.GetService(typeof(FeatureProvider)).Returns(null as FeatureProvider);
+        _serviceCollection.RemoveAll<FeatureProvider>();
+
+        var serviceProvider = _serviceCollection.BuildServiceProvider();
+        var sut = new FeatureLifecycleManager(Api.Instance, serviceProvider, NullLogger<FeatureLifecycleManager>.Instance);
 
         // Act
-        var act = () => _systemUnderTest.EnsureInitializedAsync().AsTask();
+        var act = () => sut.EnsureInitializedAsync().AsTask();
 
         // Assert
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(act).ConfigureAwait(true);
         Assert.NotNull(exception);
         Assert.False(string.IsNullOrWhiteSpace(exception.Message));
+    }
+
+    [Fact]
+    public async Task EnsureInitializedAsync_ShouldSetHook_WhenHooksAreRegistered()
+    {
+        // Arrange
+        var featureProvider = new NoOpFeatureProvider();
+        var hook = new NoOpHook();
+
+        _serviceCollection.AddSingleton<FeatureProvider>(featureProvider)
+            .AddKeyedSingleton<Hook>("NoOpHook", (_, key) => hook)
+            .Configure<OpenFeatureOptions>(options =>
+            {
+                options.AddHookName("NoOpHook");
+            });
+
+        var serviceProvider = _serviceCollection.BuildServiceProvider();
+        var sut = new FeatureLifecycleManager(Api.Instance, serviceProvider, NullLogger<FeatureLifecycleManager>.Instance);
+
+        // Act
+        await sut.EnsureInitializedAsync().ConfigureAwait(true);
+
+        // Assert
+        var actual = Api.Instance.GetHooks().FirstOrDefault();
+        Assert.Equal(hook, actual);
     }
 }
