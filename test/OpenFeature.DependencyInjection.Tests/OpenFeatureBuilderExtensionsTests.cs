@@ -246,7 +246,7 @@ public partial class OpenFeatureBuilderExtensionsTests
     public void AddHook_AddsHookAsKeyedService()
     {
         // Arrange
-        _systemUnderTest.AddHook(sp => new NoOpHook());
+        _systemUnderTest.AddHook<NoOpHook>();
 
         var serviceProvider = _services.BuildServiceProvider();
 

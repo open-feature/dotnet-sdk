@@ -268,19 +268,26 @@ public static partial class OpenFeatureBuilderExtensions
     /// </summary>
     /// <typeparam name="THook">The type of<see cref="Hook"/> to be added.</typeparam>
     /// <param name="builder">The <see cref="OpenFeatureBuilder"/> instance.</param>
-    /// <param name="implementationFactory"></param>
+    /// <param name="implementationFactory">Optional factory for controlling how <typeparamref name="THook"/> will be created in the DI container.</param>
     /// <returns></returns>
-    public static OpenFeatureBuilder AddHook<THook>(this OpenFeatureBuilder builder, Func<IServiceProvider, THook> implementationFactory)
+    public static OpenFeatureBuilder AddHook<THook>(this OpenFeatureBuilder builder, Func<IServiceProvider, THook>? implementationFactory = null)
         where THook : Hook
     {
         var hookName = typeof(THook).Name;
 
         builder.Services.PostConfigure<OpenFeatureOptions>(options => options.AddHookName(hookName));
 
-        builder.Services.AddKeyedSingleton<Hook>(hookName, (serviceProvider, key) =>
+        if (implementationFactory is not null)
         {
-            return implementationFactory(serviceProvider);
-        });
+            builder.Services.AddKeyedSingleton<Hook>(hookName, (serviceProvider, key) =>
+            {
+                return implementationFactory(serviceProvider);
+            });
+        }
+        else
+        {
+            builder.Services.AddKeyedSingleton(typeof(Hook), hookName, typeof(THook));
+        }
 
         return builder;
     }
