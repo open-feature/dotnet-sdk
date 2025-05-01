@@ -269,24 +269,36 @@ public static partial class OpenFeatureBuilderExtensions
     /// <typeparam name="THook">The type of<see cref="Hook"/> to be added.</typeparam>
     /// <param name="builder">The <see cref="OpenFeatureBuilder"/> instance.</param>
     /// <param name="implementationFactory">Optional factory for controlling how <typeparamref name="THook"/> will be created in the DI container.</param>
-    /// <returns></returns>
+    /// <returns>The <see cref="OpenFeatureBuilder"/> instance.</returns>
     public static OpenFeatureBuilder AddHook<THook>(this OpenFeatureBuilder builder, Func<IServiceProvider, THook>? implementationFactory = null)
         where THook : Hook
     {
-        var hookName = typeof(THook).Name;
+        return builder.AddHook(typeof(THook).Name, implementationFactory);
+    }
 
+    /// <summary>
+    /// Adds a feature hook to the service collection using a factory method and specified name. Hooks added here are not domain-bound.
+    /// </summary>
+    /// <typeparam name="THook">The type of<see cref="Hook"/> to be added.</typeparam>
+    /// <param name="builder">The <see cref="OpenFeatureBuilder"/> instance.</param>
+    /// <param name="hookName">The name of the <see cref="Hook"/> that is being added.</param>
+    /// <param name="implementationFactory">Optional factory for controlling how <typeparamref name="THook"/> will be created in the DI container.</param>
+    /// <returns>The <see cref="OpenFeatureBuilder"/> instance.</returns>
+    public static OpenFeatureBuilder AddHook<THook>(this OpenFeatureBuilder builder, string hookName, Func<IServiceProvider, THook>? implementationFactory = null)
+        where THook : Hook
+    {
         builder.Services.PostConfigure<OpenFeatureOptions>(options => options.AddHookName(hookName));
 
         if (implementationFactory is not null)
         {
-            builder.Services.AddKeyedSingleton<Hook>(hookName, (serviceProvider, key) =>
+            builder.Services.TryAddKeyedSingleton<Hook>(hookName, (serviceProvider, key) =>
             {
                 return implementationFactory(serviceProvider);
             });
         }
         else
         {
-            builder.Services.AddKeyedSingleton(typeof(Hook), hookName, typeof(THook));
+            builder.Services.TryAddKeyedSingleton<Hook, THook>(hookName);
         }
 
         return builder;

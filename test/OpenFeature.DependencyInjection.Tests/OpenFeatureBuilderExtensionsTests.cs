@@ -258,7 +258,7 @@ public partial class OpenFeatureBuilderExtensionsTests
     }
 
     [Fact]
-    public void AddHook_AddsNameNameToOpenFeatureOptions()
+    public void AddHook_AddsHookNameToOpenFeatureOptions()
     {
         // Arrange
         _systemUnderTest.AddHook(sp => new NoOpHook());
@@ -270,5 +270,35 @@ public partial class OpenFeatureBuilderExtensionsTests
 
         // Assert
         Assert.Contains(options.Value.HookNames, t => t == "NoOpHook");
+    }
+
+    [Fact]
+    public void AddHook_WithSpecifiedNameToOpenFeatureOptions()
+    {
+        // Arrange
+        _systemUnderTest.AddHook<NoOpHook>("my-custom-name");
+
+        var serviceProvider = _services.BuildServiceProvider();
+
+        // Act
+        var hook = serviceProvider.GetKeyedService<Hook>("my-custom-name");
+
+        // Assert
+        Assert.NotNull(hook);
+    }
+
+    [Fact]
+    public void AddHook_WithSpecifiedNameAndImplementationFactory_AsKeyedService()
+    {
+        // Arrange
+        _systemUnderTest.AddHook("my-custom-name", (serviceProvider) => new NoOpHook());
+
+        var serviceProvider = _services.BuildServiceProvider();
+
+        // Act
+        var hook = serviceProvider.GetKeyedService<Hook>("my-custom-name");
+
+        // Assert
+        Assert.NotNull(hook);
     }
 }
