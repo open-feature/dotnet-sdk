@@ -434,6 +434,7 @@ builder.Services.AddOpenFeature(featureBuilder => {
     featureBuilder
         .AddHostedFeatureLifecycle() // From Hosting package
         .AddContext((contextBuilder, serviceProvider) => { /* Custom context configuration */ })
+        .AddHook<LoggingHook>()
         .AddInMemoryProvider();
 });
 ```
@@ -446,6 +447,7 @@ builder.Services.AddOpenFeature(featureBuilder => {
     featureBuilder
         .AddHostedFeatureLifecycle()
         .AddContext((contextBuilder, serviceProvider) => { /* Custom context configuration */ })
+        .AddHook((serviceProvider) => new LoggingHook( /* Custom configuration */ ))
         .AddInMemoryProvider("name1")
         .AddInMemoryProvider("name2")
         .AddPolicyName(options => {
