@@ -18,4 +18,9 @@
   <ItemGroup>
     <PackageReference Include="GitHubActionsTestLogger" />
   </ItemGroup>
+
+  <!-- Stops warning to use the .ConfigureAwait method. Tests should configure the await context as opposed to library code -->
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);CA2007</NoWarn>
+  </PropertyGroup>
 </Project>
