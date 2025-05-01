@@ -9,7 +9,7 @@ using OpenFeature.Model;
 namespace OpenFeature.Benchmark;
 
 [MemoryDiagnoser]
-[SimpleJob(RuntimeMoniker.Net60, baseline: true)]
+[SimpleJob(RuntimeMoniker.Net80, baseline: true)]
 [JsonExporterAttribute.Full]
 [JsonExporterAttribute.FullCompressed]
 public class OpenFeatureClientBenchmarks
