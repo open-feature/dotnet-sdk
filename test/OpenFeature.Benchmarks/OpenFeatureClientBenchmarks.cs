@@ -1,6 +1,5 @@
 
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using AutoFixture;
 using BenchmarkDotNet.Attributes;
@@ -10,10 +9,9 @@ using OpenFeature.Model;
 namespace OpenFeature.Benchmark;
 
 [MemoryDiagnoser]
-[SimpleJob(RuntimeMoniker.Net60, baseline: true)]
+[SimpleJob(RuntimeMoniker.Net80, baseline: true)]
 [JsonExporterAttribute.Full]
 [JsonExporterAttribute.FullCompressed]
-[SuppressMessage("Reliability", "CA2007:Consider calling ConfigureAwait on the awaited task")]
 public class OpenFeatureClientBenchmarks
 {
     private readonly string _domain;

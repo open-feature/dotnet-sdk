@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
@@ -9,8 +8,6 @@ using OpenFeature.Model;
 using Xunit;
 
 namespace OpenFeature.Tests.Hooks;
-
-[SuppressMessage("Reliability", "CA2007:Consider calling ConfigureAwait on the awaited task")]
 
 public class LoggingHookTests
 {

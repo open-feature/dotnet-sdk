@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using NSubstitute;
 using OpenFeature.Constant;
@@ -11,7 +10,6 @@ using Xunit;
 
 namespace OpenFeature.Tests;
 
-[SuppressMessage("Reliability", "CA2007:Consider calling ConfigureAwait on the awaited task")]
 public class ProviderRepositoryTests
 {
     [Fact]
