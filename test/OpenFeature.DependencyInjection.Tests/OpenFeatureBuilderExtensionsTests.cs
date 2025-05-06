@@ -241,4 +241,64 @@ public partial class OpenFeatureBuilderExtensionsTests
         Assert.NotNull(provider);
         Assert.IsType<NoOpFeatureProvider>(provider);
     }
+
+    [Fact]
+    public void AddHook_AddsHookAsKeyedService()
+    {
+        // Arrange
+        _systemUnderTest.AddHook<NoOpHook>();
+
+        var serviceProvider = _services.BuildServiceProvider();
+
+        // Act
+        var hook = serviceProvider.GetKeyedService<Hook>("NoOpHook");
+
+        // Assert
+        Assert.NotNull(hook);
+    }
+
+    [Fact]
+    public void AddHook_AddsHookNameToOpenFeatureOptions()
+    {
+        // Arrange
+        _systemUnderTest.AddHook(sp => new NoOpHook());
+
+        var serviceProvider = _services.BuildServiceProvider();
+
+        // Act
+        var options = serviceProvider.GetRequiredService<IOptions<OpenFeatureOptions>>();
+
+        // Assert
+        Assert.Contains(options.Value.HookNames, t => t == "NoOpHook");
+    }
+
+    [Fact]
+    public void AddHook_WithSpecifiedNameToOpenFeatureOptions()
+    {
+        // Arrange
+        _systemUnderTest.AddHook<NoOpHook>("my-custom-name");
+
+        var serviceProvider = _services.BuildServiceProvider();
+
+        // Act
+        var hook = serviceProvider.GetKeyedService<Hook>("my-custom-name");
+
+        // Assert
+        Assert.NotNull(hook);
+    }
+
+    [Fact]
+    public void AddHook_WithSpecifiedNameAndImplementationFactory_AsKeyedService()
+    {
+        // Arrange
+        _systemUnderTest.AddHook("my-custom-name", (serviceProvider) => new NoOpHook());
+
+        var serviceProvider = _services.BuildServiceProvider();
+
+        // Act
+        var hook = serviceProvider.GetKeyedService<Hook>("my-custom-name");
+
+        // Assert
+        Assert.NotNull(hook);
+    }
 }

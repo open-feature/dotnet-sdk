@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging.Testing;
 using OpenFeature.DependencyInjection.Providers.Memory;
+using OpenFeature.Hooks;
 using OpenFeature.IntegrationTests.Services;
 using OpenFeature.Providers.Memory;
 
@@ -27,7 +29,8 @@ public class FeatureFlagIntegrationTest
     public async Task VerifyFeatureFlagBehaviorAcrossServiceLifetimesAsync(string userId, bool expectedResult, ServiceLifetime serviceLifetime)
     {
         // Arrange
-        using var server = await CreateServerAsync(serviceLifetime, services =>
+        var logger = new FakeLogger();
+        using var server = await CreateServerAsync(serviceLifetime, logger, services =>
         {
             switch (serviceLifetime)
             {
@@ -50,7 +53,7 @@ public class FeatureFlagIntegrationTest
 
         // Act
         var response = await client.GetAsync(requestUri).ConfigureAwait(true);
-        var responseContent = await response.Content.ReadFromJsonAsync<FeatureFlagResponse<bool>>().ConfigureAwait(true); ;
+        var responseContent = await response.Content.ReadFromJsonAsync<FeatureFlagResponse<bool>>().ConfigureAwait(true);
 
         // Assert
         Assert.True(response.IsSuccessStatusCode, "Expected HTTP status code 200 OK.");
@@ -59,7 +62,35 @@ public class FeatureFlagIntegrationTest
         Assert.Equal(expectedResult, responseContent.FeatureValue);
     }
 
-    private static async Task<TestServer> CreateServerAsync(ServiceLifetime serviceLifetime, Action<IServiceCollection>? configureServices = null)
+    [Fact]
+    public async Task VerifyLoggingHookIsRegisteredAsync()
+    {
+        // Arrange
+        var logger = new FakeLogger();
+        using var server = await CreateServerAsync(ServiceLifetime.Transient, logger, services =>
+        {
+            services.AddTransient<IFeatureFlagConfigurationService, FlagConfigurationService>();
+        }).ConfigureAwait(true);
+
+        var client = server.CreateClient();
+        var requestUri = $"/features/{TestUserId}/flags/{FeatureA}";
+
+        // Act
+        var response = await client.GetAsync(requestUri).ConfigureAwait(true);
+        var logs = logger.Collector.GetSnapshot();
+
+        // Assert
+        Assert.True(response.IsSuccessStatusCode, "Expected HTTP status code 200 OK.");
+        Assert.Equal(4, logs.Count);
+        Assert.Multiple(() =>
+        {
+            Assert.Contains("Before Flag Evaluation", logs[0].Message);
+            Assert.Contains("After Flag Evaluation", logs[1].Message);
+        });
+    }
+
+    private static async Task<TestServer> CreateServerAsync(ServiceLifetime serviceLifetime, FakeLogger logger,
+        Action<IServiceCollection>? configureServices = null)
     {
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.UseTestServer();
@@ -94,6 +125,7 @@ public class FeatureFlagIntegrationTest
                     return flagService.GetFlags();
                 }
             });
+            cfg.AddHook(serviceProvider => new LoggingHook(logger));
         });
 
         var app = builder.Build();
