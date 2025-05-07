@@ -1,7 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using OpenFeature.Constant;
 using OpenFeature.DependencyInjection;
+using OpenFeature.DependencyInjection.Internal;
 using OpenFeature.Model;
 
 namespace OpenFeature;
@@ -302,5 +304,74 @@ public static partial class OpenFeatureBuilderExtensions
         }
 
         return builder;
+    }
+
+    /// <summary>
+    /// Add a <see cref="EventHandlerDelegate"/> to allow you to react to state changes in the provider or underlying flag management system, such as flag definition changes, provider readiness, or error conditions
+    /// </summary>
+    /// <param name="builder">The <see cref="OpenFeatureBuilder"/> instance.</param>
+    /// <param name="type">The type <see cref="ProviderEventTypes"/> to handle.</param>
+    /// <param name="eventHandlerDelegate">The handler which reacts to <see cref="ProviderEventTypes"/>.</param>
+    /// <returns></returns>
+    public static OpenFeatureBuilder AddHandler(this OpenFeatureBuilder builder, ProviderEventTypes type, EventHandlerDelegate eventHandlerDelegate)
+    {
+        return AddHandler(builder, GenerateRandomName(), type, sp => eventHandlerDelegate);
+    }
+
+    /// <summary>
+    /// Add a <see cref="EventHandlerDelegate"/> to allow you to react to state changes in the provider or underlying flag management system, such as flag definition changes, provider readiness, or error conditions
+    /// </summary>
+    /// <param name="builder">The <see cref="OpenFeatureBuilder"/> instance.</param>
+    /// <param name="handlerName">The name of the <see cref="EventHandlerDelegate"/>.</param>
+    /// <param name="type">The type <see cref="ProviderEventTypes"/> to handle.</param>
+    /// <param name="eventHandlerDelegate">The handler which reacts to <see cref="ProviderEventTypes"/>.</param>
+    /// <returns></returns>
+    public static OpenFeatureBuilder AddHandler(this OpenFeatureBuilder builder, string handlerName, ProviderEventTypes type, EventHandlerDelegate eventHandlerDelegate)
+    {
+        return AddHandler(builder, handlerName, type, sp => eventHandlerDelegate);
+    }
+
+    /// <summary>
+    /// Add a <see cref="EventHandlerDelegate"/> to allow you to react to state changes in the provider or underlying flag management system, such as flag definition changes, provider readiness, or error conditions
+    /// </summary>
+    /// <param name="builder">The <see cref="OpenFeatureBuilder"/> instance.</param>
+    /// <param name="type">The type <see cref="ProviderEventTypes"/> to handle.</param>
+    /// <param name="implementationFactory">The handler factory for creating a handler which reacts to <see cref="ProviderEventTypes"/>.</param>
+    /// <returns></returns>
+    public static OpenFeatureBuilder AddHandler(this OpenFeatureBuilder builder, ProviderEventTypes type, Func<IServiceProvider, EventHandlerDelegate> implementationFactory)
+    {
+        return AddHandler(builder, GenerateRandomName(), type, implementationFactory);
+    }
+
+    /// <summary>
+    /// Add a <see cref="EventHandlerDelegate"/> to allow you to react to state changes in the provider or underlying flag management system, such as flag definition changes, provider readiness, or error conditions
+    /// </summary>
+    /// <param name="builder">The <see cref="OpenFeatureBuilder"/> instance.</param>
+    /// <param name="handlerName">The name of the <see cref="EventHandlerDelegate"/>.</param>
+    /// <param name="type">The type <see cref="ProviderEventTypes"/> to handle.</param>
+    /// <param name="implementationFactory">The handler factory for creating a handler which reacts to <see cref="ProviderEventTypes"/>.</param>
+    /// <returns></returns>
+    public static OpenFeatureBuilder AddHandler(this OpenFeatureBuilder builder, string handlerName, ProviderEventTypes type, Func<IServiceProvider, EventHandlerDelegate> implementationFactory)
+    {
+        var key = string.Join(":", handlerName, type.ToString());
+
+        builder.Services.PostConfigure<OpenFeatureOptions>(options => options.AddHandlerName(key));
+
+        builder.Services.TryAddKeyedSingleton(key, (serviceProvider, _) =>
+        {
+            var handler = implementationFactory(serviceProvider);
+            return new EventHandlerDelegateWrapper(type, handler);
+        });
+
+        return builder;
+    }
+
+    static readonly Random _random = new();
+    private static string GenerateRandomName()
+    {
+        const string characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        const int length = 4;
+
+        return new string([.. Enumerable.Range(0, length).Select(_ => characters[_random.Next(characters.Length)])]);
     }
 }

@@ -58,4 +58,16 @@ public class OpenFeatureOptions
             _hookNames.Add(name);
         }
     }
+
+    private readonly HashSet<string> _handlerNames = [];
+
+    internal IReadOnlyCollection<string> HandlerNames => _handlerNames;
+
+    internal void AddHandlerName(string name)
+    {
+        lock (_handlerNames)
+        {
+            _handlerNames.Add(name);
+        }
+    }
 }
