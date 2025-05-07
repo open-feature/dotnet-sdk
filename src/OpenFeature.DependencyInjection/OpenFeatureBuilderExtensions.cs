@@ -315,7 +315,7 @@ public static partial class OpenFeatureBuilderExtensions
     /// <returns></returns>
     public static OpenFeatureBuilder AddHandler(this OpenFeatureBuilder builder, ProviderEventTypes type, EventHandlerDelegate eventHandlerDelegate)
     {
-        return AddHandler(builder, GenerateRandomName(), type, sp => eventHandlerDelegate);
+        return AddHandler(builder, string.Empty, type, sp => eventHandlerDelegate);
     }
 
     /// <summary>
@@ -340,7 +340,7 @@ public static partial class OpenFeatureBuilderExtensions
     /// <returns></returns>
     public static OpenFeatureBuilder AddHandler(this OpenFeatureBuilder builder, ProviderEventTypes type, Func<IServiceProvider, EventHandlerDelegate> implementationFactory)
     {
-        return AddHandler(builder, GenerateRandomName(), type, implementationFactory);
+        return AddHandler(builder, string.Empty, type, implementationFactory);
     }
 
     /// <summary>
@@ -353,6 +353,9 @@ public static partial class OpenFeatureBuilderExtensions
     /// <returns></returns>
     public static OpenFeatureBuilder AddHandler(this OpenFeatureBuilder builder, string handlerName, ProviderEventTypes type, Func<IServiceProvider, EventHandlerDelegate> implementationFactory)
     {
+        if (string.IsNullOrEmpty(handlerName))
+            handlerName = Guid.NewGuid().ToString();
+
         var key = string.Join(":", handlerName, type.ToString());
 
         builder.Services.PostConfigure<OpenFeatureOptions>(options => options.AddHandlerName(key));
@@ -364,14 +367,5 @@ public static partial class OpenFeatureBuilderExtensions
         });
 
         return builder;
-    }
-
-    static readonly Random _random = new();
-    private static string GenerateRandomName()
-    {
-        const string characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        const int length = 4;
-
-        return new string([.. Enumerable.Range(0, length).Select(_ => characters[_random.Next(characters.Length)])]);
     }
 }

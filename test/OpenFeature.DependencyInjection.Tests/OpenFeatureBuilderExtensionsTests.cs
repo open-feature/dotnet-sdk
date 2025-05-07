@@ -353,6 +353,24 @@ public partial class OpenFeatureBuilderExtensionsTests
         Assert.Equal(ServiceLifetime.Singleton, handler.Lifetime);
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    public void AddHandler_WithEmptyName_AddsEventHandlerDelegateWrapperAsKeyedService(string? handlerName)
+    {
+        // Arrange
+        EventHandlerDelegate eventHandler = (eventDetails) => { };
+        _systemUnderTest.AddHandler(handlerName!, Constant.ProviderEventTypes.ProviderReady, eventHandler);
+
+        // Act
+        var handlers = _services.Where(s => s.ServiceType == typeof(EventHandlerDelegateWrapper)).ToList();
+        var handler = handlers.First();
+
+        // Assert
+        Assert.True(handler.IsKeyedService);
+        Assert.Equal(ServiceLifetime.Singleton, handler.Lifetime);
+    }
+
     [Fact]
     public void AddHandler_WithImplementationFactory_AddsEventHandlerDelegateWrapperAsKeyedService()
     {
