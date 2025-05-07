@@ -1,7 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging.Abstractions;
+using OpenFeature.Constant;
 using OpenFeature.DependencyInjection.Internal;
+using OpenFeature.Model;
 using Xunit;
 
 namespace OpenFeature.DependencyInjection.Tests;
@@ -80,5 +82,27 @@ public class FeatureLifecycleManagerTests
         // Assert
         var actual = Api.Instance.GetHooks().FirstOrDefault();
         Assert.Equal(hook, actual);
+    }
+
+    [Fact]
+    public async Task EnsureInitializedAsync_ShouldSetHandler_WhenHandlersAreRegistered()
+    {
+        // Arrange
+        EventHandlerDelegate eventHandlerDelegate = (_) => { };
+        var featureProvider = new NoOpFeatureProvider();
+        var handler = new EventHandlerDelegateWrapper(ProviderEventTypes.ProviderReady, eventHandlerDelegate);
+
+        _serviceCollection.AddSingleton<FeatureProvider>(featureProvider)
+            .AddKeyedSingleton("test:ProviderReady", (_, key) => handler)
+            .Configure<OpenFeatureOptions>(options =>
+            {
+                options.AddHandlerName("test:ProviderReady");
+            });
+
+        var serviceProvider = _serviceCollection.BuildServiceProvider();
+        var sut = new FeatureLifecycleManager(Api.Instance, serviceProvider, NullLogger<FeatureLifecycleManager>.Instance);
+
+        // Act
+        await sut.EnsureInitializedAsync().ConfigureAwait(true);
     }
 }
