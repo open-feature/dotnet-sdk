@@ -381,15 +381,14 @@ public partial class OpenFeatureBuilderExtensionsTests
     {
         // Arrange
         EventHandlerDelegate eventHandler = (eventDetails) => { };
-        _systemUnderTest.AddHandler(handlerName!, Constant.ProviderEventTypes.ProviderReady, eventHandler);
 
         // Act
-        var handlers = _services.Where(s => s.ServiceType == typeof(EventHandlerDelegateWrapper)).ToList();
-        var handler = handlers.First();
+        Action act = () => _systemUnderTest.AddHandler(handlerName!, Constant.ProviderEventTypes.ProviderReady, eventHandler);
 
         // Assert
-        Assert.True(handler.IsKeyedService);
-        Assert.Equal(ServiceLifetime.Singleton, handler.Lifetime);
+        var ex = Assert.Throws<ArgumentException>(act);
+        Assert.Equal("handlerName", ex.ParamName);
+        Assert.StartsWith("Null or empty Handler name", ex.Message);
     }
 
     [Fact]

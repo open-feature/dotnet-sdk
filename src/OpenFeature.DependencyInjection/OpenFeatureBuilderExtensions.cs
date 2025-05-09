@@ -312,7 +312,7 @@ public static partial class OpenFeatureBuilderExtensions
     /// <param name="builder">The <see cref="OpenFeatureBuilder"/> instance.</param>
     /// <param name="type">The type <see cref="ProviderEventTypes"/> to handle.</param>
     /// <param name="eventHandlerDelegate">The handler which reacts to <see cref="ProviderEventTypes"/>.</param>
-    /// <returns></returns>
+    /// <returns>The <see cref="OpenFeatureBuilder"/> instance.</returns>
     public static OpenFeatureBuilder AddHandler(this OpenFeatureBuilder builder, ProviderEventTypes type, EventHandlerDelegate eventHandlerDelegate)
     {
         return AddHandler(builder, typeof(EventHandlerDelegate).Name, type, sp => eventHandlerDelegate);
@@ -325,7 +325,8 @@ public static partial class OpenFeatureBuilderExtensions
     /// <param name="handlerName">The name of the <see cref="EventHandlerDelegate"/>.</param>
     /// <param name="type">The type <see cref="ProviderEventTypes"/> to handle.</param>
     /// <param name="eventHandlerDelegate">The handler which reacts to <see cref="ProviderEventTypes"/>.</param>
-    /// <returns></returns>
+    /// <returns>The <see cref="OpenFeatureBuilder"/> instance.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="handlerName"/> is null or empty</exception>
     public static OpenFeatureBuilder AddHandler(this OpenFeatureBuilder builder, string handlerName, ProviderEventTypes type, EventHandlerDelegate eventHandlerDelegate)
     {
         return AddHandler(builder, handlerName, type, sp => eventHandlerDelegate);
@@ -337,7 +338,7 @@ public static partial class OpenFeatureBuilderExtensions
     /// <param name="builder">The <see cref="OpenFeatureBuilder"/> instance.</param>
     /// <param name="type">The type <see cref="ProviderEventTypes"/> to handle.</param>
     /// <param name="implementationFactory">The handler factory for creating a handler which reacts to <see cref="ProviderEventTypes"/>.</param>
-    /// <returns></returns>
+    /// <returns>The <see cref="OpenFeatureBuilder"/> instance.</returns>
     public static OpenFeatureBuilder AddHandler(this OpenFeatureBuilder builder, ProviderEventTypes type, Func<IServiceProvider, EventHandlerDelegate> implementationFactory)
     {
         return AddHandler(builder, typeof(EventHandlerDelegate).Name, type, implementationFactory);
@@ -350,11 +351,12 @@ public static partial class OpenFeatureBuilderExtensions
     /// <param name="handlerName">The name of the <see cref="EventHandlerDelegate"/>.</param>
     /// <param name="type">The type <see cref="ProviderEventTypes"/> to handle.</param>
     /// <param name="implementationFactory">The handler factory for creating a handler which reacts to <see cref="ProviderEventTypes"/>.</param>
-    /// <returns></returns>
+    /// <returns>The <see cref="OpenFeatureBuilder"/> instance.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="handlerName"/> is null or empty</exception>
     public static OpenFeatureBuilder AddHandler(this OpenFeatureBuilder builder, string handlerName, ProviderEventTypes type, Func<IServiceProvider, EventHandlerDelegate> implementationFactory)
     {
         if (string.IsNullOrWhiteSpace(handlerName))
-            handlerName = string.Empty;
+            throw new ArgumentException("Null or empty Handler name", nameof(handlerName));
 
         var key = string.Join(":", handlerName, type.ToString());
 
