@@ -315,7 +315,7 @@ public static partial class OpenFeatureBuilderExtensions
     /// <returns></returns>
     public static OpenFeatureBuilder AddHandler(this OpenFeatureBuilder builder, ProviderEventTypes type, EventHandlerDelegate eventHandlerDelegate)
     {
-        return AddHandler(builder, string.Empty, type, sp => eventHandlerDelegate);
+        return AddHandler(builder, typeof(EventHandlerDelegate).Name, type, sp => eventHandlerDelegate);
     }
 
     /// <summary>
@@ -340,7 +340,7 @@ public static partial class OpenFeatureBuilderExtensions
     /// <returns></returns>
     public static OpenFeatureBuilder AddHandler(this OpenFeatureBuilder builder, ProviderEventTypes type, Func<IServiceProvider, EventHandlerDelegate> implementationFactory)
     {
-        return AddHandler(builder, string.Empty, type, implementationFactory);
+        return AddHandler(builder, typeof(EventHandlerDelegate).Name, type, implementationFactory);
     }
 
     /// <summary>
@@ -353,14 +353,14 @@ public static partial class OpenFeatureBuilderExtensions
     /// <returns></returns>
     public static OpenFeatureBuilder AddHandler(this OpenFeatureBuilder builder, string handlerName, ProviderEventTypes type, Func<IServiceProvider, EventHandlerDelegate> implementationFactory)
     {
-        if (string.IsNullOrEmpty(handlerName))
-            handlerName = Guid.NewGuid().ToString();
+        if (string.IsNullOrWhiteSpace(handlerName))
+            handlerName = string.Empty;
 
         var key = string.Join(":", handlerName, type.ToString());
 
         builder.Services.PostConfigure<OpenFeatureOptions>(options => options.AddHandlerName(key));
 
-        builder.Services.TryAddKeyedSingleton(key, (serviceProvider, _) =>
+        builder.Services.AddKeyedSingleton(key, (serviceProvider, _) =>
         {
             var handler = implementationFactory(serviceProvider);
             return new EventHandlerDelegateWrapper(type, handler);

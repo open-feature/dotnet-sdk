@@ -105,4 +105,29 @@ public class FeatureLifecycleManagerTests
         // Act
         await sut.EnsureInitializedAsync().ConfigureAwait(true);
     }
+
+    [Fact]
+    public async Task EnsureInitializedAsync_ShouldSetHandler_WhenMultipleHandlersAreRegistered()
+    {
+        // Arrange
+        EventHandlerDelegate eventHandlerDelegate1 = (_) => { };
+        EventHandlerDelegate eventHandlerDelegate2 = (_) => { };
+        var featureProvider = new NoOpFeatureProvider();
+        var handler1 = new EventHandlerDelegateWrapper(ProviderEventTypes.ProviderReady, eventHandlerDelegate1);
+        var handler2 = new EventHandlerDelegateWrapper(ProviderEventTypes.ProviderReady, eventHandlerDelegate2);
+
+        _serviceCollection.AddSingleton<FeatureProvider>(featureProvider)
+            .AddKeyedSingleton("test:ProviderReady", (_, key) => handler1)
+            .AddKeyedSingleton("test:ProviderReady", (_, key) => handler2)
+            .Configure<OpenFeatureOptions>(options =>
+            {
+                options.AddHandlerName("test:ProviderReady");
+            });
+
+        var serviceProvider = _serviceCollection.BuildServiceProvider();
+        var sut = new FeatureLifecycleManager(Api.Instance, serviceProvider, NullLogger<FeatureLifecycleManager>.Instance);
+
+        // Act
+        await sut.EnsureInitializedAsync().ConfigureAwait(true);
+    }
 }

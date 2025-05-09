@@ -321,6 +321,26 @@ public partial class OpenFeatureBuilderExtensionsTests
     }
 
     [Fact]
+    public void AddHandlerTwice_MultipleEventHandlerDelegateWrappersAsKeyedServices()
+    {
+        // Arrange
+        EventHandlerDelegate eventHandler1 = (eventDetails) => { };
+        EventHandlerDelegate eventHandler2 = (eventDetails) => { };
+        _systemUnderTest.AddHandler(Constant.ProviderEventTypes.ProviderReady, eventHandler1);
+        _systemUnderTest.AddHandler(Constant.ProviderEventTypes.ProviderReady, eventHandler2);
+
+        var serviceProvider = _services.BuildServiceProvider();
+
+        // Act
+        var handler = serviceProvider.GetKeyedServices<EventHandlerDelegateWrapper>("EventHandlerDelegate:ProviderReady");
+
+        // Assert
+        Assert.NotEmpty(handler);
+        Assert.Equal(eventHandler1, handler.ElementAt(0).EventHandlerDelegate);
+        Assert.Equal(eventHandler2, handler.ElementAt(1).EventHandlerDelegate);
+    }
+
+    [Fact]
     public void AddHandler_SetsHandlerNameInOpenFeatureOptions()
     {
         // Arrange
@@ -355,6 +375,7 @@ public partial class OpenFeatureBuilderExtensionsTests
 
     [Theory]
     [InlineData("")]
+    [InlineData("  ")]
     [InlineData(null)]
     public void AddHandler_WithEmptyName_AddsEventHandlerDelegateWrapperAsKeyedService(string? handlerName)
     {
