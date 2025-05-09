@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging.Testing;
+using OpenFeature.Constant;
 using OpenFeature.DependencyInjection.Providers.Memory;
 using OpenFeature.Hooks;
 using OpenFeature.IntegrationTests.Services;
+using OpenFeature.Model;
 using OpenFeature.Providers.Memory;
 
 namespace OpenFeature.IntegrationTests;
@@ -89,8 +91,33 @@ public class FeatureFlagIntegrationTest
         });
     }
 
+    [Fact]
+    public async Task VerifyHandlerIsRegisteredAsync()
+    {
+        // Arrange
+        var logger = new FakeLogger();
+        Action<IServiceCollection> configureServices = services =>
+        {
+            services.AddTransient<IFeatureFlagConfigurationService, FlagConfigurationService>();
+        };
+        var handlerSuccess = false;
+
+        using var server = await CreateServerAsync(ServiceLifetime.Transient, logger, configureServices, (_) => { handlerSuccess = true; })
+            .ConfigureAwait(true);
+
+        var client = server.CreateClient();
+        var requestUri = $"/features/{TestUserId}/flags/{FeatureA}";
+
+        // Act
+        var response = await client.GetAsync(requestUri).ConfigureAwait(true);
+
+        // Assert
+        Assert.True(handlerSuccess);
+    }
+
     private static async Task<TestServer> CreateServerAsync(ServiceLifetime serviceLifetime, FakeLogger logger,
-        Action<IServiceCollection>? configureServices = null)
+        Action<IServiceCollection>? configureServices = null,
+        EventHandlerDelegate? eventHandlerDelegate = null)
     {
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.UseTestServer();
@@ -126,6 +153,11 @@ public class FeatureFlagIntegrationTest
                 }
             });
             cfg.AddHook(serviceProvider => new LoggingHook(logger));
+
+            if (eventHandlerDelegate is not null)
+            {
+                cfg.AddHandler(ProviderEventTypes.ProviderReady, eventHandlerDelegate);
+            }
         });
 
         var app = builder.Build();

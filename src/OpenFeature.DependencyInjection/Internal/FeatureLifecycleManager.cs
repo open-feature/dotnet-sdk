@@ -43,6 +43,15 @@ internal sealed partial class FeatureLifecycleManager : IFeatureLifecycleManager
         }
 
         _featureApi.AddHooks(hooks);
+
+        foreach (var handlerName in options.HandlerNames)
+        {
+            var handlers = _serviceProvider.GetKeyedServices<EventHandlerDelegateWrapper>(handlerName);
+            foreach (var handler in handlers)
+            {
+                _featureApi.AddHandler(handler.ProviderEventType, handler.EventHandlerDelegate);
+            }
+        }
     }
 
     /// <inheritdoc />
