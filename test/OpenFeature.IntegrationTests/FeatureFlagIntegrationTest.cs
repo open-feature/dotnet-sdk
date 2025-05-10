@@ -1,4 +1,3 @@
-using System.Diagnostics.Metrics;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
@@ -12,7 +11,6 @@ using OpenFeature.DependencyInjection;
 using OpenFeature.DependencyInjection.Providers.Memory;
 using OpenFeature.Hooks;
 using OpenFeature.IntegrationTests.Services;
-using OpenFeature.Model;
 using OpenFeature.Providers.Memory;
 
 namespace OpenFeature.IntegrationTests;
