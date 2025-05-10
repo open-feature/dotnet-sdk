@@ -355,8 +355,7 @@ public static partial class OpenFeatureBuilderExtensions
     /// <exception cref="ArgumentException">Thrown when <paramref name="handlerName"/> is null or empty</exception>
     public static OpenFeatureBuilder AddHandler(this OpenFeatureBuilder builder, string handlerName, ProviderEventTypes type, Func<IServiceProvider, EventHandlerDelegate> implementationFactory)
     {
-        if (string.IsNullOrWhiteSpace(handlerName))
-            throw new ArgumentException("Null or empty Handler name", nameof(handlerName));
+        Guard.ThrowIfNullOrWhiteSpace(handlerName);
 
         var key = string.Join(":", handlerName, type.ToString());
 

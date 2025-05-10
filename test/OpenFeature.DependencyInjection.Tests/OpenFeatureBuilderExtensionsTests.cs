@@ -386,9 +386,9 @@ public partial class OpenFeatureBuilderExtensionsTests
         Action act = () => _systemUnderTest.AddHandler(handlerName!, Constant.ProviderEventTypes.ProviderReady, eventHandler);
 
         // Assert
-        var ex = Assert.Throws<ArgumentException>(act);
+        var ex = Assert.Throws<ArgumentNullException>(act);
         Assert.Equal("handlerName", ex.ParamName);
-        Assert.StartsWith("Null or empty Handler name", ex.Message);
+        Assert.StartsWith("Value cannot be null.", ex.Message);
     }
 
     [Fact]
