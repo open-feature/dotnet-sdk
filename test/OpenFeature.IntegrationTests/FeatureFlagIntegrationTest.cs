@@ -1,3 +1,4 @@
+using System.Diagnostics.Metrics;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging.Testing;
 using OpenFeature.Constant;
+using OpenFeature.DependencyInjection;
 using OpenFeature.DependencyInjection.Providers.Memory;
 using OpenFeature.Hooks;
 using OpenFeature.IntegrationTests.Services;
@@ -100,9 +102,14 @@ public class FeatureFlagIntegrationTest
         {
             services.AddTransient<IFeatureFlagConfigurationService, FlagConfigurationService>();
         };
-        var handlerSuccess = false;
 
-        using var server = await CreateServerAsync(ServiceLifetime.Transient, logger, configureServices, (_) => { handlerSuccess = true; })
+        var handlerSuccess = false;
+        Action<OpenFeatureBuilder> openFeatureBuilder = cfg =>
+        {
+            cfg.AddHandler(ProviderEventTypes.ProviderReady, (_) => { handlerSuccess = true; });
+        };
+
+        using var server = await CreateServerAsync(ServiceLifetime.Transient, logger, configureServices, openFeatureBuilder)
             .ConfigureAwait(true);
 
         var client = server.CreateClient();
@@ -115,9 +122,40 @@ public class FeatureFlagIntegrationTest
         Assert.True(handlerSuccess);
     }
 
+    [Fact]
+    public async Task VerifyMultipleHandlersAreRegisteredAsync()
+    {
+        // Arrange
+        var logger = new FakeLogger();
+        Action<IServiceCollection> configureServices = services =>
+        {
+            services.AddTransient<IFeatureFlagConfigurationService, FlagConfigurationService>();
+        };
+
+        var @lock = new Lock();
+        var counter = 0;
+        Action<OpenFeatureBuilder> openFeatureBuilder = cfg =>
+        {
+            cfg.AddHandler(ProviderEventTypes.ProviderReady, (_) => { lock (@lock) { counter++; } });
+            cfg.AddHandler(ProviderEventTypes.ProviderReady, (_) => { lock (@lock) { counter++; } });
+        };
+
+        using var server = await CreateServerAsync(ServiceLifetime.Transient, logger, configureServices, openFeatureBuilder)
+            .ConfigureAwait(true);
+
+        var client = server.CreateClient();
+        var requestUri = $"/features/{TestUserId}/flags/{FeatureA}";
+
+        // Act
+        var response = await client.GetAsync(requestUri).ConfigureAwait(true);
+
+        // Assert
+        Assert.Equal(2, counter);
+    }
+
     private static async Task<TestServer> CreateServerAsync(ServiceLifetime serviceLifetime, FakeLogger logger,
         Action<IServiceCollection>? configureServices = null,
-        EventHandlerDelegate? eventHandlerDelegate = null)
+        Action<OpenFeatureBuilder>? openFeatureBuilder = null)
     {
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.UseTestServer();
@@ -154,9 +192,9 @@ public class FeatureFlagIntegrationTest
             });
             cfg.AddHook(serviceProvider => new LoggingHook(logger));
 
-            if (eventHandlerDelegate is not null)
+            if (openFeatureBuilder is not null)
             {
-                cfg.AddHandler(ProviderEventTypes.ProviderReady, eventHandlerDelegate);
+                openFeatureBuilder(cfg);
             }
         });
 
