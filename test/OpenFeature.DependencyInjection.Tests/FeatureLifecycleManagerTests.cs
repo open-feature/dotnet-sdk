@@ -93,11 +93,7 @@ public class FeatureLifecycleManagerTests
         var handler = new EventHandlerDelegateWrapper(ProviderEventTypes.ProviderReady, eventHandlerDelegate);
 
         _serviceCollection.AddSingleton<FeatureProvider>(featureProvider)
-            .AddKeyedSingleton("test:ProviderReady", (_, key) => handler)
-            .Configure<OpenFeatureOptions>(options =>
-            {
-                options.AddHandlerName("test:ProviderReady");
-            });
+            .AddSingleton(_ => handler);
 
         var serviceProvider = _serviceCollection.BuildServiceProvider();
         var sut = new FeatureLifecycleManager(Api.Instance, serviceProvider, NullLogger<FeatureLifecycleManager>.Instance);
@@ -117,12 +113,8 @@ public class FeatureLifecycleManagerTests
         var handler2 = new EventHandlerDelegateWrapper(ProviderEventTypes.ProviderReady, eventHandlerDelegate2);
 
         _serviceCollection.AddSingleton<FeatureProvider>(featureProvider)
-            .AddKeyedSingleton("test:ProviderReady", (_, key) => handler1)
-            .AddKeyedSingleton("test:ProviderReady", (_, key) => handler2)
-            .Configure<OpenFeatureOptions>(options =>
-            {
-                options.AddHandlerName("test:ProviderReady");
-            });
+            .AddSingleton(_ => handler1)
+            .AddSingleton(_ => handler2);
 
         var serviceProvider = _serviceCollection.BuildServiceProvider();
         var sut = new FeatureLifecycleManager(Api.Instance, serviceProvider, NullLogger<FeatureLifecycleManager>.Instance);

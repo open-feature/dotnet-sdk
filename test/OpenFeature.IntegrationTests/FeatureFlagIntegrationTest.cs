@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using OpenFeature.Constant;
 using OpenFeature.DependencyInjection;
@@ -31,8 +32,7 @@ public class FeatureFlagIntegrationTest
     public async Task VerifyFeatureFlagBehaviorAcrossServiceLifetimesAsync(string userId, bool expectedResult, ServiceLifetime serviceLifetime)
     {
         // Arrange
-        var logger = new FakeLogger();
-        using var server = await CreateServerAsync(serviceLifetime, logger, services =>
+        using var server = await CreateServerAsync(serviceLifetime, services =>
         {
             switch (serviceLifetime)
             {
@@ -69,10 +69,17 @@ public class FeatureFlagIntegrationTest
     {
         // Arrange
         var logger = new FakeLogger();
-        using var server = await CreateServerAsync(ServiceLifetime.Transient, logger, services =>
+        Action<IServiceCollection> configureServices = services =>
         {
             services.AddTransient<IFeatureFlagConfigurationService, FlagConfigurationService>();
-        }).ConfigureAwait(true);
+        };
+
+        Action<OpenFeatureBuilder> openFeatureBuilder = cfg =>
+        {
+            cfg.AddHook(_ => new LoggingHook(logger));
+        };
+
+        using var server = await CreateServerAsync(ServiceLifetime.Transient, configureServices, openFeatureBuilder).ConfigureAwait(true);
 
         var client = server.CreateClient();
         var requestUri = $"/features/{TestUserId}/flags/{FeatureA}";
@@ -95,7 +102,6 @@ public class FeatureFlagIntegrationTest
     public async Task VerifyHandlerIsRegisteredAsync()
     {
         // Arrange
-        var logger = new FakeLogger();
         Action<IServiceCollection> configureServices = services =>
         {
             services.AddTransient<IFeatureFlagConfigurationService, FlagConfigurationService>();
@@ -107,7 +113,7 @@ public class FeatureFlagIntegrationTest
             cfg.AddHandler(ProviderEventTypes.ProviderReady, (_) => { handlerSuccess = true; });
         };
 
-        using var server = await CreateServerAsync(ServiceLifetime.Transient, logger, configureServices, openFeatureBuilder)
+        using var server = await CreateServerAsync(ServiceLifetime.Transient, configureServices, openFeatureBuilder)
             .ConfigureAwait(true);
 
         var client = server.CreateClient();
@@ -117,6 +123,7 @@ public class FeatureFlagIntegrationTest
         var response = await client.GetAsync(requestUri).ConfigureAwait(true);
 
         // Assert
+        Assert.True(response.IsSuccessStatusCode, "Expected HTTP status code 200 OK.");
         Assert.True(handlerSuccess);
     }
 
@@ -124,7 +131,6 @@ public class FeatureFlagIntegrationTest
     public async Task VerifyMultipleHandlersAreRegisteredAsync()
     {
         // Arrange
-        var logger = new FakeLogger();
         Action<IServiceCollection> configureServices = services =>
         {
             services.AddTransient<IFeatureFlagConfigurationService, FlagConfigurationService>();
@@ -138,7 +144,7 @@ public class FeatureFlagIntegrationTest
             cfg.AddHandler(ProviderEventTypes.ProviderReady, (_) => { lock (@lock) { counter++; } });
         };
 
-        using var server = await CreateServerAsync(ServiceLifetime.Transient, logger, configureServices, openFeatureBuilder)
+        using var server = await CreateServerAsync(ServiceLifetime.Transient, configureServices, openFeatureBuilder)
             .ConfigureAwait(true);
 
         var client = server.CreateClient();
@@ -148,10 +154,45 @@ public class FeatureFlagIntegrationTest
         var response = await client.GetAsync(requestUri).ConfigureAwait(true);
 
         // Assert
+        Assert.True(response.IsSuccessStatusCode, "Expected HTTP status code 200 OK.");
         Assert.Equal(2, counter);
     }
 
-    private static async Task<TestServer> CreateServerAsync(ServiceLifetime serviceLifetime, FakeLogger logger,
+    [Fact]
+    public async Task VerifyHandlersAreRegisteredWithServiceProviderAsync()
+    {
+        // Arrange
+        var logs = string.Empty;
+        Action<IServiceCollection> configureServices = services =>
+        {
+            services.AddFakeLogging(a => a.OutputSink = log => logs = string.Join('|', logs, log));
+            services.AddTransient<IFeatureFlagConfigurationService, FlagConfigurationService>();
+        };
+
+        Action<OpenFeatureBuilder> openFeatureBuilder = cfg =>
+        {
+            cfg.AddHandler(ProviderEventTypes.ProviderReady, sp => (@event) =>
+            {
+                var innerLoger = sp.GetService<ILogger<FeatureFlagIntegrationTest>>();
+                innerLoger!.LogInformation("Handler invoked from builder!");
+            });
+        };
+
+        using var server = await CreateServerAsync(ServiceLifetime.Transient, configureServices, openFeatureBuilder)
+            .ConfigureAwait(true);
+
+        var client = server.CreateClient();
+        var requestUri = $"/features/{TestUserId}/flags/{FeatureA}";
+
+        // Act
+        var response = await client.GetAsync(requestUri).ConfigureAwait(true);
+
+        // Assert
+        Assert.True(response.IsSuccessStatusCode, "Expected HTTP status code 200 OK.");
+        Assert.Contains("Handler invoked from builder!", logs);
+    }
+
+    private static async Task<TestServer> CreateServerAsync(ServiceLifetime serviceLifetime,
         Action<IServiceCollection>? configureServices = null,
         Action<OpenFeatureBuilder>? openFeatureBuilder = null)
     {
@@ -188,7 +229,6 @@ public class FeatureFlagIntegrationTest
                     return flagService.GetFlags();
                 }
             });
-            cfg.AddHook(serviceProvider => new LoggingHook(logger));
 
             if (openFeatureBuilder is not null)
             {

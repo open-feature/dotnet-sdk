@@ -308,12 +308,12 @@ public partial class OpenFeatureBuilderExtensionsTests
     {
         // Arrange
         EventHandlerDelegate eventHandler = (eventDetails) => { };
-        _systemUnderTest.AddHandler("test", Constant.ProviderEventTypes.ProviderReady, eventHandler);
+        _systemUnderTest.AddHandler(Constant.ProviderEventTypes.ProviderReady, eventHandler);
 
         var serviceProvider = _services.BuildServiceProvider();
 
         // Act
-        var handler = serviceProvider.GetKeyedService<EventHandlerDelegateWrapper>("test:ProviderReady");
+        var handler = serviceProvider.GetService<EventHandlerDelegateWrapper>();
 
         // Assert
         Assert.NotNull(handler);
@@ -332,7 +332,7 @@ public partial class OpenFeatureBuilderExtensionsTests
         var serviceProvider = _services.BuildServiceProvider();
 
         // Act
-        var handler = serviceProvider.GetKeyedServices<EventHandlerDelegateWrapper>("EventHandlerDelegate:ProviderReady");
+        var handler = serviceProvider.GetServices<EventHandlerDelegateWrapper>();
 
         // Assert
         Assert.NotEmpty(handler);
@@ -341,86 +341,19 @@ public partial class OpenFeatureBuilderExtensionsTests
     }
 
     [Fact]
-    public void AddHandler_SetsHandlerNameInOpenFeatureOptions()
-    {
-        // Arrange
-        EventHandlerDelegate eventHandler = (eventDetails) => { };
-        _systemUnderTest.AddHandler("test", Constant.ProviderEventTypes.ProviderReady, eventHandler);
-
-        var serviceProvider = _services.BuildServiceProvider();
-
-        // Act
-        var options = serviceProvider.GetService<IOptions<OpenFeatureOptions>>();
-        var openFeatureOptions = options!.Value;
-
-        // Assert
-        Assert.Contains("test:ProviderReady", openFeatureOptions.HandlerNames);
-    }
-
-    [Fact]
-    public void AddHandler_WithoutName_AddsEventHandlerDelegateWrapperAsKeyedService()
-    {
-        // Arrange
-        EventHandlerDelegate eventHandler = (eventDetails) => { };
-        _systemUnderTest.AddHandler(Constant.ProviderEventTypes.ProviderReady, eventHandler);
-
-        // Act
-        var handlers = _services.Where(s => s.ServiceType == typeof(EventHandlerDelegateWrapper)).ToList();
-        var handler = handlers.First();
-
-        // Assert
-        Assert.True(handler.IsKeyedService);
-        Assert.Equal(ServiceLifetime.Singleton, handler.Lifetime);
-    }
-
-    [Theory]
-    [InlineData("")]
-    [InlineData("  ")]
-    [InlineData(null)]
-    public void AddHandler_WithEmptyName_AddsEventHandlerDelegateWrapperAsKeyedService(string? handlerName)
-    {
-        // Arrange
-        EventHandlerDelegate eventHandler = (eventDetails) => { };
-
-        // Act
-        Action act = () => _systemUnderTest.AddHandler(handlerName!, Constant.ProviderEventTypes.ProviderReady, eventHandler);
-
-        // Assert
-        var ex = Assert.Throws<ArgumentNullException>(act);
-        Assert.Equal("handlerName", ex.ParamName);
-        Assert.StartsWith("Value cannot be null.", ex.Message);
-    }
-
-    [Fact]
     public void AddHandler_WithImplementationFactory_AddsEventHandlerDelegateWrapperAsKeyedService()
     {
         // Arrange
         EventHandlerDelegate eventHandler = (eventDetails) => { };
-        _systemUnderTest.AddHandler("test", Constant.ProviderEventTypes.ProviderReady, sp => eventHandler);
+        _systemUnderTest.AddHandler(Constant.ProviderEventTypes.ProviderReady, _ => eventHandler);
 
         var serviceProvider = _services.BuildServiceProvider();
 
         // Act
-        var handler = serviceProvider.GetKeyedService<EventHandlerDelegateWrapper>("test:ProviderReady");
+        var handler = serviceProvider.GetService<EventHandlerDelegateWrapper>();
 
         // Assert
         Assert.NotNull(handler);
         Assert.Equal(eventHandler, handler.EventHandlerDelegate);
-    }
-
-    [Fact]
-    public void AddHandlerWithImplementationFactory_WithoutName_AddsEventHandlerDelegateWrapperAsKeyedService()
-    {
-        // Arrange
-        EventHandlerDelegate eventHandler = (eventDetails) => { };
-        _systemUnderTest.AddHandler(Constant.ProviderEventTypes.ProviderReady, sp => eventHandler);
-
-        // Act
-        var handlers = _services.Where(s => s.ServiceType == typeof(EventHandlerDelegateWrapper)).ToList();
-        var handler = handlers.First();
-
-        // Assert
-        Assert.True(handler.IsKeyedService);
-        Assert.Equal(ServiceLifetime.Singleton, handler.Lifetime);
     }
 }

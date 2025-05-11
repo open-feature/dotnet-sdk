@@ -315,21 +315,7 @@ public static partial class OpenFeatureBuilderExtensions
     /// <returns>The <see cref="OpenFeatureBuilder"/> instance.</returns>
     public static OpenFeatureBuilder AddHandler(this OpenFeatureBuilder builder, ProviderEventTypes type, EventHandlerDelegate eventHandlerDelegate)
     {
-        return AddHandler(builder, typeof(EventHandlerDelegate).Name, type, sp => eventHandlerDelegate);
-    }
-
-    /// <summary>
-    /// Add a <see cref="EventHandlerDelegate"/> to allow you to react to state changes in the provider or underlying flag management system, such as flag definition changes, provider readiness, or error conditions
-    /// </summary>
-    /// <param name="builder">The <see cref="OpenFeatureBuilder"/> instance.</param>
-    /// <param name="handlerName">The name of the <see cref="EventHandlerDelegate"/>.</param>
-    /// <param name="type">The type <see cref="ProviderEventTypes"/> to handle.</param>
-    /// <param name="eventHandlerDelegate">The handler which reacts to <see cref="ProviderEventTypes"/>.</param>
-    /// <returns>The <see cref="OpenFeatureBuilder"/> instance.</returns>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="handlerName"/> is null or empty</exception>
-    public static OpenFeatureBuilder AddHandler(this OpenFeatureBuilder builder, string handlerName, ProviderEventTypes type, EventHandlerDelegate eventHandlerDelegate)
-    {
-        return AddHandler(builder, handlerName, type, sp => eventHandlerDelegate);
+        return AddHandler(builder, type, _ => eventHandlerDelegate);
     }
 
     /// <summary>
@@ -341,27 +327,7 @@ public static partial class OpenFeatureBuilderExtensions
     /// <returns>The <see cref="OpenFeatureBuilder"/> instance.</returns>
     public static OpenFeatureBuilder AddHandler(this OpenFeatureBuilder builder, ProviderEventTypes type, Func<IServiceProvider, EventHandlerDelegate> implementationFactory)
     {
-        return AddHandler(builder, typeof(EventHandlerDelegate).Name, type, implementationFactory);
-    }
-
-    /// <summary>
-    /// Add a <see cref="EventHandlerDelegate"/> to allow you to react to state changes in the provider or underlying flag management system, such as flag definition changes, provider readiness, or error conditions
-    /// </summary>
-    /// <param name="builder">The <see cref="OpenFeatureBuilder"/> instance.</param>
-    /// <param name="handlerName">The name of the <see cref="EventHandlerDelegate"/>.</param>
-    /// <param name="type">The type <see cref="ProviderEventTypes"/> to handle.</param>
-    /// <param name="implementationFactory">The handler factory for creating a handler which reacts to <see cref="ProviderEventTypes"/>.</param>
-    /// <returns>The <see cref="OpenFeatureBuilder"/> instance.</returns>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="handlerName"/> is null or empty</exception>
-    public static OpenFeatureBuilder AddHandler(this OpenFeatureBuilder builder, string handlerName, ProviderEventTypes type, Func<IServiceProvider, EventHandlerDelegate> implementationFactory)
-    {
-        Guard.ThrowIfNullOrWhiteSpace(handlerName);
-
-        var key = string.Join(":", handlerName, type.ToString());
-
-        builder.Services.PostConfigure<OpenFeatureOptions>(options => options.AddHandlerName(key));
-
-        builder.Services.AddKeyedSingleton(key, (serviceProvider, _) =>
+        builder.Services.AddSingleton((serviceProvider) =>
         {
             var handler = implementationFactory(serviceProvider);
             return new EventHandlerDelegateWrapper(type, handler);
