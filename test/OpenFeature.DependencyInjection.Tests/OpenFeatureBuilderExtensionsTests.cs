@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using OpenFeature.DependencyInjection.Internal;
 using OpenFeature.Model;
 using Xunit;
 
@@ -300,5 +301,59 @@ public partial class OpenFeatureBuilderExtensionsTests
 
         // Assert
         Assert.NotNull(hook);
+    }
+
+    [Fact]
+    public void AddHandler_AddsEventHandlerDelegateWrapperAsKeyedService()
+    {
+        // Arrange
+        EventHandlerDelegate eventHandler = (eventDetails) => { };
+        _systemUnderTest.AddHandler(Constant.ProviderEventTypes.ProviderReady, eventHandler);
+
+        var serviceProvider = _services.BuildServiceProvider();
+
+        // Act
+        var handler = serviceProvider.GetService<EventHandlerDelegateWrapper>();
+
+        // Assert
+        Assert.NotNull(handler);
+        Assert.Equal(eventHandler, handler.EventHandlerDelegate);
+    }
+
+    [Fact]
+    public void AddHandlerTwice_MultipleEventHandlerDelegateWrappersAsKeyedServices()
+    {
+        // Arrange
+        EventHandlerDelegate eventHandler1 = (eventDetails) => { };
+        EventHandlerDelegate eventHandler2 = (eventDetails) => { };
+        _systemUnderTest.AddHandler(Constant.ProviderEventTypes.ProviderReady, eventHandler1);
+        _systemUnderTest.AddHandler(Constant.ProviderEventTypes.ProviderReady, eventHandler2);
+
+        var serviceProvider = _services.BuildServiceProvider();
+
+        // Act
+        var handler = serviceProvider.GetServices<EventHandlerDelegateWrapper>();
+
+        // Assert
+        Assert.NotEmpty(handler);
+        Assert.Equal(eventHandler1, handler.ElementAt(0).EventHandlerDelegate);
+        Assert.Equal(eventHandler2, handler.ElementAt(1).EventHandlerDelegate);
+    }
+
+    [Fact]
+    public void AddHandler_WithImplementationFactory_AddsEventHandlerDelegateWrapperAsKeyedService()
+    {
+        // Arrange
+        EventHandlerDelegate eventHandler = (eventDetails) => { };
+        _systemUnderTest.AddHandler(Constant.ProviderEventTypes.ProviderReady, _ => eventHandler);
+
+        var serviceProvider = _services.BuildServiceProvider();
+
+        // Act
+        var handler = serviceProvider.GetService<EventHandlerDelegateWrapper>();
+
+        // Assert
+        Assert.NotNull(handler);
+        Assert.Equal(eventHandler, handler.EventHandlerDelegate);
     }
 }
