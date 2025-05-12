@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using OpenFeature.Constant;
 using OpenFeature.Error;
@@ -9,7 +8,6 @@ using Xunit;
 
 namespace OpenFeature.Tests.Providers.Memory;
 
-[SuppressMessage("Reliability", "CA2007:Consider calling ConfigureAwait on the awaited task")]
 public class InMemoryProviderTests
 {
     private FeatureProvider commonProvider;
