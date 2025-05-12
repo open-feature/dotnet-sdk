@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using AutoFixture;
 using NSubstitute;
@@ -9,7 +8,6 @@ using Xunit;
 
 namespace OpenFeature.Tests;
 
-[SuppressMessage("Reliability", "CA2007:Consider calling ConfigureAwait on the awaited task")]
 public class FeatureProviderTests : ClearOpenFeatureInstanceFixture
 {
     [Fact]

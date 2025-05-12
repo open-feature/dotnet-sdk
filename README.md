@@ -433,8 +433,18 @@ For a basic configuration, you can use the InMemoryProvider. This provider is si
 builder.Services.AddOpenFeature(featureBuilder => {
     featureBuilder
         .AddHostedFeatureLifecycle() // From Hosting package
-        .AddContext((contextBuilder, serviceProvider) => { /* Custom context configuration */ })
         .AddInMemoryProvider();
+});
+```
+
+You can add EvaluationContext, hooks, and handlers at a global/API level as needed.
+
+```csharp
+builder.Services.AddOpenFeature(featureBuilder => {
+    featureBuilder
+        .AddContext((contextBuilder, serviceProvider) => { /* Custom context configuration */ })
+        .AddHook<LoggingHook>()
+        .AddHandler(ProviderEventTypes.ProviderReady, (eventDetails) => { /* Handle event */ });
 });
 ```
 
@@ -446,6 +456,7 @@ builder.Services.AddOpenFeature(featureBuilder => {
     featureBuilder
         .AddHostedFeatureLifecycle()
         .AddContext((contextBuilder, serviceProvider) => { /* Custom context configuration */ })
+        .AddHook((serviceProvider) => new LoggingHook( /* Custom configuration */ ))
         .AddInMemoryProvider("name1")
         .AddInMemoryProvider("name2")
         .AddPolicyName(options => {
