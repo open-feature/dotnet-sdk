@@ -136,12 +136,11 @@ public class FeatureFlagIntegrationTest
             services.AddTransient<IFeatureFlagConfigurationService, FlagConfigurationService>();
         };
 
-        var @lock = new Lock();
         var counter = 0;
         Action<OpenFeatureBuilder> openFeatureBuilder = cfg =>
         {
-            cfg.AddHandler(ProviderEventTypes.ProviderReady, (_) => { lock (@lock) { counter++; } });
-            cfg.AddHandler(ProviderEventTypes.ProviderReady, (_) => { lock (@lock) { counter++; } });
+            cfg.AddHandler(ProviderEventTypes.ProviderReady, (_) => { Interlocked.Increment(ref counter); });
+            cfg.AddHandler(ProviderEventTypes.ProviderReady, (_) => { Interlocked.Increment(ref counter); });
         };
 
         using var server = await CreateServerAsync(ServiceLifetime.Transient, configureServices, openFeatureBuilder)
