@@ -36,6 +36,8 @@ internal sealed partial class EventExecutor : IAsyncDisposable
     {
         lock (this._lockObj)
         {
+            Console.WriteLine("Add ApiLevel handling");
+
             if (!this._apiHandlers.TryGetValue(eventType, out var eventHandlers))
             {
                 eventHandlers = [];
@@ -43,6 +45,8 @@ internal sealed partial class EventExecutor : IAsyncDisposable
             }
 
             eventHandlers.Add(handler);
+
+            Console.WriteLine("Number of event handlers: {0}", eventHandlers.Count);
 
             this.EmitOnRegistration(this._defaultProvider, eventType, handler);
         }
@@ -195,6 +199,8 @@ internal sealed partial class EventExecutor : IAsyncDisposable
 
         try
         {
+            Console.WriteLine("Invoking handler on registration");
+
             handler.Invoke(new ProviderEventPayload
             {
                 ProviderName = provider.GetMetadata()?.Name,
@@ -330,6 +336,7 @@ internal sealed partial class EventExecutor : IAsyncDisposable
     {
         try
         {
+            Console.WriteLine("Invoking handler");
             eventHandler.Invoke(e.EventPayload);
         }
         catch (Exception exc)
@@ -340,6 +347,7 @@ internal sealed partial class EventExecutor : IAsyncDisposable
 
     public async Task ShutdownAsync()
     {
+        Console.WriteLine("Shutting EventExecutor down");
         this.EventChannel.Writer.Complete();
         await this.EventChannel.Reader.Completion.ConfigureAwait(false);
     }
