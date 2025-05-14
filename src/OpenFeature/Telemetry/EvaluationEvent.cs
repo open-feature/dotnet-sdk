@@ -12,12 +12,10 @@ public class EvaluationEvent
     /// </summary>
     /// <param name="name">The name of the event.</param>
     /// <param name="attributes">The attributes of the event.</param>
-    /// <param name="body">The body of the event.</param>
-    public EvaluationEvent(string name, Dictionary<string, object?> attributes, Dictionary<string, object> body)
+    public EvaluationEvent(string name, Dictionary<string, object?> attributes)
     {
         this.Name = name;
         this.Attributes = attributes;
-        this.Body = body;
     }
 
     /// <summary>
@@ -29,9 +27,4 @@ public class EvaluationEvent
     /// Gets or sets the attributes of the event.
     /// </summary>
     public Dictionary<string, object?> Attributes { get; set; }
-
-    /// <summary>
-    /// Gets or sets the body of the event.
-    /// </summary>
-    public Dictionary<string, object> Body { get; set; }
 }

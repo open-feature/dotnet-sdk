@@ -26,8 +26,6 @@ public static class EvaluationEventBuilder
         };
 
 
-        var body = new Dictionary<string, object>();
-
         attributes[TelemetryConstants.Reason] = !string.IsNullOrWhiteSpace(details.Reason) ? details.Reason?.ToLowerInvariant() : Reason.Unknown;
         attributes[TelemetryConstants.Variant] = details.Variant;
         attributes[TelemetryFlagMetadata.ContextId] = details.FlagMetadata?.GetString(TelemetryFlagMetadata.ContextId);
@@ -36,7 +34,7 @@ public static class EvaluationEventBuilder
 
         if (details.ErrorType != ErrorType.None)
         {
-            attributes[TelemetryConstants.ErrorCode] = details.ErrorType.ToString()?.ToLowerInvariant();
+            attributes[TelemetryConstants.ErrorCode] = details.ErrorType.ToString().ToLowerInvariant();
 
             if (!string.IsNullOrWhiteSpace(details.ErrorMessage))
             {
@@ -44,6 +42,6 @@ public static class EvaluationEventBuilder
             }
         }
 
-        return new EvaluationEvent(EventName, attributes, body);
+        return new EvaluationEvent(EventName, attributes);
     }
 }
