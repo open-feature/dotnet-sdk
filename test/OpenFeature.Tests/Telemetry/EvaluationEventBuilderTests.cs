@@ -125,7 +125,7 @@ public class EvaluationEventBuilderTests
         var evaluationEvent = EvaluationEventBuilder.Build(hookContext, details);
 
         // Assert
-        Assert.Equal(Reason.Unknown, evaluationEvent.Attributes[TelemetryConstants.Reason]);
+        Assert.Equal(Reason.Unknown.ToLowerInvariant(), evaluationEvent.Attributes[TelemetryConstants.Reason]);
     }
 
     [Theory]

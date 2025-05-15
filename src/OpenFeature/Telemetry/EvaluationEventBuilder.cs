@@ -27,9 +27,10 @@ public static class EvaluationEventBuilder
 
         attributes[TelemetryConstants.Reason] = !string.IsNullOrWhiteSpace(details.Reason)
             ? details.Reason?.ToLowerInvariant()
-            : Reason.Unknown;
+            : Reason.Unknown.ToLowerInvariant();
         attributes[TelemetryConstants.Variant] = details.Variant;
         attributes[TelemetryConstants.Value] = details.Value;
+
         if (details.FlagMetadata != null)
         {
             attributes[TelemetryConstants.ContextId] = details.FlagMetadata.GetString(TelemetryFlagMetadata.ContextId);
