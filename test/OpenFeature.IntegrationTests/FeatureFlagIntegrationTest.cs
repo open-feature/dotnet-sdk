@@ -16,11 +16,16 @@ using OpenFeature.Providers.Memory;
 
 namespace OpenFeature.IntegrationTests;
 
-public class FeatureFlagIntegrationTest
+public class FeatureFlagIntegrationTest : IAsyncDisposable
 {
     // TestUserId is "off", other users are "on"
     private const string FeatureA = "feature-a";
     private const string TestUserId = "123";
+
+    public FeatureFlagIntegrationTest()
+    {
+        Api.ResetApi();
+    }
 
     [Theory]
     [InlineData(TestUserId, false, ServiceLifetime.Singleton)]
@@ -259,6 +264,11 @@ public class FeatureFlagIntegrationTest
         await app.StartAsync().ConfigureAwait(true);
 
         return app.GetTestServer();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await Api.Instance.ShutdownAsync().ConfigureAwait(false);
     }
 
     public class FlagConfigurationService : IFeatureFlagConfigurationService

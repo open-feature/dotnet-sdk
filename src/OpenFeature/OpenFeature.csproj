@@ -16,6 +16,7 @@
     <InternalsVisibleTo Include="OpenFeature.Benchmarks" />
     <InternalsVisibleTo Include="OpenFeature.Tests" />
     <InternalsVisibleTo Include="OpenFeature.E2ETests" />
+    <InternalsVisibleTo Include="OpenFeature.IntegrationTests" />
     <None Include="../../README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
 
