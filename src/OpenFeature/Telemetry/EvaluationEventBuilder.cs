@@ -39,7 +39,7 @@ public static class EvaluationEventBuilder
 
             if (!string.IsNullOrWhiteSpace(details.ErrorMessage))
             {
-                attributes[TelemetryConstants.ErrorMessage] = details.ErrorMessage ?? "N/A";
+                attributes[TelemetryConstants.ErrorMessage] = details.ErrorMessage;
             }
         }
 

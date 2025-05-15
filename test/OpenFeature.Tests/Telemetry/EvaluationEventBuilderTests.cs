@@ -127,4 +127,46 @@ public class EvaluationEventBuilderTests
         // Assert
         Assert.Equal(Reason.Unknown, evaluationEvent.Attributes[TelemetryConstants.Reason]);
     }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    public void Build_ShouldHandleErrorWithEmptyErrorMessage(string? errorMessage)
+    {
+        // Arrange
+        var clientMetadata = new ClientMetadata("client", "1.0.0");
+        var providerMetadata = new Metadata("provider");
+        var hookContext = new HookContext<Value>("flagKey", new Value("value"), FlagValueType.Object, clientMetadata,
+            providerMetadata, EvaluationContext.Empty);
+        var flagMetadata = new ImmutableMetadata();
+        var details = new FlagEvaluationDetails<Value>("flagKey", new Value("value"), ErrorType.General,
+            errorMessage: errorMessage, reason: "reason", variant: "", flagMetadata: flagMetadata);
+
+        // Act
+        var evaluationEvent = EvaluationEventBuilder.Build(hookContext, details);
+
+        // Assert
+        Assert.Equal("general", evaluationEvent.Attributes[TelemetryConstants.ErrorCode]);
+        Assert.False(evaluationEvent.Attributes.ContainsKey(TelemetryConstants.ErrorMessage));
+    }
+
+    [Fact]
+    public void Build_ShouldIncludeValueAttributeInEvent()
+    {
+        // Arrange
+        var clientMetadata = new ClientMetadata("client", "1.0.0");
+        var providerMetadata = new Metadata("provider");
+        var hookContext = new HookContext<Value>("flagKey", new Value(), FlagValueType.Object, clientMetadata,
+            providerMetadata, EvaluationContext.Empty);
+        var testValue = new Value("test-value");
+        var details = new FlagEvaluationDetails<Value>("flagKey", testValue, ErrorType.None,
+            reason: "reason", variant: "variant", flagMetadata: new ImmutableMetadata());
+
+        // Act
+        var evaluationEvent = EvaluationEventBuilder.Build(hookContext, details);
+
+        // Assert
+        Assert.Equal(testValue, evaluationEvent.Attributes[TelemetryConstants.Value]);
+    }
 }
