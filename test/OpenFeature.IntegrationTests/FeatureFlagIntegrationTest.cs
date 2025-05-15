@@ -136,12 +136,13 @@ public class FeatureFlagIntegrationTest
             services.AddTransient<IFeatureFlagConfigurationService, FlagConfigurationService>();
         };
 
-        var @lock = new Lock();
         var counter = 0;
+        var handler1Success = false;
+        var handler2Success = false;
         Action<OpenFeatureBuilder> openFeatureBuilder = cfg =>
         {
-            cfg.AddHandler(ProviderEventTypes.ProviderReady, (_) => { lock (@lock) { counter++; } });
-            cfg.AddHandler(ProviderEventTypes.ProviderReady, (_) => { lock (@lock) { counter++; } });
+            cfg.AddHandler(ProviderEventTypes.ProviderReady, sp => { Interlocked.Increment(ref counter); return _ => { handler1Success = true; }; });
+            cfg.AddHandler(ProviderEventTypes.ProviderReady, sp => { Interlocked.Increment(ref counter); return _ => { handler2Success = true; }; });
         };
 
         using var server = await CreateServerAsync(ServiceLifetime.Transient, configureServices, openFeatureBuilder)
@@ -155,7 +156,12 @@ public class FeatureFlagIntegrationTest
 
         // Assert
         Assert.True(response.IsSuccessStatusCode, "Expected HTTP status code 200 OK.");
-        Assert.Equal(2, counter);
+        Assert.Multiple(() =>
+        {
+            Assert.Equal(2, counter);
+            Assert.True(handler1Success);
+            Assert.True(handler2Success);
+        });
     }
 
     [Fact]
