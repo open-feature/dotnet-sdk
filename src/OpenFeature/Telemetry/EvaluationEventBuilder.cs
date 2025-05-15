@@ -25,13 +25,17 @@ public static class EvaluationEventBuilder
             { TelemetryConstants.Provider, hookContext.ProviderMetadata.Name }
         };
 
-
-        attributes[TelemetryConstants.Reason] = !string.IsNullOrWhiteSpace(details.Reason) ? details.Reason?.ToLowerInvariant() : Reason.Unknown;
+        attributes[TelemetryConstants.Reason] = !string.IsNullOrWhiteSpace(details.Reason)
+            ? details.Reason?.ToLowerInvariant()
+            : Reason.Unknown;
         attributes[TelemetryConstants.Variant] = details.Variant;
         attributes[TelemetryConstants.Value] = details.Value;
-        attributes[TelemetryConstants.ContextId] = details.FlagMetadata?.GetString(TelemetryFlagMetadata.ContextId);
-        attributes[TelemetryConstants.FlagSetId] = details.FlagMetadata?.GetString(TelemetryFlagMetadata.FlagSetId);
-        attributes[TelemetryConstants.Version] = details.FlagMetadata?.GetString(TelemetryFlagMetadata.Version);
+        if (details.FlagMetadata != null)
+        {
+            attributes[TelemetryConstants.ContextId] = details.FlagMetadata.GetString(TelemetryFlagMetadata.ContextId);
+            attributes[TelemetryConstants.FlagSetId] = details.FlagMetadata.GetString(TelemetryFlagMetadata.FlagSetId);
+            attributes[TelemetryConstants.Version] = details.FlagMetadata.GetString(TelemetryFlagMetadata.Version);
+        }
 
         if (details.ErrorType != ErrorType.None)
         {
