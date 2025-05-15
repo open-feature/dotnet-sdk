@@ -28,9 +28,10 @@ public static class EvaluationEventBuilder
 
         attributes[TelemetryConstants.Reason] = !string.IsNullOrWhiteSpace(details.Reason) ? details.Reason?.ToLowerInvariant() : Reason.Unknown;
         attributes[TelemetryConstants.Variant] = details.Variant;
-        attributes[TelemetryFlagMetadata.ContextId] = details.FlagMetadata?.GetString(TelemetryFlagMetadata.ContextId);
-        attributes[TelemetryFlagMetadata.FlagSetId] = details.FlagMetadata?.GetString(TelemetryFlagMetadata.FlagSetId);
-        attributes[TelemetryFlagMetadata.Version] = details.FlagMetadata?.GetString(TelemetryFlagMetadata.Version);
+        attributes[TelemetryConstants.Value] = details.Value;
+        attributes[TelemetryConstants.ContextId] = details.FlagMetadata?.GetString(TelemetryFlagMetadata.ContextId);
+        attributes[TelemetryConstants.FlagSetId] = details.FlagMetadata?.GetString(TelemetryFlagMetadata.FlagSetId);
+        attributes[TelemetryConstants.Version] = details.FlagMetadata?.GetString(TelemetryFlagMetadata.Version);
 
         if (details.ErrorType != ErrorType.None)
         {

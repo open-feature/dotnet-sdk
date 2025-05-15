@@ -17,19 +17,24 @@ public static class TelemetryConstants
     public const string ErrorCode = "error.type";
 
     /// <summary>
+    /// A message explaining the nature of an error occurring during flag evaluation.
+    /// </summary>
+    public const string ErrorMessage = "error.message";
+
+    /// <summary>
     /// A semantic identifier for an evaluated flag value.
     /// </summary>
     public const string Variant = "feature_flag.result.variant";
 
     /// <summary>
+    /// The evaluated value of the feature flag.
+    /// </summary>
+    public const string Value = "feature_flag.result.value";
+
+    /// <summary>
     /// The unique identifier for the flag evaluation context. For example, the targeting key.
     /// </summary>
     public const string ContextId = "feature_flag.context.id";
-
-    /// <summary>
-    /// A message explaining the nature of an error occurring during flag evaluation.
-    /// </summary>
-    public const string ErrorMessage = "error.message";
 
     /// <summary>
     /// The reason code which shows how a feature flag value was determined.
@@ -50,4 +55,5 @@ public static class TelemetryConstants
     /// The version of the ruleset used during the evaluation. This may be any stable value which uniquely identifies the ruleset.
     /// </summary>
     public const string Version = "feature_flag.version";
+
 }

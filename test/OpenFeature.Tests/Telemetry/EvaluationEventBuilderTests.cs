@@ -33,9 +33,9 @@ public class EvaluationEventBuilderTests
         Assert.Equal("provider", evaluationEvent.Attributes[TelemetryConstants.Provider]);
         Assert.Equal("reason", evaluationEvent.Attributes[TelemetryConstants.Reason]);
         Assert.Equal("variant", evaluationEvent.Attributes[TelemetryConstants.Variant]);
-        Assert.Equal("contextId", evaluationEvent.Attributes[TelemetryFlagMetadata.ContextId]);
-        Assert.Equal("flagSetId", evaluationEvent.Attributes[TelemetryFlagMetadata.FlagSetId]);
-        Assert.Equal("version", evaluationEvent.Attributes[TelemetryFlagMetadata.Version]);
+        Assert.Equal("contextId", evaluationEvent.Attributes[TelemetryConstants.ContextId]);
+        Assert.Equal("flagSetId", evaluationEvent.Attributes[TelemetryConstants.FlagSetId]);
+        Assert.Equal("version", evaluationEvent.Attributes[TelemetryConstants.Version]);
     }
 
     [Fact]
@@ -101,9 +101,9 @@ public class EvaluationEventBuilderTests
         var evaluationEvent = EvaluationEventBuilder.Build(hookContext, details);
 
         // Assert
-        Assert.Null(evaluationEvent.Attributes[TelemetryFlagMetadata.ContextId]);
-        Assert.Null(evaluationEvent.Attributes[TelemetryFlagMetadata.FlagSetId]);
-        Assert.Null(evaluationEvent.Attributes[TelemetryFlagMetadata.Version]);
+        Assert.Null(evaluationEvent.Attributes[TelemetryConstants.ContextId]);
+        Assert.Null(evaluationEvent.Attributes[TelemetryConstants.FlagSetId]);
+        Assert.Null(evaluationEvent.Attributes[TelemetryConstants.Version]);
     }
 
     [Theory]

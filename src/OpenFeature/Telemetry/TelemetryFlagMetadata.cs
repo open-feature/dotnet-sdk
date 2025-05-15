@@ -22,9 +22,4 @@ public static class TelemetryFlagMetadata
     /// A version string (format unspecified) for the flag or flag set.
     /// </summary>
     public const string Version = "version";
-
-    /// <summary>
-    /// The evaluated value of the feature flag.
-    /// </summary>
-    public const string Value = "value";
 }
