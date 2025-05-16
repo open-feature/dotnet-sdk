@@ -12,7 +12,7 @@ permissions:
 jobs:
   release-please:
     permissions:
-      contents: write # for googleapis/release-please-action to create release commit
+      contents: write # for googleapis/release-please-action to create release commit, SBOM release
       pull-requests: write # for googleapis/release-please-action to create release PR
       packages: read # for internal nuget reading
 
@@ -54,6 +54,9 @@ jobs:
           global-json-file: global.json
           source-url: https://nuget.pkg.github.com/open-feature/index.json
 
+      - name: Install CycloneDX.NET
+        run: dotnet tool install --global CycloneDX
+
       - name: Install dependencies
         run: dotnet restore
 
@@ -68,19 +71,44 @@ jobs:
         with:
           subject-path: "src/**/*.nupkg"
 
-      - name: Install CycloneDX.NET
-        run: dotnet tool install CycloneDX
+      - name: Generate .NET BOM (OpenFeature.csproj)
+        run: dotnet CycloneDX --json --exclude-dev -sv "${{ needs.release-please.outputs.release_tag_name }}" ./src/OpenFeature/OpenFeature.csproj --output ./artifacts/sboms/ -fn OpenFeature.bom.json
 
-      - name: Generate .NET BOM
-        run: dotnet CycloneDX --json --exclude-dev -sv "${{ needs.release-please.outputs.release_tag_name }}" ./src/OpenFeature/OpenFeature.csproj
+      - name: Attach SBOM to artifact (OpenFeature.csproj)
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: gh release upload ${{ needs.release-please.outputs.release_tag_name }} OpenFeature.bom.json
+
+      - name: Attest package (OpenFeature.csproj)
+        uses: actions/attest-sbom@115c3be05ff3974bcbd596578934b3f9ce39bf68 # v2.2.0
+        with:
+          subject-path: "src/**/OpenFeature.*.nupkg"
+          sbom-path: ./artifacts/sboms/OpenFeature.bom.json
+
+      - name: Generate .NET BOM (OpenFeature.Hosting.csproj)
+        run: dotnet CycloneDX --json --exclude-dev -sv "${{ needs.release-please.outputs.release_tag_name }}" ./src/OpenFeature.Hosting/OpenFeature.Hosting.csproj --output ./artifacts/sboms/ -fn OpenFeature.Hosting.bom.json
 
       - name: Attach SBOM to artifact
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        run: gh release upload ${{ needs.release-please.outputs.release_tag_name }} bom.json
+        run: gh release upload ${{ needs.release-please.outputs.release_tag_name }} OpenFeature.Hosting.bom.json
 
-      - name: Attest package
+      - name: Attest package (OpenFeature.Hosting.csproj)
         uses: actions/attest-sbom@115c3be05ff3974bcbd596578934b3f9ce39bf68 # v2.2.0
         with:
-          subject-path: "src/**/*.nupkg"
-          sbom-path: artifacts/sboms/bom.json
+          subject-path: "src/**/OpenFeature.Hosting.*.nupkg"
+          sbom-path: ./artifacts/sboms/OpenFeature.Hosting.bom.json
+
+      - name: Generate .NET BOM (OpenFeature.DependencyInjection.csproj)
+        run: dotnet CycloneDX --json --exclude-dev -sv "${{ needs.release-please.outputs.release_tag_name }}" ./src/OpenFeature.DependencyInjection/OpenFeature.DependencyInjection.csproj --output ./artifacts/sboms/ -fn OpenFeature.DependencyInjection.bom.json
+
+      - name: Attach SBOM to artifact (OpenFeature.DependencyInjection.csproj)
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: gh release upload ${{ needs.release-please.outputs.release_tag_name }} OpenFeature.DependencyInjection.bom.json
+
+      - name: Attest package (OpenFeature.DependencyInjection.csproj)
+        uses: actions/attest-sbom@115c3be05ff3974bcbd596578934b3f9ce39bf68 # v2.2.0
+        with:
+          subject-path: "src/**/OpenFeature.DependencyInjection.*.nupkg"
+          sbom-path: ./artifacts/sboms/OpenFeature.DependencyInjection.bom.json
