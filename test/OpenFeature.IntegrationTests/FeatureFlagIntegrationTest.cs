@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
@@ -13,13 +12,11 @@ using OpenFeature.DependencyInjection;
 using OpenFeature.DependencyInjection.Providers.Memory;
 using OpenFeature.Hooks;
 using OpenFeature.IntegrationTests.Services;
-using OpenFeature.Model;
 using OpenFeature.Providers.Memory;
-using Xunit.Abstractions;
 
 namespace OpenFeature.IntegrationTests;
 
-public class FeatureFlagIntegrationTest(ITestOutputHelper outputHelper)
+public class FeatureFlagIntegrationTest
 {
     // TestUserId is "off", other users are "on"
     private const string FeatureA = "feature-a";
