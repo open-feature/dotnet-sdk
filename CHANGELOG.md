@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.6.0](https://github.com/open-feature/dotnet-sdk/compare/v2.5.0...v2.6.0) (2025-05-16)
+
+
+### ✨ New Features
+
+* Add Extension Method for adding global Hook via DependencyInjection ([#459](https://github.com/open-feature/dotnet-sdk/issues/459)) ([9b04485](https://github.com/open-feature/dotnet-sdk/commit/9b04485173978d600a4e3fd24df111347070dc70))
+
+
+### 🧹 Chore
+
+* **deps:** update actions/attest-build-provenance action to v2.3.0 ([#464](https://github.com/open-feature/dotnet-sdk/issues/464)) ([0a5ab0c](https://github.com/open-feature/dotnet-sdk/commit/0a5ab0c3c71a1a615b0ee8627dd4ff5db39cac9b))
+* **deps:** update github/codeql-action digest to 60168ef ([#463](https://github.com/open-feature/dotnet-sdk/issues/463)) ([ea76351](https://github.com/open-feature/dotnet-sdk/commit/ea76351a095b7eeb777941aaf7ac42e4d925c366))
+
 ## [2.5.0](https://github.com/open-feature/dotnet-sdk/compare/v2.4.0...v2.5.0) (2025-04-25)
 
 
