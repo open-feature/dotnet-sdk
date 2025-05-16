@@ -139,11 +139,13 @@ public class FeatureFlagIntegrationTest(ITestOutputHelper outputHelper)
             services.AddTransient<IFeatureFlagConfigurationService, FlagConfigurationService>();
         };
 
-        var triggeredHandlers = new ConcurrentBag<string>();
+        var counter = 0;
+        var handler1Success = false;
+        var handler2Success = false;
         Action<OpenFeatureBuilder> openFeatureBuilder = cfg =>
         {
-            cfg.AddHandler(ProviderEventTypes.ProviderReady, p => HandleEvent(p, "handler1"));
-            cfg.AddHandler(ProviderEventTypes.ProviderReady, p => HandleEvent(p, "handler2"));
+            cfg.AddHandler(ProviderEventTypes.ProviderReady, sp => { Interlocked.Increment(ref counter); return _ => { handler1Success = true; }; });
+            cfg.AddHandler(ProviderEventTypes.ProviderReady, sp => { Interlocked.Increment(ref counter); return _ => { handler2Success = true; }; });
         };
 
         using var server = await CreateServerAsync(ServiceLifetime.Transient, configureServices, openFeatureBuilder)
@@ -157,14 +159,12 @@ public class FeatureFlagIntegrationTest(ITestOutputHelper outputHelper)
 
         // Assert
         Assert.True(response.IsSuccessStatusCode, "Expected HTTP status code 200 OK.");
-        Assert.Contains("handler1", triggeredHandlers);
-        Assert.Contains("handler2", triggeredHandlers);
-
-        void HandleEvent(ProviderEventPayload? eventPayload, string callerName)
+        Assert.Multiple(() =>
         {
-            triggeredHandlers.Add(callerName);
-            outputHelper.WriteLine($"{eventPayload?.Type} triggered[{callerName}], {eventPayload?.Message}");
-        }
+            Assert.Equal(2, counter);
+            Assert.True(handler1Success);
+            Assert.True(handler2Success);
+        });
     }
 
     [Fact]
