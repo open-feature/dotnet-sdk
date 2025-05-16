@@ -71,58 +71,25 @@ jobs:
           subject-path: "src/**/*.nupkg"
 
       # Process OpenFeature project
-      - name: Process SBOM for OpenFeature
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-          PROJECT_NAME: OpenFeature
-          PROJECT_PATH: ./src/OpenFeature/OpenFeature.csproj
-          RELEASE_TAG: ${{ needs.release-please.outputs.release_tag_name }}
-        run: |
-          # Generate SBOM
-          dotnet CycloneDX --json --exclude-dev -sv "$RELEASE_TAG" $PROJECT_PATH --output ./artifacts/sboms/ -fn $PROJECT_NAME.bom.json
-          # Upload SBOM to release
-          gh release upload $RELEASE_TAG ./artifacts/sboms/$PROJECT_NAME.bom.json
-
-      - name: Attest OpenFeature package
-        uses: actions/attest-sbom@115c3be05ff3974bcbd596578934b3f9ce39bf68 # v2.2.0
+      - name: Generate and Attest SBOM for OpenFeature
+        uses: ./.github/actions/sbom-generator
         with:
-          subject-path: "src/**/OpenFeature.*.nupkg"
-          sbom-path: ./artifacts/sboms/OpenFeature.bom.json
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          project-name: OpenFeature
+          release-tag: ${{ needs.release-please.outputs.release_tag_name }}
 
       # Process OpenFeature.Hosting project
-      - name: Process SBOM for OpenFeature.Hosting
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-          PROJECT_NAME: OpenFeature.Hosting
-          PROJECT_PATH: ./src/OpenFeature.Hosting/OpenFeature.Hosting.csproj
-          RELEASE_TAG: ${{ needs.release-please.outputs.release_tag_name }}
-        run: |
-          # Generate SBOM
-          dotnet CycloneDX --json --exclude-dev -sv "$RELEASE_TAG" $PROJECT_PATH --output ./artifacts/sboms/ -fn $PROJECT_NAME.bom.json
-          # Upload SBOM to release
-          gh release upload $RELEASE_TAG ./artifacts/sboms/$PROJECT_NAME.bom.json
-
-      - name: Attest OpenFeature.Hosting package
-        uses: actions/attest-sbom@115c3be05ff3974bcbd596578934b3f9ce39bf68 # v2.2.0
+      - name: Generate and Attest SBOM for OpenFeature.Hosting
+        uses: ./.github/actions/sbom-generator
         with:
-          subject-path: "src/**/OpenFeature.Hosting.*.nupkg"
-          sbom-path: ./artifacts/sboms/OpenFeature.Hosting.bom.json
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          project-name: OpenFeature.Hosting
+          release-tag: ${{ needs.release-please.outputs.release_tag_name }}
 
       # Process OpenFeature.DependencyInjection project
-      - name: Process SBOM for OpenFeature.DependencyInjection
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-          PROJECT_NAME: OpenFeature.DependencyInjection
-          PROJECT_PATH: ./src/OpenFeature.DependencyInjection/OpenFeature.DependencyInjection.csproj
-          RELEASE_TAG: ${{ needs.release-please.outputs.release_tag_name }}
-        run: |
-          # Generate SBOM
-          dotnet CycloneDX --json --exclude-dev -sv "$RELEASE_TAG" $PROJECT_PATH --output ./artifacts/sboms/ -fn $PROJECT_NAME.bom.json
-          # Upload SBOM to release
-          gh release upload $RELEASE_TAG ./artifacts/sboms/$PROJECT_NAME.bom.json
-
-      - name: Attest OpenFeature.DependencyInjection package
-        uses: actions/attest-sbom@115c3be05ff3974bcbd596578934b3f9ce39bf68 # v2.2.0
+      - name: Generate and Attest SBOM for OpenFeature.DependencyInjection
+        uses: ./.github/actions/sbom-generator
         with:
-          subject-path: "src/**/OpenFeature.DependencyInjection.*.nupkg"
-          sbom-path: ./artifacts/sboms/OpenFeature.DependencyInjection.bom.json
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          project-name: OpenFeature.DependencyInjection
+          release-tag: ${{ needs.release-please.outputs.release_tag_name }}
