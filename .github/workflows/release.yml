@@ -15,7 +15,7 @@ jobs:
       contents: write # for googleapis/release-please-action to create release commit
       pull-requests: write # for googleapis/release-please-action to create release PR
       packages: read # for internal nuget reading
-      
+
     runs-on: ubuntu-latest
 
     steps:
@@ -68,27 +68,6 @@ jobs:
         with:
           subject-path: "src/**/*.nupkg"
 
-  sbom:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write # upload sbom to a release
-    needs: release-please
-    continue-on-error: true
-    if: ${{ needs.release-please.outputs.release_created }}
-
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
-        env:
-          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          global-json-file: global.json
-          source-url: https://nuget.pkg.github.com/open-feature/index.json
-
       - name: Install CycloneDX.NET
         run: dotnet tool install CycloneDX
 
@@ -99,3 +78,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: gh release upload ${{ needs.release-please.outputs.release_tag_name }} bom.json
+
+      - name: Attest package
+        uses: actions/attest-sbom@115c3be05ff3974bcbd596578934b3f9ce39bf68 # v2.2.0
+        with:
+          subject-path: "src/**/*.nupkg"
+          sbom-path: artifacts/sboms/bom.json
