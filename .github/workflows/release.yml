@@ -12,20 +12,19 @@ permissions:
 jobs:
   release-please:
     permissions:
+      id-token: write # for googleapis/release-please-action to create release tag
       contents: write # for googleapis/release-please-action to create release commit, SBOM release
       pull-requests: write # for googleapis/release-please-action to create release PR
       packages: read # for internal nuget reading
+      attestations: write # for actions/attest-sbom to create attestation
 
     runs-on: ubuntu-latest
 
     steps:
-      - uses: googleapis/release-please-action@db8f2c60ee802b3748b512940dde88eabd7b7e01 # v3
+      - uses: googleapis/release-please-action@a02a34c4d625f9be7cb89156071d8567266a2445 #v4
         id: release
         with:
-          command: manifest
           token: ${{secrets.RELEASE_PLEASE_ACTION_TOKEN}}
-          default-branch: main
-          signoff: "OpenFeature Bot <109696520+openfeaturebot@users.noreply.github.com>"
           release-type: simple
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
@@ -90,7 +89,7 @@ jobs:
           subject-path: "src/**/OpenFeature.*.nupkg"
           sbom-path: ./artifacts/sboms/OpenFeature.bom.json
 
-      # Process OpenFeature.Hosting project  
+      # Process OpenFeature.Hosting project
       - name: Process SBOM for OpenFeature.Hosting
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
