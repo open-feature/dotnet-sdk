@@ -71,43 +71,58 @@ jobs:
         with:
           subject-path: "src/**/*.nupkg"
 
-      - name: Generate .NET BOM (OpenFeature.csproj)
-        run: dotnet CycloneDX --json --exclude-dev -sv "${{ needs.release-please.outputs.release_tag_name }}" ./src/OpenFeature/OpenFeature.csproj --output ./artifacts/sboms/ -fn OpenFeature.bom.json
-
-      - name: Attach SBOM to artifact (OpenFeature.csproj)
+      # Process OpenFeature project
+      - name: Process SBOM for OpenFeature
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        run: gh release upload ${{ needs.release-please.outputs.release_tag_name }} OpenFeature.bom.json
+          PROJECT_NAME: OpenFeature
+          PROJECT_PATH: ./src/OpenFeature/OpenFeature.csproj
+          RELEASE_TAG: ${{ needs.release-please.outputs.release_tag_name }}
+        run: |
+          # Generate SBOM
+          dotnet CycloneDX --json --exclude-dev -sv "$RELEASE_TAG" $PROJECT_PATH --output ./artifacts/sboms/ -fn $PROJECT_NAME.bom.json
+          # Upload SBOM to release
+          gh release upload $RELEASE_TAG ./artifacts/sboms/$PROJECT_NAME.bom.json
 
-      - name: Attest package (OpenFeature.csproj)
+      - name: Attest OpenFeature package
         uses: actions/attest-sbom@115c3be05ff3974bcbd596578934b3f9ce39bf68 # v2.2.0
         with:
           subject-path: "src/**/OpenFeature.*.nupkg"
           sbom-path: ./artifacts/sboms/OpenFeature.bom.json
 
-      - name: Generate .NET BOM (OpenFeature.Hosting.csproj)
-        run: dotnet CycloneDX --json --exclude-dev -sv "${{ needs.release-please.outputs.release_tag_name }}" ./src/OpenFeature.Hosting/OpenFeature.Hosting.csproj --output ./artifacts/sboms/ -fn OpenFeature.Hosting.bom.json
-
-      - name: Attach SBOM to artifact
+      # Process OpenFeature.Hosting project  
+      - name: Process SBOM for OpenFeature.Hosting
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        run: gh release upload ${{ needs.release-please.outputs.release_tag_name }} OpenFeature.Hosting.bom.json
+          PROJECT_NAME: OpenFeature.Hosting
+          PROJECT_PATH: ./src/OpenFeature.Hosting/OpenFeature.Hosting.csproj
+          RELEASE_TAG: ${{ needs.release-please.outputs.release_tag_name }}
+        run: |
+          # Generate SBOM
+          dotnet CycloneDX --json --exclude-dev -sv "$RELEASE_TAG" $PROJECT_PATH --output ./artifacts/sboms/ -fn $PROJECT_NAME.bom.json
+          # Upload SBOM to release
+          gh release upload $RELEASE_TAG ./artifacts/sboms/$PROJECT_NAME.bom.json
 
-      - name: Attest package (OpenFeature.Hosting.csproj)
+      - name: Attest OpenFeature.Hosting package
         uses: actions/attest-sbom@115c3be05ff3974bcbd596578934b3f9ce39bf68 # v2.2.0
         with:
           subject-path: "src/**/OpenFeature.Hosting.*.nupkg"
           sbom-path: ./artifacts/sboms/OpenFeature.Hosting.bom.json
 
-      - name: Generate .NET BOM (OpenFeature.DependencyInjection.csproj)
-        run: dotnet CycloneDX --json --exclude-dev -sv "${{ needs.release-please.outputs.release_tag_name }}" ./src/OpenFeature.DependencyInjection/OpenFeature.DependencyInjection.csproj --output ./artifacts/sboms/ -fn OpenFeature.DependencyInjection.bom.json
-
-      - name: Attach SBOM to artifact (OpenFeature.DependencyInjection.csproj)
+      # Process OpenFeature.DependencyInjection project
+      - name: Process SBOM for OpenFeature.DependencyInjection
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        run: gh release upload ${{ needs.release-please.outputs.release_tag_name }} OpenFeature.DependencyInjection.bom.json
+          PROJECT_NAME: OpenFeature.DependencyInjection
+          PROJECT_PATH: ./src/OpenFeature.DependencyInjection/OpenFeature.DependencyInjection.csproj
+          RELEASE_TAG: ${{ needs.release-please.outputs.release_tag_name }}
+        run: |
+          # Generate SBOM
+          dotnet CycloneDX --json --exclude-dev -sv "$RELEASE_TAG" $PROJECT_PATH --output ./artifacts/sboms/ -fn $PROJECT_NAME.bom.json
+          # Upload SBOM to release
+          gh release upload $RELEASE_TAG ./artifacts/sboms/$PROJECT_NAME.bom.json
 
-      - name: Attest package (OpenFeature.DependencyInjection.csproj)
+      - name: Attest OpenFeature.DependencyInjection package
         uses: actions/attest-sbom@115c3be05ff3974bcbd596578934b3f9ce39bf68 # v2.2.0
         with:
           subject-path: "src/**/OpenFeature.DependencyInjection.*.nupkg"
