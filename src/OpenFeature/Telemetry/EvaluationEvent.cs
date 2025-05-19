@@ -12,19 +12,19 @@ public class EvaluationEvent
     /// </summary>
     /// <param name="name">The name of the event.</param>
     /// <param name="attributes">The attributes of the event.</param>
-    public EvaluationEvent(string name, Dictionary<string, object?> attributes)
+    public EvaluationEvent(string name, IDictionary<string, object?> attributes)
     {
-        this.Name = name;
-        this.Attributes = attributes;
+        Name = name;
+        Attributes = new Dictionary<string, object?>(attributes);
     }
 
     /// <summary>
-    /// Gets or sets the name of the event.
+    /// Gets the name of the event.
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; }
 
     /// <summary>
-    /// Gets or sets the attributes of the event.
+    /// Gets the attributes of the event.
     /// </summary>
-    public Dictionary<string, object?> Attributes { get; set; }
+    public IReadOnlyDictionary<string, object?> Attributes { get; }
 }
