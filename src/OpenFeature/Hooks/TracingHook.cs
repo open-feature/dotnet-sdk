@@ -39,7 +39,7 @@ public class TracingHook : Hook
                 [TelemetryConstants.Provider] = context.ProviderMetadata.Name
             }));
 
-        return default;
+        return base.AfterAsync(context, details, hints, cancellationToken);
     }
 
     /// <summary>
@@ -74,6 +74,6 @@ public class TracingHook : Hook
 
         Activity.Current?.AddEvent(new ActivityEvent(TracingConstants.AttributeExceptionEventName, default, tagsCollection));
 #endif
-        return default;
+        return base.ErrorAsync(context, error, hints, cancellationToken);
     }
 }
