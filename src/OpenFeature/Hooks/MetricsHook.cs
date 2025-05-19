@@ -5,7 +5,9 @@ using System.Diagnostics.Metrics;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenFeature.Constant;
 using OpenFeature.Model;
+using OpenFeature.Telemetry;
 
 namespace OpenFeature.Hooks;
 
@@ -42,8 +44,8 @@ public class MetricsHook : Hook
     {
         var tagList = new TagList
         {
-            { MetricsConstants.KeyAttr, context.FlagKey },
-            { MetricsConstants.ProviderNameAttr, context.ProviderMetadata.Name }
+            { TelemetryConstants.Key, context.FlagKey },
+            { TelemetryConstants.Provider, context.ProviderMetadata.Name }
         };
 
         this._evaluationActiveUpDownCounter.Add(1, tagList);
@@ -58,10 +60,10 @@ public class MetricsHook : Hook
     {
         var tagList = new TagList
         {
-            { MetricsConstants.KeyAttr, context.FlagKey },
-            { MetricsConstants.ProviderNameAttr, context.ProviderMetadata.Name },
-            { MetricsConstants.VariantAttr, details.Variant ?? details.Value?.ToString() },
-            { MetricsConstants.ReasonAttr, details.Reason ?? "UNKNOWN" }
+            { TelemetryConstants.Key, context.FlagKey },
+            { TelemetryConstants.Provider, context.ProviderMetadata.Name },
+            { TelemetryConstants.Variant, details.Variant ?? details.Value?.ToString() },
+            { TelemetryConstants.Reason, details.Reason ?? Reason.Unknown.ToString() }
         };
 
         this._evaluationSuccessCounter.Add(1, tagList);
@@ -74,8 +76,8 @@ public class MetricsHook : Hook
     {
         var tagList = new TagList
         {
-            { MetricsConstants.KeyAttr, context.FlagKey },
-            { MetricsConstants.ProviderNameAttr, context.ProviderMetadata.Name },
+            { TelemetryConstants.Key, context.FlagKey },
+            { TelemetryConstants.Provider, context.ProviderMetadata.Name },
             { MetricsConstants.ExceptionAttr, error.Message }
         };
 
@@ -92,8 +94,8 @@ public class MetricsHook : Hook
     {
         var tagList = new TagList
         {
-            { MetricsConstants.KeyAttr, context.FlagKey },
-            { MetricsConstants.ProviderNameAttr, context.ProviderMetadata.Name }
+            { TelemetryConstants.Key, context.FlagKey },
+            { TelemetryConstants.Provider, context.ProviderMetadata.Name }
         };
 
         this._evaluationActiveUpDownCounter.Add(-1, tagList);

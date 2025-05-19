@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using OpenFeature.Model;
+using OpenFeature.Telemetry;
 
 namespace OpenFeature.Hooks;
 
@@ -16,14 +17,14 @@ public class TracingHook : Hook
         IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
     {
         Activity.Current?
-            .SetTag("feature_flag.key", details.FlagKey)
-            .SetTag("feature_flag.variant", details.Variant)
-            .SetTag("feature_flag.provider_name", context.ProviderMetadata.Name)
+            .SetTag(TelemetryConstants.Key, details.FlagKey)
+            .SetTag(TelemetryConstants.Variant, details.Variant)
+            .SetTag(TelemetryConstants.Provider, context.ProviderMetadata.Name)
             .AddEvent(new ActivityEvent("feature_flag", tags: new ActivityTagsCollection
             {
-                ["feature_flag.key"] = details.FlagKey,
-                ["feature_flag.variant"] = details.Variant,
-                ["feature_flag.provider_name"] = context.ProviderMetadata.Name
+                [TelemetryConstants.Key] = details.FlagKey,
+                [TelemetryConstants.Variant] = details.Variant,
+                [TelemetryConstants.Provider] = context.ProviderMetadata.Name
             }));
 
         return default;
