@@ -8,6 +8,8 @@ namespace OpenFeature.Tests.Telemetry;
 
 public class EvaluationEventBuilderTests
 {
+    private readonly EvaluationEventBuilder _builder = EvaluationEventBuilder.Default;
+
     [Fact]
     public void Build_ShouldReturnEventWithCorrectAttributes()
     {
@@ -25,7 +27,7 @@ public class EvaluationEventBuilderTests
             reason: "reason", variant: "variant", flagMetadata: flagMetadata);
 
         // Act
-        var evaluationEvent = EvaluationEventBuilder.Build(hookContext, details);
+        var evaluationEvent = _builder.Build(hookContext, details);
 
         // Assert
         Assert.Equal("feature_flag.evaluation", evaluationEvent.Name);
@@ -55,7 +57,7 @@ public class EvaluationEventBuilderTests
             errorMessage: "errorMessage", reason: "reason", variant: "variant", flagMetadata: flagMetadata);
 
         // Act
-        var evaluationEvent = EvaluationEventBuilder.Build(hookContext, details);
+        var evaluationEvent = _builder.Build(hookContext, details);
 
         // Assert
         Assert.Equal("general", evaluationEvent.Attributes[TelemetryConstants.ErrorCode]);
@@ -79,7 +81,7 @@ public class EvaluationEventBuilderTests
             reason: "reason", variant: null, flagMetadata: flagMetadata);
 
         // Act
-        var evaluationEvent = EvaluationEventBuilder.Build(hookContext, details);
+        var evaluationEvent = _builder.Build(hookContext, details);
 
         // Assert
         Assert.Null(evaluationEvent.Attributes[TelemetryConstants.Variant]);
@@ -98,7 +100,7 @@ public class EvaluationEventBuilderTests
             reason: "reason", variant: "", flagMetadata: flagMetadata);
 
         // Act
-        var evaluationEvent = EvaluationEventBuilder.Build(hookContext, details);
+        var evaluationEvent = _builder.Build(hookContext, details);
 
         // Assert
         Assert.Null(evaluationEvent.Attributes[TelemetryConstants.ContextId]);
@@ -122,7 +124,7 @@ public class EvaluationEventBuilderTests
             reason: reason, variant: "", flagMetadata: flagMetadata);
 
         // Act
-        var evaluationEvent = EvaluationEventBuilder.Build(hookContext, details);
+        var evaluationEvent = _builder.Build(hookContext, details);
 
         // Assert
         Assert.Equal(Reason.Unknown.ToLowerInvariant(), evaluationEvent.Attributes[TelemetryConstants.Reason]);
@@ -144,7 +146,7 @@ public class EvaluationEventBuilderTests
             errorMessage: errorMessage, reason: "reason", variant: "", flagMetadata: flagMetadata);
 
         // Act
-        var evaluationEvent = EvaluationEventBuilder.Build(hookContext, details);
+        var evaluationEvent = _builder.Build(hookContext, details);
 
         // Assert
         Assert.Equal("general", evaluationEvent.Attributes[TelemetryConstants.ErrorCode]);
@@ -164,7 +166,7 @@ public class EvaluationEventBuilderTests
             reason: "reason", variant: "variant", flagMetadata: new ImmutableMetadata());
 
         // Act
-        var evaluationEvent = EvaluationEventBuilder.Build(hookContext, details);
+        var evaluationEvent = _builder.Build(hookContext, details);
 
         // Assert
         Assert.Equal(testValue, evaluationEvent.Attributes[TelemetryConstants.Value]);
