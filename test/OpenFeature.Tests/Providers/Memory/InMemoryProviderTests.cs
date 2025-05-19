@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using OpenFeature.Constant;
 using OpenFeature.Error;
 using OpenFeature.Model;

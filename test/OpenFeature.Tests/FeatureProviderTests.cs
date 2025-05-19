@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using AutoFixture;
 using NSubstitute;
 using OpenFeature.Constant;

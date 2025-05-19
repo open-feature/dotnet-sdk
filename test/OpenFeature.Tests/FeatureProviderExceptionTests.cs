@@ -1,4 +1,3 @@
-using System;
 using OpenFeature.Constant;
 using OpenFeature.Error;
 using OpenFeature.Extension;

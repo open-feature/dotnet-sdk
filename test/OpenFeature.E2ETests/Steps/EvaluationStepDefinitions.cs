@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using OpenFeature.Constant;
 using OpenFeature.E2ETests.Utils;
 using OpenFeature.Extension;

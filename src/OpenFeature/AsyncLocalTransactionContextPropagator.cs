@@ -1,4 +1,3 @@
-using System.Threading;
 using OpenFeature.Model;
 
 namespace OpenFeature;

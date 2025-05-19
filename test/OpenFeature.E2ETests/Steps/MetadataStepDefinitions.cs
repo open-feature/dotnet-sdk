@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using OpenFeature.E2ETests.Utils;
 using OpenFeature.Model;
 using Reqnroll;

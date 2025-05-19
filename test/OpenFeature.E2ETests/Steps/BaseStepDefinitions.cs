@@ -1,7 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using OpenFeature.E2ETests.Utils;
 using OpenFeature.Model;
 using OpenFeature.Providers.Memory;

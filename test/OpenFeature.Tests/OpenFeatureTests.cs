@@ -1,6 +1,3 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using NSubstitute;
 using OpenFeature.Constant;
 using OpenFeature.Model;
