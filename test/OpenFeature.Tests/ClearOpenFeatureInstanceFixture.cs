@@ -1,5 +1,3 @@
-using Xunit;
-
 namespace OpenFeature.Tests;
 
 public class ClearOpenFeatureInstanceFixture : IAsyncLifetime

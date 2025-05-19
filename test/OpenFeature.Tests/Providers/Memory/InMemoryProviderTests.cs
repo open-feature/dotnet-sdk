@@ -2,7 +2,6 @@ using OpenFeature.Constant;
 using OpenFeature.Error;
 using OpenFeature.Model;
 using OpenFeature.Providers.Memory;
-using Xunit;
 
 namespace OpenFeature.Tests.Providers.Memory;
 

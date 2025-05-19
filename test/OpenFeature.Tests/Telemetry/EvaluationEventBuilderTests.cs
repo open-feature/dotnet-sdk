@@ -1,7 +1,6 @@
 using OpenFeature.Constant;
 using OpenFeature.Model;
 using OpenFeature.Telemetry;
-using Xunit;
 
 namespace OpenFeature.Tests.Telemetry;
 

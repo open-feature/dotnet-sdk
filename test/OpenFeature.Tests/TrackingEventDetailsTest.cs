@@ -1,6 +1,5 @@
 using OpenFeature.Model;
 using OpenFeature.Tests.Internal;
-using Xunit;
 
 namespace OpenFeature.Tests;
 

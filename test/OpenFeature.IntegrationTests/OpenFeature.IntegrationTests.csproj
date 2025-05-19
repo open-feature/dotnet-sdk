@@ -22,8 +22,4 @@
     <ProjectReference Include="..\..\src\OpenFeature.Hosting\OpenFeature.Hosting.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Using Include="Xunit" />
-  </ItemGroup>
-
 </Project>

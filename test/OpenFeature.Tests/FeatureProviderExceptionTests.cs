@@ -1,7 +1,6 @@
 using OpenFeature.Constant;
 using OpenFeature.Error;
 using OpenFeature.Extension;
-using Xunit;
 
 namespace OpenFeature.Tests;
 

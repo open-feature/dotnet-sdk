@@ -3,7 +3,6 @@ using OpenFeature.E2ETests.Utils;
 using OpenFeature.Extension;
 using OpenFeature.Model;
 using Reqnroll;
-using Xunit;
 
 namespace OpenFeature.E2ETests.Steps;
 

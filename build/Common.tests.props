@@ -13,6 +13,7 @@
     <Content Include="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'OpenFeature.slnx'))\build\xunit.runner.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Using Include="Xunit" />
   </ItemGroup>
 
   <ItemGroup>
