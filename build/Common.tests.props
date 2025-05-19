@@ -16,6 +16,10 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup Condition="$(MSBuildProjectName.Contains('E2E'))">
+    <Using Include="Reqnroll" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="GitHubActionsTestLogger" />
   </ItemGroup>

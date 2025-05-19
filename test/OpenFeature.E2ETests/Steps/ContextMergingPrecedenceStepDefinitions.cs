@@ -1,5 +1,4 @@
 using OpenFeature.E2ETests.Utils;
-using Reqnroll;
 
 namespace OpenFeature.E2ETests.Steps;
 

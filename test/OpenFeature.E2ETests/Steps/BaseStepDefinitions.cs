@@ -1,7 +1,6 @@
 using OpenFeature.E2ETests.Utils;
 using OpenFeature.Model;
 using OpenFeature.Providers.Memory;
-using Reqnroll;
 
 namespace OpenFeature.E2ETests.Steps;
 
