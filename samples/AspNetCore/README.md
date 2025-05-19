@@ -2,7 +2,7 @@
 
 This sample demonstrates how to use the OpenFeature .NET Web Application. It includes a simple .NET 9 web application that retrieves and evaluates feature flags using the OpenFeature client. The sample is set up with the `InMemoryProvider` and a relatively simple boolean `welcome-message` feature flag.
 
-The sample can easily extended with alternative providers, which you can find in the [dotnet-sdk-contrib](https://github.com/open-feature/dotnet-sdk-contrib) repository.
+The sample can easily be extended with alternative providers, which you can find in the [dotnet-sdk-contrib](https://github.com/open-feature/dotnet-sdk-contrib) repository.
 
 ## Prerequisites
 
