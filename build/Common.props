@@ -7,6 +7,7 @@
     <!-- Workaround for IDE0005 (Remove unnecessary usings/imports); see https://github.com/dotnet/roslyn/issues/41640 -->
     <NoWarn>EnableGenerateDocumentationFile</NoWarn>
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NuGetAudit>true</NuGetAudit>
     <NuGetAuditMode>all</NuGetAuditMode>

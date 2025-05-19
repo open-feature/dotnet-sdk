@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net8.0;net9.0;net462</TargetFrameworks>
-    <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>OpenFeature.DependencyInjection</RootNamespace>
   </PropertyGroup>
 
