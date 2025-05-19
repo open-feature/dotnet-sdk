@@ -52,7 +52,7 @@ public class TracingHook : Hook
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>A completed <see cref="ValueTask"/> representing the asynchronous operation.</returns>
     /// <remarks>
-    /// In .NET 9.0 or greater, this method uses <see cref="Activity.AddException(System.Exception)"/>.
+    /// In .NET 9.0 or greater, this method uses Activity.AddException(System.Exception)."/>.
     /// In earlier .NET versions, it creates a custom exception event with detailed error information.
     /// </remarks>
     public override ValueTask ErrorAsync<T>(HookContext<T> context, System.Exception error,

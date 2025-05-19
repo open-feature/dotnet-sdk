@@ -68,8 +68,8 @@ public class TracingHookTest : IDisposable
         Assert.Equal("feature_flag", ev.Name);
 
         Assert.Contains(new KeyValuePair<string, object?>("feature_flag.key", "my-flag"), ev.Tags);
-        Assert.Contains(new KeyValuePair<string, object?>("feature_flag.variant", "default"), ev.Tags);
-        Assert.Contains(new KeyValuePair<string, object?>("feature_flag.provider_name", "my-provider"), ev.Tags);
+        Assert.Contains(new KeyValuePair<string, object?>("feature_flag.result.variant", "default"), ev.Tags);
+        Assert.Contains(new KeyValuePair<string, object?>("feature_flag.provider.name", "my-provider"), ev.Tags);
     }
 
     [Fact]
