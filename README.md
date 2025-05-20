@@ -534,8 +534,8 @@ namespace OpenFeatureTestApp
     class Hello {
         static void Main(string[] args) {
 
-			// set up the OpenTelemetry OTLP exporter
-			var tracerProvider = Sdk.CreateTracerProviderBuilder()
+            // set up the OpenTelemetry OTLP exporter
+            var tracerProvider = Sdk.CreateTracerProviderBuilder()
                     .AddSource("my-tracer")
                     .ConfigureResource(r => r.AddService("jaeger-test"))
                     .AddOtlpExporter(o =>
@@ -544,8 +544,8 @@ namespace OpenFeatureTestApp
                     })
                     .Build();
 
-			// add the Otel Hook to the OpenFeature instance
-		    OpenFeature.Api.Instance.AddHooks(new TracingHook());
+            // add the Otel Hook to the OpenFeature instance
+            OpenFeature.Api.Instance.AddHooks(new TracingHook());
 
             var flagdProvider = new FlagdProvider(new Uri("http://localhost:8013"));
 
