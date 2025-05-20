@@ -20,6 +20,7 @@ public class MetricsHook : Hook
     private static readonly AssemblyName AssemblyName = typeof(MetricsHook).Assembly.GetName();
     private static readonly string InstrumentationName = AssemblyName.Name ?? "OpenFeature";
     private static readonly string InstrumentationVersion = AssemblyName.Version?.ToString() ?? "1.0.0";
+    private static readonly Meter Meter = new(InstrumentationName, InstrumentationVersion);
 
     private readonly UpDownCounter<long> _evaluationActiveUpDownCounter;
     private readonly Counter<long> _evaluationRequestCounter;
@@ -31,12 +32,10 @@ public class MetricsHook : Hook
     /// </summary>
     public MetricsHook()
     {
-        var meter = new Meter(InstrumentationName, InstrumentationVersion);
-
-        this._evaluationActiveUpDownCounter = meter.CreateUpDownCounter<long>(MetricsConstants.ActiveCountName, description: MetricsConstants.ActiveDescription);
-        this._evaluationRequestCounter = meter.CreateCounter<long>(MetricsConstants.RequestsTotalName, "{request}", MetricsConstants.RequestsDescription);
-        this._evaluationSuccessCounter = meter.CreateCounter<long>(MetricsConstants.SuccessTotalName, "{impression}", MetricsConstants.SuccessDescription);
-        this._evaluationErrorCounter = meter.CreateCounter<long>(MetricsConstants.ErrorTotalName, description: MetricsConstants.ErrorDescription);
+        this._evaluationActiveUpDownCounter = Meter.CreateUpDownCounter<long>(MetricsConstants.ActiveCountName, description: MetricsConstants.ActiveDescription);
+        this._evaluationRequestCounter = Meter.CreateCounter<long>(MetricsConstants.RequestsTotalName, "{request}", MetricsConstants.RequestsDescription);
+        this._evaluationSuccessCounter = Meter.CreateCounter<long>(MetricsConstants.SuccessTotalName, "{impression}", MetricsConstants.SuccessDescription);
+        this._evaluationErrorCounter = Meter.CreateCounter<long>(MetricsConstants.ErrorTotalName, description: MetricsConstants.ErrorDescription);
     }
 
     /// <inheritdoc/>
