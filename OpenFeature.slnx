@@ -39,9 +39,16 @@
   <Folder Name="/.root/build/">
     <File Path="build/Common.prod.props" />
     <File Path="build/Common.props" />
+    <File Path="build/Common.samples.props" />
     <File Path="build/Common.tests.props" />
     <File Path="build/openfeature-icon.png" />
     <File Path="build/xunit.runner.json" />
+  </Folder>
+  <Folder Name="/samples/">
+    <File Path="samples/Directory.Build.props" />
+  </Folder>
+  <Folder Name="/samples/aspnetcore/">
+    <Project Path="samples/AspNetCore/Samples.AspNetCore.csproj" />
   </Folder>
   <Folder Name="/src/">
     <File Path="src/Directory.Build.props" />

@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\OpenFeature.DependencyInjection\OpenFeature.DependencyInjection.csproj" />
+    <ProjectReference Include="..\..\src\OpenFeature.Hosting\OpenFeature.Hosting.csproj" />
+    <ProjectReference Include="..\..\src\OpenFeature\OpenFeature.csproj" />
+  </ItemGroup>
+
+</Project>
