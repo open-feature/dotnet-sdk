@@ -53,9 +53,6 @@ jobs:
           global-json-file: global.json
           source-url: https://nuget.pkg.github.com/open-feature/index.json
 
-      - name: Install CycloneDX.NET
-        run: dotnet tool install --global CycloneDX --version 5.2.0
-
       - name: Install dependencies
         run: dotnet restore
 

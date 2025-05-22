@@ -15,6 +15,10 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Install CycloneDX.NET
+      shell: bash
+      run: dotnet tool install --global CycloneDX --version 5.2.0
+
     - name: Generate SBOM
       shell: bash
       run: |
