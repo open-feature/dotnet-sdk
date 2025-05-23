@@ -1,0 +1,41 @@
+name: "Generate and Attest SBOM"
+description: "Generate SBOM for a .NET project, upload it to a release, and create an attestation"
+
+inputs:
+  github-token:
+    description: "GitHub token for uploading the SBOM to the release"
+    required: true
+  project-name:
+    description: "Name of the project for SBOM generation"
+    required: true
+  release-tag:
+    description: "Tag name for the release"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install CycloneDX.NET
+      shell: bash
+      run: dotnet tool install --global CycloneDX --version 5.2.0
+
+    - name: Generate SBOM
+      shell: bash
+      run: |
+        # Create artifacts/sboms directory if it doesn't exist
+        mkdir -p ./artifacts/sboms/
+        # Generate SBOM using CycloneDX
+        dotnet CycloneDX --json --exclude-dev -sv "${{ inputs.release-tag }}" ./src/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj --output ./artifacts/sboms/ -fn ${{ inputs.project-name }}.bom.json
+
+    - name: Upload SBOM to release
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      run: |
+        gh release upload ${{ inputs.release-tag }} ./artifacts/sboms/${{ inputs.project-name }}.bom.json
+
+    - name: Attest package
+      uses: actions/attest-sbom@115c3be05ff3974bcbd596578934b3f9ce39bf68 # v2.2.0
+      with:
+        subject-path: src/**/${{ inputs.project-name }}.*.nupkg
+        sbom-path: ./artifacts/sboms/${{ inputs.project-name }}.bom.json
