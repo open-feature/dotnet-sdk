@@ -13,10 +13,8 @@ jobs:
   release-please:
     permissions:
       id-token: write # for googleapis/release-please-action to create release tag
-      contents: write # for googleapis/release-please-action to create release commit, SBOM release
+      contents: write # for googleapis/release-please-action to create release commit
       pull-requests: write # for googleapis/release-please-action to create release PR
-      packages: read # for internal nuget reading
-      attestations: write # for actions/attest-sbom to create attestation
 
     runs-on: ubuntu-latest
 
@@ -36,8 +34,9 @@ jobs:
     needs: release-please
     permissions:
       id-token: write
-      contents: read
-      attestations: write
+      contents: write # for SBOM release
+      attestations: write # for actions/attest-sbom to create attestation
+      packages: read # for internal nuget reading
     if: ${{ fromJSON(needs.release-please.outputs.release_created || false) }}
 
     steps:
