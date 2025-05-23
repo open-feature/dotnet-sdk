@@ -13,6 +13,11 @@
     <Content Include="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'OpenFeature.slnx'))\build\xunit.runner.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(MSBuildProjectName.Contains('E2E'))">
+    <Using Include="Reqnroll" />
   </ItemGroup>
 
   <ItemGroup>

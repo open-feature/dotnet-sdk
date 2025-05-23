@@ -1,4 +1,3 @@
-using System;
 using OpenFeature.Constant;
 
 namespace OpenFeature.Model;

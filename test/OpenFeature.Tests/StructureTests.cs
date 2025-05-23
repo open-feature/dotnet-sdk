@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using OpenFeature.Model;
-using Xunit;
 
 namespace OpenFeature.Tests;
 

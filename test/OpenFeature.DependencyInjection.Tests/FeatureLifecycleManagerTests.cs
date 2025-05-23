@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using OpenFeature.Constant;
 using OpenFeature.DependencyInjection.Internal;
 using OpenFeature.Model;
-using Xunit;
 
 namespace OpenFeature.DependencyInjection.Tests;
 

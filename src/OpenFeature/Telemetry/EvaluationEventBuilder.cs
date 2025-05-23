@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using OpenFeature.Constant;
 using OpenFeature.Model;
 

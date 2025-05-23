@@ -1,6 +1,5 @@
 
 using System.Collections.Immutable;
-using System.Threading.Tasks;
 using AutoFixture;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
