@@ -1,5 +1,28 @@
 # Changelog
 
+## [2.6.0](https://github.com/open-feature/dotnet-sdk/compare/v2.5.0...v2.6.0) (2025-05-23)
+
+
+### ✨ New Features
+
+* Add Extension Method for adding global Hook via DependencyInjection ([#459](https://github.com/open-feature/dotnet-sdk/issues/459)) ([9b04485](https://github.com/open-feature/dotnet-sdk/commit/9b04485173978d600a4e3fd24df111347070dc70))
+* Add OTEL compatible telemetry object builder ([#397](https://github.com/open-feature/dotnet-sdk/issues/397)) ([6c44db9](https://github.com/open-feature/dotnet-sdk/commit/6c44db9237748735a22a162a88f61b2de7f3e9bd))
+
+
+### 🧹 Chore
+
+* Cleanup .props file ([#476](https://github.com/open-feature/dotnet-sdk/issues/476)) ([6d7a535](https://github.com/open-feature/dotnet-sdk/commit/6d7a5359bfcb8d12d648a75cf469e93909b999ed))
+* **deps:** update actions/attest-build-provenance action to v2.3.0 ([#464](https://github.com/open-feature/dotnet-sdk/issues/464)) ([0a5ab0c](https://github.com/open-feature/dotnet-sdk/commit/0a5ab0c3c71a1a615b0ee8627dd4ff5db39cac9b))
+* **deps:** update codecov/codecov-action action to v5.4.3 ([#475](https://github.com/open-feature/dotnet-sdk/issues/475)) ([fbcf3a4](https://github.com/open-feature/dotnet-sdk/commit/fbcf3a4b2478fae49f1566b828c9d0a8cffddd46))
+* **deps:** update github/codeql-action digest to 60168ef ([#463](https://github.com/open-feature/dotnet-sdk/issues/463)) ([ea76351](https://github.com/open-feature/dotnet-sdk/commit/ea76351a095b7eeb777941aaf7ac42e4d925c366))
+* **deps:** update github/codeql-action digest to ff0a06e ([#473](https://github.com/open-feature/dotnet-sdk/issues/473)) ([af1b20f](https://github.com/open-feature/dotnet-sdk/commit/af1b20f0822497b46b11ce8c21c47c8d39a5fbe9))
+* **deps:** update spec digest to edf0deb ([#474](https://github.com/open-feature/dotnet-sdk/issues/474)) ([fc3bdfe](https://github.com/open-feature/dotnet-sdk/commit/fc3bdfef63147dbd10ace398127eb633dd34c773))
+
+
+### 📚 Documentation
+
+* Add AspNetCore sample app ([#477](https://github.com/open-feature/dotnet-sdk/issues/477)) ([9742a0d](https://github.com/open-feature/dotnet-sdk/commit/9742a0d4210d2dd6e315b4e5988261aae4352c2f))
+
 ## [2.5.0](https://github.com/open-feature/dotnet-sdk/compare/v2.4.0...v2.5.0) (2025-04-25)
 
 
