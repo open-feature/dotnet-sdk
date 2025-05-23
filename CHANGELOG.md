@@ -5,6 +5,7 @@
 
 ### ✨ New Features
 
+* add AddHandler extension method to Dependency Injection package ([#462](https://github.com/open-feature/dotnet-sdk/issues/462)) ([ff414b8](https://github.com/open-feature/dotnet-sdk/commit/ff414b8a860108ca3cb372dc4a69b942bf4cd005))
 * Add Extension Method for adding global Hook via DependencyInjection ([#459](https://github.com/open-feature/dotnet-sdk/issues/459)) ([9b04485](https://github.com/open-feature/dotnet-sdk/commit/9b04485173978d600a4e3fd24df111347070dc70))
 * Add OTEL compatible telemetry object builder ([#397](https://github.com/open-feature/dotnet-sdk/issues/397)) ([6c44db9](https://github.com/open-feature/dotnet-sdk/commit/6c44db9237748735a22a162a88f61b2de7f3e9bd))
 
