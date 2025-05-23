@@ -38,7 +38,7 @@ jobs:
       id-token: write
       contents: read
       attestations: write
-    if: ${{ needs.release-please.outputs.release_created }}
+    if: ${{ fromJSON(needs.release-please.outputs.release_created || false) }}
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
