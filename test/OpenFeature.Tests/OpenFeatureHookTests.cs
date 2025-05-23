@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using AutoFixture;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
@@ -11,7 +6,6 @@ using OpenFeature.Constant;
 using OpenFeature.Error;
 using OpenFeature.Model;
 using OpenFeature.Tests.Internal;
-using Xunit;
 
 namespace OpenFeature.Tests;
 

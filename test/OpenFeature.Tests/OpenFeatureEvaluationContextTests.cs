@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
 using AutoFixture;
 using OpenFeature.Model;
 using OpenFeature.Tests.Internal;
-using Xunit;
 
 namespace OpenFeature.Tests;
 

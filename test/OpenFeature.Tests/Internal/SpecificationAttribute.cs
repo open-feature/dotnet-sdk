@@ -1,5 +1,3 @@
-using System;
-
 namespace OpenFeature.Tests.Internal;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = false)]
