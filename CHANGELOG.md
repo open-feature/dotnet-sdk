@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.6.1](https://github.com/open-feature/dotnet-sdk/compare/v2.6.0...v2.6.1) (2025-05-28)
+
+
+### 🧹 Chore
+
+* **deps:** update dependency benchmarkdotnet to 0.15.0 ([#481](https://github.com/open-feature/dotnet-sdk/issues/481)) ([714425d](https://github.com/open-feature/dotnet-sdk/commit/714425d405a33231e85b1e62019fc678b2e883ef))
+* **deps:** update dependency microsoft.net.test.sdk to 17.14.0 ([#482](https://github.com/open-feature/dotnet-sdk/issues/482)) ([520d383](https://github.com/open-feature/dotnet-sdk/commit/520d38305c6949c88b057f28e5dfe3305257e437))
+* **deps:** update dependency reqnroll.xunit to 2.4.1 ([#483](https://github.com/open-feature/dotnet-sdk/issues/483)) ([99f7584](https://github.com/open-feature/dotnet-sdk/commit/99f7584c91882ba59412e2306167172470cd4677))
+* **deps:** update spec digest to f014806 ([#479](https://github.com/open-feature/dotnet-sdk/issues/479)) ([dbe8b08](https://github.com/open-feature/dotnet-sdk/commit/dbe8b082c28739a1b81b74b29ed28fbccc94f7bc))
+
 ## [2.6.0](https://github.com/open-feature/dotnet-sdk/compare/v2.5.0...v2.6.0) (2025-05-23)
 
 
