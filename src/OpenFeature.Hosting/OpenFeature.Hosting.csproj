@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <RootNamespace>OpenFeature</RootNamespace>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,7 +11,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OpenFeature.DependencyInjection\OpenFeature.DependencyInjection.csproj" />
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference
+      Include="..\OpenFeature.DependencyInjection\OpenFeature.DependencyInjection.csproj" />
   </ItemGroup>
 
 </Project>
