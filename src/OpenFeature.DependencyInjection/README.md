@@ -2,7 +2,6 @@
 
 [![NuGet](https://img.shields.io/nuget/vpre/OpenFeature.DependencyInjection)](https://www.nuget.org/packages/OpenFeature.DependencyInjection)
 [![Specification](https://img.shields.io/static/v1?label=specification&message=v0.8.0&color=yellow&style=for-the-badge)](https://github.com/open-feature/spec/releases/tag/v0.8.0)
-[![Specification](https://img.shields.io/static/v1?label=specification&message=v0.8.0&color=yellow&style=for-the-badge)](https://github.com/open-feature/spec/releases/tag/v0.8.0)
 [
 ![Release](https://img.shields.io/static/v1?label=release&message=v2.6.0&color=blue&style=for-the-badge) <!-- x-release-please-version -->
 ](https://github.com/open-feature/dotnet-sdk/releases/tag/v2.6.0) <!-- x-release-please-version -->
