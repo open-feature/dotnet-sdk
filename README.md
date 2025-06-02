@@ -97,7 +97,7 @@ The [`samples/`](./samples) folder contains example applications demonstrating h
    dotnet run
    ```
 
-Want to contribute a new sample? See our [CONTRIBUTING](#-contributing) guide!
+Want to contribute a new sample? See our [CONTRIBUTING](CONTRIBUTING.md) guide!
 
 ## 🌟 Features
 
