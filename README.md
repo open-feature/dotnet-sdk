@@ -10,8 +10,8 @@
 
 [![Specification](https://img.shields.io/static/v1?label=specification&message=v0.8.0&color=yellow&style=for-the-badge)](https://github.com/open-feature/spec/releases/tag/v0.8.0)
 [
-![Release](https://img.shields.io/static/v1?label=release&message=v2.5.0&color=blue&style=for-the-badge) <!-- x-release-please-version -->
-](https://github.com/open-feature/dotnet-sdk/releases/tag/v2.5.0) <!-- x-release-please-version -->
+![Release](https://img.shields.io/static/v1?label=release&message=v2.6.0&color=blue&style=for-the-badge) <!-- x-release-please-version -->
+](https://github.com/open-feature/dotnet-sdk/releases/tag/v2.6.0) <!-- x-release-please-version -->
 
 [![Slack](https://img.shields.io/badge/slack-%40cncf%2Fopenfeature-brightgreen?style=flat&logo=slack)](https://cloud-native.slack.com/archives/C0344AANLA1)
 [![Codecov](https://codecov.io/gh/open-feature/dotnet-sdk/branch/main/graph/badge.svg?token=MONAVJBXUJ)](https://codecov.io/gh/open-feature/dotnet-sdk)
@@ -97,7 +97,7 @@ The [`samples/`](./samples) folder contains example applications demonstrating h
    dotnet run
    ```
 
-Want to contribute a new sample? See our [CONTRIBUTING](#-contributing) guide!
+Want to contribute a new sample? See our [CONTRIBUTING](CONTRIBUTING.md) guide!
 
 ## 🌟 Features
 

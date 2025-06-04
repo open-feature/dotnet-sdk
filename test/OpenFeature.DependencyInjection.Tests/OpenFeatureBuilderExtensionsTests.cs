@@ -2,7 +2,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using OpenFeature.DependencyInjection.Internal;
 using OpenFeature.Model;
-using Xunit;
 
 namespace OpenFeature.DependencyInjection.Tests;
 

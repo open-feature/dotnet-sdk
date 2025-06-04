@@ -12,21 +12,17 @@ permissions:
 jobs:
   release-please:
     permissions:
+      id-token: write # for googleapis/release-please-action to create release tag
       contents: write # for googleapis/release-please-action to create release commit
       pull-requests: write # for googleapis/release-please-action to create release PR
-      packages: read # for internal nuget reading
-      
+
     runs-on: ubuntu-latest
 
     steps:
-      - uses: googleapis/release-please-action@db8f2c60ee802b3748b512940dde88eabd7b7e01 # v3
+      - uses: googleapis/release-please-action@a02a34c4d625f9be7cb89156071d8567266a2445 #v4
         id: release
         with:
-          command: manifest
           token: ${{secrets.RELEASE_PLEASE_ACTION_TOKEN}}
-          default-branch: main
-          signoff: "OpenFeature Bot <109696520+openfeaturebot@users.noreply.github.com>"
-          release-type: simple
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       release_tag_name: ${{ steps.release.outputs.tag_name }}
@@ -37,9 +33,10 @@ jobs:
     needs: release-please
     permissions:
       id-token: write
-      contents: read
-      attestations: write
-    if: ${{ needs.release-please.outputs.release_created }}
+      contents: write # for SBOM release
+      attestations: write # for actions/attest-sbom to create attestation
+      packages: read # for internal nuget reading
+    if: ${{ fromJSON(needs.release-please.outputs.release_created || false) }}
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
@@ -68,34 +65,26 @@ jobs:
         with:
           subject-path: "src/**/*.nupkg"
 
-  sbom:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write # upload sbom to a release
-    needs: release-please
-    continue-on-error: true
-    if: ${{ needs.release-please.outputs.release_created }}
-
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      # Process OpenFeature project
+      - name: Generate and Attest SBOM for OpenFeature
+        uses: ./.github/actions/sbom-generator
         with:
-          fetch-depth: 0
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          project-name: OpenFeature
+          release-tag: ${{ needs.release-please.outputs.release_tag_name }}
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
-        env:
-          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Process OpenFeature.Hosting project
+      - name: Generate and Attest SBOM for OpenFeature.Hosting
+        uses: ./.github/actions/sbom-generator
         with:
-          global-json-file: global.json
-          source-url: https://nuget.pkg.github.com/open-feature/index.json
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          project-name: OpenFeature.Hosting
+          release-tag: ${{ needs.release-please.outputs.release_tag_name }}
 
-      - name: Install CycloneDX.NET
-        run: dotnet tool install CycloneDX
-
-      - name: Generate .NET BOM
-        run: dotnet CycloneDX --json --exclude-dev -sv "${{ needs.release-please.outputs.release_tag_name }}" ./src/OpenFeature/OpenFeature.csproj
-
-      - name: Attach SBOM to artifact
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        run: gh release upload ${{ needs.release-please.outputs.release_tag_name }} bom.json
+      # Process OpenFeature.DependencyInjection project
+      - name: Generate and Attest SBOM for OpenFeature.DependencyInjection
+        uses: ./.github/actions/sbom-generator
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          project-name: OpenFeature.DependencyInjection
+          release-tag: ${{ needs.release-please.outputs.release_tag_name }}

@@ -1,7 +1,5 @@
 using System.Collections.Immutable;
-using System.Threading;
 using System.Threading.Channels;
-using System.Threading.Tasks;
 using OpenFeature.Constant;
 using OpenFeature.Model;
 

@@ -1,10 +1,8 @@
-using System.Threading.Tasks;
 using AutoFixture;
 using NSubstitute;
 using OpenFeature.Constant;
 using OpenFeature.Model;
 using OpenFeature.Tests.Internal;
-using Xunit;
 
 namespace OpenFeature.Tests;
 

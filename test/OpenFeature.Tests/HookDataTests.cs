@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using OpenFeature.Model;
-using Xunit;
 
 namespace OpenFeature.Tests;
 
