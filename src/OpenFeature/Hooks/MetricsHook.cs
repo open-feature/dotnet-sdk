@@ -57,7 +57,6 @@ public class MetricsHook : Hook
         {
             { TelemetryConstants.Key, context.FlagKey },
             { TelemetryConstants.Provider, context.ProviderMetadata.Name },
-            { TelemetryConstants.Variant, details.Variant ?? details.Value?.ToString() },
             { TelemetryConstants.Reason, details.Reason ?? Reason.Unknown.ToString() }
         };
 

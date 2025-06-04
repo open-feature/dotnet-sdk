@@ -596,12 +596,12 @@ For this hook to function correctly a global `MeterProvider` must be set.
 
 Below are the metrics extracted by this hook and dimensions they carry:
 
-| Metric key                             | Description                     | Unit         | Dimensions                          |
-| -------------------------------------- | ------------------------------- | ------------ | ----------------------------------- |
-| feature_flag.evaluation_requests_total | Number of evaluation requests   | {request}    | key, provider name                  |
-| feature_flag.evaluation_success_total  | Flag evaluation successes       | {impression} | key, provider name, reason, variant |
-| feature_flag.evaluation_error_total    | Flag evaluation errors          | Counter      | key, provider name                  |
-| feature_flag.evaluation_active_count   | Active flag evaluations counter | Counter      | key                                 |
+| Metric key                             | Description                     | Unit         | Dimensions                 |
+| -------------------------------------- | ------------------------------- | ------------ |----------------------------|
+| feature_flag.evaluation_requests_total | Number of evaluation requests   | {request}    | key, provider name         |
+| feature_flag.evaluation_success_total  | Flag evaluation successes       | {impression} | key, provider name, reason |
+| feature_flag.evaluation_error_total    | Flag evaluation errors          | Counter      | key, provider name         |
+| feature_flag.evaluation_active_count   | Active flag evaluations counter | Counter      | key                        |
 
 Consider the following code example for usage.
 
