@@ -8,7 +8,9 @@
       "versioning": "default",
       "extra-files": [
         "build/Common.prod.props",
-        "README.md"
+        "README.md",
+        "src/OpenFeature.DependencyInjection/README.md",
+        "src/OpenFeature.Hosting/README.md"
       ]
     }
   },
