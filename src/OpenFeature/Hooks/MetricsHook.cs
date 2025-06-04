@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using OpenFeature.Constant;
 using OpenFeature.Model;
 using OpenFeature.Telemetry;

@@ -1,7 +1,4 @@
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 using OpenFeature.Model;
 using OpenFeature.Telemetry;
 
@@ -55,7 +52,7 @@ public class TracingHook : Hook
     /// In .NET 9.0 or greater, this method uses Activity.AddException(System.Exception)."/>.
     /// In earlier .NET versions, it creates a custom exception event with detailed error information.
     /// </remarks>
-    public override ValueTask ErrorAsync<T>(HookContext<T> context, System.Exception error,
+    public override ValueTask ErrorAsync<T>(HookContext<T> context, Exception error,
         IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
     {
 #if NET9_0_OR_GREATER

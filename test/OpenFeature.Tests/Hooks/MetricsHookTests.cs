@@ -1,13 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using OpenFeature.Hooks;
 using OpenFeature.Model;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
-using Xunit;
 
 namespace OpenFeature.Tests.Hooks;
 
