@@ -13,36 +13,40 @@ namespace OpenFeature.Extensions.MultiProvider;
 /// </remarks>
 public sealed class MultiProvider : FeatureProvider
 {
+    private readonly Dictionary<string, FeatureProvider> _providers;
+    private readonly BaseEvaluationStrategy _evaluationStrategy;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MultiProvider"/> class with the specified providers and evaluation strategy.
+    /// </summary>
+    /// <param name="providers">A dictionary containing the feature providers keyed by their identifiers.</param>
+    /// <param name="evaluationStrategy">The base evaluation strategy to use for determining how to evaluate features across multiple providers.</param>
+    public MultiProvider(Dictionary<string, FeatureProvider> providers, BaseEvaluationStrategy evaluationStrategy)
+    {
+        this._providers = providers;
+        this._evaluationStrategy = evaluationStrategy;
+    }
+
     /// <inheritdoc/>
     public override Metadata? GetMetadata() => new("OpenFeature MultiProvider");
 
     /// <inheritdoc/>
-    public override Task<ResolutionDetails<bool>> ResolveBooleanValueAsync(string flagKey, bool defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
+    public override Task<ResolutionDetails<bool>> ResolveBooleanValueAsync(string flagKey, bool defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default) =>
+        this._evaluationStrategy.EvaluateAsync(this._providers, flagKey, defaultValue, context, cancellationToken);
 
     /// <inheritdoc/>
-    public override Task<ResolutionDetails<double>> ResolveDoubleValueAsync(string flagKey, double defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
+    public override Task<ResolutionDetails<double>> ResolveDoubleValueAsync(string flagKey, double defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default) =>
+        this._evaluationStrategy.EvaluateAsync(this._providers, flagKey, defaultValue, context, cancellationToken);
 
     /// <inheritdoc/>
-    public override Task<ResolutionDetails<int>> ResolveIntegerValueAsync(string flagKey, int defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
+    public override Task<ResolutionDetails<int>> ResolveIntegerValueAsync(string flagKey, int defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default) =>
+        this._evaluationStrategy.EvaluateAsync(this._providers, flagKey, defaultValue, context, cancellationToken);
 
     /// <inheritdoc/>
-    public override Task<ResolutionDetails<string>> ResolveStringValueAsync(string flagKey, string defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
+    public override Task<ResolutionDetails<string>> ResolveStringValueAsync(string flagKey, string defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default) =>
+        this._evaluationStrategy.EvaluateAsync(this._providers, flagKey, defaultValue, context, cancellationToken);
 
     /// <inheritdoc/>
-    public override Task<ResolutionDetails<Value>> ResolveStructureValueAsync(string flagKey, Value defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
+    public override Task<ResolutionDetails<Value>> ResolveStructureValueAsync(string flagKey, Value defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default) =>
+        this._evaluationStrategy.EvaluateAsync(this._providers, flagKey, defaultValue, context, cancellationToken);
 }
