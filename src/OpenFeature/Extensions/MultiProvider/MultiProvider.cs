@@ -29,7 +29,7 @@ public sealed class MultiProvider : FeatureProvider
     }
 
     /// <inheritdoc/>
-    public override Metadata? GetMetadata() => new("OpenFeature MultiProvider");
+    public override Metadata GetMetadata() => new("OpenFeature MultiProvider");
 
     /// <inheritdoc/>
     public override Task<ResolutionDetails<bool>> ResolveBooleanValueAsync(string flagKey, bool defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default) =>

@@ -40,7 +40,7 @@ public class MultiProviderTests : ClearOpenFeatureInstanceFixture
         // Assert
         Assert.NotNull(multiProvider);
         Assert.NotNull(multiProvider.GetMetadata());
-        Assert.Equal("OpenFeature MultiProvider", multiProvider.GetMetadata()?.Name);
+        Assert.Equal("OpenFeature MultiProvider", multiProvider.GetMetadata().Name);
     }
 
     [Fact]
