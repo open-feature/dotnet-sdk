@@ -17,8 +17,8 @@ public sealed class FirstSuccessfulStrategy : BaseEvaluationStrategy
         {
             var result = await provider.EvaluateAsync(key, defaultValue, evaluationContext, cancellationToken).ConfigureAwait(false);
 
-            // If the result is not FLAG_NOT_FOUND and is not an error, return it
-            if (result.ErrorType is ErrorType.None or not ErrorType.FlagNotFound)
+            // If the result is not an error, return it
+            if (result.ErrorType is ErrorType.None)
             {
                 return result;
             }
