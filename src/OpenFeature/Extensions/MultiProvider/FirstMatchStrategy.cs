@@ -26,7 +26,14 @@ public sealed class FirstMatchStrategy : BaseEvaluationStrategy
                 _ => new ResolutionDetails<T>(key, defaultValue, ErrorType.TypeMismatch, Reason.Error, errorMessage: $"Unsupported type: {typeof(T).Name}")
             };
 
+            // If the result is not FLAG_NOT_FOUND and is not an error, return it
             if (result.ErrorType is ErrorType.None or not ErrorType.FlagNotFound)
+            {
+                return result;
+            }
+
+            // If the result is an error other than FLAG_NOT_FOUND, bubble it up
+            if (result.ErrorType is not ErrorType.None and not ErrorType.FlagNotFound)
             {
                 return result;
             }
