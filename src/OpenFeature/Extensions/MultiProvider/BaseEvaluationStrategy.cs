@@ -10,7 +10,6 @@ namespace OpenFeature.Extensions.MultiProvider;
 /// across multiple providers. Implementations define the specific logic for how providers are selected, prioritized, or combined
 /// when evaluating feature flags.
 /// </remarks>
-/// <seealso href="https://openfeature.dev/specification/appendix-a/#multi-provider">Multi Provider specification</seealso>
 public abstract class BaseEvaluationStrategy
 {
     /// <summary>

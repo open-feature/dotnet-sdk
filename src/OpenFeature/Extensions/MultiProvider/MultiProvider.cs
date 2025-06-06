@@ -11,6 +11,7 @@ namespace OpenFeature.Extensions.MultiProvider;
 /// underlying providers based on configuration or routing rules. This enables scenarios where
 /// different feature flags may be served by different sources or providers within the same application.
 /// </remarks>
+/// <seealso href="https://openfeature.dev/specification/appendix-a/#multi-provider">Multi Provider specification</seealso>
 public sealed class MultiProvider : FeatureProvider
 {
     private readonly Dictionary<string, FeatureProvider> _providers;
