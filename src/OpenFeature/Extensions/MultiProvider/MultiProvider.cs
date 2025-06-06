@@ -50,4 +50,13 @@ public sealed class MultiProvider : FeatureProvider
     /// <inheritdoc/>
     public override Task<ResolutionDetails<Value>> ResolveStructureValueAsync(string flagKey, Value defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default) =>
         this._evaluationStrategy.EvaluateAsync(this._providers, flagKey, defaultValue, context, cancellationToken);
+
+    /// <inheritdoc/>
+    public override async Task ShutdownAsync(CancellationToken cancellationToken = default)
+    {
+        foreach (var provider in this._providers.Values)
+        {
+            await provider.ShutdownAsync(cancellationToken).ConfigureAwait(false);
+        }
+    }
 }
