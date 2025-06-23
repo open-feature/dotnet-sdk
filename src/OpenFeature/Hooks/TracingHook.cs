@@ -21,9 +21,7 @@ public class TracingHook : Hook
     /// <param name="hints">Optional dictionary of hints that can modify hook behavior.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>A completed <see cref="ValueTask"/> representing the asynchronous operation.</returns>
-
-    public override ValueTask AfterAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
-        IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
+    public override ValueTask FinallyAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details, IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
     {
         Activity.Current?
             .SetTag(TelemetryConstants.Key, details.FlagKey)
@@ -40,7 +38,7 @@ public class TracingHook : Hook
                 [TelemetryConstants.Reason] = details.Reason
             }));
 
-        return base.AfterAsync(context, details, hints, cancellationToken);
+        return base.FinallyAsync(context, details, hints, cancellationToken);
     }
 
     /// <summary>

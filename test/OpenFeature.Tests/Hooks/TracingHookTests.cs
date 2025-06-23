@@ -37,7 +37,7 @@ public class TracingHookTest : IDisposable
 #pragma warning restore CA1816
 
     [Fact]
-    public async Task TestAfter()
+    public async Task TestFinally()
     {
         // Arrange
         var tracingHook = new TracingHook();
@@ -47,7 +47,7 @@ public class TracingHookTest : IDisposable
 
         // Act
         var span = this._tracer.StartActiveSpan("my-span");
-        await tracingHook.AfterAsync(ctx,
+        await tracingHook.FinallyAsync(ctx,
             new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default"),
             new Dictionary<string, object>()).ConfigureAwait(true);
         span.End();
@@ -68,7 +68,7 @@ public class TracingHookTest : IDisposable
     }
 
     [Fact]
-    public async Task TestAfter_NoSpan()
+    public async Task TestFinally_NoSpan()
     {
         // Arrange
         var tracingHook = new TracingHook();
@@ -77,7 +77,7 @@ public class TracingHookTest : IDisposable
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
 
         // Act
-        await tracingHook.AfterAsync(ctx,
+        await tracingHook.FinallyAsync(ctx,
             new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default"),
             new Dictionary<string, object>()).ConfigureAwait(true);
 
