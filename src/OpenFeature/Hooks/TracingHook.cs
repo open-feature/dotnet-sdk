@@ -6,11 +6,10 @@ namespace OpenFeature.Hooks;
 
 /// <summary>
 /// A hook that enriches telemetry traces with additional information during the feature flag evaluation lifecycle.
-/// </summary>
-/// <remarks>
 /// This hook adds relevant flag evaluation details as tags and events to the current <see cref="Activity"/> for tracing purposes.
 /// On error, it attaches exception information to the trace, using the appropriate API depending on the .NET version.
-/// </remarks>
+/// </summary>
+/// <remarks> This is still experimental and subject to change. </remarks>
 public class TracingHook : Hook
 {
     /// <summary>
@@ -22,6 +21,7 @@ public class TracingHook : Hook
     /// <param name="hints">Optional dictionary of hints that can modify hook behavior.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>A completed <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+
     public override ValueTask AfterAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
         IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
     {

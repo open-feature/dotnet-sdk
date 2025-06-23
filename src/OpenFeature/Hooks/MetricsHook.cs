@@ -11,6 +11,7 @@ namespace OpenFeature.Hooks;
 /// Represents a hook for capturing metrics related to flag evaluations.
 /// The meter instrumentation name is "OpenFeature".
 /// </summary>
+/// <remarks> This is still experimental and subject to change. </remarks>
 public class MetricsHook : Hook
 {
     private static readonly AssemblyName AssemblyName = typeof(MetricsHook).Assembly.GetName();
