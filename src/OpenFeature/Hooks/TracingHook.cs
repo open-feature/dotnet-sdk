@@ -29,6 +29,8 @@ public class TracingHook : Hook
             .SetTag(TelemetryConstants.Key, details.FlagKey)
             .SetTag(TelemetryConstants.Variant, details.Variant)
             .SetTag(TelemetryConstants.Provider, context.ProviderMetadata.Name)
+            .SetTag(TelemetryConstants.Value, details.Value)
+            .SetTag(TelemetryConstants.Reason, details.Reason)
             .AddEvent(new ActivityEvent("feature_flag", tags: new ActivityTagsCollection
             {
                 [TelemetryConstants.Key] = details.FlagKey,
