@@ -35,7 +35,9 @@ public class TracingHook : Hook
             {
                 [TelemetryConstants.Key] = details.FlagKey,
                 [TelemetryConstants.Variant] = details.Variant,
-                [TelemetryConstants.Provider] = context.ProviderMetadata.Name
+                [TelemetryConstants.Provider] = context.ProviderMetadata.Name,
+                [TelemetryConstants.Value] = details.Value,
+                [TelemetryConstants.Reason] = details.Reason
             }));
 
         return base.AfterAsync(context, details, hints, cancellationToken);
