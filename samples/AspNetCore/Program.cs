@@ -9,11 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddProblemDetails();
 
-builder.Services.AddOpenFeature(builder =>
+builder.Services.AddOpenFeature(featureBuilder =>
 {
-    builder.AddHostedFeatureLifecycle()
+    featureBuilder.AddHostedFeatureLifecycle()
         .AddHook(sp => new LoggingHook(sp.GetRequiredService<ILogger<LoggingHook>>()))
-        .AddInMemoryProvider("InMemory", provider => new Dictionary<string, Flag>()
+        .AddInMemoryProvider("InMemory", _ => new Dictionary<string, Flag>()
         {
             {
                 "welcome-message", new Flag<bool>(
