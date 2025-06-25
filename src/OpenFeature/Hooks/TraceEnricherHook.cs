@@ -23,16 +23,15 @@ public class TraceEnricherHook : Hook
     /// <returns>A completed <see cref="ValueTask"/> representing the asynchronous operation.</returns>
     public override ValueTask FinallyAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details, IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
     {
-        Activity.Current?
-            .AddEvent(new ActivityEvent("feature_flag.evaluation", tags: new ActivityTagsCollection
-            {
-                [TelemetryConstants.Key] = details.FlagKey,
-                [TelemetryConstants.Provider] = context.ProviderMetadata.Name,
-                [TelemetryConstants.Variant] = details.Variant,
+        var evaluationEvent = EvaluationEventBuilder<T>.Build(context, details);
 
-                [TelemetryConstants.Value] = details.Value,
-                [TelemetryConstants.Reason] = details.Reason
-            }));
+        var tags = new ActivityTagsCollection();
+        foreach (var kvp in evaluationEvent.Attributes)
+        {
+            tags[kvp.Key] = kvp.Value;
+        }
+
+        Activity.Current?.AddEvent(new ActivityEvent(evaluationEvent.Name, tags: tags));
 
         return base.FinallyAsync(context, details, hints, cancellationToken);
     }
