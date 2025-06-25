@@ -24,7 +24,7 @@ public class TraceEnricherHook : Hook
     public override ValueTask FinallyAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details, IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
     {
         Activity.Current?
-            .AddEvent(new ActivityEvent("feature_flag", tags: new ActivityTagsCollection
+            .AddEvent(new ActivityEvent("feature_flag.evaluation", tags: new ActivityTagsCollection
             {
                 [TelemetryConstants.Key] = details.FlagKey,
                 [TelemetryConstants.Provider] = context.ProviderMetadata.Name,
