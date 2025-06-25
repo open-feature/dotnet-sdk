@@ -6,14 +6,14 @@ namespace OpenFeature.Telemetry;
 /// <summary>
 /// Class for creating evaluation events for feature flags.
 /// </summary>
-public sealed class EvaluationEventBuilder
+public sealed class EvaluationEventBuilder<T>
 {
     private const string EventName = "feature_flag.evaluation";
 
     /// <summary>
-    /// Gets the default instance of the <see cref="EvaluationEventBuilder"/>.
+    /// Gets the default instance of the <see cref="EvaluationEventBuilder{T}"/>.
     /// </summary>
-    public static EvaluationEventBuilder Default { get; } = new();
+    public static EvaluationEventBuilder<T> Default { get; } = new();
 
     /// <summary>
     /// Creates an evaluation event based on the provided hook context and flag evaluation details.
@@ -21,7 +21,7 @@ public sealed class EvaluationEventBuilder
     /// <param name="hookContext">The context of the hook containing flag key and provider metadata.</param>
     /// <param name="details">The details of the flag evaluation including reason, variant, and metadata.</param>
     /// <returns>An instance of <see cref="EvaluationEvent"/> containing the event name, attributes, and body.</returns>
-    public EvaluationEvent Build(HookContext<Value> hookContext, FlagEvaluationDetails<Value> details)
+    public static EvaluationEvent Build(HookContext<T> hookContext, FlagEvaluationDetails<T> details)
     {
         var attributes = new Dictionary<string, object?>
         {
