@@ -79,23 +79,23 @@ public async Task Example()
 
 The [`samples/`](./samples) folder contains example applications demonstrating how to use OpenFeature in different .NET scenarios.
 
-| Sample Name                                       | Description                                                    |
-|---------------------------------------------------|----------------------------------------------------------------|
-| [AspNetCore](/samples/AspNetCore/README.md)       | Feature flags in an ASP.NET Core Web API.                      |
+| Sample Name                                 | Description                               |
+| ------------------------------------------- | ----------------------------------------- |
+| [AspNetCore](/samples/AspNetCore/README.md) | Feature flags in an ASP.NET Core Web API. |
 
 **Getting Started with a Sample:**
 
 1. Navigate to the sample directory
 
-   ```shell
-   cd samples/AspNetCore
-   ```
+    ```shell
+    cd samples/AspNetCore
+    ```
 
 2. Restore dependencies and run
 
-   ```shell
-   dotnet run
-   ```
+    ```shell
+    dotnet run
+    ```
 
 Want to contribute a new sample? See our [CONTRIBUTING](CONTRIBUTING.md) guide!
 
@@ -534,16 +534,30 @@ services.AddOpenFeature(builder =>
 });
 ```
 
-### Trace Hook
+### Trace Enricher Hook
 
-For this hook to function correctly a global `TracerProvider` must be set, an example of how to do this can be found below.
+The `TraceEnricherHook` enriches telemetry traces with additional information during the feature flag evaluation lifecycle. This hook adds relevant flag evaluation details as tags and events to the current `Activity` for tracing purposes.
 
-The `open telemetry hook` taps into the after and error methods of the hook lifecycle to write `events` and `attributes` to an existing `span`.
-For this, an active span must be set in the `Tracer`, otherwise the hook will no-op.
+For this hook to function correctly, an active span must be set in the current `Activity`, otherwise the hook will no-op.
 
-### Example
+Below are the tags added to the trace event:
 
-The following example demonstrates the use of the `OpenTelemetry hook` with the `OpenFeature dotnet-sdk`. The traces are sent to a `jaeger` OTLP collector running at `localhost:4317`.
+| Tag Name                    | Description                                                                  | Source                        |
+| --------------------------- | ---------------------------------------------------------------------------- | ----------------------------- |
+| feature_flag.key            | The lookup key of the feature flag                                           | Hook context flag key         |
+| feature_flag.provider.name  | The name of the feature flag provider                                        | Provider metadata             |
+| feature_flag.result.reason  | The reason code which shows how a feature flag value was determined          | Evaluation details            |
+| feature_flag.result.variant | A semantic identifier for an evaluated flag value                            | Evaluation details            |
+| feature_flag.result.value   | The evaluated value of the feature flag                                      | Evaluation details            |
+| feature_flag.context.id     | The unique identifier for the flag evaluation context                        | Flag metadata (if available)  |
+| feature_flag.set.id         | The identifier of the flag set to which the feature flag belongs             | Flag metadata (if available)  |
+| feature_flag.version        | The version of the ruleset used during the evaluation                        | Flag metadata (if available)  |
+| error.type                  | Describes a class of error the operation ended with                          | Evaluation details (if error) |
+| error.message               | A message explaining the nature of an error occurring during flag evaluation | Evaluation details (if error) |
+
+#### Example
+
+The following example demonstrates the use of the `TraceEnricherHook` with the `OpenFeature dotnet-sdk`. The traces are sent to a `jaeger` OTLP collector running at `localhost:4317`.
 
 ```csharp
 using OpenFeature.Contrib.Providers.Flagd;
@@ -568,8 +582,8 @@ namespace OpenFeatureTestApp
                     })
                     .Build();
 
-            // add the Otel Hook to the OpenFeature instance
-            OpenFeature.Api.Instance.AddHooks(new TracingHook());
+            // add the TraceEnricherHook to the OpenFeature instance
+            OpenFeature.Api.Instance.AddHooks(new TraceEnricherHook());
 
             var flagdProvider = new FlagdProvider(new Uri("http://localhost:8013"));
 
@@ -596,18 +610,18 @@ For this hook to function correctly a global `MeterProvider` must be set.
 
 Below are the metrics extracted by this hook and dimensions they carry:
 
-| Metric key                             | Description                     | Unit         | Dimensions                 |
-| -------------------------------------- | ------------------------------- | ------------ |----------------------------|
-| feature_flag.evaluation_requests_total | Number of evaluation requests   | {request}    | key, provider name         |
-| feature_flag.evaluation_success_total  | Flag evaluation successes       | {impression} | key, provider name, reason |
-| feature_flag.evaluation_error_total    | Flag evaluation errors          | Counter      | key, provider name         |
-| feature_flag.evaluation_active_count   | Active flag evaluations counter | Counter      | key                        |
+| Metric key                             | Description                     | Unit         | Dimensions                    |
+| -------------------------------------- | ------------------------------- | ------------ | ----------------------------- |
+| feature_flag.evaluation_requests_total | Number of evaluation requests   | {request}    | key, provider name            |
+| feature_flag.evaluation_success_total  | Flag evaluation successes       | {impression} | key, provider name, reason    |
+| feature_flag.evaluation_error_total    | Flag evaluation errors          | 1            | key, provider name, exception |
+| feature_flag.evaluation_active_count   | Active flag evaluations counter | 1            | key, provider name            |
 
 Consider the following code example for usage.
 
-### Example
+#### Example
 
-The following example demonstrates the use of the `OpenTelemetry hook` with the `OpenFeature dotnet-sdk`. The metrics are sent to the `console`.
+The following example demonstrates the use of the `MetricsHook` with the `OpenFeature dotnet-sdk`. The metrics are sent to the `console`.
 
 ```csharp
 using OpenFeature.Contrib.Providers.Flagd;
@@ -628,7 +642,7 @@ namespace OpenFeatureTestApp
                     .AddConsoleExporter()
                     .Build();
 
-            // add the Otel Hook to the OpenFeature instance
+            // add the MetricsHook to the OpenFeature instance
             OpenFeature.Api.Instance.AddHooks(new MetricsHook());
 
             var flagdProvider = new FlagdProvider(new Uri("http://localhost:8013"));
