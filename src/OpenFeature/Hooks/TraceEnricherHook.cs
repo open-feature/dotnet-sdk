@@ -10,7 +10,7 @@ namespace OpenFeature.Hooks;
 /// On error, it attaches exception information to the trace, using the appropriate API depending on the .NET version.
 /// </summary>
 /// <remarks> This is still experimental and subject to change. </remarks>
-public class TracingHook : Hook
+public class TraceEnricherHook : Hook
 {
     /// <summary>
     /// Adds tags and events to the current <see cref="Activity"/> for tracing purposes.
@@ -24,16 +24,12 @@ public class TracingHook : Hook
     public override ValueTask FinallyAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details, IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
     {
         Activity.Current?
-            .SetTag(TelemetryConstants.Key, details.FlagKey)
-            .SetTag(TelemetryConstants.Variant, details.Variant)
-            .SetTag(TelemetryConstants.Provider, context.ProviderMetadata.Name)
-            .SetTag(TelemetryConstants.Value, details.Value)
-            .SetTag(TelemetryConstants.Reason, details.Reason)
             .AddEvent(new ActivityEvent("feature_flag", tags: new ActivityTagsCollection
             {
                 [TelemetryConstants.Key] = details.FlagKey,
-                [TelemetryConstants.Variant] = details.Variant,
                 [TelemetryConstants.Provider] = context.ProviderMetadata.Name,
+                [TelemetryConstants.Variant] = details.Variant,
+
                 [TelemetryConstants.Value] = details.Value,
                 [TelemetryConstants.Reason] = details.Reason
             }));

@@ -7,14 +7,14 @@ using OpenTelemetry.Trace;
 
 namespace OpenFeature.Tests.Hooks;
 
-[CollectionDefinition(nameof(TracingHookTest), DisableParallelization = true)]
-public class TracingHookTest : IDisposable
+[CollectionDefinition(nameof(TraceEnricherHookTests), DisableParallelization = true)]
+public class TraceEnricherHookTests : IDisposable
 {
     private readonly List<Activity> _exportedItems;
     private readonly TracerProvider _tracerProvider;
     private readonly Tracer _tracer;
 
-    public TracingHookTest()
+    public TraceEnricherHookTests()
     {
         // List that will be populated with the traces by InMemoryExporter
         this._exportedItems = [];
@@ -40,7 +40,7 @@ public class TracingHookTest : IDisposable
     public async Task TestFinally()
     {
         // Arrange
-        var tracingHook = new TracingHook();
+        var tracingHook = new TraceEnricherHook();
         var evaluationContext = EvaluationContext.Empty;
         var ctx = new HookContext<string>("my-flag", "foo", Constant.FlagValueType.String,
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
@@ -71,7 +71,7 @@ public class TracingHookTest : IDisposable
     public async Task TestFinally_NoSpan()
     {
         // Arrange
-        var tracingHook = new TracingHook();
+        var tracingHook = new TraceEnricherHook();
         var evaluationContext = EvaluationContext.Empty;
         var ctx = new HookContext<string>("my-flag", "foo", Constant.FlagValueType.String,
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
@@ -91,7 +91,7 @@ public class TracingHookTest : IDisposable
     public async Task TestError()
     {
         // Arrange
-        var tracingHook = new TracingHook();
+        var tracingHook = new TraceEnricherHook();
         var evaluationContext = EvaluationContext.Empty;
         var ctx = new HookContext<string>("my-flag", "foo", Constant.FlagValueType.String,
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
@@ -120,7 +120,7 @@ public class TracingHookTest : IDisposable
     public async Task TestError_NoSpan()
     {
         // Arrange
-        var tracingHook = new TracingHook();
+        var tracingHook = new TraceEnricherHook();
         var evaluationContext = EvaluationContext.Empty;
         var ctx = new HookContext<string>("my-flag", "foo", Constant.FlagValueType.String,
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
