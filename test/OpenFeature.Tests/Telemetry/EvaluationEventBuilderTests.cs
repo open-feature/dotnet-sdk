@@ -6,8 +6,6 @@ namespace OpenFeature.Tests.Telemetry;
 
 public class EvaluationEventBuilderTests
 {
-    private readonly EvaluationEventBuilder<Value> _builder = EvaluationEventBuilder<Value>.Default;
-
     [Fact]
     public void Build_ShouldReturnEventWithCorrectAttributes()
     {
