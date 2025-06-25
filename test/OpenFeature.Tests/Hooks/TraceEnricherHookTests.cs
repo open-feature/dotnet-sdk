@@ -40,14 +40,14 @@ public class TraceEnricherHookTests : IDisposable
     public async Task TestFinally()
     {
         // Arrange
-        var tracingHook = new TraceEnricherHook();
+        var traceEnricherHook = new TraceEnricherHook();
         var evaluationContext = EvaluationContext.Empty;
         var ctx = new HookContext<string>("my-flag", "foo", Constant.FlagValueType.String,
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
 
         // Act
         var span = this._tracer.StartActiveSpan("my-span");
-        await tracingHook.FinallyAsync(ctx,
+        await traceEnricherHook.FinallyAsync(ctx,
             new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default"),
             new Dictionary<string, object>()).ConfigureAwait(true);
         span.End();
@@ -73,13 +73,13 @@ public class TraceEnricherHookTests : IDisposable
     public async Task TestFinally_NoSpan()
     {
         // Arrange
-        var tracingHook = new TraceEnricherHook();
+        var traceEnricherHook = new TraceEnricherHook();
         var evaluationContext = EvaluationContext.Empty;
         var ctx = new HookContext<string>("my-flag", "foo", Constant.FlagValueType.String,
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
 
         // Act
-        await tracingHook.FinallyAsync(ctx,
+        await traceEnricherHook.FinallyAsync(ctx,
             new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default"),
             new Dictionary<string, object>()).ConfigureAwait(true);
 
