@@ -18,7 +18,7 @@
     <PackageVersion Include="System.Collections.Immutable" Version="$(MicrosoftExtensionsVersion)" />
     <PackageVersion Include="System.Diagnostics.DiagnosticSource" Version="$(MicrosoftExtensionsVersion)" />
     <PackageVersion Include="System.Threading.Channels" Version="$(MicrosoftExtensionsVersion)" />
-    <PackageVersion Include="System.ValueTuple" Version="4.6.0" />
+    <PackageVersion Include="System.ValueTuple" Version="4.6.1" />
   </ItemGroup>
 
   <ItemGroup Label="test">
