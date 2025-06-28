@@ -28,6 +28,14 @@ public sealed class MultiProvider : FeatureProvider
         this._evaluationStrategy = evaluationStrategy;
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MultiProvider"/> class with the specified providers. The default evaluation strategy is <see cref="FirstMatchStrategy"/>.
+    /// </summary>
+    /// <param name="providers">A dictionary containing the feature providers keyed by their identifiers.</param>
+    public MultiProvider(Dictionary<string, FeatureProvider> providers) : this(providers, new FirstMatchStrategy())
+    {
+    }
+
     /// <inheritdoc/>
     public override Metadata GetMetadata() => new("OpenFeature MultiProvider");
 
