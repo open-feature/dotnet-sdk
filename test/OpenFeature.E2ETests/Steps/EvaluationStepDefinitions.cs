@@ -1,6 +1,6 @@
 using OpenFeature.Constant;
 using OpenFeature.E2ETests.Utils;
-using OpenFeature.Extensions;
+using OpenFeature.Extension;
 using OpenFeature.Model;
 
 namespace OpenFeature.E2ETests.Steps;

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using OpenFeature.Constant;
 using OpenFeature.Error;
-using OpenFeature.Extensions;
+using OpenFeature.Extension;
 using OpenFeature.Model;
 
 namespace OpenFeature;

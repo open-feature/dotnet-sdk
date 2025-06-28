@@ -1,6 +1,6 @@
 using OpenFeature.Constant;
 using OpenFeature.Error;
-using OpenFeature.Extensions;
+using OpenFeature.Extension;
 
 namespace OpenFeature.Tests;
 
