@@ -63,9 +63,23 @@ public sealed class MultiProvider : FeatureProvider
     /// <inheritdoc/>
     public override async Task ShutdownAsync(CancellationToken cancellationToken = default)
     {
+        var exceptions = new List<Exception>();
+
         foreach (var provider in this._providers.Values)
         {
-            await provider.ShutdownAsync(cancellationToken).ConfigureAwait(false);
+            try
+            {
+                await provider.ShutdownAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                exceptions.Add(ex);
+            }
+        }
+
+        if (exceptions.Count > 0)
+        {
+            throw new AggregateException("One or more providers failed to shutdown", exceptions);
         }
     }
 }
