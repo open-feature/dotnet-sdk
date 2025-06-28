@@ -5,7 +5,7 @@ using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using OpenFeature.Constant;
 using OpenFeature.Error;
-using OpenFeature.Extension;
+using OpenFeature.Extensions;
 using OpenFeature.Model;
 using OpenFeature.Tests.Internal;
 
