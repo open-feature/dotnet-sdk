@@ -7,7 +7,7 @@ namespace OpenFeature.Extensions.MultiProvider;
 /// Require that all providers agree on a value. If every provider returns a non-error result, and the values do not agree,
 /// the Multi-Provider should return the result from a configurable "fallback" provider. It will also call an optional
 /// "onMismatch" callback that can be used to monitor cases where mismatches of evaluation occurred.
-/// Otherwise the value of the result will be the result of the first provider in precedence order.
+/// Otherwise, the value of the result will be the result of the first provider in precedence order.
 /// </summary>
 public sealed class ComparisonStrategy : BaseEvaluationStrategy
 {
@@ -21,8 +21,8 @@ public sealed class ComparisonStrategy : BaseEvaluationStrategy
     /// <param name="onMismatch">Optional callback that is called when providers return different values.</param>
     public ComparisonStrategy(string? fallbackProviderName = null, Action<string, object?, Dictionary<string, object?>>? onMismatch = null)
     {
-        _fallbackProviderName = fallbackProviderName;
-        _onMismatch = onMismatch;
+        this._fallbackProviderName = fallbackProviderName;
+        this._onMismatch = onMismatch;
     }
 
     /// <inheritdoc/>
@@ -31,8 +31,11 @@ public sealed class ComparisonStrategy : BaseEvaluationStrategy
         var results = new List<(string providerName, ResolutionDetails<T> result)>();
 
         // Evaluate all providers
-        foreach (var (providerName, provider) in providers)
+        foreach (var kvp in providers)
         {
+            var providerName = kvp.Key;
+            var provider = kvp.Value;
+
             var result = await provider.EvaluateAsync(key, defaultValue, evaluationContext, cancellationToken).ConfigureAwait(false);
             results.Add((providerName, result));
 
@@ -66,19 +69,19 @@ public sealed class ComparisonStrategy : BaseEvaluationStrategy
         }
 
         // Values don't agree, trigger mismatch callback if provided
-        if (_onMismatch != null)
+        if (this._onMismatch != null)
         {
             var mismatchValues = successfulResults.ToDictionary(
                 r => r.providerName,
                 r => (object?)r.result.Value
             );
-            _onMismatch(key, firstResult.Value, mismatchValues);
+            this._onMismatch(key, firstResult.Value, mismatchValues);
         }
 
         // Return fallback provider result if specified and available
-        if (!string.IsNullOrEmpty(_fallbackProviderName))
+        if (!string.IsNullOrEmpty(this._fallbackProviderName))
         {
-            var fallbackResult = successfulResults.FirstOrDefault(r => r.providerName == _fallbackProviderName);
+            var fallbackResult = successfulResults.FirstOrDefault(r => r.providerName == this._fallbackProviderName);
             if (fallbackResult.result != null)
             {
                 return fallbackResult.result;

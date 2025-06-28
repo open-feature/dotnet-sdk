@@ -4,6 +4,8 @@ using OpenFeature.Constant;
 using OpenFeature.Extensions.MultiProvider;
 using OpenFeature.Model;
 
+using Provider = OpenFeature.Extensions.MultiProvider;
+
 namespace OpenFeature.Tests.Extensions.MultiProvider;
 
 public class MultiProviderTests : ClearOpenFeatureInstanceFixture
@@ -16,7 +18,7 @@ public class MultiProviderTests : ClearOpenFeatureInstanceFixture
         // Arrange
         var providers = new Dictionary<string, FeatureProvider> { { "test", new TestProvider() } };
         var strategy = new FirstMatchStrategy();
-        var multiProvider = new MultiProvider(providers, strategy);
+        var multiProvider = new Provider.MultiProvider(providers, strategy);
 
         // Act
         var metadata = multiProvider.GetMetadata();
@@ -34,7 +36,7 @@ public class MultiProviderTests : ClearOpenFeatureInstanceFixture
         var strategy = new FirstMatchStrategy();
 
         // Act
-        var multiProvider = new MultiProvider(providers, strategy);
+        var multiProvider = new Provider.MultiProvider(providers, strategy);
 
         // Assert
         Assert.NotNull(multiProvider);
@@ -60,7 +62,7 @@ public class MultiProviderTests : ClearOpenFeatureInstanceFixture
         strategy.EvaluateAsync(providers, flagKey, defaultValue, context, cancellationToken)
             .Returns(expectedResult);
 
-        var multiProvider = new MultiProvider(providers, strategy);
+        var multiProvider = new Provider.MultiProvider(providers, strategy);
 
         // Act
         var result = await multiProvider.ResolveBooleanValueAsync(flagKey, defaultValue, context, cancellationToken);
@@ -88,7 +90,7 @@ public class MultiProviderTests : ClearOpenFeatureInstanceFixture
         strategy.EvaluateAsync(providers, flagKey, defaultValue, context, cancellationToken)
             .Returns(expectedResult);
 
-        var multiProvider = new MultiProvider(providers, strategy);
+        var multiProvider = new Provider.MultiProvider(providers, strategy);
 
         // Act
         var result = await multiProvider.ResolveStringValueAsync(flagKey, defaultValue, context, cancellationToken);
@@ -116,7 +118,7 @@ public class MultiProviderTests : ClearOpenFeatureInstanceFixture
         strategy.EvaluateAsync(providers, flagKey, defaultValue, context, cancellationToken)
             .Returns(expectedResult);
 
-        var multiProvider = new MultiProvider(providers, strategy);
+        var multiProvider = new Provider.MultiProvider(providers, strategy);
 
         // Act
         var result = await multiProvider.ResolveIntegerValueAsync(flagKey, defaultValue, context, cancellationToken);
@@ -144,7 +146,7 @@ public class MultiProviderTests : ClearOpenFeatureInstanceFixture
         strategy.EvaluateAsync(providers, flagKey, defaultValue, context, cancellationToken)
             .Returns(expectedResult);
 
-        var multiProvider = new MultiProvider(providers, strategy);
+        var multiProvider = new Provider.MultiProvider(providers, strategy);
 
         // Act
         var result = await multiProvider.ResolveDoubleValueAsync(flagKey, defaultValue, context, cancellationToken);
@@ -172,7 +174,7 @@ public class MultiProviderTests : ClearOpenFeatureInstanceFixture
         strategy.EvaluateAsync(providers, flagKey, defaultValue, context, cancellationToken)
             .Returns(expectedResult);
 
-        var multiProvider = new MultiProvider(providers, strategy);
+        var multiProvider = new Provider.MultiProvider(providers, strategy);
 
         // Act
         var result = await multiProvider.ResolveStructureValueAsync(flagKey, defaultValue, context, cancellationToken);
@@ -188,7 +190,7 @@ public class MultiProviderTests : ClearOpenFeatureInstanceFixture
         // Arrange
         var providers = new Dictionary<string, FeatureProvider> { { "test", new TestProvider() } };
         var strategy = new FirstMatchStrategy();
-        var multiProvider = new MultiProvider(providers, strategy);
+        var multiProvider = new Provider.MultiProvider(providers, strategy);
 
         // Act
         var hooks = multiProvider.GetProviderHooks();
@@ -217,7 +219,7 @@ public class MultiProviderTests : ClearOpenFeatureInstanceFixture
         };
 
         var strategy = Substitute.For<BaseEvaluationStrategy>();
-        var multiProvider = new MultiProvider(providers, strategy);
+        var multiProvider = new Provider.MultiProvider(providers, strategy);
 
         // Act
         await multiProvider.InitializeAsync(context, cancellationToken);
@@ -237,7 +239,7 @@ public class MultiProviderTests : ClearOpenFeatureInstanceFixture
 
         var providers = new Dictionary<string, FeatureProvider>();
         var strategy = Substitute.For<BaseEvaluationStrategy>();
-        var multiProvider = new MultiProvider(providers, strategy);
+        var multiProvider = new Provider.MultiProvider(providers, strategy);
 
         // Act & Assert - Should not throw
         await multiProvider.InitializeAsync(context, cancellationToken);
@@ -266,7 +268,7 @@ public class MultiProviderTests : ClearOpenFeatureInstanceFixture
         };
 
         var strategy = Substitute.For<BaseEvaluationStrategy>();
-        var multiProvider = new MultiProvider(providers, strategy);
+        var multiProvider = new Provider.MultiProvider(providers, strategy);
 
         // Act & Assert
         var thrownException = await Assert.ThrowsAsync<InvalidOperationException>(
@@ -295,7 +297,7 @@ public class MultiProviderTests : ClearOpenFeatureInstanceFixture
         };
 
         var strategy = Substitute.For<BaseEvaluationStrategy>();
-        var multiProvider = new MultiProvider(providers, strategy);
+        var multiProvider = new Provider.MultiProvider(providers, strategy);
 
         // Act
         await multiProvider.ShutdownAsync(cancellationToken);
@@ -314,7 +316,7 @@ public class MultiProviderTests : ClearOpenFeatureInstanceFixture
 
         var providers = new Dictionary<string, FeatureProvider>();
         var strategy = Substitute.For<BaseEvaluationStrategy>();
-        var multiProvider = new MultiProvider(providers, strategy);
+        var multiProvider = new Provider.MultiProvider(providers, strategy);
 
         // Act & Assert - Should not throw
         await multiProvider.ShutdownAsync(cancellationToken);
@@ -342,7 +344,7 @@ public class MultiProviderTests : ClearOpenFeatureInstanceFixture
         };
 
         var strategy = Substitute.For<BaseEvaluationStrategy>();
-        var multiProvider = new MultiProvider(providers, strategy);
+        var multiProvider = new Provider.MultiProvider(providers, strategy);
 
         // Act & Assert
         var thrownException = await Assert.ThrowsAsync<AggregateException>(
@@ -377,7 +379,7 @@ public class MultiProviderTests : ClearOpenFeatureInstanceFixture
         };
 
         var strategy = Substitute.For<BaseEvaluationStrategy>();
-        var multiProvider = new MultiProvider(providers, strategy);
+        var multiProvider = new Provider.MultiProvider(providers, strategy);
 
         // Act & Assert
         var thrownException = await Assert.ThrowsAsync<AggregateException>(
@@ -417,7 +419,7 @@ public class MultiProviderTests : ClearOpenFeatureInstanceFixture
         };
 
         var strategy = Substitute.For<BaseEvaluationStrategy>();
-        var multiProvider = new MultiProvider(providers, strategy);
+        var multiProvider = new Provider.MultiProvider(providers, strategy);
 
         // Act & Assert
         var thrownException = await Assert.ThrowsAsync<AggregateException>(
@@ -450,7 +452,7 @@ public class MultiProviderTests : ClearOpenFeatureInstanceFixture
         };
 
         var strategy = Substitute.For<BaseEvaluationStrategy>();
-        var multiProvider = new MultiProvider(providers, strategy);
+        var multiProvider = new Provider.MultiProvider(providers, strategy);
 
         // Act - Should not throw
         await multiProvider.ShutdownAsync(cancellationToken);
