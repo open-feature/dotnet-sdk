@@ -1,7 +1,7 @@
 using OpenFeature.Constant;
 using OpenFeature.Model;
 
-namespace OpenFeature.Extensions.MultiProvider;
+namespace OpenFeature.Providers.MultiProvider;
 
 /// <summary>
 /// Require that all providers agree on a value. If every provider returns a non-error result, and the values do not agree,

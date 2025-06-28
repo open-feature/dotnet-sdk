@@ -1,6 +1,6 @@
 using OpenFeature.Model;
 
-namespace OpenFeature.Extensions.MultiProvider;
+namespace OpenFeature.Providers.MultiProvider;
 
 /// <summary>
 /// Provides a base class for implementing evaluation strategies that determine how feature flags are evaluated across multiple feature providers.

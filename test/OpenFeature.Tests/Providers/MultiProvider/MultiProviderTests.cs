@@ -1,12 +1,11 @@
 using AutoFixture;
 using NSubstitute;
 using OpenFeature.Constant;
-using OpenFeature.Extensions.MultiProvider;
 using OpenFeature.Model;
+using OpenFeature.Providers.MultiProvider;
+using Provider = OpenFeature.Providers.MultiProvider;
 
-using Provider = OpenFeature.Extensions.MultiProvider;
-
-namespace OpenFeature.Tests.Extensions.MultiProvider;
+namespace OpenFeature.Tests.Providers.MultiProvider;
 
 public class MultiProviderTests : ClearOpenFeatureInstanceFixture
 {

@@ -1,7 +1,7 @@
 using OpenFeature.Constant;
 using OpenFeature.Model;
 
-namespace OpenFeature.Extensions.MultiProvider;
+namespace OpenFeature.Providers.MultiProvider;
 
 internal static class ProviderExtensions
 {

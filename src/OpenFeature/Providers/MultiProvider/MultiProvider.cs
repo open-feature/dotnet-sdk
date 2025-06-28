@@ -1,6 +1,6 @@
 using OpenFeature.Model;
 
-namespace OpenFeature.Extensions.MultiProvider;
+namespace OpenFeature.Providers.MultiProvider;
 
 /// <summary>
 /// A feature provider that enables the use of multiple underlying providers, allowing different providers

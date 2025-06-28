@@ -1,7 +1,7 @@
 using OpenFeature.Constant;
 using OpenFeature.Model;
 
-namespace OpenFeature.Extensions.MultiProvider;
+namespace OpenFeature.Providers.MultiProvider;
 
 /// <summary>
 /// Return the first result returned by a provider. Errors from evaluated providers do not halt execution.

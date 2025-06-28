@@ -1,10 +1,10 @@
 using AutoFixture;
 using NSubstitute;
 using OpenFeature.Constant;
-using OpenFeature.Extensions.MultiProvider;
 using OpenFeature.Model;
+using OpenFeature.Providers.MultiProvider;
 
-namespace OpenFeature.Tests.Extensions.MultiProvider;
+namespace OpenFeature.Tests.Providers.MultiProvider;
 
 public class ComparisonStrategyTests : ClearOpenFeatureInstanceFixture
 {

@@ -1,7 +1,7 @@
 using OpenFeature.Constant;
 using OpenFeature.Model;
 
-namespace OpenFeature.Extensions.MultiProvider;
+namespace OpenFeature.Providers.MultiProvider;
 
 /// <summary>
 /// Return the first result returned by a provider. Skip providers that indicate they had no value due to FLAG_NOT_FOUND.
