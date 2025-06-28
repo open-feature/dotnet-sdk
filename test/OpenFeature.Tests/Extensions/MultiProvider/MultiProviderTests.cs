@@ -198,4 +198,159 @@ public class MultiProviderTests : ClearOpenFeatureInstanceFixture
         Assert.NotNull(hooks);
         Assert.Empty(hooks);
     }
+
+    [Fact]
+    public async Task InitializeAsync_Should_Initialize_All_Providers()
+    {
+        // Arrange
+        var context = EvaluationContext.Empty;
+        var cancellationToken = CancellationToken.None;
+
+        var provider1 = Substitute.For<FeatureProvider>();
+        var provider2 = Substitute.For<FeatureProvider>();
+        var provider3 = Substitute.For<FeatureProvider>();
+
+        var providers = new Dictionary<string, FeatureProvider>
+        {
+            { "provider1", provider1 },
+            { "provider2", provider2 },
+            { "provider3", provider3 }
+        };
+
+        var strategy = Substitute.For<MultiProviderNamespace.BaseEvaluationStrategy>();
+        var multiProvider = new MultiProviderNamespace.MultiProvider(providers, strategy);
+
+        // Act
+        await multiProvider.InitializeAsync(context, cancellationToken);
+
+        // Assert
+        await provider1.Received(1).InitializeAsync(context, cancellationToken);
+        await provider2.Received(1).InitializeAsync(context, cancellationToken);
+        await provider3.Received(1).InitializeAsync(context, cancellationToken);
+    }
+
+    [Fact]
+    public async Task InitializeAsync_Should_Complete_When_No_Providers()
+    {
+        // Arrange
+        var context = EvaluationContext.Empty;
+        var cancellationToken = CancellationToken.None;
+
+        var providers = new Dictionary<string, FeatureProvider>();
+        var strategy = Substitute.For<MultiProviderNamespace.BaseEvaluationStrategy>();
+        var multiProvider = new MultiProviderNamespace.MultiProvider(providers, strategy);
+
+        // Act & Assert - Should not throw
+        await multiProvider.InitializeAsync(context, cancellationToken);
+    }
+
+    [Fact]
+    public async Task InitializeAsync_Should_Propagate_Exception_From_Provider()
+    {
+        // Arrange
+        var context = EvaluationContext.Empty;
+        var cancellationToken = CancellationToken.None;
+        var expectedException = new InvalidOperationException("Provider initialization failed");
+
+        var provider1 = Substitute.For<FeatureProvider>();
+        var provider2 = Substitute.For<FeatureProvider>();
+
+        provider1.InitializeAsync(context, cancellationToken)
+            .Returns(Task.CompletedTask);
+        provider2.When(x => x.InitializeAsync(context, cancellationToken))
+            .Do(x => throw expectedException);
+
+        var providers = new Dictionary<string, FeatureProvider>
+        {
+            { "provider1", provider1 },
+            { "provider2", provider2 }
+        };
+
+        var strategy = Substitute.For<MultiProviderNamespace.BaseEvaluationStrategy>();
+        var multiProvider = new MultiProviderNamespace.MultiProvider(providers, strategy);
+
+        // Act & Assert
+        var thrownException = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => multiProvider.InitializeAsync(context, cancellationToken));
+
+        Assert.Equal(expectedException.Message, thrownException.Message);
+        await provider1.Received(1).InitializeAsync(context, cancellationToken);
+        await provider2.Received(1).InitializeAsync(context, cancellationToken);
+    }
+
+    [Fact]
+    public async Task ShutdownAsync_Should_Shutdown_All_Providers()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+
+        var provider1 = Substitute.For<FeatureProvider>();
+        var provider2 = Substitute.For<FeatureProvider>();
+        var provider3 = Substitute.For<FeatureProvider>();
+
+        var providers = new Dictionary<string, FeatureProvider>
+        {
+            { "provider1", provider1 },
+            { "provider2", provider2 },
+            { "provider3", provider3 }
+        };
+
+        var strategy = Substitute.For<MultiProviderNamespace.BaseEvaluationStrategy>();
+        var multiProvider = new MultiProviderNamespace.MultiProvider(providers, strategy);
+
+        // Act
+        await multiProvider.ShutdownAsync(cancellationToken);
+
+        // Assert
+        await provider1.Received(1).ShutdownAsync(cancellationToken);
+        await provider2.Received(1).ShutdownAsync(cancellationToken);
+        await provider3.Received(1).ShutdownAsync(cancellationToken);
+    }
+
+    [Fact]
+    public async Task ShutdownAsync_Should_Complete_When_No_Providers()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+
+        var providers = new Dictionary<string, FeatureProvider>();
+        var strategy = Substitute.For<MultiProviderNamespace.BaseEvaluationStrategy>();
+        var multiProvider = new MultiProviderNamespace.MultiProvider(providers, strategy);
+
+        // Act & Assert - Should not throw
+        await multiProvider.ShutdownAsync(cancellationToken);
+    }
+
+    [Fact]
+    public async Task ShutdownAsync_Should_Propagate_Exception_From_Provider()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var expectedException = new InvalidOperationException("Provider shutdown failed");
+
+        var provider1 = Substitute.For<FeatureProvider>();
+        var provider2 = Substitute.For<FeatureProvider>();
+
+        provider1.ShutdownAsync(cancellationToken)
+            .Returns(Task.CompletedTask);
+        provider2.When(x => x.ShutdownAsync(cancellationToken))
+            .Do(x => throw expectedException);
+
+        var providers = new Dictionary<string, FeatureProvider>
+        {
+            { "provider1", provider1 },
+            { "provider2", provider2 }
+        };
+
+        var strategy = Substitute.For<MultiProviderNamespace.BaseEvaluationStrategy>();
+        var multiProvider = new MultiProviderNamespace.MultiProvider(providers, strategy);
+
+        // Act & Assert
+        var thrownException = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => multiProvider.ShutdownAsync(cancellationToken));
+
+        Assert.Equal(expectedException.Message, thrownException.Message);
+        await provider1.Received(1).ShutdownAsync(cancellationToken);
+        await provider2.Received(1).ShutdownAsync(cancellationToken);
+    }
 }
