@@ -16,23 +16,23 @@ public class ProviderResolutionResult<T>
     /// <param name="resolutionDetails">The resolution details.</param>
     public ProviderResolutionResult(FeatureProvider provider, string providerName, ResolutionDetails<T> resolutionDetails)
     {
-        Provider = provider;
-        ProviderName = providerName;
-        ResolutionDetails = resolutionDetails;
+        this.Provider = provider;
+        this.ProviderName = providerName;
+        this.ResolutionDetails = resolutionDetails;
     }
 
     /// <summary>
     /// The feature provider that produced this result.
     /// </summary>
-    public FeatureProvider Provider { get; set; }
+    public FeatureProvider Provider { get; private set; }
 
     /// <summary>
     /// The resolution details.
     /// </summary>
-    public ResolutionDetails<T> ResolutionDetails { get; set; }
+    public ResolutionDetails<T> ResolutionDetails { get; private set; }
 
     /// <summary>
     /// The name of the provider that produced this result.
     /// </summary>
-    public string ProviderName { get; set; }
+    public string ProviderName { get; private set; }
 }

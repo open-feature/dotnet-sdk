@@ -18,9 +18,9 @@ public class StrategyPerProviderContext : StrategyEvaluationContext
     public StrategyPerProviderContext(FeatureProvider provider, string providerName, ProviderStatus providerStatus, string key, Type flagType)
         : base(key, flagType)
     {
-        Provider = provider;
-        ProviderName = providerName;
-        ProviderStatus = providerStatus;
+        this.Provider = provider;
+        this.ProviderName = providerName;
+        this.ProviderStatus = providerStatus;
     }
 
     /// <summary>

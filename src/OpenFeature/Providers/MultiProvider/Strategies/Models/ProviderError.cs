@@ -13,8 +13,8 @@ public class ProviderError
     /// <param name="error">The error details.</param>
     public ProviderError(string providerName, object? error)
     {
-        ProviderName = providerName;
-        Error = error;
+        this.ProviderName = providerName;
+        this.Error = error;
     }
 
     /// <summary>

@@ -12,8 +12,8 @@ public class StrategyEvaluationContext
     /// <param name="flagType">The type of the flag value being evaluated.</param>
     public StrategyEvaluationContext(string flagKey, Type flagType)
     {
-        FlagKey = flagKey;
-        FlagType = flagType;
+        this.FlagKey = flagKey;
+        this.FlagType = flagType;
     }
 
     /// <summary>

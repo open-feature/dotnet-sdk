@@ -17,10 +17,10 @@ public class FinalResult<T>
     /// <param name="errors">The list of errors encountered during the resolution process.</param>
     public FinalResult(ResolutionDetails<T> details, FeatureProvider provider, string providerName, List<ProviderError>? errors)
     {
-        Details = details;
-        Provider = provider;
-        ProviderName = providerName;
-        Errors = errors ?? [];
+        this.Details = details;
+        this.Provider = provider;
+        this.ProviderName = providerName;
+        this.Errors = errors ?? [];
     }
 
     /// <summary>
