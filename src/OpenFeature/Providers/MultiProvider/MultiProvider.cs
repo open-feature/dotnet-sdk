@@ -83,7 +83,7 @@ public sealed class MultiProvider : FeatureProvider
             }
             catch (Exception ex)
             {
-                return new ProviderStatus { ProviderName = rp.Name, Exception = ex};
+                return new ProviderStatus { ProviderName = rp.Name, Exception = ex };
             }
         });
 
@@ -112,7 +112,7 @@ public sealed class MultiProvider : FeatureProvider
             }
             catch (Exception ex)
             {
-                return new ProviderStatus { ProviderName = rp.Name, Exception = ex};
+                return new ProviderStatus { ProviderName = rp.Name, Exception = ex };
             }
         });
 
