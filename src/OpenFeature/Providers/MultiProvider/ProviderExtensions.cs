@@ -40,7 +40,7 @@ internal static class ProviderExtensions
                 Reason.Error,
                 errorMessage: ex.Message);
 
-            return new ProviderResolutionResult<T>(provider, providerContext.ProviderName, errorResult);
+            return new ProviderResolutionResult<T>(provider, providerContext.ProviderName, errorResult, ex);
         }
     }
 }

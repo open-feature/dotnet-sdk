@@ -14,11 +14,13 @@ public class ProviderResolutionResult<T>
     /// <param name="provider">The feature provider that produced this result.</param>
     /// <param name="providerName">The name of the provider that produced this result.</param>
     /// <param name="resolutionDetails">The resolution details.</param>
-    public ProviderResolutionResult(FeatureProvider provider, string providerName, ResolutionDetails<T> resolutionDetails)
+    /// <param name="thrownError">The exception that occurred during resolution, if any.</param>
+    public ProviderResolutionResult(FeatureProvider provider, string providerName, ResolutionDetails<T> resolutionDetails, Exception? thrownError = null)
     {
         this.Provider = provider;
         this.ProviderName = providerName;
         this.ResolutionDetails = resolutionDetails;
+        this.ThrownError = thrownError;
     }
 
     /// <summary>
@@ -35,4 +37,9 @@ public class ProviderResolutionResult<T>
     /// The name of the provider that produced this result.
     /// </summary>
     public string ProviderName { get; private set; }
+
+    /// <summary>
+    /// The exception that occurred during resolution, if any.
+    /// </summary>
+    public Exception? ThrownError { get; private set; }
 }
