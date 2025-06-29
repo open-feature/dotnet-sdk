@@ -11,7 +11,7 @@ public class ProviderError
     /// </summary>
     /// <param name="providerName">The name of the provider that encountered the error.</param>
     /// <param name="error">The error details.</param>
-    public ProviderError(string providerName, object? error)
+    public ProviderError(string providerName, Exception? error)
     {
         this.ProviderName = providerName;
         this.Error = error;
@@ -25,5 +25,5 @@ public class ProviderError
     /// <summary>
     /// Gets or sets the error details.
     /// </summary>
-    public object? Error { get; private set; }
+    public Exception? Error { get; private set; }
 }

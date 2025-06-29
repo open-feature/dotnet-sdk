@@ -65,11 +65,38 @@ public abstract class BaseEvaluationStrategy
     /// <returns>True if the result represents an error, false otherwise.</returns>
     protected static bool HasError<T>(ProviderResolutionResult<T> resolution)
     {
-        return resolution.ResolutionDetails switch
+        return resolution.ThrownError is not null || resolution.ResolutionDetails switch
         {
             { } success => success.ErrorType != ErrorType.None,
             _ => false
         };
+    }
+
+    /// <summary>
+    /// Collects errors from provider resolution results.
+    /// </summary>
+    /// <typeparam name="T">The type of the flag value.</typeparam>
+    /// <param name="resolutions">The provider resolution results to collect errors from.</param>
+    /// <returns>A list of provider errors.</returns>
+    protected static List<ProviderError> CollectProviderErrors<T>(List<ProviderResolutionResult<T>> resolutions)
+    {
+        var errors = new List<ProviderError>();
+
+        foreach (var resolution in resolutions)
+        {
+            if (resolution.ThrownError is not null)
+            {
+                errors.Add(new ProviderError(resolution.ProviderName, resolution.ThrownError));
+            }
+            else if (resolution.ResolutionDetails?.ErrorType != ErrorType.None)
+            {
+                var errorMessage = resolution.ResolutionDetails?.ErrorMessage ?? "unknown error";
+                var error = new Exception(errorMessage); // Adjust based on your ErrorWithCode implementation
+                errors.Add(new ProviderError(resolution.ProviderName, error));
+            }
+        }
+
+        return errors;
     }
 
     /// <summary>
