@@ -39,8 +39,8 @@ public sealed class FirstSuccessfulStrategy : BaseEvaluationStrategy
         }
 
         // All results had errors - collect them and throw
+        var collectedErrors = CollectProviderErrors(resolutions);
         var allFailedDetails = new ResolutionDetails<T>(key, defaultValue, ErrorType.General, Reason.Error, errorMessage: "All providers failed");
-        var allFailedErrors = resolutions.Select(r => new ProviderError(r.ProviderName, new InvalidOperationException($"Provider {r.ProviderName} failed"))).ToList();
-        return new FinalResult<T>(allFailedDetails, null!, "MultiProvider", allFailedErrors);
+        return new FinalResult<T>(allFailedDetails, null!, "MultiProvider", collectedErrors);
     }
 }

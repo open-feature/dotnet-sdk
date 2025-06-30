@@ -19,9 +19,10 @@ public sealed class FirstMatchStrategy : BaseEvaluationStrategy
     /// <inheritdoc/>
     public override FinalResult<T> DetermineFinalResult<T>(StrategyEvaluationContext strategyContext, string key, T defaultValue, EvaluationContext? evaluationContext, List<ProviderResolutionResult<T>> resolutions)
     {
-        if (resolutions.Count != 0)
+        var lastResult = resolutions.LastOrDefault();
+        if (lastResult != null)
         {
-            return ToFinalResult(resolutions.Last());
+            return ToFinalResult(lastResult);
         }
 
         var errorDetails = new ResolutionDetails<T>(key, defaultValue, ErrorType.ProviderNotReady, Reason.Error, errorMessage: "No providers available or all providers failed");
