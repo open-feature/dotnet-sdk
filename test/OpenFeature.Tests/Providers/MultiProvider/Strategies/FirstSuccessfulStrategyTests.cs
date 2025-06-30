@@ -23,6 +23,16 @@ public class FirstSuccessfulStrategyTests
     private readonly StrategyEvaluationContext _strategyContext = new(TestFlagKey, typeof(bool));
 
     [Fact]
+    public void RunMode_ReturnsSequential()
+    {
+        // Act
+        var result = this._strategy.RunMode;
+
+        // Assert
+        Assert.Equal(RunMode.Sequential, result);
+    }
+
+    [Fact]
     public void ShouldEvaluateNextProvider_WithSuccessfulResult_ReturnsFalse()
     {
         // Arrange
