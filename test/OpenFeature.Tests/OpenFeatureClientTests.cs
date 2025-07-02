@@ -600,6 +600,7 @@ public class OpenFeatureClientTests : ClearOpenFeatureInstanceFixture
     [Theory]
     [InlineData(null)]
     [InlineData("")]
+    [InlineData("   ")]
     public async Task PassingBlankClientName_DoesNotThrowArgumentNullException(string? clientName)
     {
         var provider = new TestProvider();

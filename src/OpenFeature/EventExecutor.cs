@@ -315,7 +315,7 @@ internal sealed partial class EventExecutor : IAsyncDisposable
 
     private static string GetClientName(string client)
     {
-        if (string.IsNullOrEmpty(client))
+        if (string.IsNullOrWhiteSpace(client))
         {
             return _defaultClientName.ToString();
         }
