@@ -597,6 +597,20 @@ public class OpenFeatureClientTests : ClearOpenFeatureInstanceFixture
         Assert.Throws<ArgumentException>(() => client.Track(" \n "));
     }
 
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public async Task PassingBlankClientName_DoesNotThrowArgumentNullException(string? clientName)
+    {
+        var provider = new TestProvider();
+        await Api.Instance.SetProviderAsync(provider);
+        var client = Api.Instance.GetClient(clientName);
+
+        var ex = Record.Exception(() => client.AddHandler(ProviderEventTypes.ProviderReady, (args) => { }));
+
+        Assert.Null(ex);
+    }
+
     public static TheoryData<string, EvaluationContext?, EvaluationContext?, EvaluationContext?, string> GenerateMergeEvaluationContextTestData()
     {
         const string key = "key";
