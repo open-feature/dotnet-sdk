@@ -1,5 +1,46 @@
 # Changelog
 
+## [2.7.0](https://github.com/open-feature/dotnet-sdk/compare/v2.6.0...v2.7.0) (2025-07-03)
+
+
+### 🐛 Bug Fixes
+
+* Add generic to evaluation event builder ([#500](https://github.com/open-feature/dotnet-sdk/issues/500)) ([68af649](https://github.com/open-feature/dotnet-sdk/commit/68af6493b09d29be5d4cdda9e6f792ee8667bf4f))
+* ArgumentNullException when creating a client with optional name ([#508](https://github.com/open-feature/dotnet-sdk/issues/508)) ([9151dcd](https://github.com/open-feature/dotnet-sdk/commit/9151dcdf2cecde9b4b01f06c73d149e0ad3bb539))
+
+
+### ✨ New Features
+
+* Move OTEL hooks to the SDK ([#338](https://github.com/open-feature/dotnet-sdk/issues/338)) ([77f6e1b](https://github.com/open-feature/dotnet-sdk/commit/77f6e1bbb76973e078c1999ad0784c9edc9def96))
+
+
+### 🧹 Chore
+
+* **deps:** update actions/attest-build-provenance action to v2.4.0 ([#495](https://github.com/open-feature/dotnet-sdk/issues/495)) ([349c073](https://github.com/open-feature/dotnet-sdk/commit/349c07301d0ff97c759417344eef74a00b06edbc))
+* **deps:** update actions/attest-sbom action to v2.4.0 ([#496](https://github.com/open-feature/dotnet-sdk/issues/496)) ([f7ca416](https://github.com/open-feature/dotnet-sdk/commit/f7ca4163e0ce549a015a7a27cb184fb76a199a04))
+* **deps:** update dependency benchmarkdotnet to 0.15.0 ([#481](https://github.com/open-feature/dotnet-sdk/issues/481)) ([714425d](https://github.com/open-feature/dotnet-sdk/commit/714425d405a33231e85b1e62019fc678b2e883ef))
+* **deps:** update dependency benchmarkdotnet to 0.15.2 ([#494](https://github.com/open-feature/dotnet-sdk/issues/494)) ([cab3807](https://github.com/open-feature/dotnet-sdk/commit/cab380727fe95b941384ae71f022626cdf23db53))
+* **deps:** update dependency microsoft.net.test.sdk to 17.14.0 ([#482](https://github.com/open-feature/dotnet-sdk/issues/482)) ([520d383](https://github.com/open-feature/dotnet-sdk/commit/520d38305c6949c88b057f28e5dfe3305257e437))
+* **deps:** update dependency microsoft.net.test.sdk to 17.14.1 ([#485](https://github.com/open-feature/dotnet-sdk/issues/485)) ([78bfdbf](https://github.com/open-feature/dotnet-sdk/commit/78bfdbf0850e2d5eb80cfbae3bfac8208f6c45b1))
+* **deps:** update dependency opentelemetry.instrumentation.aspnetcore to 1.12.0 ([#505](https://github.com/open-feature/dotnet-sdk/issues/505)) ([241d880](https://github.com/open-feature/dotnet-sdk/commit/241d88024ff13ddd57f4e9c5719add95b5864043))
+* **deps:** update dependency reqnroll.xunit to 2.4.1 ([#483](https://github.com/open-feature/dotnet-sdk/issues/483)) ([99f7584](https://github.com/open-feature/dotnet-sdk/commit/99f7584c91882ba59412e2306167172470cd4677))
+* **deps:** update dependency system.valuetuple to 4.6.1 ([#503](https://github.com/open-feature/dotnet-sdk/issues/503)) ([39f884d](https://github.com/open-feature/dotnet-sdk/commit/39f884df420f1a9346852159948c288e728672b8))
+* **deps:** update github/codeql-action digest to 39edc49 ([#504](https://github.com/open-feature/dotnet-sdk/issues/504)) ([08ff43c](https://github.com/open-feature/dotnet-sdk/commit/08ff43ce3426c8bb9f24446bdf62e56b10534c1f))
+* **deps:** update github/codeql-action digest to ce28f5b ([#492](https://github.com/open-feature/dotnet-sdk/issues/492)) ([cce224f](https://github.com/open-feature/dotnet-sdk/commit/cce224fcf81aede5a626936a26546fe710fbcc30))
+* **deps:** update github/codeql-action digest to fca7ace ([#486](https://github.com/open-feature/dotnet-sdk/issues/486)) ([e18ad50](https://github.com/open-feature/dotnet-sdk/commit/e18ad50e3298cb0dd19143678c3ef0fdcb4484d9))
+* **deps:** update opentelemetry-dotnet monorepo to 1.12.0 ([#506](https://github.com/open-feature/dotnet-sdk/issues/506)) ([69dc186](https://github.com/open-feature/dotnet-sdk/commit/69dc18611399ab5e573268c35d414a028c77f0ff))
+* **deps:** update spec digest to 1965aae ([#499](https://github.com/open-feature/dotnet-sdk/issues/499)) ([2e3dffd](https://github.com/open-feature/dotnet-sdk/commit/2e3dffd0ebbba4a9d95763e2ce9f3e2ac051a317))
+* **deps:** update spec digest to 42340bb ([#493](https://github.com/open-feature/dotnet-sdk/issues/493)) ([909c51d](https://github.com/open-feature/dotnet-sdk/commit/909c51d4e25917d6a9a5ae9bb04cfe48665186ba))
+* **deps:** update spec digest to c37ac17 ([#502](https://github.com/open-feature/dotnet-sdk/issues/502)) ([38f63fc](https://github.com/open-feature/dotnet-sdk/commit/38f63fceb5516cd474fd0e867aa25eae252cf2c1))
+* **deps:** update spec digest to f014806 ([#479](https://github.com/open-feature/dotnet-sdk/issues/479)) ([dbe8b08](https://github.com/open-feature/dotnet-sdk/commit/dbe8b082c28739a1b81b74b29ed28fbccc94f7bc))
+* fix sample build warning ([#498](https://github.com/open-feature/dotnet-sdk/issues/498)) ([08a00e1](https://github.com/open-feature/dotnet-sdk/commit/08a00e1d35834635ca296fe8a13507001ad25c57))
+
+
+### 📚 Documentation
+
+* add XML comment on FeatureClient ([#507](https://github.com/open-feature/dotnet-sdk/issues/507)) ([f923cea](https://github.com/open-feature/dotnet-sdk/commit/f923cea14eb552098edb987950ad4bc82bbadab1))
+* updated contributing link on the README ([8435bf7](https://github.com/open-feature/dotnet-sdk/commit/8435bf7d8131307e627e59453008124ac4c71906))
+
 ## [2.6.0](https://github.com/open-feature/dotnet-sdk/compare/v2.5.0...v2.6.0) (2025-05-23)
 
 
