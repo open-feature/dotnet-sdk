@@ -4,5 +4,15 @@
     "github>open-feature/community-tooling"
   ],
   "dependencyDashboardApproval": true,
-  "recreateWhen": "never"
+  "recreateWhen": "never",
+  "packageRules": [
+    {
+      "description": "Create PRs for security updates without dashboard approval",
+      "matchCategories": [
+        "security"
+      ],
+      "dependencyDashboardApproval": false,
+      "automerge": false
+    }
+  ]
 }
