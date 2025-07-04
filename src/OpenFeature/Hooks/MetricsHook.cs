@@ -24,15 +24,19 @@ public class MetricsHook : Hook
     private readonly Counter<long> _evaluationSuccessCounter;
     private readonly Counter<long> _evaluationErrorCounter;
 
+    private readonly MetricsHookOptions _options;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="MetricsHook"/> class.
     /// </summary>
-    public MetricsHook()
+    /// <param name="options">Optional configuration for the metrics hook.</param>
+    public MetricsHook(MetricsHookOptions? options = null)
     {
         this._evaluationActiveUpDownCounter = Meter.CreateUpDownCounter<long>(MetricsConstants.ActiveCountName, description: MetricsConstants.ActiveDescription);
         this._evaluationRequestCounter = Meter.CreateCounter<long>(MetricsConstants.RequestsTotalName, "{request}", MetricsConstants.RequestsDescription);
         this._evaluationSuccessCounter = Meter.CreateCounter<long>(MetricsConstants.SuccessTotalName, "{impression}", MetricsConstants.SuccessDescription);
         this._evaluationErrorCounter = Meter.CreateCounter<long>(MetricsConstants.ErrorTotalName, description: MetricsConstants.ErrorDescription);
+        this._options = options ?? MetricsHookOptions.Default;
     }
 
     /// <inheritdoc/>
@@ -60,6 +64,11 @@ public class MetricsHook : Hook
             { TelemetryConstants.Provider, context.ProviderMetadata.Name },
             { TelemetryConstants.Reason, details.Reason ?? Reason.Unknown.ToString() }
         };
+
+        foreach (var metadata in this._options.CustomDimensions)
+        {
+            tagList.Add(metadata.Key, metadata.Value);
+        }
 
         this._evaluationSuccessCounter.Add(1, tagList);
 
