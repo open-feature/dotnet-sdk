@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.1](https://github.com/open-feature/dotnet-sdk/compare/v2.7.0...v2.7.1) (2025-07-04)
+
+
+### 🧹 Chore
+
+* remove redundant rule (now in parent) ([929fa74](https://github.com/open-feature/dotnet-sdk/commit/929fa7497197214d385eeaa40aba008932d00896))
+
 ## [2.7.0](https://github.com/open-feature/dotnet-sdk/compare/v2.6.0...v2.7.0) (2025-07-03)
 
 
