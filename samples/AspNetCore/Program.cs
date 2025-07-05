@@ -27,7 +27,7 @@ builder.Services.AddOpenTelemetry()
 builder.Services.AddOpenFeature(featureBuilder =>
 {
     var metricsHookOptions = MetricsHookOptions.CreateBuilder()
-        .WithCustomDimension("region", "euw")
+        .WithCustomDimension("custom_dimension_key", "custom_dimension_value")
         .WithFlagEvaluationMetadata("boolean", s => s.GetBool("boolean"))
         .Build();
 
