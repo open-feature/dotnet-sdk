@@ -21,18 +21,22 @@ public class MetricsHook : Hook
 
     private readonly UpDownCounter<long> _evaluationActiveUpDownCounter;
     private readonly Counter<long> _evaluationRequestCounter;
-    private readonly Counter<long> _evaluationSuccessCounter;
+    internal readonly Counter<long> _evaluationSuccessCounter;
     private readonly Counter<long> _evaluationErrorCounter;
+
+    private readonly MetricsHookOptions _options;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MetricsHook"/> class.
     /// </summary>
-    public MetricsHook()
+    /// <param name="options">Optional configuration for the metrics hook.</param>
+    public MetricsHook(MetricsHookOptions? options = null)
     {
         this._evaluationActiveUpDownCounter = Meter.CreateUpDownCounter<long>(MetricsConstants.ActiveCountName, description: MetricsConstants.ActiveDescription);
         this._evaluationRequestCounter = Meter.CreateCounter<long>(MetricsConstants.RequestsTotalName, "{request}", MetricsConstants.RequestsDescription);
         this._evaluationSuccessCounter = Meter.CreateCounter<long>(MetricsConstants.SuccessTotalName, "{impression}", MetricsConstants.SuccessDescription);
         this._evaluationErrorCounter = Meter.CreateCounter<long>(MetricsConstants.ErrorTotalName, description: MetricsConstants.ErrorDescription);
+        this._options = options ?? MetricsHookOptions.Default;
     }
 
     /// <inheritdoc/>
@@ -60,6 +64,20 @@ public class MetricsHook : Hook
             { TelemetryConstants.Provider, context.ProviderMetadata.Name },
             { TelemetryConstants.Reason, details.Reason ?? Reason.Unknown.ToString() }
         };
+
+        foreach (var customDimension in this._options.CustomDimensions)
+        {
+            tagList.Add(customDimension.Key, customDimension.Value);
+        }
+
+        var metadata = details.FlagMetadata ?? new ImmutableMetadata();
+        foreach (var item in this._options.FlagMetadataCallbacks)
+        {
+            var flagMetadataCallback = item.Value;
+            var value = flagMetadataCallback(metadata);
+
+            tagList.Add(item.Key, value);
+        }
 
         this._evaluationSuccessCounter.Add(1, tagList);
 
