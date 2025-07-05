@@ -65,9 +65,18 @@ public class MetricsHook : Hook
             { TelemetryConstants.Reason, details.Reason ?? Reason.Unknown.ToString() }
         };
 
-        foreach (var metadata in this._options.CustomDimensions)
+        foreach (var customDimension in this._options.CustomDimensions)
         {
-            tagList.Add(metadata.Key, metadata.Value);
+            tagList.Add(customDimension.Key, customDimension.Value);
+        }
+
+        var metadata = details.FlagMetadata ?? new ImmutableMetadata();
+        foreach (var item in this._options.FlagMetadataExpressions)
+        {
+            var flagMetadataCallback = item.Value;
+            var value = flagMetadataCallback(metadata);
+
+            tagList.Add(item.Key, value);
         }
 
         this._evaluationSuccessCounter.Add(1, tagList);

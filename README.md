@@ -663,6 +663,24 @@ namespace OpenFeatureTestApp
 
 After running this example, you should be able to see some metrics being generated into the console.
 
+You can specify custom dimensions on the `feature_flag.evaluation_success_total` metric by providing `MetricsHookOptions` when adding the hook:
+
+```csharp
+var options = MetricsHookOptions.CreateBuilder()
+    .AddCustomDimension("custom_dimension_key", "custom_dimension_value")
+    .Build();
+
+OpenFeature.Api.Instance.AddHooks(new MetricsHook(options));
+```
+
+You can also write your own extraction logic against the Flag metadata by providing a callback to `WithFlagEvaluationMetadata`.
+
+```csharp
+var options = MetricsHookOptions.CreateBuilder()
+    .WithFlagEvaluationMetadata("boolean", s => s.GetBool("boolean"))
+    .Build();
+```
+
 <!-- x-hide-in-docs-start -->
 
 ## ⭐️ Support the project
