@@ -279,6 +279,37 @@ public static partial class OpenFeatureBuilderExtensions
     }
 
     /// <summary>
+    /// Adds a feature hook to the service collection. Hooks added here are not domain-bound.
+    /// </summary>
+    /// <typeparam name="THook">The type of<see cref="Hook"/> to be added.</typeparam>
+    /// <param name="builder">The <see cref="OpenFeatureBuilder"/> instance.</param>
+    /// <param name="hook">Instance of Hook to inject into the OpenFeature context.</param>
+    /// <returns>The <see cref="OpenFeatureBuilder"/> instance.</returns>
+    public static OpenFeatureBuilder AddHook<THook>(this OpenFeatureBuilder builder, THook hook)
+        where THook : Hook
+    {
+        return builder.AddHook(typeof(THook).Name, _ => hook);
+    }
+
+    /// <summary>
+    /// Adds a feature hook to the service collection with a specified name. Hooks added here are not domain-bound.
+    /// </summary>
+    /// <typeparam name="THook">The type of<see cref="Hook"/> to be added.</typeparam>
+    /// <param name="builder">The <see cref="OpenFeatureBuilder"/> instance.</param>
+    /// <param name="hookName">The name of the <see cref="Hook"/> that is being added.</param>
+    /// <param name="hook">Instance of Hook to inject into the OpenFeature context.</param>
+    /// <returns>The <see cref="OpenFeatureBuilder"/> instance.</returns>
+    public static OpenFeatureBuilder AddHook<THook>(this OpenFeatureBuilder builder, string hookName, THook hook)
+        where THook : Hook
+    {
+        builder.Services.PostConfigure<OpenFeatureOptions>(options => options.AddHookName(hookName));
+
+        builder.Services.TryAddKeyedSingleton<Hook, THook>(hook);
+
+        return builder;
+    }
+
+    /// <summary>
     /// Adds a feature hook to the service collection using a factory method and specified name. Hooks added here are not domain-bound.
     /// </summary>
     /// <typeparam name="THook">The type of<see cref="Hook"/> to be added.</typeparam>
