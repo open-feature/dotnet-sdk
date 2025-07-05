@@ -667,7 +667,7 @@ You can specify custom dimensions on the `feature_flag.evaluation_success_total`
 
 ```csharp
 var options = MetricsHookOptions.CreateBuilder()
-    .AddCustomDimension("custom_dimension_key", "custom_dimension_value")
+    .WithCustomDimension("custom_dimension_key", "custom_dimension_value")
     .Build();
 
 OpenFeature.Api.Instance.AddHooks(new MetricsHook(options));
