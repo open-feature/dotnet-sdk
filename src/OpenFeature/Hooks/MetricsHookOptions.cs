@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using OpenFeature.Model;
 
 namespace OpenFeature.Hooks;
@@ -21,7 +20,7 @@ public sealed class MetricsHookOptions
     /// <summary>
     /// 
     /// </summary>
-    internal IReadOnlyCollection<KeyValuePair<string, Func<ImmutableMetadata, object?>>> FlagMetadataExpressions { get; }
+    internal IReadOnlyCollection<KeyValuePair<string, Func<ImmutableMetadata, object?>>> FlagMetadataCallbacks { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MetricsHookOptions"/> class with default values.
@@ -39,7 +38,7 @@ public sealed class MetricsHookOptions
         IReadOnlyCollection<KeyValuePair<string, Func<ImmutableMetadata, object?>>>? flagMetadataSelectors = null)
     {
         this.CustomDimensions = customDimensions ?? [];
-        this.FlagMetadataExpressions = flagMetadataSelectors ?? [];
+        this.FlagMetadataCallbacks = flagMetadataSelectors ?? [];
     }
 
     /// <summary>
@@ -70,11 +69,10 @@ public sealed class MetricsHookOptions
         /// Provide a callback to evaluate flag metadata for a specific flag key.
         /// </summary>
         /// <param name="key">The key for the custom dimension.</param>
-        /// <param name="expression">The callback to retrieve the value to tag successful flag evaluations.</param>
+        /// <param name="flagMetadataCallback">The callback to retrieve the value to tag successful flag evaluations.</param>
         /// <returns></returns>
-        public MetricsHookOptionsBuilder WithFlagEvaluationMetadata(string key, Expression<Func<ImmutableMetadata, object?>> expression)
+        public MetricsHookOptionsBuilder WithFlagEvaluationMetadata(string key, Func<ImmutableMetadata, object?> flagMetadataCallback)
         {
-            var flagMetadataCallback = expression.Compile();
             var kvp = new KeyValuePair<string, Func<ImmutableMetadata, object?>>(key, flagMetadataCallback);
 
             this._flagMetadataExpressions.Add(kvp);

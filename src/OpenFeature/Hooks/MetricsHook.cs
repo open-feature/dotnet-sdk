@@ -21,7 +21,7 @@ public class MetricsHook : Hook
 
     private readonly UpDownCounter<long> _evaluationActiveUpDownCounter;
     private readonly Counter<long> _evaluationRequestCounter;
-    private readonly Counter<long> _evaluationSuccessCounter;
+    internal readonly Counter<long> _evaluationSuccessCounter;
     private readonly Counter<long> _evaluationErrorCounter;
 
     private readonly MetricsHookOptions _options;
@@ -71,7 +71,7 @@ public class MetricsHook : Hook
         }
 
         var metadata = details.FlagMetadata ?? new ImmutableMetadata();
-        foreach (var item in this._options.FlagMetadataExpressions)
+        foreach (var item in this._options.FlagMetadataCallbacks)
         {
             var flagMetadataCallback = item.Value;
             var value = flagMetadataCallback(metadata);

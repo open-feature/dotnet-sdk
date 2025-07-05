@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Diagnostics.Metrics.Testing;
 using OpenFeature.Hooks;
 using OpenFeature.Model;
 using OpenTelemetry;
@@ -57,6 +58,75 @@ public class MetricsHookTest : IDisposable
 
         var noOtherMetric = this._exportedItems.All(m => m.Name == metricName);
         Assert.True(noOtherMetric);
+    }
+
+    [Fact]
+    public async Task With_CustomDimensions_After_Test()
+    {
+        // Arrange
+        var metricHookOptions = MetricsHookOptions.CreateBuilder()
+            .WithCustomDimension("custom_dimension_key", "custom_dimension_value")
+            .Build();
+
+        var metricsHook = new MetricsHook(metricHookOptions);
+
+        using var collector = new MetricCollector<long>(metricsHook._evaluationSuccessCounter);
+
+        var evaluationContext = EvaluationContext.Empty;
+        var ctx = new HookContext<string>("my-flag", "foo", Constant.FlagValueType.String,
+            new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
+
+        // Act
+        await metricsHook.AfterAsync(ctx,
+            new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default"),
+            new Dictionary<string, object>()).ConfigureAwait(true);
+
+        var measurements = collector.LastMeasurement;
+
+        // Assert
+        Assert.NotNull(measurements);
+
+        Assert.Equal("my-flag", measurements.Tags["feature_flag.key"]);
+        Assert.Equal("my-provider", measurements.Tags["feature_flag.provider.name"]);
+        Assert.Equal("STATIC", measurements.Tags["feature_flag.result.reason"]);
+        Assert.Equal("custom_dimension_value", measurements.Tags["custom_dimension_key"]);
+    }
+
+    [Fact]
+    public async Task With_FlagMetadataCallback_After_Test()
+    {
+        // Arrange
+        var metricHookOptions = MetricsHookOptions.CreateBuilder()
+            .WithFlagEvaluationMetadata("bool", m => m.GetBool("bool"))
+            .Build();
+
+        var metricsHook = new MetricsHook(metricHookOptions);
+
+        using var collector = new MetricCollector<long>(metricsHook._evaluationSuccessCounter);
+
+        var evaluationContext = EvaluationContext.Empty;
+        var ctx = new HookContext<string>("my-flag", "foo", Constant.FlagValueType.String,
+            new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
+
+        var flagMetadata = new ImmutableMetadata(new Dictionary<string, object>
+        {
+            { "bool", true }
+        });
+
+        // Act
+        await metricsHook.AfterAsync(ctx,
+            new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default", errorMessage: null, flagMetadata),
+            new Dictionary<string, object>()).ConfigureAwait(true);
+
+        var measurements = collector.LastMeasurement;
+
+        // Assert
+        Assert.NotNull(measurements);
+
+        Assert.Equal("my-flag", measurements.Tags["feature_flag.key"]);
+        Assert.Equal("my-provider", measurements.Tags["feature_flag.provider.name"]);
+        Assert.Equal("STATIC", measurements.Tags["feature_flag.result.reason"]);
+        Assert.Equal(true, measurements.Tags["bool"]);
     }
 
     [Fact]
