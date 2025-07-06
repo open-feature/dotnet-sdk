@@ -481,6 +481,7 @@ builder.Services.AddOpenFeature(featureBuilder => {
         .AddHostedFeatureLifecycle()
         .AddContext((contextBuilder, serviceProvider) => { /* Custom context configuration */ })
         .AddHook((serviceProvider) => new LoggingHook( /* Custom configuration */ ))
+        .AddHook(new MetricsHook())
         .AddInMemoryProvider("name1")
         .AddInMemoryProvider("name2")
         .AddPolicyName(options => {

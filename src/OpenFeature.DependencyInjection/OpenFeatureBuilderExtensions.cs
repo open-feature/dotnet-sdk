@@ -288,7 +288,7 @@ public static partial class OpenFeatureBuilderExtensions
     public static OpenFeatureBuilder AddHook<THook>(this OpenFeatureBuilder builder, THook hook)
         where THook : Hook
     {
-        return builder.AddHook(typeof(THook).Name, _ => hook);
+        return builder.AddHook(typeof(THook).Name, hook);
     }
 
     /// <summary>
