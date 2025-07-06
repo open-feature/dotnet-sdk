@@ -304,7 +304,7 @@ public static partial class OpenFeatureBuilderExtensions
     {
         builder.Services.PostConfigure<OpenFeatureOptions>(options => options.AddHookName(hookName));
 
-        builder.Services.TryAddKeyedSingleton<Hook, THook>(hook);
+        builder.Services.TryAddKeyedSingleton<Hook>(hookName, hook);
 
         return builder;
     }
