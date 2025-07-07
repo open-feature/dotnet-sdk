@@ -10,7 +10,7 @@ using OpenFeature.Model;
 namespace OpenFeature;
 
 /// <summary>
-///
+/// OpenFeature Client implementation for resolving feature flags and tracking user interactions.
 /// </summary>
 public sealed partial class FeatureClient : IFeatureClient
 {
