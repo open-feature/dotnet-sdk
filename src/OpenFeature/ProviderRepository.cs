@@ -143,7 +143,7 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
         CancellationToken cancellationToken = default)
     {
         // Cannot set a provider for a null domain.
-#if NETFRAMEWORK
+#if NETFRAMEWORK || NETSTANDARD
         // This is a workaround for the issue in .NET Framework where string.IsNullOrEmpty is not nullable compatible.
         if (domain == null)
         {
@@ -245,7 +245,7 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
 
     internal FeatureProvider GetProvider(string? domain)
     {
-#if NETFRAMEWORK
+#if NETFRAMEWORK || NETSTANDARD
         // This is a workaround for the issue in .NET Framework where string.IsNullOrEmpty is not nullable compatible.
         if (domain == null)
         {
