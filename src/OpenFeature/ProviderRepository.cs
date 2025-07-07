@@ -230,7 +230,7 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
         }
     }
 
-    public FeatureProvider GetProvider()
+    internal FeatureProvider GetProvider()
     {
         this._providersLock.EnterReadLock();
         try
@@ -263,7 +263,7 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
             : this.GetProvider();
     }
 
-    public async Task ShutdownAsync(Action<FeatureProvider, Exception>? afterError = null, CancellationToken cancellationToken = default)
+    internal async Task ShutdownAsync(Action<FeatureProvider, Exception>? afterError = null, CancellationToken cancellationToken = default)
     {
         var providers = new HashSet<FeatureProvider>();
         this._providersLock.EnterWriteLock();
