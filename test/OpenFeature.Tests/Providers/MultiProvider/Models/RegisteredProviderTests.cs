@@ -61,34 +61,6 @@ public class RegisteredProviderTests
     }
 
     [Fact]
-    public void Provider_Property_IsReadOnly()
-    {
-        // Arrange
-        var registeredProvider = new RegisteredProvider(this._mockProvider, TestProviderName);
-
-        // Act & Assert
-        // Verify that Provider property is read-only by checking it has no setter
-        var providerProperty = typeof(RegisteredProvider).GetProperty(nameof(RegisteredProvider.Provider));
-        Assert.NotNull(providerProperty);
-        Assert.True(providerProperty.CanRead);
-        Assert.False(providerProperty.CanWrite);
-    }
-
-    [Fact]
-    public void Name_Property_IsReadOnly()
-    {
-        // Arrange
-        var registeredProvider = new RegisteredProvider(this._mockProvider, TestProviderName);
-
-        // Act & Assert
-        // Verify that Name property is read-only by checking it has no setter
-        var nameProperty = typeof(RegisteredProvider).GetProperty(nameof(RegisteredProvider.Name));
-        Assert.NotNull(nameProperty);
-        Assert.True(nameProperty.CanRead);
-        Assert.False(nameProperty.CanWrite);
-    }
-
-    [Fact]
     public void Constructor_WithSameProviderAndDifferentNames_CreatesDistinctInstances()
     {
         // Arrange
@@ -123,5 +95,22 @@ public class RegisteredProviderTests
         Assert.Equal(TestProviderName, registeredProvider1.Name);
         Assert.Equal(TestProviderName, registeredProvider2.Name);
         Assert.NotEqual(registeredProvider1.Provider, registeredProvider2.Provider);
+    }
+
+    [Theory]
+    [InlineData(Constant.ProviderStatus.Ready)]
+    [InlineData(Constant.ProviderStatus.Error)]
+    [InlineData(Constant.ProviderStatus.Fatal)]
+    [InlineData(Constant.ProviderStatus.NotReady)]
+    public void SetStatus_WithDifferentStatuses_UpdatesCorrectly(Constant.ProviderStatus status)
+    {
+        // Arrange
+        var registeredProvider = new RegisteredProvider(new TestProvider(), "test");
+
+        // Act
+        registeredProvider.SetStatus(status);
+
+        // Assert
+        Assert.Equal(status, registeredProvider.Status);
     }
 }

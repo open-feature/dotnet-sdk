@@ -78,13 +78,13 @@ public sealed class MultiProvider : FeatureProvider
         {
             try
             {
-                // TODO: I don't like this part here, at the moment it is the only way we have so we can set the provider name
-                // but we should find a better way to do this
-                await Api.Instance.SetProviderAsync(rp.Name, rp.Provider).ConfigureAwait(false);
+                await rp.Provider.InitializeAsync(context, cancellationToken).ConfigureAwait(false);
+                rp.SetStatus(Constant.ProviderStatus.Ready);
                 return new ProviderStatus { ProviderName = rp.Name };
             }
             catch (Exception ex)
             {
+                rp.SetStatus(Constant.ProviderStatus.Fatal);
                 return new ProviderStatus { ProviderName = rp.Name, Exception = ex };
             }
         });
@@ -110,10 +110,12 @@ public sealed class MultiProvider : FeatureProvider
             try
             {
                 await rp.Provider.ShutdownAsync(cancellationToken).ConfigureAwait(false);
+                rp.SetStatus(Constant.ProviderStatus.NotReady);
                 return new ProviderStatus { ProviderName = rp.Name };
             }
             catch (Exception ex)
             {
+                rp.SetStatus(Constant.ProviderStatus.Fatal);
                 return new ProviderStatus { ProviderName = rp.Name, Exception = ex };
             }
         });
@@ -154,7 +156,7 @@ public sealed class MultiProvider : FeatureProvider
             var providerContext = new StrategyPerProviderContext(
                 registeredProvider.Provider,
                 registeredProvider.Name,
-                registeredProvider.Provider.Status,
+                registeredProvider.Status,
                 key,
                 typeof(T));
 
@@ -185,7 +187,7 @@ public sealed class MultiProvider : FeatureProvider
             var providerContext = new StrategyPerProviderContext(
                 registeredProvider.Provider,
                 registeredProvider.Name,
-                registeredProvider.Provider.Status,
+                registeredProvider.Status,
                 key,
                 typeof(T));
 
