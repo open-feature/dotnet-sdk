@@ -135,7 +135,7 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
     /// initialization
     /// </param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel any async side effects.</param>
-    internal async Task SetProviderAsync(string? domain,
+    internal async Task SetProviderAsync(string domain,
         FeatureProvider? featureProvider,
         EvaluationContext context,
         Func<FeatureProvider, Task>? afterInitSuccess = null,
@@ -143,18 +143,10 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
         CancellationToken cancellationToken = default)
     {
         // Cannot set a provider for a null domain.
-#if NETFRAMEWORK || NETSTANDARD
-        // This is a workaround for the issue in .NET Framework where string.IsNullOrEmpty is not nullable compatible.
-        if (domain == null)
-        {
-            return;
-        }
-#else
         if (string.IsNullOrWhiteSpace(domain))
         {
             return;
         }
-#endif
 
         this._providersLock.EnterWriteLock();
 
