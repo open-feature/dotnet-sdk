@@ -11,7 +11,7 @@ namespace OpenFeature;
 /// </summary>
 internal sealed partial class ProviderRepository : IAsyncDisposable
 {
-    private ILogger _logger = NullLogger<EventExecutor>.Instance;
+    private ILogger _logger = NullLogger<ProviderRepository>.Instance;
 
     private FeatureProvider _defaultProvider = new NoOpFeatureProvider();
 
