@@ -78,7 +78,9 @@ public sealed class MultiProvider : FeatureProvider
         {
             try
             {
-                await rp.Provider.InitializeAsync(context, cancellationToken).ConfigureAwait(false);
+                // TODO: I don't like this part here, at the moment it is the only way we have so we can set the provider name
+                // but we should find a better way to do this
+                await Api.Instance.SetProviderAsync(rp.Name, rp.Provider).ConfigureAwait(false);
                 return new ProviderStatus { ProviderName = rp.Name };
             }
             catch (Exception ex)
