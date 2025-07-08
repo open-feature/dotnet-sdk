@@ -663,7 +663,7 @@ namespace OpenFeatureTestApp
 
 After running this example, you should be able to see some metrics being generated into the console.
 
-You can specify custom dimensions on the `feature_flag.evaluation_success_total` metric by providing `MetricsHookOptions` when adding the hook:
+You can specify custom dimensions on all instruments by the `MetricsHook` by providing `MetricsHookOptions` when adding the hook:
 
 ```csharp
 var options = MetricsHookOptions.CreateBuilder()
