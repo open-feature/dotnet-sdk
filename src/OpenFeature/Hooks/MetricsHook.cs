@@ -19,10 +19,10 @@ public class MetricsHook : Hook
     private static readonly string InstrumentationVersion = AssemblyName.Version?.ToString() ?? "1.0.0";
     private static readonly Meter Meter = new(InstrumentationName, InstrumentationVersion);
 
-    private readonly UpDownCounter<long> _evaluationActiveUpDownCounter;
-    private readonly Counter<long> _evaluationRequestCounter;
+    internal readonly UpDownCounter<long> _evaluationActiveUpDownCounter;
+    internal readonly Counter<long> _evaluationRequestCounter;
     internal readonly Counter<long> _evaluationSuccessCounter;
-    private readonly Counter<long> _evaluationErrorCounter;
+    internal readonly Counter<long> _evaluationErrorCounter;
 
     private readonly MetricsHookOptions _options;
 
@@ -48,6 +48,8 @@ public class MetricsHook : Hook
             { TelemetryConstants.Provider, context.ProviderMetadata.Name }
         };
 
+        this.AddCustomDimensions(ref tagList);
+
         this._evaluationActiveUpDownCounter.Add(1, tagList);
         this._evaluationRequestCounter.Add(1, tagList);
 
@@ -65,19 +67,8 @@ public class MetricsHook : Hook
             { TelemetryConstants.Reason, details.Reason ?? Reason.Unknown.ToString() }
         };
 
-        foreach (var customDimension in this._options.CustomDimensions)
-        {
-            tagList.Add(customDimension.Key, customDimension.Value);
-        }
-
-        var metadata = details.FlagMetadata ?? new ImmutableMetadata();
-        foreach (var item in this._options.FlagMetadataCallbacks)
-        {
-            var flagMetadataCallback = item.Value;
-            var value = flagMetadataCallback(metadata);
-
-            tagList.Add(item.Key, value);
-        }
+        this.AddCustomDimensions(ref tagList);
+        this.AddFlagMetadataDimensions(details.FlagMetadata, ref tagList);
 
         this._evaluationSuccessCounter.Add(1, tagList);
 
@@ -93,6 +84,8 @@ public class MetricsHook : Hook
             { TelemetryConstants.Provider, context.ProviderMetadata.Name },
             { MetricsConstants.ExceptionAttr, error.Message }
         };
+
+        this.AddCustomDimensions(ref tagList);
 
         this._evaluationErrorCounter.Add(1, tagList);
 
@@ -111,8 +104,32 @@ public class MetricsHook : Hook
             { TelemetryConstants.Provider, context.ProviderMetadata.Name }
         };
 
+        this.AddCustomDimensions(ref tagList);
+        this.AddFlagMetadataDimensions(evaluationDetails.FlagMetadata, ref tagList);
+
         this._evaluationActiveUpDownCounter.Add(-1, tagList);
 
         return base.FinallyAsync(context, evaluationDetails, hints, cancellationToken);
+    }
+
+    private void AddCustomDimensions(ref TagList tagList)
+    {
+        foreach (var customDimension in this._options.CustomDimensions)
+        {
+            tagList.Add(customDimension.Key, customDimension.Value);
+        }
+    }
+
+    private void AddFlagMetadataDimensions(ImmutableMetadata? flagMetadata, ref TagList tagList)
+    {
+        flagMetadata ??= new ImmutableMetadata();
+
+        foreach (var item in this._options.FlagMetadataCallbacks)
+        {
+            var flagMetadataCallback = item.Value;
+            var value = flagMetadataCallback(flagMetadata);
+
+            tagList.Add(item.Key, value);
+        }
     }
 }
