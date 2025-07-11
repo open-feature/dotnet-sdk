@@ -303,6 +303,40 @@ public partial class OpenFeatureBuilderExtensionsTests
     }
 
     [Fact]
+    public void AddHook_WithInstance_AddsHookAsKeyedService()
+    {
+        // Arrange
+        var expectedHook = new NoOpHook();
+        _systemUnderTest.AddHook(expectedHook);
+
+        var serviceProvider = _services.BuildServiceProvider();
+
+        // Act
+        var actualHook = serviceProvider.GetKeyedService<Hook>("NoOpHook");
+
+        // Assert
+        Assert.NotNull(actualHook);
+        Assert.Equal(expectedHook, actualHook);
+    }
+
+    [Fact]
+    public void AddHook_WithSpecifiedNameAndInstance_AddsHookAsKeyedService()
+    {
+        // Arrange
+        var expectedHook = new NoOpHook();
+        _systemUnderTest.AddHook("custom-hook", expectedHook);
+
+        var serviceProvider = _services.BuildServiceProvider();
+
+        // Act
+        var actualHook = serviceProvider.GetKeyedService<Hook>("custom-hook");
+
+        // Assert
+        Assert.NotNull(actualHook);
+        Assert.Equal(expectedHook, actualHook);
+    }
+
+    [Fact]
     public void AddHandler_AddsEventHandlerDelegateWrapperAsKeyedService()
     {
         // Arrange
