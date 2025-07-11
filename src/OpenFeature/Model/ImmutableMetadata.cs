@@ -45,7 +45,13 @@ public sealed class ImmutableMetadata
     /// <returns>The integer value associated with the key, or null if the key is not found.</returns>
     public int? GetInt(string key)
     {
-        return this.GetValue<int>(key);
+        var hasValue = this._metadata.TryGetValue(key, out var value);
+        if (!hasValue)
+        {
+            return null;
+        }
+
+        return value is double || value is int ? Convert.ToInt32(value) : null;
     }
 
     /// <summary>
@@ -55,7 +61,13 @@ public sealed class ImmutableMetadata
     /// <returns>The double value associated with the key, or null if the key is not found.</returns>
     public double? GetDouble(string key)
     {
-        return this.GetValue<double>(key);
+        var hasValue = this._metadata.TryGetValue(key, out var value);
+        if (!hasValue)
+        {
+            return null;
+        }
+
+        return value is double || value is int ? Convert.ToDouble(value) : null;
     }
 
     /// <summary>
