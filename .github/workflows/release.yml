@@ -51,6 +51,14 @@ jobs:
           global-json-file: global.json
           source-url: https://nuget.pkg.github.com/open-feature/index.json
 
+      - name: Cache NuGet packages
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
       - name: Install dependencies
         run: dotnet restore
 
