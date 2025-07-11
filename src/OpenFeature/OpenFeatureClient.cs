@@ -302,13 +302,7 @@ public sealed partial class FeatureClient : IFeatureClient
         return evaluation;
     }
 
-    /// <summary>
-    /// Use this method to track user interactions and the application state.
-    /// </summary>
-    /// <param name="trackingEventName">The name associated with this tracking event</param>
-    /// <param name="evaluationContext">The evaluation context used in the evaluation of the flag (optional)</param>
-    /// <param name="trackingEventDetails">Data pertinent to the tracking event (Optional)</param>
-    /// <exception cref="ArgumentException">When trackingEventName is null or empty</exception>
+    /// <inheritdoc />
     public void Track(string trackingEventName, EvaluationContext? evaluationContext = default, TrackingEventDetails? trackingEventDetails = default)
     {
         if (string.IsNullOrWhiteSpace(trackingEventName))

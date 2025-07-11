@@ -166,4 +166,13 @@ public interface IFeatureClient : IEventBus
     /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
     /// <returns>Resolved flag details <see cref="FlagEvaluationDetails{T}"/></returns>
     Task<FlagEvaluationDetails<Value>> GetObjectDetailsAsync(string flagKey, Value defaultValue, EvaluationContext? context = null, FlagEvaluationOptions? config = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Use this method to track user interactions and the application state.
+    /// </summary>
+    /// <param name="trackingEventName">The name associated with this tracking event</param>
+    /// <param name="evaluationContext">The evaluation context used in the evaluation of the flag (optional)</param>
+    /// <param name="trackingEventDetails">Data pertinent to the tracking event (Optional)</param>
+    /// <exception cref="ArgumentException">When trackingEventName is null or empty</exception>
+    void Track(string trackingEventName, EvaluationContext? evaluationContext = default, TrackingEventDetails? trackingEventDetails = default);
 }
