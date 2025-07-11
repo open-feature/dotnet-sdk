@@ -19,20 +19,24 @@ public class MetricsHook : Hook
     private static readonly string InstrumentationVersion = AssemblyName.Version?.ToString() ?? "1.0.0";
     private static readonly Meter Meter = new(InstrumentationName, InstrumentationVersion);
 
-    private readonly UpDownCounter<long> _evaluationActiveUpDownCounter;
-    private readonly Counter<long> _evaluationRequestCounter;
-    private readonly Counter<long> _evaluationSuccessCounter;
-    private readonly Counter<long> _evaluationErrorCounter;
+    internal readonly UpDownCounter<long> _evaluationActiveUpDownCounter;
+    internal readonly Counter<long> _evaluationRequestCounter;
+    internal readonly Counter<long> _evaluationSuccessCounter;
+    internal readonly Counter<long> _evaluationErrorCounter;
+
+    private readonly MetricsHookOptions _options;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MetricsHook"/> class.
     /// </summary>
-    public MetricsHook()
+    /// <param name="options">Optional configuration for the metrics hook.</param>
+    public MetricsHook(MetricsHookOptions? options = null)
     {
         this._evaluationActiveUpDownCounter = Meter.CreateUpDownCounter<long>(MetricsConstants.ActiveCountName, description: MetricsConstants.ActiveDescription);
         this._evaluationRequestCounter = Meter.CreateCounter<long>(MetricsConstants.RequestsTotalName, "{request}", MetricsConstants.RequestsDescription);
         this._evaluationSuccessCounter = Meter.CreateCounter<long>(MetricsConstants.SuccessTotalName, "{impression}", MetricsConstants.SuccessDescription);
         this._evaluationErrorCounter = Meter.CreateCounter<long>(MetricsConstants.ErrorTotalName, description: MetricsConstants.ErrorDescription);
+        this._options = options ?? MetricsHookOptions.Default;
     }
 
     /// <inheritdoc/>
@@ -43,6 +47,8 @@ public class MetricsHook : Hook
             { TelemetryConstants.Key, context.FlagKey },
             { TelemetryConstants.Provider, context.ProviderMetadata.Name }
         };
+
+        this.AddCustomDimensions(ref tagList);
 
         this._evaluationActiveUpDownCounter.Add(1, tagList);
         this._evaluationRequestCounter.Add(1, tagList);
@@ -61,6 +67,9 @@ public class MetricsHook : Hook
             { TelemetryConstants.Reason, details.Reason ?? Reason.Unknown.ToString() }
         };
 
+        this.AddCustomDimensions(ref tagList);
+        this.AddFlagMetadataDimensions(details.FlagMetadata, ref tagList);
+
         this._evaluationSuccessCounter.Add(1, tagList);
 
         return base.AfterAsync(context, details, hints, cancellationToken);
@@ -75,6 +84,8 @@ public class MetricsHook : Hook
             { TelemetryConstants.Provider, context.ProviderMetadata.Name },
             { MetricsConstants.ExceptionAttr, error.Message }
         };
+
+        this.AddCustomDimensions(ref tagList);
 
         this._evaluationErrorCounter.Add(1, tagList);
 
@@ -93,8 +104,32 @@ public class MetricsHook : Hook
             { TelemetryConstants.Provider, context.ProviderMetadata.Name }
         };
 
+        this.AddCustomDimensions(ref tagList);
+        this.AddFlagMetadataDimensions(evaluationDetails.FlagMetadata, ref tagList);
+
         this._evaluationActiveUpDownCounter.Add(-1, tagList);
 
         return base.FinallyAsync(context, evaluationDetails, hints, cancellationToken);
+    }
+
+    private void AddCustomDimensions(ref TagList tagList)
+    {
+        foreach (var customDimension in this._options.CustomDimensions)
+        {
+            tagList.Add(customDimension.Key, customDimension.Value);
+        }
+    }
+
+    private void AddFlagMetadataDimensions(ImmutableMetadata? flagMetadata, ref TagList tagList)
+    {
+        flagMetadata ??= new ImmutableMetadata();
+
+        foreach (var item in this._options.FlagMetadataCallbacks)
+        {
+            var flagMetadataCallback = item.Value;
+            var value = flagMetadataCallback(flagMetadata);
+
+            tagList.Add(item.Key, value);
+        }
     }
 }
