@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.8.0](https://github.com/open-feature/dotnet-sdk/compare/v2.7.0...v2.8.0) (2025-07-11)
+
+
+### ✨ New Features
+
+* Add Track method to IFeatureClient ([#519](https://github.com/open-feature/dotnet-sdk/issues/519)) ([2e70072](https://github.com/open-feature/dotnet-sdk/commit/2e7007277e19a0fbc4c4c3944d24eea1608712e6))
+
+
+### 🧹 Chore
+
+* **deps:** update github/codeql-action digest to 181d5ee ([#520](https://github.com/open-feature/dotnet-sdk/issues/520)) ([40bec0d](https://github.com/open-feature/dotnet-sdk/commit/40bec0d51b6fa782a8b6d90a3d84463f9fb73c1b))
+* **deps:** update spec digest to 224b26e ([#521](https://github.com/open-feature/dotnet-sdk/issues/521)) ([fbc2645](https://github.com/open-feature/dotnet-sdk/commit/fbc2645efd649c0c37bd1a1cf473fbd98d920948))
+* remove redundant rule (now in parent) ([929fa74](https://github.com/open-feature/dotnet-sdk/commit/929fa7497197214d385eeaa40aba008932d00896))
+
 ## [2.7.0](https://github.com/open-feature/dotnet-sdk/compare/v2.6.0...v2.7.0) (2025-07-03)
 
 
