@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using OpenFeature.Constant;
 using OpenFeature.Model;
 
-
 namespace OpenFeature;
 
 /// <summary>
@@ -12,12 +11,11 @@ namespace OpenFeature;
 /// </summary>
 internal sealed partial class ProviderRepository : IAsyncDisposable
 {
-    private ILogger _logger = NullLogger<EventExecutor>.Instance;
+    private ILogger _logger = NullLogger<ProviderRepository>.Instance;
 
     private FeatureProvider _defaultProvider = new NoOpFeatureProvider();
 
-    private readonly ConcurrentDictionary<string, FeatureProvider> _featureProviders =
-        new ConcurrentDictionary<string, FeatureProvider>();
+    private readonly ConcurrentDictionary<string, FeatureProvider> _featureProviders = new();
 
     /// The reader/writer locks is not disposed because the singleton instance should never be disposed.
     ///
@@ -29,7 +27,7 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
     /// The second is that a concurrent collection doesn't provide any ordering, so we could check a provider
     /// as it was being added or removed such as two concurrent calls to SetProvider replacing multiple instances
     /// of that provider under different names.
-    private readonly ReaderWriterLockSlim _providersLock = new ReaderWriterLockSlim();
+    private readonly ReaderWriterLockSlim _providersLock = new();
 
     public async ValueTask DisposeAsync()
     {
@@ -53,11 +51,13 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
     /// called if an error happens during the initialization of the provider, only called if the provider needed
     /// initialization
     /// </param>
-    public async Task SetProviderAsync(
+    /// <param name="cancellationToken">a cancellation token to cancel the operation</param>
+    internal async Task SetProviderAsync(
         FeatureProvider? featureProvider,
         EvaluationContext context,
         Func<FeatureProvider, Task>? afterInitSuccess = null,
-        Func<FeatureProvider, Exception, Task>? afterInitError = null)
+        Func<FeatureProvider, Exception, Task>? afterInitError = null,
+        CancellationToken cancellationToken = default)
     {
         // Cannot unset the feature provider.
         if (featureProvider == null)
@@ -79,14 +79,14 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
             this._defaultProvider = featureProvider;
             // We want to allow shutdown to happen concurrently with initialization, and the caller to not
             // wait for it.
-            _ = this.ShutdownIfUnusedAsync(oldProvider);
+            _ = this.ShutdownIfUnusedAsync(oldProvider, cancellationToken);
         }
         finally
         {
             this._providersLock.ExitWriteLock();
         }
 
-        await InitProviderAsync(this._defaultProvider, context, afterInitSuccess, afterInitError)
+        await InitProviderAsync(this._defaultProvider, context, afterInitSuccess, afterInitError, cancellationToken)
             .ConfigureAwait(false);
     }
 
@@ -94,7 +94,8 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
         FeatureProvider? newProvider,
         EvaluationContext context,
         Func<FeatureProvider, Task>? afterInitialization,
-        Func<FeatureProvider, Exception, Task>? afterError)
+        Func<FeatureProvider, Exception, Task>? afterError,
+        CancellationToken cancellationToken = default)
     {
         if (newProvider == null)
         {
@@ -104,7 +105,7 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
         {
             try
             {
-                await newProvider.InitializeAsync(context).ConfigureAwait(false);
+                await newProvider.InitializeAsync(context, cancellationToken).ConfigureAwait(false);
                 if (afterInitialization != null)
                 {
                     await afterInitialization.Invoke(newProvider).ConfigureAwait(false);
@@ -134,7 +135,7 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
     /// initialization
     /// </param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel any async side effects.</param>
-    public async Task SetProviderAsync(string? domain,
+    internal async Task SetProviderAsync(string domain,
         FeatureProvider? featureProvider,
         EvaluationContext context,
         Func<FeatureProvider, Task>? afterInitSuccess = null,
@@ -142,7 +143,7 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
         CancellationToken cancellationToken = default)
     {
         // Cannot set a provider for a null domain.
-        if (domain == null)
+        if (string.IsNullOrWhiteSpace(domain))
         {
             return;
         }
@@ -166,21 +167,21 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
 
             // We want to allow shutdown to happen concurrently with initialization, and the caller to not
             // wait for it.
-            _ = this.ShutdownIfUnusedAsync(oldProvider);
+            _ = this.ShutdownIfUnusedAsync(oldProvider, cancellationToken);
         }
         finally
         {
             this._providersLock.ExitWriteLock();
         }
 
-        await InitProviderAsync(featureProvider, context, afterInitSuccess, afterInitError).ConfigureAwait(false);
+        await InitProviderAsync(featureProvider, context, afterInitSuccess, afterInitError, cancellationToken).ConfigureAwait(false);
     }
 
     /// <remarks>
     /// Shutdown the feature provider if it is unused. This must be called within a write lock of the _providersLock.
     /// </remarks>
     private async Task ShutdownIfUnusedAsync(
-        FeatureProvider? targetProvider)
+        FeatureProvider? targetProvider, CancellationToken cancellationToken = default)
     {
         if (ReferenceEquals(this._defaultProvider, targetProvider))
         {
@@ -192,7 +193,7 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
             return;
         }
 
-        await this.SafeShutdownProviderAsync(targetProvider).ConfigureAwait(false);
+        await this.SafeShutdownProviderAsync(targetProvider, cancellationToken).ConfigureAwait(false);
     }
 
     /// <remarks>
@@ -204,7 +205,7 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
     /// it would not be meaningful to emit an error.
     /// </para>
     /// </remarks>
-    private async Task SafeShutdownProviderAsync(FeatureProvider? targetProvider)
+    private async Task SafeShutdownProviderAsync(FeatureProvider? targetProvider, CancellationToken cancellationToken = default)
     {
         if (targetProvider == null)
         {
@@ -213,7 +214,7 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
 
         try
         {
-            await targetProvider.ShutdownAsync().ConfigureAwait(false);
+            await targetProvider.ShutdownAsync(cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -221,7 +222,7 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
         }
     }
 
-    public FeatureProvider GetProvider()
+    internal FeatureProvider GetProvider()
     {
         this._providersLock.EnterReadLock();
         try
@@ -234,16 +235,16 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
         }
     }
 
-    public FeatureProvider GetProvider(string? domain)
+    internal FeatureProvider GetProvider(string? domain)
     {
-#if NET6_0_OR_GREATER
-        if (string.IsNullOrEmpty(domain))
+#if NETFRAMEWORK || NETSTANDARD
+        // This is a workaround for the issue in .NET Framework where string.IsNullOrEmpty is not nullable compatible.
+        if (domain == null)
         {
             return this.GetProvider();
         }
 #else
-        // This is a workaround for the issue in .NET Framework where string.IsNullOrEmpty is not nullable compatible.
-        if (domain == null || string.IsNullOrEmpty(domain))
+        if (string.IsNullOrWhiteSpace(domain))
         {
             return this.GetProvider();
         }
@@ -254,7 +255,7 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
             : this.GetProvider();
     }
 
-    public async Task ShutdownAsync(Action<FeatureProvider, Exception>? afterError = null, CancellationToken cancellationToken = default)
+    internal async Task ShutdownAsync(Action<FeatureProvider, Exception>? afterError = null, CancellationToken cancellationToken = default)
     {
         var providers = new HashSet<FeatureProvider>();
         this._providersLock.EnterWriteLock();
@@ -278,7 +279,7 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
         foreach (var targetProvider in providers)
         {
             // We don't need to take any actions after shutdown.
-            await this.SafeShutdownProviderAsync(targetProvider).ConfigureAwait(false);
+            await this.SafeShutdownProviderAsync(targetProvider, cancellationToken).ConfigureAwait(false);
         }
     }
 
