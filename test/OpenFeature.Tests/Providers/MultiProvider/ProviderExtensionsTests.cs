@@ -24,7 +24,7 @@ public class ProviderExtensionsTests
         const bool defaultValue = false;
         const bool resolvedValue = true;
         var expectedDetails = new ResolutionDetails<bool>(TestFlagKey, resolvedValue, ErrorType.None, Reason.Static, TestVariant);
-        var providerContext = new StrategyPerProviderContext(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey, typeof(bool));
+        var providerContext = new StrategyPerProviderContext<bool>(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey);
 
         this._mockProvider.ResolveBooleanValueAsync(TestFlagKey, defaultValue, this._evaluationContext, this._cancellationToken)
             .Returns(expectedDetails);
@@ -48,7 +48,7 @@ public class ProviderExtensionsTests
         const string defaultValue = "default";
         const string resolvedValue = "resolved";
         var expectedDetails = new ResolutionDetails<string>(TestFlagKey, resolvedValue, ErrorType.None, Reason.Static, TestVariant);
-        var providerContext = new StrategyPerProviderContext(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey, typeof(string));
+        var providerContext = new StrategyPerProviderContext<string>(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey);
 
         this._mockProvider.ResolveStringValueAsync(TestFlagKey, defaultValue, this._evaluationContext, this._cancellationToken)
             .Returns(expectedDetails);
@@ -72,7 +72,7 @@ public class ProviderExtensionsTests
         const int defaultValue = 0;
         const int resolvedValue = 42;
         var expectedDetails = new ResolutionDetails<int>(TestFlagKey, resolvedValue, ErrorType.None, Reason.Static, TestVariant);
-        var providerContext = new StrategyPerProviderContext(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey, typeof(int));
+        var providerContext = new StrategyPerProviderContext<int>(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey);
 
         this._mockProvider.ResolveIntegerValueAsync(TestFlagKey, defaultValue, this._evaluationContext, this._cancellationToken)
             .Returns(expectedDetails);
@@ -96,7 +96,7 @@ public class ProviderExtensionsTests
         const double defaultValue = 0.0;
         const double resolvedValue = 3.14;
         var expectedDetails = new ResolutionDetails<double>(TestFlagKey, resolvedValue, ErrorType.None, Reason.Static, TestVariant);
-        var providerContext = new StrategyPerProviderContext(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey, typeof(double));
+        var providerContext = new StrategyPerProviderContext<double>(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey);
 
         this._mockProvider.ResolveDoubleValueAsync(TestFlagKey, defaultValue, this._evaluationContext, this._cancellationToken)
             .Returns(expectedDetails);
@@ -120,7 +120,7 @@ public class ProviderExtensionsTests
         var defaultValue = new Value();
         var resolvedValue = new Value("resolved");
         var expectedDetails = new ResolutionDetails<Value>(TestFlagKey, resolvedValue, ErrorType.None, Reason.Static, TestVariant);
-        var providerContext = new StrategyPerProviderContext(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey, typeof(Value));
+        var providerContext = new StrategyPerProviderContext<Value>(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey);
 
         this._mockProvider.ResolveStructureValueAsync(TestFlagKey, defaultValue, this._evaluationContext, this._cancellationToken)
             .Returns(expectedDetails);
@@ -142,7 +142,7 @@ public class ProviderExtensionsTests
     {
         // Arrange
         var defaultValue = new DateTime(2023, 1, 1);
-        var providerContext = new StrategyPerProviderContext(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey, typeof(DateTime));
+        var providerContext = new StrategyPerProviderContext<DateTime>(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey);
 
         // Act
         var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue, this._cancellationToken);
@@ -166,7 +166,7 @@ public class ProviderExtensionsTests
         // Arrange
         const bool defaultValue = false;
         var expectedException = new InvalidOperationException("Provider error");
-        var providerContext = new StrategyPerProviderContext(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey, typeof(bool));
+        var providerContext = new StrategyPerProviderContext<bool>(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey);
 
         this._mockProvider.ResolveBooleanValueAsync(TestFlagKey, defaultValue, this._evaluationContext, this._cancellationToken)
             .ThrowsAsync(expectedException);
@@ -193,7 +193,7 @@ public class ProviderExtensionsTests
         const bool defaultValue = false;
         const bool resolvedValue = true;
         var expectedDetails = new ResolutionDetails<bool>(TestFlagKey, resolvedValue, ErrorType.None, Reason.Static, TestVariant);
-        var providerContext = new StrategyPerProviderContext(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey, typeof(bool));
+        var providerContext = new StrategyPerProviderContext<bool>(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey);
 
         this._mockProvider.ResolveBooleanValueAsync(TestFlagKey, defaultValue, null, this._cancellationToken)
             .Returns(expectedDetails);
@@ -217,7 +217,7 @@ public class ProviderExtensionsTests
         const string defaultValue = "default";
         const string resolvedValue = "resolved";
         var expectedDetails = new ResolutionDetails<string>(TestFlagKey, resolvedValue, ErrorType.None, Reason.Static, TestVariant);
-        var providerContext = new StrategyPerProviderContext(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey, typeof(string));
+        var providerContext = new StrategyPerProviderContext<string>(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey);
         var customCancellationToken = new CancellationTokenSource().Token;
 
         this._mockProvider.ResolveStringValueAsync(TestFlagKey, defaultValue, this._evaluationContext, customCancellationToken)
@@ -239,7 +239,7 @@ public class ProviderExtensionsTests
         string? defaultValue = null;
         const string resolvedValue = "resolved";
         var expectedDetails = new ResolutionDetails<string>(TestFlagKey, resolvedValue, ErrorType.None, Reason.Static, TestVariant);
-        var providerContext = new StrategyPerProviderContext(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey, typeof(string));
+        var providerContext = new StrategyPerProviderContext<string>(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey);
 
         this._mockProvider.ResolveStringValueAsync(TestFlagKey, defaultValue!, this._evaluationContext, this._cancellationToken)
             .Returns(expectedDetails);
@@ -261,7 +261,7 @@ public class ProviderExtensionsTests
         const int defaultValue = 0;
         const int resolvedValue = 123;
         var expectedDetails = new ResolutionDetails<int>(customFlagKey, resolvedValue, ErrorType.None, Reason.Static, TestVariant);
-        var providerContext = new StrategyPerProviderContext(this._mockProvider, TestProviderName, ProviderStatus.Ready, customFlagKey, typeof(int));
+        var providerContext = new StrategyPerProviderContext<int>(this._mockProvider, TestProviderName, ProviderStatus.Ready, customFlagKey);
 
         this._mockProvider.ResolveIntegerValueAsync(customFlagKey, defaultValue, this._evaluationContext, this._cancellationToken)
             .Returns(expectedDetails);
@@ -282,7 +282,7 @@ public class ProviderExtensionsTests
         // Arrange
         const bool defaultValue = false;
         var cancellationTokenSource = new CancellationTokenSource();
-        var providerContext = new StrategyPerProviderContext(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey, typeof(bool));
+        var providerContext = new StrategyPerProviderContext<bool>(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey);
 
         this._mockProvider.ResolveBooleanValueAsync(TestFlagKey, defaultValue, this._evaluationContext, cancellationTokenSource.Token)
             .Returns(async callInfo =>
@@ -318,7 +318,7 @@ public class ProviderExtensionsTests
             .Set("environment", "test")
             .Build();
         var expectedDetails = new ResolutionDetails<double>(TestFlagKey, resolvedValue, ErrorType.None, Reason.Static, TestVariant);
-        var providerContext = new StrategyPerProviderContext(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey, typeof(double));
+        var providerContext = new StrategyPerProviderContext<double>(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey);
 
         this._mockProvider.ResolveDoubleValueAsync(TestFlagKey, defaultValue, complexContext, this._cancellationToken)
             .Returns(expectedDetails);

@@ -8,7 +8,7 @@ internal static class ProviderExtensions
 {
     internal static async Task<ProviderResolutionResult<T>> EvaluateAsync<T>(
         this FeatureProvider provider,
-        StrategyPerProviderContext providerContext,
+        StrategyPerProviderContext<T> providerContext,
         EvaluationContext? evaluationContext,
         T defaultValue,
         CancellationToken cancellationToken)

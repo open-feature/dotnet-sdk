@@ -21,7 +21,7 @@ public class FirstMatchStrategyTests
     private readonly FeatureProvider _mockProvider1 = Substitute.For<FeatureProvider>();
     private readonly FeatureProvider _mockProvider2 = Substitute.For<FeatureProvider>();
     private readonly EvaluationContext _evaluationContext = new EvaluationContextBuilder().Build();
-    private readonly StrategyEvaluationContext _strategyContext = new(TestFlagKey, typeof(bool));
+    private readonly StrategyEvaluationContext<bool> _strategyContext = new(TestFlagKey);
 
     [Fact]
     public void RunMode_ReturnsSequential()
@@ -37,7 +37,7 @@ public class FirstMatchStrategyTests
     public void ShouldEvaluateNextProvider_WithFlagNotFoundError_ReturnsTrue()
     {
         // Arrange
-        var strategyContext = new StrategyPerProviderContext(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey, typeof(bool));
+        var strategyContext = new StrategyPerProviderContext<bool>(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey);
         var flagNotFoundResult = new ProviderResolutionResult<bool>(
             this._mockProvider1,
             Provider1Name,
@@ -54,7 +54,7 @@ public class FirstMatchStrategyTests
     public void ShouldEvaluateNextProvider_WithSuccessfulResult_ReturnsFalse()
     {
         // Arrange
-        var strategyContext = new StrategyPerProviderContext(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey, typeof(bool));
+        var strategyContext = new StrategyPerProviderContext<bool>(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey);
         var successfulResult = new ProviderResolutionResult<bool>(
             this._mockProvider1,
             Provider1Name,
@@ -71,7 +71,7 @@ public class FirstMatchStrategyTests
     public void ShouldEvaluateNextProvider_WithGeneralError_ReturnsFalse()
     {
         // Arrange
-        var strategyContext = new StrategyPerProviderContext(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey, typeof(bool));
+        var strategyContext = new StrategyPerProviderContext<bool>(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey);
         var generalErrorResult = new ProviderResolutionResult<bool>(
             this._mockProvider1,
             Provider1Name,
@@ -88,7 +88,7 @@ public class FirstMatchStrategyTests
     public void ShouldEvaluateNextProvider_WithInvalidContextError_ReturnsFalse()
     {
         // Arrange
-        var strategyContext = new StrategyPerProviderContext(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey, typeof(bool));
+        var strategyContext = new StrategyPerProviderContext<bool>(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey);
         var invalidContextResult = new ProviderResolutionResult<bool>(
             this._mockProvider1,
             Provider1Name,
@@ -105,7 +105,7 @@ public class FirstMatchStrategyTests
     public void ShouldEvaluateNextProvider_WithThrownException_ReturnsFalse()
     {
         // Arrange
-        var strategyContext = new StrategyPerProviderContext(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey, typeof(bool));
+        var strategyContext = new StrategyPerProviderContext<bool>(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey);
         var exceptionResult = new ProviderResolutionResult<bool>(
             this._mockProvider1,
             Provider1Name,
@@ -273,7 +273,7 @@ public class FirstMatchStrategyTests
             new ResolutionDetails<string>(TestFlagKey, testStringValue, ErrorType.None, Reason.Static, stringVariant));
 
         var resolutions = new List<ProviderResolutionResult<string>> { successfulResult };
-        var stringStrategyContext = new StrategyEvaluationContext(TestFlagKey, typeof(string));
+        var stringStrategyContext = new StrategyEvaluationContext<string>(TestFlagKey);
 
         // Act
         var result = this._strategy.DetermineFinalResult(stringStrategyContext, TestFlagKey, defaultStringValue, this._evaluationContext, resolutions);
@@ -304,7 +304,7 @@ public class FirstMatchStrategyTests
             new ResolutionDetails<int>(TestFlagKey, testIntValue, ErrorType.None, Reason.Static, intVariant));
 
         var resolutions = new List<ProviderResolutionResult<int>> { successfulResult };
-        var intStrategyContext = new StrategyEvaluationContext(TestFlagKey, typeof(int));
+        var intStrategyContext = new StrategyEvaluationContext<int>(TestFlagKey);
 
         // Act
         var result = this._strategy.DetermineFinalResult(intStrategyContext, TestFlagKey, defaultIntValue, this._evaluationContext, resolutions);

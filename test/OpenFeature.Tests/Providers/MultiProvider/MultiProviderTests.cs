@@ -32,8 +32,8 @@ public class MultiProviderClassTests
 
         // Setup default strategy behavior
         this._mockStrategy.RunMode.Returns(RunMode.Sequential);
-        this._mockStrategy.ShouldEvaluateThisProvider(Arg.Any<StrategyPerProviderContext>(), Arg.Any<EvaluationContext>()).Returns(true);
-        this._mockStrategy.ShouldEvaluateNextProvider(Arg.Any<StrategyPerProviderContext>(), Arg.Any<EvaluationContext>(), Arg.Any<ProviderResolutionResult<object>>()).Returns(false);
+        this._mockStrategy.ShouldEvaluateThisProvider(Arg.Any<StrategyPerProviderContext<object>>(), Arg.Any<EvaluationContext>()).Returns(true);
+        this._mockStrategy.ShouldEvaluateNextProvider(Arg.Any<StrategyPerProviderContext<object>>(), Arg.Any<EvaluationContext>(), Arg.Any<ProviderResolutionResult<object>>()).Returns(false);
     }
 
     [Fact]
@@ -117,7 +117,7 @@ public class MultiProviderClassTests
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
         var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
 
-        this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<bool>>>())
+        this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext<bool>>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<bool>>>())
             .Returns(finalResult);
 
         // Act
@@ -125,7 +125,7 @@ public class MultiProviderClassTests
 
         // Assert
         Assert.Equal(expectedDetails, result);
-        this._mockStrategy.Received(1).DetermineFinalResult(Arg.Any<StrategyEvaluationContext>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<bool>>>());
+        this._mockStrategy.Received(1).DetermineFinalResult(Arg.Any<StrategyEvaluationContext<bool>>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<bool>>>());
     }
 
     [Fact]
@@ -140,7 +140,7 @@ public class MultiProviderClassTests
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
         var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
 
-        this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<string>>>())
+        this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext<string>>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<string>>>())
             .Returns(finalResult);
 
         // Act
@@ -265,7 +265,7 @@ public class MultiProviderClassTests
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
         var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
 
-        this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<double>>>())
+        this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext<double>>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<double>>>())
             .Returns(finalResult);
 
         // Act
@@ -273,7 +273,7 @@ public class MultiProviderClassTests
 
         // Assert
         Assert.Equal(expectedDetails, result);
-        this._mockStrategy.Received(1).DetermineFinalResult(Arg.Any<StrategyEvaluationContext>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<double>>>());
+        this._mockStrategy.Received(1).DetermineFinalResult(Arg.Any<StrategyEvaluationContext<double>>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<double>>>());
     }
 
     [Fact]
@@ -288,7 +288,7 @@ public class MultiProviderClassTests
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
         var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
 
-        this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<int>>>())
+        this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext<int>>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<int>>>())
             .Returns(finalResult);
 
         // Act
@@ -310,7 +310,7 @@ public class MultiProviderClassTests
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
         var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
 
-        this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<Value>>>())
+        this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext<Value>>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<Value>>>())
             .Returns(finalResult);
 
         // Act
@@ -337,9 +337,9 @@ public class MultiProviderClassTests
         var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
 
         this._mockStrategy.RunMode.Returns(RunMode.Sequential);
-        this._mockStrategy.ShouldEvaluateThisProvider(Arg.Any<StrategyPerProviderContext>(), this._evaluationContext).Returns(true);
-        this._mockStrategy.ShouldEvaluateNextProvider(Arg.Any<StrategyPerProviderContext>(), this._evaluationContext, Arg.Any<ProviderResolutionResult<bool>>()).Returns(false);
-        this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<bool>>>())
+        this._mockStrategy.ShouldEvaluateThisProvider(Arg.Any<StrategyPerProviderContext<bool>>(), this._evaluationContext).Returns(true);
+        this._mockStrategy.ShouldEvaluateNextProvider(Arg.Any<StrategyPerProviderContext<bool>>(), this._evaluationContext, Arg.Any<ProviderResolutionResult<bool>>()).Returns(false);
+        this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext<bool>>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<bool>>>())
             .Returns(finalResult);
 
         this._mockProvider1.ResolveBooleanValueAsync(TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<CancellationToken>())
@@ -371,8 +371,8 @@ public class MultiProviderClassTests
         var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
 
         this._mockStrategy.RunMode.Returns(RunMode.Parallel);
-        this._mockStrategy.ShouldEvaluateThisProvider(Arg.Any<StrategyPerProviderContext>(), this._evaluationContext).Returns(true);
-        this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<bool>>>())
+        this._mockStrategy.ShouldEvaluateThisProvider(Arg.Any<StrategyPerProviderContext<bool>>(), this._evaluationContext).Returns(true);
+        this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext<bool>>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<bool>>>())
             .Returns(finalResult);
 
         this._mockProvider1.ResolveBooleanValueAsync(TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<CancellationToken>())
@@ -422,13 +422,13 @@ public class MultiProviderClassTests
         var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
 
         this._mockStrategy.RunMode.Returns(RunMode.Sequential);
-        this._mockStrategy.ShouldEvaluateThisProvider(Arg.Any<StrategyPerProviderContext>(), this._evaluationContext)
+        this._mockStrategy.ShouldEvaluateThisProvider(Arg.Any<StrategyPerProviderContext<bool>>(), this._evaluationContext)
             .Returns(callInfo =>
             {
-                var context = callInfo.Arg<StrategyPerProviderContext>();
+                var context = callInfo.Arg<StrategyPerProviderContext<bool>>();
                 return context.ProviderName == Provider1Name; // Only evaluate provider1
             });
-        this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<bool>>>())
+        this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext<bool>>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<bool>>>())
             .Returns(finalResult);
 
         this._mockProvider1.ResolveBooleanValueAsync(TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<CancellationToken>())
@@ -455,9 +455,9 @@ public class MultiProviderClassTests
         var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
 
         this._mockStrategy.RunMode.Returns(RunMode.Sequential);
-        this._mockStrategy.ShouldEvaluateThisProvider(Arg.Any<StrategyPerProviderContext>(), this._evaluationContext).Returns(true);
-        this._mockStrategy.ShouldEvaluateNextProvider(Arg.Any<StrategyPerProviderContext>(), this._evaluationContext, Arg.Any<ProviderResolutionResult<bool>>()).Returns(false);
-        this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<bool>>>())
+        this._mockStrategy.ShouldEvaluateThisProvider(Arg.Any<StrategyPerProviderContext<bool>>(), this._evaluationContext).Returns(true);
+        this._mockStrategy.ShouldEvaluateNextProvider(Arg.Any<StrategyPerProviderContext<bool>>(), this._evaluationContext, Arg.Any<ProviderResolutionResult<bool>>()).Returns(false);
+        this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext<bool>>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<bool>>>())
             .Returns(finalResult);
 
         this._mockProvider1.ResolveBooleanValueAsync(TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<CancellationToken>())

@@ -22,10 +22,11 @@ public abstract class BaseEvaluationStrategy
     /// <summary>
     /// Determines whether a specific provider should be evaluated.
     /// </summary>
+    /// <typeparam name="T">The type of the flag value.</typeparam>
     /// <param name="strategyContext">Context information about the provider and evaluation.</param>
     /// <param name="evaluationContext">The evaluation context for the flag resolution.</param>
     /// <returns>True if the provider should be evaluated, false otherwise.</returns>
-    public virtual bool ShouldEvaluateThisProvider(StrategyPerProviderContext strategyContext, EvaluationContext? evaluationContext)
+    public virtual bool ShouldEvaluateThisProvider<T>(StrategyPerProviderContext<T> strategyContext, EvaluationContext? evaluationContext)
     {
         // Skip providers that are not ready or have fatal errors
         return strategyContext.ProviderStatus is not (ProviderStatus.NotReady or ProviderStatus.Fatal);
@@ -40,7 +41,7 @@ public abstract class BaseEvaluationStrategy
     /// <param name="evaluationContext">The evaluation context for the flag resolution.</param>
     /// <param name="result">The result from the current provider evaluation.</param>
     /// <returns>True if the next provider should be evaluated, false otherwise.</returns>
-    public virtual bool ShouldEvaluateNextProvider<T>(StrategyPerProviderContext strategyContext, EvaluationContext? evaluationContext, ProviderResolutionResult<T> result)
+    public virtual bool ShouldEvaluateNextProvider<T>(StrategyPerProviderContext<T> strategyContext, EvaluationContext? evaluationContext, ProviderResolutionResult<T> result)
     {
         return true;
     }
@@ -55,7 +56,7 @@ public abstract class BaseEvaluationStrategy
     /// <param name="evaluationContext">The evaluation context for the flag resolution.</param>
     /// <param name="resolutions">All resolution results from provider evaluations.</param>
     /// <returns>The final evaluation result.</returns>
-    public abstract FinalResult<T> DetermineFinalResult<T>(StrategyEvaluationContext strategyContext, string key, T defaultValue, EvaluationContext? evaluationContext, List<ProviderResolutionResult<T>> resolutions);
+    public abstract FinalResult<T> DetermineFinalResult<T>(StrategyEvaluationContext<T> strategyContext, string key, T defaultValue, EvaluationContext? evaluationContext, List<ProviderResolutionResult<T>> resolutions);
 
     /// <summary>
     /// Checks if a resolution result represents an error.

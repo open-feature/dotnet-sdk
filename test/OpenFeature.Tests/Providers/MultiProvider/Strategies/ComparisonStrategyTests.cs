@@ -21,7 +21,7 @@ public class ComparisonStrategyTests
     private readonly FeatureProvider _mockProvider2 = Substitute.For<FeatureProvider>();
     private readonly FeatureProvider _mockProvider3 = Substitute.For<FeatureProvider>();
     private readonly EvaluationContext _evaluationContext = new EvaluationContextBuilder().Build();
-    private readonly StrategyEvaluationContext _strategyContext = new(TestFlagKey, typeof(bool));
+    private readonly StrategyEvaluationContext<bool> _strategyContext = new(TestFlagKey);
 
     [Fact]
     public void RunMode_ReturnsParallel()

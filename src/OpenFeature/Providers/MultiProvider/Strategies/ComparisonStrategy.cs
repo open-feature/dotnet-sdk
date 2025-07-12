@@ -30,7 +30,7 @@ public sealed class ComparisonStrategy : BaseEvaluationStrategy
     }
 
     /// <inheritdoc/>
-    public override FinalResult<T> DetermineFinalResult<T>(StrategyEvaluationContext strategyContext, string key, T defaultValue, EvaluationContext? evaluationContext, List<ProviderResolutionResult<T>> resolutions)
+    public override FinalResult<T> DetermineFinalResult<T>(StrategyEvaluationContext<T> strategyContext, string key, T defaultValue, EvaluationContext? evaluationContext, List<ProviderResolutionResult<T>> resolutions)
     {
         var successfulResolutions = resolutions.Where(r => !HasError(r)).ToList();
 

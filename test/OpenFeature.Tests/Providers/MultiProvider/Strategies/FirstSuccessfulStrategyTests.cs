@@ -20,7 +20,7 @@ public class FirstSuccessfulStrategyTests
     private readonly FeatureProvider _mockProvider2 = Substitute.For<FeatureProvider>();
     private readonly FeatureProvider _mockProvider3 = Substitute.For<FeatureProvider>();
     private readonly EvaluationContext _evaluationContext = new EvaluationContextBuilder().Build();
-    private readonly StrategyEvaluationContext _strategyContext = new(TestFlagKey, typeof(bool));
+    private readonly StrategyEvaluationContext<bool> _strategyContext = new(TestFlagKey);
 
     [Fact]
     public void RunMode_ReturnsSequential()
@@ -36,7 +36,7 @@ public class FirstSuccessfulStrategyTests
     public void ShouldEvaluateNextProvider_WithSuccessfulResult_ReturnsFalse()
     {
         // Arrange
-        var strategyContext = new StrategyPerProviderContext(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey, typeof(bool));
+        var strategyContext = new StrategyPerProviderContext<bool>(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey);
         var successfulResult = new ProviderResolutionResult<bool>(
             this._mockProvider1,
             Provider1Name,
@@ -53,7 +53,7 @@ public class FirstSuccessfulStrategyTests
     public void ShouldEvaluateNextProvider_WithErrorResult_ReturnsTrue()
     {
         // Arrange
-        var strategyContext = new StrategyPerProviderContext(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey, typeof(bool));
+        var strategyContext = new StrategyPerProviderContext<bool>(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey);
         var errorResult = new ProviderResolutionResult<bool>(
             this._mockProvider1,
             Provider1Name,
@@ -70,7 +70,7 @@ public class FirstSuccessfulStrategyTests
     public void ShouldEvaluateNextProvider_WithThrownException_ReturnsTrue()
     {
         // Arrange
-        var strategyContext = new StrategyPerProviderContext(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey, typeof(bool));
+        var strategyContext = new StrategyPerProviderContext<bool>(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey);
         var exceptionResult = new ProviderResolutionResult<bool>(
             this._mockProvider1,
             Provider1Name,
@@ -225,7 +225,7 @@ public class FirstSuccessfulStrategyTests
     public void ShouldEvaluateNextProvider_WithDifferentErrorTypes_ReturnsTrue(ErrorType errorType)
     {
         // Arrange
-        var strategyContext = new StrategyPerProviderContext(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey, typeof(bool));
+        var strategyContext = new StrategyPerProviderContext<bool>(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey);
         var errorResult = new ProviderResolutionResult<bool>(
             this._mockProvider1,
             Provider1Name,

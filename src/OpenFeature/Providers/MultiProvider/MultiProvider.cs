@@ -135,7 +135,7 @@ public sealed class MultiProvider : FeatureProvider
 
     private async Task<ResolutionDetails<T>> EvaluateAsync<T>(string key, T defaultValue, EvaluationContext? evaluationContext = null, CancellationToken cancellationToken = default)
     {
-        var strategyContext = new StrategyEvaluationContext(key, typeof(T));
+        var strategyContext = new StrategyEvaluationContext<T>(key);
         var resolutions = this._evaluationStrategy.RunMode switch
         {
             RunMode.Parallel => await this.ParallelEvaluationAsync(key, defaultValue, evaluationContext, cancellationToken).ConfigureAwait(false),
@@ -153,12 +153,11 @@ public sealed class MultiProvider : FeatureProvider
 
         foreach (var registeredProvider in this._registeredProviders)
         {
-            var providerContext = new StrategyPerProviderContext(
+            var providerContext = new StrategyPerProviderContext<T>(
                 registeredProvider.Provider,
                 registeredProvider.Name,
                 registeredProvider.Status,
-                key,
-                typeof(T));
+                key);
 
             if (!this._evaluationStrategy.ShouldEvaluateThisProvider(providerContext, evaluationContext))
             {
@@ -184,12 +183,11 @@ public sealed class MultiProvider : FeatureProvider
 
         foreach (var registeredProvider in this._registeredProviders)
         {
-            var providerContext = new StrategyPerProviderContext(
+            var providerContext = new StrategyPerProviderContext<T>(
                 registeredProvider.Provider,
                 registeredProvider.Name,
                 registeredProvider.Status,
-                key,
-                typeof(T));
+                key);
 
             if (this._evaluationStrategy.ShouldEvaluateThisProvider(providerContext, evaluationContext))
             {

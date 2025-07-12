@@ -19,7 +19,7 @@ public class BaseEvaluationStrategyTests
     private readonly FeatureProvider _mockProvider1 = Substitute.For<FeatureProvider>();
     private readonly FeatureProvider _mockProvider2 = Substitute.For<FeatureProvider>();
     private readonly EvaluationContext _evaluationContext = new EvaluationContextBuilder().Build();
-    private readonly StrategyEvaluationContext _strategyContext = new(TestFlagKey, typeof(bool));
+    private readonly StrategyEvaluationContext<bool> _strategyContext = new(TestFlagKey);
 
     [Fact]
     public void RunMode_DefaultValue_ReturnsSequential()
@@ -35,7 +35,7 @@ public class BaseEvaluationStrategyTests
     public void ShouldEvaluateThisProvider_WithReadyProvider_ReturnsTrue()
     {
         // Arrange
-        var strategyContext = new StrategyPerProviderContext(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey, typeof(bool));
+        var strategyContext = new StrategyPerProviderContext<bool>(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey);
 
         // Act
         var result = this._strategy.ShouldEvaluateThisProvider(strategyContext, this._evaluationContext);
@@ -48,7 +48,7 @@ public class BaseEvaluationStrategyTests
     public void ShouldEvaluateThisProvider_WithNotReadyProvider_ReturnsFalse()
     {
         // Arrange
-        var strategyContext = new StrategyPerProviderContext(this._mockProvider1, Provider1Name, ProviderStatus.NotReady, TestFlagKey, typeof(bool));
+        var strategyContext = new StrategyPerProviderContext<bool>(this._mockProvider1, Provider1Name, ProviderStatus.NotReady, TestFlagKey);
 
         // Act
         var result = this._strategy.ShouldEvaluateThisProvider(strategyContext, this._evaluationContext);
@@ -61,7 +61,7 @@ public class BaseEvaluationStrategyTests
     public void ShouldEvaluateThisProvider_WithFatalProvider_ReturnsFalse()
     {
         // Arrange
-        var strategyContext = new StrategyPerProviderContext(this._mockProvider1, Provider1Name, ProviderStatus.Fatal, TestFlagKey, typeof(bool));
+        var strategyContext = new StrategyPerProviderContext<bool>(this._mockProvider1, Provider1Name, ProviderStatus.Fatal, TestFlagKey);
 
         // Act
         var result = this._strategy.ShouldEvaluateThisProvider(strategyContext, this._evaluationContext);
@@ -74,7 +74,7 @@ public class BaseEvaluationStrategyTests
     public void ShouldEvaluateThisProvider_WithStaleProvider_ReturnsTrue()
     {
         // Arrange
-        var strategyContext = new StrategyPerProviderContext(this._mockProvider1, Provider1Name, ProviderStatus.Stale, TestFlagKey, typeof(bool));
+        var strategyContext = new StrategyPerProviderContext<bool>(this._mockProvider1, Provider1Name, ProviderStatus.Stale, TestFlagKey);
 
         // Act
         var result = this._strategy.ShouldEvaluateThisProvider(strategyContext, this._evaluationContext);
@@ -87,7 +87,7 @@ public class BaseEvaluationStrategyTests
     public void ShouldEvaluateThisProvider_WithNullEvaluationContext_ReturnsExpectedResult()
     {
         // Arrange
-        var strategyContext = new StrategyPerProviderContext(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey, typeof(bool));
+        var strategyContext = new StrategyPerProviderContext<bool>(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey);
 
         // Act
         var result = this._strategy.ShouldEvaluateThisProvider(strategyContext, null);
@@ -100,7 +100,7 @@ public class BaseEvaluationStrategyTests
     public void ShouldEvaluateNextProvider_DefaultImplementation_ReturnsTrue()
     {
         // Arrange
-        var strategyContext = new StrategyPerProviderContext(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey, typeof(bool));
+        var strategyContext = new StrategyPerProviderContext<bool>(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey);
         var successResult = new ProviderResolutionResult<bool>(
             this._mockProvider1,
             Provider1Name,
@@ -117,7 +117,7 @@ public class BaseEvaluationStrategyTests
     public void ShouldEvaluateNextProvider_WithErrorResult_ReturnsTrue()
     {
         // Arrange
-        var strategyContext = new StrategyPerProviderContext(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey, typeof(bool));
+        var strategyContext = new StrategyPerProviderContext<bool>(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey);
         var errorResult = new ProviderResolutionResult<bool>(
             this._mockProvider1,
             Provider1Name,
@@ -134,7 +134,7 @@ public class BaseEvaluationStrategyTests
     public void ShouldEvaluateNextProvider_WithNullEvaluationContext_ReturnsTrue()
     {
         // Arrange
-        var strategyContext = new StrategyPerProviderContext(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey, typeof(bool));
+        var strategyContext = new StrategyPerProviderContext<bool>(this._mockProvider1, Provider1Name, ProviderStatus.Ready, TestFlagKey);
         var successResult = new ProviderResolutionResult<bool>(
             this._mockProvider1,
             Provider1Name,
@@ -406,7 +406,7 @@ public class BaseEvaluationStrategyTests
     public void ShouldEvaluateThisProvider_WithAllowedStatuses_ReturnsTrue(ProviderStatus status)
     {
         // Arrange
-        var strategyContext = new StrategyPerProviderContext(this._mockProvider1, Provider1Name, status, TestFlagKey, typeof(bool));
+        var strategyContext = new StrategyPerProviderContext<bool>(this._mockProvider1, Provider1Name, status, TestFlagKey);
 
         // Act
         var result = this._strategy.ShouldEvaluateThisProvider(strategyContext, this._evaluationContext);
@@ -421,7 +421,7 @@ public class BaseEvaluationStrategyTests
     public void ShouldEvaluateThisProvider_WithDisallowedStatuses_ReturnsFalse(ProviderStatus status)
     {
         // Arrange
-        var strategyContext = new StrategyPerProviderContext(this._mockProvider1, Provider1Name, status, TestFlagKey, typeof(bool));
+        var strategyContext = new StrategyPerProviderContext<bool>(this._mockProvider1, Provider1Name, status, TestFlagKey);
 
         // Act
         var result = this._strategy.ShouldEvaluateThisProvider(strategyContext, this._evaluationContext);
@@ -479,7 +479,7 @@ public class BaseEvaluationStrategyTests
     /// </summary>
     private class TestableBaseEvaluationStrategy : BaseEvaluationStrategy
     {
-        public override FinalResult<T> DetermineFinalResult<T>(StrategyEvaluationContext strategyContext, string key, T defaultValue, EvaluationContext? evaluationContext, List<ProviderResolutionResult<T>> resolutions)
+        public override FinalResult<T> DetermineFinalResult<T>(StrategyEvaluationContext<T> strategyContext, string key, T defaultValue, EvaluationContext? evaluationContext, List<ProviderResolutionResult<T>> resolutions)
         {
             // Simple test implementation that returns the first result or a default
             if (resolutions.Count > 0)

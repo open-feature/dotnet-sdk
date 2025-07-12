@@ -12,13 +12,13 @@ namespace OpenFeature.Providers.MultiProvider.Strategies;
 public sealed class FirstMatchStrategy : BaseEvaluationStrategy
 {
     /// <inheritdoc/>
-    public override bool ShouldEvaluateNextProvider<T>(StrategyPerProviderContext strategyContext, EvaluationContext? evaluationContext, ProviderResolutionResult<T> result)
+    public override bool ShouldEvaluateNextProvider<T>(StrategyPerProviderContext<T> strategyContext, EvaluationContext? evaluationContext, ProviderResolutionResult<T> result)
     {
         return HasErrorWithCode(result, ErrorType.FlagNotFound);
     }
 
     /// <inheritdoc/>
-    public override FinalResult<T> DetermineFinalResult<T>(StrategyEvaluationContext strategyContext, string key, T defaultValue, EvaluationContext? evaluationContext, List<ProviderResolutionResult<T>> resolutions)
+    public override FinalResult<T> DetermineFinalResult<T>(StrategyEvaluationContext<T> strategyContext, string key, T defaultValue, EvaluationContext? evaluationContext, List<ProviderResolutionResult<T>> resolutions)
     {
         var lastResult = resolutions.LastOrDefault();
         if (lastResult != null)

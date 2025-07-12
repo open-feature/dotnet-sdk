@@ -13,14 +13,14 @@ namespace OpenFeature.Providers.MultiProvider.Strategies;
 public sealed class FirstSuccessfulStrategy : BaseEvaluationStrategy
 {
     /// <inheritdoc/>
-    public override bool ShouldEvaluateNextProvider<T>(StrategyPerProviderContext strategyContext, EvaluationContext? evaluationContext, ProviderResolutionResult<T> result)
+    public override bool ShouldEvaluateNextProvider<T>(StrategyPerProviderContext<T> strategyContext, EvaluationContext? evaluationContext, ProviderResolutionResult<T> result)
     {
         // evaluate next only if there was an error
         return HasError(result);
     }
 
     /// <inheritdoc/>
-    public override FinalResult<T> DetermineFinalResult<T>(StrategyEvaluationContext strategyContext, string key, T defaultValue, EvaluationContext? evaluationContext, List<ProviderResolutionResult<T>> resolutions)
+    public override FinalResult<T> DetermineFinalResult<T>(StrategyEvaluationContext<T> strategyContext, string key, T defaultValue, EvaluationContext? evaluationContext, List<ProviderResolutionResult<T>> resolutions)
     {
         if (resolutions.Count == 0)
         {
