@@ -6,6 +6,7 @@ namespace OpenFeature.Providers.MultiProvider.Strategies;
 
 /// <summary>
 /// Return the first result that did not result in an error.
+/// Providers are evaluated sequentially in the order they were configured.
 /// If any provider in the course of evaluation returns or throws an error, ignore it as long as there is a successful result.
 /// If there is no successful result, throw all errors.
 /// </summary>

@@ -6,6 +6,7 @@ namespace OpenFeature.Providers.MultiProvider.Strategies;
 
 /// <summary>
 /// Return the first result that did not indicate "flag not found".
+/// Providers are evaluated sequentially in the order they were configured.
 /// If any provider in the course of evaluation returns or throws an error, throw that error
 /// </summary>
 public sealed class FirstMatchStrategy : BaseEvaluationStrategy
