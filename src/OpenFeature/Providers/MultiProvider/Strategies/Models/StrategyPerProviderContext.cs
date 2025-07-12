@@ -26,15 +26,15 @@ public class StrategyPerProviderContext : StrategyEvaluationContext
     /// <summary>
     /// The feature provider instance.
     /// </summary>
-    public FeatureProvider Provider { get; private set; }
+    public FeatureProvider Provider { get; }
 
     /// <summary>
     /// The name/identifier of the provider.
     /// </summary>
-    public string ProviderName { get; private set; }
+    public string ProviderName { get; }
 
     /// <summary>
     /// The current status of the provider.
     /// </summary>
-    public ProviderStatus ProviderStatus { get; private set; }
+    public ProviderStatus ProviderStatus { get; }
 }
