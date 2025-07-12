@@ -27,9 +27,9 @@ public sealed class FirstSuccessfulStrategy : BaseEvaluationStrategy
             var noProvidersDetails = new ResolutionDetails<T>(key, defaultValue, ErrorType.ProviderNotReady, Reason.Error, errorMessage: "No providers available or all providers failed");
             var noProvidersErrors = new List<ProviderError>
             {
-                new("MultiProvider", new InvalidOperationException("No providers available or all providers failed"))
+                new(MultiProviderConstants.ProviderName, new InvalidOperationException("No providers available or all providers failed"))
             };
-            return new FinalResult<T>(noProvidersDetails, null!, "MultiProvider", noProvidersErrors);
+            return new FinalResult<T>(noProvidersDetails, null!, MultiProviderConstants.ProviderName, noProvidersErrors);
         }
 
         // Find the first successful result

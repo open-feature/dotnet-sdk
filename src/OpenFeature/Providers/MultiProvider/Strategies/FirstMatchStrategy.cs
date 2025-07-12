@@ -29,8 +29,8 @@ public sealed class FirstMatchStrategy : BaseEvaluationStrategy
         var errorDetails = new ResolutionDetails<T>(key, defaultValue, ErrorType.ProviderNotReady, Reason.Error, errorMessage: "No providers available or all providers failed");
         var errors = new List<ProviderError>
         {
-            new("MultiProvider", new InvalidOperationException("No providers available or all providers failed"))
+            new(MultiProviderConstants.ProviderName, new InvalidOperationException("No providers available or all providers failed"))
         };
-        return new FinalResult<T>(errorDetails, null!, "MultiProvider", errors);
+        return new FinalResult<T>(errorDetails, null!, MultiProviderConstants.ProviderName, errors);
     }
 }

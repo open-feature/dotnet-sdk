@@ -44,7 +44,7 @@ public sealed class MultiProvider : FeatureProvider
         this._registeredProviders = RegisterProviders(entries);
 
         // Create aggregate metadata
-        this._metadata = new Metadata("MultiProvider");
+        this._metadata = new Metadata(MultiProviderConstants.ProviderName);
     }
 
     /// <inheritdoc/>

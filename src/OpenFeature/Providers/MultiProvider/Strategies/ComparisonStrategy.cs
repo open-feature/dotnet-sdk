@@ -38,7 +38,7 @@ public sealed class ComparisonStrategy : BaseEvaluationStrategy
         {
             var errorDetails = new ResolutionDetails<T>(key, defaultValue, ErrorType.ProviderNotReady, Reason.Error, errorMessage: "No providers available or all providers failed");
             var errors = resolutions.Select(r => new ProviderError(r.ProviderName, new InvalidOperationException($"Provider {r.ProviderName} failed"))).ToList();
-            return new FinalResult<T>(errorDetails, null!, "MultiProvider", errors);
+            return new FinalResult<T>(errorDetails, null!, MultiProviderConstants.ProviderName, errors);
         }
 
         var firstResult = successfulResolutions.First();
