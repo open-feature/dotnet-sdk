@@ -17,17 +17,17 @@ internal static class ProviderExtensions
 
         try
         {
-            // Perform the actual flag resolution
-            var result = typeof(T) switch
+            var result = defaultValue switch
             {
-                { } t when t == typeof(bool) => (ResolutionDetails<T>)(object)await provider.ResolveBooleanValueAsync(key, (bool)(object)defaultValue!, evaluationContext, cancellationToken).ConfigureAwait(false),
-                { } t when t == typeof(string) => (ResolutionDetails<T>)(object)await provider.ResolveStringValueAsync(key, (string)(object)defaultValue!, evaluationContext, cancellationToken).ConfigureAwait(false),
-                { } t when t == typeof(int) => (ResolutionDetails<T>)(object)await provider.ResolveIntegerValueAsync(key, (int)(object)defaultValue!, evaluationContext, cancellationToken).ConfigureAwait(false),
-                { } t when t == typeof(double) => (ResolutionDetails<T>)(object)await provider.ResolveDoubleValueAsync(key, (double)(object)defaultValue!, evaluationContext, cancellationToken).ConfigureAwait(false),
-                { } t when t == typeof(Value) => (ResolutionDetails<T>)(object)await provider.ResolveStructureValueAsync(key, (Value)(object)defaultValue!, evaluationContext, cancellationToken).ConfigureAwait(false),
+                bool boolDefaultValue => (ResolutionDetails<T>)(object)await provider.ResolveBooleanValueAsync(key, boolDefaultValue, evaluationContext, cancellationToken).ConfigureAwait(false),
+                string stringDefaultValue => (ResolutionDetails<T>)(object)await provider.ResolveStringValueAsync(key, stringDefaultValue, evaluationContext, cancellationToken).ConfigureAwait(false),
+                int intDefaultValue => (ResolutionDetails<T>)(object)await provider.ResolveIntegerValueAsync(key, intDefaultValue, evaluationContext, cancellationToken).ConfigureAwait(false),
+                double doubleDefaultValue => (ResolutionDetails<T>)(object)await provider.ResolveDoubleValueAsync(key, doubleDefaultValue, evaluationContext, cancellationToken).ConfigureAwait(false),
+                Value valueDefaultValue => (ResolutionDetails<T>)(object)await provider.ResolveStructureValueAsync(key, valueDefaultValue, evaluationContext, cancellationToken).ConfigureAwait(false),
+                null when typeof(T) == typeof(string) => (ResolutionDetails<T>)(object)await provider.ResolveStringValueAsync(key, (string)(object)defaultValue!, evaluationContext, cancellationToken).ConfigureAwait(false),
+                null when typeof(T) == typeof(Value) => (ResolutionDetails<T>)(object)await provider.ResolveStructureValueAsync(key, (Value)(object)defaultValue!, evaluationContext, cancellationToken).ConfigureAwait(false),
                 _ => throw new ArgumentException($"Unsupported flag type: {typeof(T)}")
             };
-
             return new ProviderResolutionResult<T>(provider, providerContext.ProviderName, result);
         }
         catch (Exception ex)
