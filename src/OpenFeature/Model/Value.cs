@@ -6,7 +6,7 @@ namespace OpenFeature.Model;
 ///  Values serve as a return type for provider objects. Providers may deal in JSON, protobuf, XML or some other data-interchange format.
 ///  This intermediate representation provides a good medium of exchange.
 /// </summary>
-public sealed class Value
+public sealed class Value : IEquatable<Value>
 {
     private readonly object? _innerValue;
 
@@ -184,4 +184,196 @@ public sealed class Value
     /// </summary>
     /// <returns>Value as DateTime</returns>
     public DateTime? AsDateTime => this.IsDateTime ? (DateTime?)this._innerValue : null;
+
+    /// <summary>
+    /// Determines whether the specified <see cref="Value"/> is equal to the current <see cref="Value"/>.
+    /// </summary>
+    /// <param name="other">The <see cref="Value"/> to compare with the current <see cref="Value"/>.</param>
+    /// <returns>true if the specified <see cref="Value"/> is equal to the current <see cref="Value"/>; otherwise, false.</returns>
+    public bool Equals(Value? other)
+    {
+        if (other is null) return false;
+        if (ReferenceEquals(this, other)) return true;
+
+        // Both are null
+        if (this.IsNull && other.IsNull) return true;
+
+        // One is null, the other is not
+        if (this.IsNull != other.IsNull) return false;
+
+        // Different types
+        if (this.GetValueType() != other.GetValueType()) return false;
+
+        // Compare based on type
+        return this.GetValueType() switch
+        {
+            ValueType.Boolean => this.AsBoolean == other.AsBoolean,
+            ValueType.Number => this.AsDouble == other.AsDouble,
+            ValueType.String => this.AsString == other.AsString,
+            ValueType.DateTime => this.AsDateTime == other.AsDateTime,
+            ValueType.Structure => this.StructureEquals(other),
+            ValueType.List => this.ListEquals(other),
+            _ => false
+        };
+    }
+
+    /// <summary>
+    /// Determines whether the specified object is equal to the current <see cref="Value"/>.
+    /// </summary>
+    /// <param name="obj">The object to compare with the current <see cref="Value"/>.</param>
+    /// <returns>true if the specified object is equal to the current <see cref="Value"/>; otherwise, false.</returns>
+    public override bool Equals(object? obj) => this.Equals(obj as Value);
+
+    /// <summary>
+    /// Returns the hash code for this <see cref="Value"/>.
+    /// </summary>
+    /// <returns>A hash code for the current <see cref="Value"/>.</returns>
+    public override int GetHashCode()
+    {
+        if (this.IsNull) return 0;
+
+        return this.GetValueType() switch
+        {
+            ValueType.Boolean => this.AsBoolean!.GetHashCode(),
+            ValueType.Number => this.AsDouble!.GetHashCode(),
+            ValueType.String => this.AsString!.GetHashCode(),
+            ValueType.DateTime => this.AsDateTime!.GetHashCode(),
+            ValueType.Structure => this.GetStructureHashCode(),
+            ValueType.List => this.GetListHashCode(),
+            _ => 0
+        };
+    }
+
+    /// <summary>
+    /// Determines whether two <see cref="Value"/> instances are equal.
+    /// </summary>
+    /// <param name="left">The first <see cref="Value"/> to compare.</param>
+    /// <param name="right">The second <see cref="Value"/> to compare.</param>
+    /// <returns>true if the values are equal; otherwise, false.</returns>
+    public static bool operator ==(Value? left, Value? right)
+    {
+        if (left is null && right is null) return true;
+        if (left is null || right is null) return false;
+        return left.Equals(right);
+    }
+
+    /// <summary>
+    /// Determines whether two <see cref="Value"/> instances are not equal.
+    /// </summary>
+    /// <param name="left">The first <see cref="Value"/> to compare.</param>
+    /// <param name="right">The second <see cref="Value"/> to compare.</param>
+    /// <returns>true if the values are not equal; otherwise, false.</returns>
+    public static bool operator !=(Value? left, Value? right) => !(left == right);
+
+    /// <summary>
+    /// Gets the type of the current value.
+    /// </summary>
+    /// <returns>The <see cref="ValueType"/> of the current value.</returns>
+    private ValueType GetValueType()
+    {
+        if (this.IsNull) return ValueType.Null;
+        if (this.IsBoolean) return ValueType.Boolean;
+        if (this.IsNumber) return ValueType.Number;
+        if (this.IsString) return ValueType.String;
+        if (this.IsDateTime) return ValueType.DateTime;
+        if (this.IsStructure) return ValueType.Structure;
+        if (this.IsList) return ValueType.List;
+        return ValueType.Unknown;
+    }
+
+    /// <summary>
+    /// Compares two Structure values for equality.
+    /// </summary>
+    /// <param name="other">The other <see cref="Value"/> to compare.</param>
+    /// <returns>true if the structures are equal; otherwise, false.</returns>
+    private bool StructureEquals(Value other)
+    {
+        var thisStructure = this.AsStructure!;
+        var otherStructure = other.AsStructure!;
+
+        if (thisStructure.Count != otherStructure.Count) return false;
+
+        foreach (var kvp in thisStructure)
+        {
+            if (!otherStructure.TryGetValue(kvp.Key, out var otherValue) || !kvp.Value.Equals(otherValue))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Compares two List values for equality.
+    /// </summary>
+    /// <param name="other">The other <see cref="Value"/> to compare.</param>
+    /// <returns>true if the lists are equal; otherwise, false.</returns>
+    private bool ListEquals(Value other)
+    {
+        var thisList = this.AsList!;
+        var otherList = other.AsList!;
+
+        if (thisList.Count != otherList.Count) return false;
+
+        for (int i = 0; i < thisList.Count; i++)
+        {
+            if (!thisList[i].Equals(otherList[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Gets the hash code for a Structure value.
+    /// </summary>
+    /// <returns>The hash code of the structure.</returns>
+    private int GetStructureHashCode()
+    {
+        var structure = this.AsStructure!;
+        var hash = new HashCode();
+
+        foreach (var kvp in structure)
+        {
+            hash.Add(kvp.Key);
+            hash.Add(kvp.Value);
+        }
+
+        return hash.ToHashCode();
+    }
+
+    /// <summary>
+    /// Gets the hash code for a List value.
+    /// </summary>
+    /// <returns>The hash code of the list.</returns>
+    private int GetListHashCode()
+    {
+        var list = this.AsList!;
+        var hash = new HashCode();
+
+        foreach (var item in list)
+        {
+            hash.Add(item);
+        }
+
+        return hash.ToHashCode();
+    }
+
+    /// <summary>
+    /// Represents the different types that a <see cref="Value"/> can contain.
+    /// </summary>
+    private enum ValueType
+    {
+        Null,
+        Boolean,
+        Number,
+        String,
+        DateTime,
+        Structure,
+        List,
+        Unknown
+    }
 }
