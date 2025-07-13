@@ -240,7 +240,7 @@ public class ValueTests
         var value = new Value("test");
 
         // Act & Assert
-        Assert.False(value.Equals((Value?)null));
+        Assert.False(value.Equals(null));
     }
 
     [Fact]
@@ -443,8 +443,8 @@ public class ValueTests
     public void Equals_WithSameListValues_ReturnsTrue()
     {
         // Arrange
-        var list1 = new List<Value> { new Value("test"), new Value(42), new Value(true) };
-        var list2 = new List<Value> { new Value("test"), new Value(42), new Value(true) };
+        var list1 = new List<Value> { new("test"), new(42), new(true) };
+        var list2 = new List<Value> { new("test"), new(42), new(true) };
         var value1 = new Value(list1);
         var value2 = new Value(list2);
 
@@ -456,8 +456,8 @@ public class ValueTests
     public void Equals_WithDifferentListValues_ReturnsFalse()
     {
         // Arrange
-        var list1 = new List<Value> { new Value("test1"), new Value(42) };
-        var list2 = new List<Value> { new Value("test2"), new Value(42) };
+        var list1 = new List<Value> { new("test1"), new(42) };
+        var list2 = new List<Value> { new("test2"), new(42) };
         var value1 = new Value(list1);
         var value2 = new Value(list2);
 
@@ -469,8 +469,8 @@ public class ValueTests
     public void Equals_WithListsDifferentLengths_ReturnsFalse()
     {
         // Arrange
-        var list1 = new List<Value> { new Value("test") };
-        var list2 = new List<Value> { new Value("test"), new Value(42) };
+        var list1 = new List<Value> { new("test") };
+        var list2 = new List<Value> { new("test"), new(42) };
         var value1 = new Value(list1);
         var value2 = new Value(list2);
 
@@ -704,8 +704,8 @@ public class ValueTests
     public void GetHashCode_WithListValues_ReturnsConsistentHashCode()
     {
         // Arrange
-        var list1 = new List<Value> { new Value("test"), new Value(42) };
-        var list2 = new List<Value> { new Value("test"), new Value(42) };
+        var list1 = new List<Value> { new("test"), new(42) };
+        var list2 = new List<Value> { new("test"), new(42) };
         var value1 = new Value(list1);
         var value2 = new Value(list2);
 
@@ -725,8 +725,8 @@ public class ValueTests
     public void Equals_WithNestedStructuresAndLists_ReturnsTrue()
     {
         // Arrange
-        var innerList1 = new List<Value> { new Value("nested"), new Value(123) };
-        var innerList2 = new List<Value> { new Value("nested"), new Value(123) };
+        var innerList1 = new List<Value> { new("nested"), new(123) };
+        var innerList2 = new List<Value> { new("nested"), new(123) };
 
         var innerStructure1 = Structure.Builder()
             .Set("nested_key", new Value("nested_value"))
@@ -758,8 +758,8 @@ public class ValueTests
     public void Equals_WithDeeplyNestedDifferences_ReturnsFalse()
     {
         // Arrange
-        var innerList1 = new List<Value> { new Value("nested"), new Value(123) };
-        var innerList2 = new List<Value> { new Value("nested"), new Value(124) }; // Different value
+        var innerList1 = new List<Value> { new("nested"), new(123) };
+        var innerList2 = new List<Value> { new("nested"), new(124) }; // Different value
 
         var innerStructure1 = Structure.Builder()
             .Set("nested_key", new Value("nested_value"))
