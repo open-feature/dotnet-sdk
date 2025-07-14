@@ -40,7 +40,7 @@ builder.Services.AddOpenFeature(featureBuilder =>
 
 #### After
 
-```
+```csharp
 builder.Services.AddOpenFeature(featureBuilder =>
 {
     // Omit for code brevity
