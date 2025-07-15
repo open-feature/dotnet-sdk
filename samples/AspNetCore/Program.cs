@@ -3,6 +3,9 @@ using OpenFeature;
 using OpenFeature.DependencyInjection.Providers.Memory;
 using OpenFeature.Hooks;
 using OpenFeature.Providers.Memory;
+using OpenFeature.Providers.MultiProvider;
+using OpenFeature.Providers.MultiProvider.Models;
+using OpenFeature.Providers.MultiProvider.Strategies;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -54,6 +57,72 @@ app.MapGet("/welcome", async ([FromServices] IFeatureClient featureClient) =>
     }
 
     return TypedResults.Ok("Hello world!");
+});
+
+app.MapGet("/multi-provider", async context =>
+{
+    // Create first in-memory provider with some flags
+    var provider1Flags = new Dictionary<string, Flag>
+    {
+        { "providername", new Flag<string>(new Dictionary<string, string> { { "enabled", "enabled-provider1" }, { "disabled", "disabled-provider1" } }, "enabled") },
+        { "max-items", new Flag<int>(new Dictionary<string, int> { { "low", 10 }, { "high", 100 } }, "high") },
+    };
+    var provider1 = new InMemoryProvider(provider1Flags);
+
+    // Create second in-memory provider with different flags
+    var provider2Flags = new Dictionary<string, Flag>
+    {
+        { "providername", new Flag<string>(new Dictionary<string, string> { { "enabled", "enabled-provider2" }, { "disabled", "disabled-provider2" } }, "enabled") },
+    };
+    var provider2 = new InMemoryProvider(provider2Flags);
+
+    // Create provider entries
+    var providerEntries = new List<ProviderEntry>
+    {
+        new(provider1, "Provider1"),
+        new(provider2, "Provider2")
+    };
+
+    // Create multi-provider with FirstMatchStrategy (default)
+    var multiProvider = new MultiProvider(providerEntries, new FirstMatchStrategy());
+
+    // Set the multi-provider as the default provider using OpenFeature API
+    await Api.Instance.SetProviderAsync(multiProvider);
+
+    // Create a client directly using the API
+    var client = Api.Instance.GetClient();
+
+    try
+    {
+        // Test flag evaluation from different providers
+        var maxItemsFlag = await client.GetIntegerDetailsAsync("max-items", 0);
+        var providerNameFlag = await client.GetStringDetailsAsync("providername", "default");
+
+        // Test a flag that doesn't exist in any provider
+        var unknownFlag = await client.GetBooleanDetailsAsync("unknown-flag", false);
+
+        var result = new
+        {
+            message = "Multi-provider evaluation results",
+            results = new
+            {
+                maxItemsFlag = new { value = maxItemsFlag },
+                providerNameFlag = new { value = providerNameFlag },
+            }
+        };
+
+        await context.Response.WriteAsJsonAsync(result);
+    }
+    catch (Exception ex)
+    {
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsJsonAsync(new
+        {
+            title = "Multi-provider evaluation failed",
+            detail = ex.Message,
+            status = 500
+        });
+    }
 });
 
 app.Run();
