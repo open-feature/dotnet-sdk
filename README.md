@@ -113,7 +113,7 @@ Want to contribute a new sample? See our [CONTRIBUTING](CONTRIBUTING.md) guide!
 | ✅     | [Shutdown](#shutdown)                                               | Gracefully clean up a provider during application shutdown.                                                                                                   |
 | ✅     | [Transaction Context Propagation](#transaction-context-propagation) | Set a specific [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context) for a transaction (e.g. an HTTP request or a thread). |
 | ✅     | [Extending](#extending)                                             | Extend OpenFeature with custom providers and hooks.                                                                                                           |
-| 🔬     | [DependencyInjection](#DependencyInjection)                         | Integrate OpenFeature with .NET's dependency injection for streamlined provider setup.                                                                        |
+| 🔬     | [DependencyInjection](#dependency-injection)                         | Integrate OpenFeature with .NET's dependency injection for streamlined provider setup.                                                                        |
 
 > Implemented: ✅ | In-progress: ⚠️ | Not implemented yet: ❌ | Experimental: 🔬
 
@@ -433,7 +433,7 @@ Hooks support passing per-evaluation data between that stages using `hook data`.
 
 Built a new hook? [Let us know](https://github.com/open-feature/openfeature.dev/issues/new?assignees=&labels=hook&projects=&template=document-hook.yaml&title=%5BHook%5D%3A+) so we can add it to the docs!
 
-### DependencyInjection
+### Dependency Injection
 
 > [!NOTE]
 > The OpenFeature.DependencyInjection and OpenFeature.Hosting packages are currently experimental. They streamline the integration of OpenFeature within .NET applications, allowing for seamless configuration and lifecycle management of feature flag providers using dependency injection and hosting services.
