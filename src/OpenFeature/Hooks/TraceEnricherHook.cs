@@ -12,6 +12,17 @@ namespace OpenFeature.Hooks;
 /// <remarks> This is still experimental and subject to change. </remarks>
 public class TraceEnricherHook : Hook
 {
+    private readonly TraceEnricherHookOptions _options;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TraceEnricherHook"/> class.
+    /// </summary>
+    /// <param name="options">Optional configuration for the traces hook.</param>
+    public TraceEnricherHook(TraceEnricherHookOptions? options = null)
+    {
+        _options = options ?? TraceEnricherHookOptions.Default;
+    }
+
     /// <summary>
     /// Adds tags and events to the current <see cref="Activity"/> for tracing purposes.
     /// </summary>
@@ -31,8 +42,32 @@ public class TraceEnricherHook : Hook
             tags[kvp.Key] = kvp.Value;
         }
 
+        this.AddCustomDimensions(tags);
+        this.AddFlagMetadataDimensions(details.FlagMetadata, tags);
+
         Activity.Current?.AddEvent(new ActivityEvent(evaluationEvent.Name, tags: tags));
 
         return base.FinallyAsync(context, details, hints, cancellationToken);
+    }
+
+    private void AddCustomDimensions(ActivityTagsCollection tagList)
+    {
+        foreach (var customDimension in this._options.CustomDimensions)
+        {
+            tagList.Add(customDimension.Key, customDimension.Value);
+        }
+    }
+
+    private void AddFlagMetadataDimensions(ImmutableMetadata? flagMetadata, ActivityTagsCollection tagList)
+    {
+        flagMetadata ??= new ImmutableMetadata();
+
+        foreach (var item in this._options.FlagMetadataCallbacks)
+        {
+            var flagMetadataCallback = item.Value;
+            var value = flagMetadataCallback(flagMetadata);
+
+            tagList.Add(item.Key, value);
+        }
     }
 }
