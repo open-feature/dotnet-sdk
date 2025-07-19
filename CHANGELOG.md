@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.8.0](https://github.com/open-feature/dotnet-sdk/compare/v2.7.0...v2.8.0) (2025-07-19)
+
+
+### ✨ New Features
+
+* Add Hook Dependency Injection extension method with Hook instance ([#513](https://github.com/open-feature/dotnet-sdk/issues/513)) ([12396b7](https://github.com/open-feature/dotnet-sdk/commit/12396b7872a2db6533b33267cf9c299248c41472))
+* Add Track method to IFeatureClient ([#519](https://github.com/open-feature/dotnet-sdk/issues/519)) ([2e70072](https://github.com/open-feature/dotnet-sdk/commit/2e7007277e19a0fbc4c4c3944d24eea1608712e6))
+
+
+### 🧹 Chore
+
+* Add comparison to Value ([#523](https://github.com/open-feature/dotnet-sdk/issues/523)) ([883f4f3](https://github.com/open-feature/dotnet-sdk/commit/883f4f3c8b553dc01b5accdbae2782ca7805e8ed))
+* **deps:** update github/codeql-action digest to 181d5ee ([#520](https://github.com/open-feature/dotnet-sdk/issues/520)) ([40bec0d](https://github.com/open-feature/dotnet-sdk/commit/40bec0d51b6fa782a8b6d90a3d84463f9fb73c1b))
+* **deps:** update spec digest to 224b26e ([#521](https://github.com/open-feature/dotnet-sdk/issues/521)) ([fbc2645](https://github.com/open-feature/dotnet-sdk/commit/fbc2645efd649c0c37bd1a1cf473fbd98d920948))
+* remove redundant rule (now in parent) ([929fa74](https://github.com/open-feature/dotnet-sdk/commit/929fa7497197214d385eeaa40aba008932d00896))
+
+
+### 📚 Documentation
+
+* fix anchor link in readme ([#525](https://github.com/open-feature/dotnet-sdk/issues/525)) ([18705c7](https://github.com/open-feature/dotnet-sdk/commit/18705c7338a0c89f163f808c81e513a029c95239))
+* remove curly brace from readme ([8c92524](https://github.com/open-feature/dotnet-sdk/commit/8c92524edbf4579d4ad62c699b338b9811a783fd))
+
 ## [2.7.0](https://github.com/open-feature/dotnet-sdk/compare/v2.6.0...v2.7.0) (2025-07-03)
 
 
