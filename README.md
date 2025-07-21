@@ -114,7 +114,7 @@ Want to contribute a new sample? See our [CONTRIBUTING](CONTRIBUTING.md) guide!
 | ✅     | [Transaction Context Propagation](#transaction-context-propagation) | Set a specific [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context) for a transaction (e.g. an HTTP request or a thread). |
 | ✅     | [Extending](#extending)                                             | Extend OpenFeature with custom providers and hooks.                                                                                                           |
 | 🔬     | [Multi-Provider](#multi-provider)                                   | Use multiple feature flag providers simultaneously with configurable evaluation strategies.                                                                   |
-| 🔬     | [DependencyInjection](#DependencyInjection)                         | Integrate OpenFeature with .NET's dependency injection for streamlined provider setup.                                                                        |
+| 🔬     | [DependencyInjection](#dependency-injection)                        | Integrate OpenFeature with .NET's dependency injection for streamlined provider setup.                                                                        |
 
 > Implemented: ✅ | In-progress: ⚠️ | Not implemented yet: ❌ | Experimental: 🔬
 
@@ -524,7 +524,7 @@ The Multi-Provider supports two evaluation modes:
 
 For a complete example, see the [AspNetCore sample](./samples/AspNetCore/README.md) which demonstrates Multi-Provider usage.
 
-### DependencyInjection
+### Dependency Injection
 
 > [!NOTE]
 > The OpenFeature.DependencyInjection and OpenFeature.Hosting packages are currently experimental. They streamline the integration of OpenFeature within .NET applications, allowing for seamless configuration and lifecycle management of feature flag providers using dependency injection and hosting services.
@@ -572,6 +572,7 @@ builder.Services.AddOpenFeature(featureBuilder => {
         .AddHostedFeatureLifecycle()
         .AddContext((contextBuilder, serviceProvider) => { /* Custom context configuration */ })
         .AddHook((serviceProvider) => new LoggingHook( /* Custom configuration */ ))
+        .AddHook(new MetricsHook())
         .AddInMemoryProvider("name1")
         .AddInMemoryProvider("name2")
         .AddPolicyName(options => {
@@ -703,8 +704,8 @@ Below are the metrics extracted by this hook and dimensions they carry:
 
 | Metric key                             | Description                     | Unit         | Dimensions                    |
 | -------------------------------------- | ------------------------------- | ------------ | ----------------------------- |
-| feature_flag.evaluation_requests_total | Number of evaluation requests   | {request}    | key, provider name            |
-| feature_flag.evaluation_success_total  | Flag evaluation successes       | {impression} | key, provider name, reason    |
+| feature_flag.evaluation_requests_total | Number of evaluation requests   | request      | key, provider name            |
+| feature_flag.evaluation_success_total  | Flag evaluation successes       | impression   | key, provider name, reason    |
 | feature_flag.evaluation_error_total    | Flag evaluation errors          | 1            | key, provider name, exception |
 | feature_flag.evaluation_active_count   | Active flag evaluations counter | 1            | key, provider name            |
 
@@ -753,6 +754,24 @@ namespace OpenFeatureTestApp
 ```
 
 After running this example, you should be able to see some metrics being generated into the console.
+
+You can specify custom dimensions on all instruments by the `MetricsHook` by providing `MetricsHookOptions` when adding the hook:
+
+```csharp
+var options = MetricsHookOptions.CreateBuilder()
+    .WithCustomDimension("custom_dimension_key", "custom_dimension_value")
+    .Build();
+
+OpenFeature.Api.Instance.AddHooks(new MetricsHook(options));
+```
+
+You can also write your own extraction logic against the Flag metadata by providing a callback to `WithFlagEvaluationMetadata`.
+
+```csharp
+var options = MetricsHookOptions.CreateBuilder()
+    .WithFlagEvaluationMetadata("boolean", s => s.GetBool("boolean"))
+    .Build();
+```
 
 <!-- x-hide-in-docs-start -->
 

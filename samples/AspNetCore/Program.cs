@@ -29,9 +29,14 @@ builder.Services.AddOpenTelemetry()
 
 builder.Services.AddOpenFeature(featureBuilder =>
 {
+    var metricsHookOptions = MetricsHookOptions.CreateBuilder()
+        .WithCustomDimension("custom_dimension_key", "custom_dimension_value")
+        .WithFlagEvaluationMetadata("boolean", s => s.GetBool("boolean"))
+        .Build();
+
     featureBuilder.AddHostedFeatureLifecycle()
         .AddHook(sp => new LoggingHook(sp.GetRequiredService<ILogger<LoggingHook>>()))
-        .AddHook<MetricsHook>()
+        .AddHook(_ => new MetricsHook(metricsHookOptions))
         .AddHook<TraceEnricherHook>()
         .AddInMemoryProvider("InMemory", _ => new Dictionary<string, Flag>()
         {
