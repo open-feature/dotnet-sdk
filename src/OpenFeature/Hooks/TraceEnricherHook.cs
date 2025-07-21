@@ -42,23 +42,23 @@ public class TraceEnricherHook : Hook
             tags[kvp.Key] = kvp.Value;
         }
 
-        this.AddCustomDimensions(tags);
-        this.AddFlagMetadataDimensions(details.FlagMetadata, tags);
+        this.AddCustomTags(tags);
+        this.AddFlagMetadataTags(details.FlagMetadata, tags);
 
         Activity.Current?.AddEvent(new ActivityEvent(evaluationEvent.Name, tags: tags));
 
         return base.FinallyAsync(context, details, hints, cancellationToken);
     }
 
-    private void AddCustomDimensions(ActivityTagsCollection tagList)
+    private void AddCustomTags(ActivityTagsCollection tagList)
     {
-        foreach (var customDimension in this._options.CustomDimensions)
+        foreach (var customDimension in this._options.Tags)
         {
             tagList.Add(customDimension.Key, customDimension.Value);
         }
     }
 
-    private void AddFlagMetadataDimensions(ImmutableMetadata? flagMetadata, ActivityTagsCollection tagList)
+    private void AddFlagMetadataTags(ImmutableMetadata? flagMetadata, ActivityTagsCollection tagList)
     {
         flagMetadata ??= new ImmutableMetadata();
 

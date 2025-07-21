@@ -13,7 +13,7 @@ public class TraceEnricherHookOptionsTests
 
         // Assert
         Assert.NotNull(options);
-        Assert.Empty(options.CustomDimensions);
+        Assert.Empty(options.Tags);
         Assert.Empty(options.FlagMetadataCallbacks);
     }
 
@@ -55,13 +55,13 @@ public class TraceEnricherHookOptionsTests
         var key = "custom_dimension_key";
 
         // Act
-        builder.WithCustomDimension(key, value);
+        builder.WithTag(key, value);
         var options = builder.Build();
 
         // Assert
-        Assert.Single(options.CustomDimensions);
-        Assert.Equal(key, options.CustomDimensions.First().Key);
-        Assert.Equal(value, options.CustomDimensions.First().Value);
+        Assert.Single(options.Tags);
+        Assert.Equal(key, options.Tags.First().Key);
+        Assert.Equal(value, options.Tags.First().Value);
     }
 
     [Fact]

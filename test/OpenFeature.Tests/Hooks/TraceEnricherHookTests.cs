@@ -74,7 +74,7 @@ public class TraceEnricherHookTests : IDisposable
     {
         // Arrange
         var traceHookOptions = TraceEnricherHookOptions.CreateBuilder()
-            .WithCustomDimension("custom_dimension_key", "custom_dimension_value")
+            .WithTag("custom_dimension_key", "custom_dimension_value")
             .Build();
         var traceEnricherHook = new TraceEnricherHook(traceHookOptions);
         var evaluationContext = EvaluationContext.Empty;

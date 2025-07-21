@@ -604,17 +604,17 @@ namespace OpenFeatureTestApp
 
 After running this example, you will be able to see the traces, including the events sent by the hook in your Jaeger UI.
 
-You can specify custom dimensions on spans created by the `TraceEnricherHook` by providing `TraceEnricherHookOptions` when adding the hook:
+You can specify custom tags on spans created by the `TraceEnricherHook` by providing `TraceEnricherHookOptions` when adding the hook:
 
 ```csharp
 var options = TraceEnricherHookOptions.CreateBuilder()
-    .WithCustomDimension("custom_dimension_key", "custom_dimension_value")
+    .WithTag("custom_dimension_key", "custom_dimension_value")
     .Build();
 
 OpenFeature.Api.Instance.AddHooks(new TraceEnricherHook(options));
 ```
 
-You can also write your own extraction logic against the Flag metadata by providing a callback to `WithFlagEvaluationMetadata`.
+You can also write your own extraction logic against the Flag metadata by providing a callback to `WithFlagEvaluationMetadata`. The below example will add a tag to the span with the key `boolean` and a value specified by the callback.
 
 ```csharp
 var options = TraceEnricherHookOptions.CreateBuilder()
