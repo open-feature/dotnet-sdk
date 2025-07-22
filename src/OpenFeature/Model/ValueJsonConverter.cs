@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -89,11 +89,11 @@ internal sealed class ValueJsonConverter : JsonConverter<Value>
         switch (reader.TokenType)
         {
             case JsonTokenType.True:
-                return new (true);
+                return new(true);
             case JsonTokenType.False:
-                return new (false);
+                return new(false);
             case JsonTokenType.Number:
-                return new (reader.GetDouble());
+                return new(reader.GetDouble());
             case JsonTokenType.String:
                 return new(reader.GetString()!);
             case JsonTokenType.StartArray:
