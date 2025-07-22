@@ -1,4 +1,6 @@
 using System.Collections.Immutable;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using OpenFeature.Model;
 
 namespace OpenFeature.Tests;
@@ -112,5 +114,34 @@ public class StructureTests
         IEnumerator<KeyValuePair<string, Value>> enumerator = structure.GetEnumerator();
         enumerator.MoveNext();
         Assert.Equal(VAL, enumerator.Current.Value.AsString);
+    }
+
+    [Theory]
+    [MemberData(nameof(JsonSerializeTestData))]
+    public void JsonSerializeTest(Value value, string expectedJson)
+    {
+        var serializedJsonNode = JsonSerializer.SerializeToNode(value);
+        var expectJsonNode = JsonNode.Parse(expectedJson);
+        Assert.True(JsonNode.DeepEquals(expectJsonNode, serializedJsonNode));
+    }
+
+    public static IEnumerable<object[]> JsonSerializeTestData()
+    {
+        yield return new object[] { new Value("test"), "\"test\"" };
+        yield return new object[] { new Value(1), "1" };
+        yield return new object[] { new Value(1.1), "1.1" };
+        yield return new object[] { new Value(true), "true" };
+        yield return new object[] { new Value(false), "false" };
+        yield return new object[]
+        {
+            new Value(Structure.Builder()
+                .Set("name", "Alice")
+                .Set("age", 16)
+                .Set("isMale", false)
+                .Set("tags", new Value([new Value("girl"), new Value("beauty")]))
+                .Build()
+            ),
+            """{"name":"Alice","age":16,"isMale":false,"tags":["girl","beauty"]}"""
+        };
     }
 }
