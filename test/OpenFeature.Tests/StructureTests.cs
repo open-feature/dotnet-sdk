@@ -125,23 +125,35 @@ public class StructureTests
         Assert.True(JsonNode.DeepEquals(expectJsonNode, serializedJsonNode));
     }
 
+    [Theory]
+    [MemberData(nameof(JsonSerializeTestData))]
+    public void JsonDeserializeTest(Value value, string expectedJson)
+    {
+        var serializedJsonNode = JsonSerializer.SerializeToNode(value);
+        var expectValue = JsonSerializer.Deserialize<Value>(expectedJson);
+        var expectJsonNode = JsonSerializer.SerializeToNode(expectValue);
+        Assert.True(JsonNode.DeepEquals(expectJsonNode, serializedJsonNode));
+    }
+
     public static IEnumerable<object[]> JsonSerializeTestData()
     {
-        yield return new object[] { new Value("test"), "\"test\"" };
-        yield return new object[] { new Value(1), "1" };
-        yield return new object[] { new Value(1.1), "1.1" };
-        yield return new object[] { new Value(true), "true" };
-        yield return new object[] { new Value(false), "false" };
-        yield return new object[]
-        {
+        yield return [new Value("test"), "\"test\""];
+        yield return [new Value(1), "1"];
+        yield return [new Value(1.2), "1.2"];
+        yield return [new Value(true), "true"];
+        yield return [new Value(false), "false"];
+        yield return
+        [
             new Value(Structure.Builder()
                 .Set("name", "Alice")
                 .Set("age", 16)
                 .Set("isMale", false)
+                .Set("bio", new Value())
+                .Set("bornAt", new DateTime(2000, 1, 1))
                 .Set("tags", new Value([new Value("girl"), new Value("beauty")]))
                 .Build()
             ),
-            """{"name":"Alice","age":16,"isMale":false,"tags":["girl","beauty"]}"""
-        };
+            """{"name":"Alice","age":16,"isMale":false,"bio":null,"bornAt":"2000-01-01T00:00:00.0000000","tags":["girl","beauty"]}"""
+        ];
     }
 }
