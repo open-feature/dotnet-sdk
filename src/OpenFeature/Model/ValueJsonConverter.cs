@@ -94,7 +94,7 @@ internal sealed class ValueJsonConverter : JsonConverter<Value>
                 return new(false);
             case JsonTokenType.Number:
                 if (reader.TryGetInt32(out var intVal))
-                    return new (intVal);
+                    return new(intVal);
 
                 return new(reader.GetDouble());
             case JsonTokenType.String:
