@@ -49,7 +49,7 @@ internal sealed class ValueJsonConverter : JsonConverter<Value>
 
         if (value.IsDateTime)
         {
-            writer.WriteStringValue(value.AsDateTime!);
+            writer.WriteStringValue(value.AsDateTime!.Value);
             return;
         }
 
