@@ -93,8 +93,14 @@ internal sealed class ValueJsonConverter : JsonConverter<Value>
             case JsonTokenType.False:
                 return new(false);
             case JsonTokenType.Number:
+                if (reader.TryGetInt32(out var intVal))
+                    return new (intVal);
+
                 return new(reader.GetDouble());
             case JsonTokenType.String:
+                if (reader.TryGetDateTime(out var dateTime))
+                    return new(dateTime);
+
                 return new(reader.GetString()!);
             case JsonTokenType.StartArray:
                 var list = new List<Value>();
