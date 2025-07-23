@@ -153,7 +153,7 @@ public class StructureTests
                 .Set("tags", new Value([new Value("girl"), new Value("beauty")]))
                 .Build()
             ),
-            """{"name":"Alice","age":16,"isMale":false,"bio":null,"bornAt":"2000-01-01T00:00:00.0000000","tags":["girl","beauty"]}"""
+            """{"name":"Alice","age":16,"isMale":false,"bio":null,"bornAt":"2000-01-01T00:00:00","tags":["girl","beauty"]}"""
         ];
     }
 }
