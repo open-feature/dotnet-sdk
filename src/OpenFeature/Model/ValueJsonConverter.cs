@@ -28,16 +28,7 @@ internal sealed class ValueJsonConverter : JsonConverter<Value>
 
         if (value.IsNumber)
         {
-            var doubleVal = value.AsDouble;
-            Debug.Assert(doubleVal is not null);
-            if (((doubleVal % 1) == 0) && doubleVal!.Value is >= int.MinValue and <= int.MaxValue)
-            {
-                writer.WriteNumberValue(value.AsInteger!.Value);
-            }
-            else
-            {
-                writer.WriteNumberValue(doubleVal!.Value);
-            }
+            writer.WriteNumberValue(value.AsDouble!.Value);
             return;
         }
 
