@@ -38,7 +38,7 @@ builder.Services.AddOpenFeature(featureBuilder =>
         .WithFlagEvaluationMetadata("boolean", s => s.GetBool("boolean"))
         .Build();
 
-    featureBuilder.AddHostedFeatureLifecycle()
+    featureBuilder
         .AddHook(sp => new LoggingHook(sp.GetRequiredService<ILogger<LoggingHook>>()))
         .AddHook(_ => new MetricsHook(metricsHookOptions))
         .AddHook<TraceEnricherHook>()

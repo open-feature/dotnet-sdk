@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using OpenFeature.DependencyInjection;
 using OpenFeature.DependencyInjection.Internal;
+using OpenFeature.Hosting;
 
 namespace OpenFeature;
 
@@ -54,6 +55,9 @@ public static partial class OpenFeatureServiceCollectionExtensions
         }
 
         builder.AddPolicyBasedClient();
+
+        builder.Services.AddHostedService<HostedFeatureLifecycleService>();
+
         return services;
     }
 }
