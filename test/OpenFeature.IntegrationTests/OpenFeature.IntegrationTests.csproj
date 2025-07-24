@@ -18,7 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\OpenFeature.DependencyInjection\OpenFeature.DependencyInjection.csproj" />
     <ProjectReference Include="..\..\src\OpenFeature.Hosting\OpenFeature.Hosting.csproj" />
   </ItemGroup>
 

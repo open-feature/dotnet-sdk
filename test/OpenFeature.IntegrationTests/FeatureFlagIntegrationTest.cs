@@ -211,7 +211,6 @@ public class FeatureFlagIntegrationTest
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddOpenFeature(cfg =>
         {
-            cfg.AddHostedFeatureLifecycle();
             cfg.AddContext((builder, provider) =>
             {
                 // Retrieve the HttpContext from IHttpContextAccessor, ensuring it's not null.

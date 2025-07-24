@@ -31,6 +31,8 @@ public static partial class OpenFeatureServiceCollectionExtensions
         var builder = new OpenFeatureBuilder(services);
         configure(builder);
 
+        builder.Services.AddHostedService<HostedFeatureLifecycleService>();
+
         // If a default provider is specified without additional providers,
         // return early as no extra configuration is needed.
         if (builder.HasDefaultProvider && builder.DomainBoundProviderRegistrationCount == 0)
@@ -55,8 +57,6 @@ public static partial class OpenFeatureServiceCollectionExtensions
         }
 
         builder.AddPolicyBasedClient();
-
-        builder.Services.AddHostedService<HostedFeatureLifecycleService>();
 
         return services;
     }
