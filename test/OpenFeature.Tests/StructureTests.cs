@@ -151,9 +151,29 @@ public class StructureTests
                 .Set("bio", new Value())
                 .Set("bornAt", new DateTime(2000, 1, 1))
                 .Set("tags", new Value([new Value("girl"), new Value("beauty")]))
+                .Set("job", Structure.Builder()
+                    .Set("title", "Software Engineer")
+                    .Set("grade", "Senior")
+                    .Build())
                 .Build()
             ),
-            """{"name":"Alice","age":16,"isMale":false,"bio":null,"bornAt":"2000-01-01T00:00:00","tags":["girl","beauty"]}"""
+            """
+            {
+                "name": "Alice",
+                "age": 16,
+                "isMale": false,
+                "bio": null,
+                "bornAt": "2000-01-01T00:00:00",
+                "tags": [
+                    "girl",
+                    "beauty"
+                ],
+                "job": {
+                    "title": "Software Engineer",
+                    "grade": "Senior"
+                }
+            }
+            """
         ];
     }
 }
