@@ -28,15 +28,15 @@ internal sealed class ValueJsonConverter : JsonConverter<Value>
 
         if (value.IsNumber)
         {
-            var intVal = value.AsInteger;
             var doubleVal = value.AsDouble;
-            if (intVal.HasValue && Convert.ToDouble(intVal.Value) == doubleVal.GetValueOrDefault())
+            Debug.Assert(doubleVal is not null);
+            if (((doubleVal % 1) == 0) && doubleVal!.Value is > int.MinValue and < int.MaxValue)
             {
-                writer.WriteNumberValue(intVal.Value);
+                writer.WriteNumberValue(value.AsInteger!.Value);
             }
             else
             {
-                writer.WriteNumberValue(value.AsDouble.GetValueOrDefault());
+                writer.WriteNumberValue(doubleVal!.Value);
             }
             return;
         }
