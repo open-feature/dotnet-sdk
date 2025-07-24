@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net8.0;net9.0;net462</TargetFrameworks>
     <RootNamespace>OpenFeature</RootNamespace>
   </PropertyGroup>
 
@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OpenFeature.DependencyInjection\OpenFeature.DependencyInjection.csproj" />
+    <ProjectReference Include="..\OpenFeature\OpenFeature.csproj" />
   </ItemGroup>
 
 </Project>
