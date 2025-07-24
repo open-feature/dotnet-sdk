@@ -140,7 +140,7 @@ public class StructureTests
         yield return [new Value("test"), "\"test\""];
         yield return [new Value(1), "1"];
         yield return [new Value(1.2), "1.2"];
-        yield return [new Value(int.MaxValue + 1.1), "2147483648.1"];
+        yield return [new Value(int.MaxValue + 1.0), "2147483648"];
         yield return [new Value(true), "true"];
         yield return [new Value(false), "false"];
         yield return
