@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Text.Json.Serialization;
 
 namespace OpenFeature.Model;
 
@@ -6,6 +7,7 @@ namespace OpenFeature.Model;
 ///  Values serve as a return type for provider objects. Providers may deal in JSON, protobuf, XML or some other data-interchange format.
 ///  This intermediate representation provides a good medium of exchange.
 /// </summary>
+[JsonConverter(typeof(ValueJsonConverter))]
 public sealed class Value : IEquatable<Value>
 {
     private readonly object? _innerValue;
