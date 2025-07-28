@@ -3,7 +3,7 @@ using OpenFeature.Providers.MultiProvider.Models;
 
 namespace OpenFeature.Tests.Providers.MultiProvider.Models;
 
-public class ProviderEntryTests
+public class ChildProviderEntryTests
 {
     private readonly FeatureProvider _mockProvider = Substitute.For<FeatureProvider>();
 

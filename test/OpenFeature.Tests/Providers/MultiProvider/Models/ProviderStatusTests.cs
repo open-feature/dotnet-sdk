@@ -8,7 +8,7 @@ public class ProviderStatusTests
     public void Constructor_CreatesProviderStatusWithDefaultValues()
     {
         // Act
-        var providerStatus = new ProviderStatus();
+        var providerStatus = new ChildProviderStatus();
 
         // Assert
         Assert.Equal(string.Empty, providerStatus.ProviderName);
@@ -20,7 +20,7 @@ public class ProviderStatusTests
     {
         // Arrange
         const string providerName = "test-provider";
-        var providerStatus = new ProviderStatus();
+        var providerStatus = new ChildProviderStatus();
 
         // Act
         providerStatus.ProviderName = providerName;
@@ -33,7 +33,7 @@ public class ProviderStatusTests
     public void ProviderName_CanBeSetToNull()
     {
         // Arrange
-        var providerStatus = new ProviderStatus { ProviderName = "initial-name" };
+        var providerStatus = new ChildProviderStatus { ProviderName = "initial-name" };
 
         // Act
         providerStatus.ProviderName = null!;
@@ -46,7 +46,7 @@ public class ProviderStatusTests
     public void ProviderName_CanBeSetToEmptyString()
     {
         // Arrange
-        var providerStatus = new ProviderStatus { ProviderName = "initial-name" };
+        var providerStatus = new ChildProviderStatus { ProviderName = "initial-name" };
 
         // Act
         providerStatus.ProviderName = string.Empty;
@@ -60,7 +60,7 @@ public class ProviderStatusTests
     {
         // Arrange
         var exception = new InvalidOperationException("Test exception");
-        var providerStatus = new ProviderStatus();
+        var providerStatus = new ChildProviderStatus();
 
         // Act
         providerStatus.Error = exception;
@@ -73,7 +73,7 @@ public class ProviderStatusTests
     public void Exception_CanBeSetToNull()
     {
         // Arrange
-        var providerStatus = new ProviderStatus { Error = new Exception("initial exception") };
+        var providerStatus = new ChildProviderStatus { Error = new Exception("initial exception") };
 
         // Act
         providerStatus.Error = null;
@@ -90,7 +90,7 @@ public class ProviderStatusTests
         var exception = new ArgumentException("Test exception");
 
         // Act
-        var providerStatus = new ProviderStatus
+        var providerStatus = new ChildProviderStatus
         {
             ProviderName = providerName,
             Error = exception
@@ -105,7 +105,7 @@ public class ProviderStatusTests
     public void ProviderName_Property_HasGetterAndSetter()
     {
         // Act & Assert
-        var providerNameProperty = typeof(ProviderStatus).GetProperty(nameof(ProviderStatus.ProviderName));
+        var providerNameProperty = typeof(ChildProviderStatus).GetProperty(nameof(ChildProviderStatus.ProviderName));
         Assert.NotNull(providerNameProperty);
         Assert.True(providerNameProperty.CanRead);
         Assert.True(providerNameProperty.CanWrite);
@@ -115,7 +115,7 @@ public class ProviderStatusTests
     public void Exception_Property_HasGetterAndSetter()
     {
         // Act & Assert
-        var exceptionProperty = typeof(ProviderStatus).GetProperty(nameof(ProviderStatus.Error));
+        var exceptionProperty = typeof(ChildProviderStatus).GetProperty(nameof(ChildProviderStatus.Error));
         Assert.NotNull(exceptionProperty);
         Assert.True(exceptionProperty.CanRead);
         Assert.True(exceptionProperty.CanWrite);

@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using OpenFeature.Constant;
 using OpenFeature.Model;
 using OpenFeature.Providers.MultiProvider.Models;
 using OpenFeature.Providers.MultiProvider.Strategies;
@@ -16,11 +17,16 @@ namespace OpenFeature.Providers.MultiProvider;
 /// different feature flags may be served by different sources or providers within the same application.
 /// </remarks>
 /// <seealso href="https://openfeature.dev/specification/appendix-a/#multi-provider">Multi Provider specification</seealso>
-public sealed class MultiProvider : FeatureProvider
+public sealed class MultiProvider : FeatureProvider, IDisposable
 {
     private readonly BaseEvaluationStrategy _evaluationStrategy;
     private readonly IReadOnlyList<RegisteredProvider> _registeredProviders;
     private readonly Metadata _metadata;
+
+    private readonly SemaphoreSlim _initializationSemaphore = new(1, 1);
+    private readonly SemaphoreSlim _shutdownSemaphore = new(1, 1);
+    private volatile ProviderStatus _providerStatus = ProviderStatus.NotReady;
+    private volatile bool _disposed;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MultiProvider"/> class with the specified provider entries and evaluation strategy.
@@ -74,62 +80,113 @@ public sealed class MultiProvider : FeatureProvider
     /// <inheritdoc/>
     public override async Task InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default)
     {
-        var initializationTasks = this._registeredProviders.Select(async rp =>
+#if NET8_0_OR_GREATER
+        ObjectDisposedException.ThrowIf(this._disposed, this);
+#else
+        if (this._disposed)
         {
-            try
-            {
-                await rp.Provider.InitializeAsync(context, cancellationToken).ConfigureAwait(false);
-                rp.SetStatus(Constant.ProviderStatus.Ready);
-                return new ProviderStatus { ProviderName = rp.Name };
-            }
-            catch (Exception ex)
-            {
-                rp.SetStatus(Constant.ProviderStatus.Fatal);
-                return new ProviderStatus { ProviderName = rp.Name, Error = ex };
-            }
-        });
+            throw new ObjectDisposedException(nameof(MultiProvider));
+        }
+#endif
 
-        var results = await Task.WhenAll(initializationTasks).ConfigureAwait(false);
-        var failures = results.Where(r => r.Error != null).ToList();
-
-        if (failures.Count != 0)
+        await this._initializationSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
         {
-            var exceptions = failures.Select(f => f.Error!).ToList();
-            var failedProviders = failures.Select(f => f.ProviderName).ToList();
-            throw new AggregateException(
-                $"Failed to initialize providers: {string.Join(", ", failedProviders)}",
-                exceptions);
+            if (this._providerStatus != ProviderStatus.NotReady || this._disposed)
+            {
+                return;
+            }
+
+            var initializationTasks = this._registeredProviders.Select(async rp =>
+            {
+                try
+                {
+                    await rp.Provider.InitializeAsync(context, cancellationToken).ConfigureAwait(false);
+                    rp.SetStatus(ProviderStatus.Ready);
+                    return new ChildProviderStatus { ProviderName = rp.Name };
+                }
+                catch (Exception ex)
+                {
+                    rp.SetStatus(ProviderStatus.Fatal);
+                    return new ChildProviderStatus { ProviderName = rp.Name, Error = ex };
+                }
+            });
+
+            var results = await Task.WhenAll(initializationTasks).ConfigureAwait(false);
+            var failures = results.Where(r => r.Error != null).ToList();
+
+            if (failures.Count != 0)
+            {
+                var exceptions = failures.Select(f => f.Error!).ToList();
+                var failedProviders = failures.Select(f => f.ProviderName).ToList();
+                this._providerStatus = ProviderStatus.Fatal;
+                throw new AggregateException(
+                    $"Failed to initialize providers: {string.Join(", ", failedProviders)}",
+                    exceptions);
+            }
+            else
+            {
+                this._providerStatus = ProviderStatus.Ready;
+            }
+        }
+        finally
+        {
+            this._initializationSemaphore.Release();
         }
     }
 
     /// <inheritdoc/>
     public override async Task ShutdownAsync(CancellationToken cancellationToken = default)
     {
-        var shutdownTasks = this._registeredProviders.Select(async rp =>
+#if NET8_0_OR_GREATER
+        ObjectDisposedException.ThrowIf(this._disposed, this);
+#else
+        if (this._disposed)
         {
-            try
-            {
-                await rp.Provider.ShutdownAsync(cancellationToken).ConfigureAwait(false);
-                rp.SetStatus(Constant.ProviderStatus.NotReady);
-                return new ProviderStatus { ProviderName = rp.Name };
-            }
-            catch (Exception ex)
-            {
-                rp.SetStatus(Constant.ProviderStatus.Fatal);
-                return new ProviderStatus { ProviderName = rp.Name, Error = ex };
-            }
-        });
+            throw new ObjectDisposedException(nameof(MultiProvider));
+        }
+#endif
 
-        var results = await Task.WhenAll(shutdownTasks).ConfigureAwait(false);
-        var failures = results.Where(r => r.Error != null).ToList();
-
-        if (failures.Count != 0)
+        await this._shutdownSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
         {
-            var exceptions = failures.Select(f => f.Error!).ToList();
-            var failedProviders = failures.Select(f => f.ProviderName).ToList();
-            throw new AggregateException(
-                $"Failed to shutdown providers: {string.Join(", ", failedProviders)}",
-                exceptions);
+            if (this._providerStatus != ProviderStatus.Ready || this._disposed)
+            {
+                return;
+            }
+
+            var shutdownTasks = this._registeredProviders.Select(async rp =>
+            {
+                try
+                {
+                    await rp.Provider.ShutdownAsync(cancellationToken).ConfigureAwait(false);
+                    rp.SetStatus(ProviderStatus.NotReady);
+                    return new ChildProviderStatus { ProviderName = rp.Name };
+                }
+                catch (Exception ex)
+                {
+                    rp.SetStatus(ProviderStatus.Fatal);
+                    return new ChildProviderStatus { ProviderName = rp.Name, Error = ex };
+                }
+            });
+
+            var results = await Task.WhenAll(shutdownTasks).ConfigureAwait(false);
+            var failures = results.Where(r => r.Error != null).ToList();
+
+            if (failures.Count != 0)
+            {
+                var exceptions = failures.Select(f => f.Error!).ToList();
+                var failedProviders = failures.Select(f => f.ProviderName).ToList();
+                throw new AggregateException(
+                    $"Failed to shutdown providers: {string.Join(", ", failedProviders)}",
+                    exceptions);
+            }
+
+            this._providerStatus = ProviderStatus.NotReady;
+        }
+        finally
+        {
+            this._shutdownSemaphore.Release();
         }
     }
 
@@ -240,5 +297,27 @@ public sealed class MultiProvider : FeatureProvider
         }
 
         return registeredProviders.AsReadOnly();
+    }
+
+    /// <summary>
+    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+    /// </summary>
+    public void Dispose()
+    {
+        if (!this._disposed)
+        {
+            this._initializationSemaphore.Dispose();
+            this._shutdownSemaphore.Dispose();
+            this._disposed = true;
+        }
+    }
+
+    /// <summary>
+    /// This should only be used for testing purposes.
+    /// </summary>
+    /// <param name="providerStatus">The status to set.</param>
+    internal void SetStatus(ProviderStatus providerStatus)
+    {
+        this._providerStatus = providerStatus;
     }
 }

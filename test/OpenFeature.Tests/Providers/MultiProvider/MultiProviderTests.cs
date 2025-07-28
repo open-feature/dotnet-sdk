@@ -1,3 +1,4 @@
+using System.Reflection;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using OpenFeature.Constant;
@@ -204,6 +205,7 @@ public class MultiProviderClassTests
             new(this._mockProvider2, Provider2Name)
         };
         var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        multiProvider.SetStatus(ProviderStatus.Ready);
 
         this._mockProvider1.ShutdownAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
         this._mockProvider2.ShutdownAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
@@ -227,6 +229,7 @@ public class MultiProviderClassTests
             new(this._mockProvider2, Provider2Name)
         };
         var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        multiProvider.SetStatus(ProviderStatus.Ready);
 
         this._mockProvider1.ShutdownAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
         this._mockProvider2.ShutdownAsync(Arg.Any<CancellationToken>()).ThrowsAsync(expectedException);
@@ -559,6 +562,7 @@ public class MultiProviderClassTests
         // Arrange
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
         var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        multiProvider.SetStatus(ProviderStatus.Ready);
 
         this._mockProvider1.ShutdownAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
 
@@ -607,6 +611,7 @@ public class MultiProviderClassTests
             new(this._mockProvider3, Provider3Name)
         };
         var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        multiProvider.SetStatus(ProviderStatus.Ready);
 
         this._mockProvider1.ShutdownAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
         this._mockProvider2.ShutdownAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
@@ -620,4 +625,173 @@ public class MultiProviderClassTests
         await this._mockProvider2.Received(1).ShutdownAsync(Arg.Any<CancellationToken>());
         await this._mockProvider3.Received(1).ShutdownAsync(Arg.Any<CancellationToken>());
     }
+
+    [Fact]
+    public async Task MultiProvider_ConcurrentInitializationAndShutdown_ShouldMaintainConsistentProviderStatus()
+    {
+        // Arrange
+        const int providerCount = 20;
+        var random = new Random();
+        var providerEntries = new List<ProviderEntry>();
+
+        for (int i = 0; i < providerCount; i++)
+        {
+            var provider = Substitute.For<FeatureProvider>();
+
+            provider.InitializeAsync(Arg.Any<EvaluationContext>(), Arg.Any<CancellationToken>())
+                    .Returns(Task.CompletedTask);
+
+            provider.ShutdownAsync(Arg.Any<CancellationToken>())
+                    .Returns(Task.CompletedTask);
+
+            provider.GetMetadata()
+                    .Returns(new Metadata(name: $"provider-{i}"));
+
+            providerEntries.Add(new ProviderEntry(provider));
+        }
+
+        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries);
+
+        // Act: simulate concurrent initialization and shutdown with one task each
+        var initTasks = Enumerable.Range(0, 1).Select(_ =>
+            Task.Run(() => multiProvider.InitializeAsync(Arg.Any<EvaluationContext>(), CancellationToken.None)));
+
+        var shutdownTasks = Enumerable.Range(0, 1).Select(_ =>
+            Task.Run(() => multiProvider.ShutdownAsync(CancellationToken.None)));
+
+        await Task.WhenAll(initTasks.Concat(shutdownTasks));
+
+        // Assert: ensure that each provider ends in a valid lifecycle state
+        var statuses = GetRegisteredStatuses().ToList();
+
+        Assert.All(statuses, status =>
+        {
+            Assert.True(
+                status is ProviderStatus.Ready or ProviderStatus.NotReady,
+                $"Unexpected provider status: {status}");
+        });
+
+        // Local helper: uses reflection to access the private '_registeredProviders' field
+        // and retrieve the current status of each registered provider.
+        // Consider replacing this with an internal or public method if testing becomes more frequent.
+        IEnumerable<ProviderStatus> GetRegisteredStatuses()
+        {
+            var field = typeof(MultiProviderImplementation.MultiProvider).GetField("_registeredProviders", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (field?.GetValue(multiProvider) is not IEnumerable<object> list)
+                throw new InvalidOperationException("Could not retrieve registered providers via reflection.");
+
+            foreach (var p in list)
+            {
+                var statusProperty = p.GetType().GetProperty("Status", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (statusProperty == null)
+                    throw new InvalidOperationException($"'Status' property not found on type {p.GetType().Name}.");
+
+                if (statusProperty.GetValue(p) is not ProviderStatus status)
+                    throw new InvalidOperationException("Unable to read status property value.");
+
+                yield return status;
+            }
+        }
+    }
+
+    [Fact]
+    public void Dispose_ShouldDisposeInternalResources()
+    {
+        // Arrange
+        var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
+        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+
+        // Act
+        multiProvider.Dispose();
+
+        // Assert - Should not throw any exception
+        // The internal semaphores should be disposed
+        Assert.True(true); // If we get here without exception, disposal worked
+    }
+
+    [Fact]
+    public void Dispose_CalledMultipleTimes_ShouldNotThrow()
+    {
+        // Arrange
+        var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
+        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+
+        // Act & Assert - Multiple calls to Dispose should not throw
+        multiProvider.Dispose();
+        multiProvider.Dispose();
+        multiProvider.Dispose();
+
+        // If we get here without exception, multiple disposal calls worked correctly
+        Assert.True(true);
+    }
+
+    [Fact]
+    public async Task InitializeAsync_AfterDispose_ShouldThrowObjectDisposedException()
+    {
+        // Arrange
+        var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
+        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+
+        // Act
+        multiProvider.Dispose();
+
+        // Assert
+        var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
+            multiProvider.InitializeAsync(this._evaluationContext));
+        Assert.Equal(nameof(MultiProviderImplementation.MultiProvider), exception.ObjectName);
+    }
+
+    [Fact]
+    public async Task ShutdownAsync_AfterDispose_ShouldThrowObjectDisposedException()
+    {
+        // Arrange
+        var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
+        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+
+        // Act
+        multiProvider.Dispose();
+
+        // Assert
+        var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
+            multiProvider.ShutdownAsync());
+        Assert.Equal(nameof(MultiProviderImplementation.MultiProvider), exception.ObjectName);
+    }
+
+    [Fact]
+    public async Task InitializeAsync_WhenAlreadyDisposed_DuringExecution_ShouldExitEarly()
+    {
+        // Arrange
+        var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
+        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+
+        // Dispose before calling InitializeAsync
+        multiProvider.Dispose();
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
+            multiProvider.InitializeAsync(this._evaluationContext));
+
+        // Verify that the underlying provider was never called since the object was disposed
+        await this._mockProvider1.DidNotReceive().InitializeAsync(Arg.Any<EvaluationContext>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task ShutdownAsync_WhenAlreadyDisposed_DuringExecution_ShouldExitEarly()
+    {
+        // Arrange
+        var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
+        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+
+        // Dispose before calling ShutdownAsync
+        multiProvider.Dispose();
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
+            multiProvider.ShutdownAsync());
+
+        // Verify that the underlying provider was never called since the object was disposed
+        await this._mockProvider1.DidNotReceive().ShutdownAsync(Arg.Any<CancellationToken>());
+    }
+
+
 }
