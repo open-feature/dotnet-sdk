@@ -80,14 +80,10 @@ public sealed class MultiProvider : FeatureProvider, IDisposable
     /// <inheritdoc/>
     public override async Task InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default)
     {
-#if NET8_0_OR_GREATER
-        ObjectDisposedException.ThrowIf(this._disposed, this);
-#else
         if (this._disposed)
         {
             throw new ObjectDisposedException(nameof(MultiProvider));
         }
-#endif
 
         await this._initializationSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
@@ -138,14 +134,10 @@ public sealed class MultiProvider : FeatureProvider, IDisposable
     /// <inheritdoc/>
     public override async Task ShutdownAsync(CancellationToken cancellationToken = default)
     {
-#if NET8_0_OR_GREATER
-        ObjectDisposedException.ThrowIf(this._disposed, this);
-#else
         if (this._disposed)
         {
             throw new ObjectDisposedException(nameof(MultiProvider));
         }
-#endif
 
         await this._shutdownSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
         try

@@ -738,7 +738,7 @@ public class MultiProviderClassTests
         // Assert
         var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
             multiProvider.InitializeAsync(this._evaluationContext));
-        Assert.Equal("OpenFeature.Providers.MultiProvider.MultiProvider", exception.ObjectName);
+        Assert.Equal(nameof(MultiProviderImplementation.MultiProvider), exception.ObjectName);
     }
 
     [Fact]
@@ -754,7 +754,7 @@ public class MultiProviderClassTests
         // Assert
         var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
             multiProvider.ShutdownAsync());
-        Assert.Equal("OpenFeature.Providers.MultiProvider.MultiProvider", exception.ObjectName);
+        Assert.Equal(nameof(MultiProviderImplementation.MultiProvider), exception.ObjectName);
     }
 
     [Fact]
