@@ -85,7 +85,7 @@ public sealed class Api : IEventBus
     /// Gets the feature provider with given domain
     /// </summary>
     /// <param name="domain">An identifier which logically binds clients with providers</param>
-    /// <returns>A provider associated with the given domain, if domain is empty or doesn't
+    /// <returns>A provider associated with the given domain, if domain is empty, null, whitespace or doesn't
     /// have a corresponding provider the default provider will be returned</returns>
     public FeatureProvider GetProvider(string domain)
     {
@@ -114,7 +114,7 @@ public sealed class Api : IEventBus
     /// <summary>
     /// Create a new instance of <see cref="FeatureClient"/> using the current provider
     /// </summary>
-    /// <param name="name">Name of client</param>
+    /// <param name="name">Name of client, if the <paramref name="name"/> is not provided a default name will be used</param>
     /// <param name="version">Version of client</param>
     /// <param name="logger">Logger instance used by client</param>
     /// <param name="context">Context given to this client</param>
