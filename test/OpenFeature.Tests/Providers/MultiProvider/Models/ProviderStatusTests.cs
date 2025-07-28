@@ -12,7 +12,7 @@ public class ProviderStatusTests
 
         // Assert
         Assert.Equal(string.Empty, providerStatus.ProviderName);
-        Assert.Null(providerStatus.Exception);
+        Assert.Null(providerStatus.Error);
     }
 
     [Fact]
@@ -63,23 +63,23 @@ public class ProviderStatusTests
         var providerStatus = new ProviderStatus();
 
         // Act
-        providerStatus.Exception = exception;
+        providerStatus.Error = exception;
 
         // Assert
-        Assert.Equal(exception, providerStatus.Exception);
+        Assert.Equal(exception, providerStatus.Error);
     }
 
     [Fact]
     public void Exception_CanBeSetToNull()
     {
         // Arrange
-        var providerStatus = new ProviderStatus { Exception = new Exception("initial exception") };
+        var providerStatus = new ProviderStatus { Error = new Exception("initial exception") };
 
         // Act
-        providerStatus.Exception = null;
+        providerStatus.Error = null;
 
         // Assert
-        Assert.Null(providerStatus.Exception);
+        Assert.Null(providerStatus.Error);
     }
 
     [Fact]
@@ -93,12 +93,12 @@ public class ProviderStatusTests
         var providerStatus = new ProviderStatus
         {
             ProviderName = providerName,
-            Exception = exception
+            Error = exception
         };
 
         // Assert
         Assert.Equal(providerName, providerStatus.ProviderName);
-        Assert.Equal(exception, providerStatus.Exception);
+        Assert.Equal(exception, providerStatus.Error);
     }
 
     [Fact]
@@ -115,7 +115,7 @@ public class ProviderStatusTests
     public void Exception_Property_HasGetterAndSetter()
     {
         // Act & Assert
-        var exceptionProperty = typeof(ProviderStatus).GetProperty(nameof(ProviderStatus.Exception));
+        var exceptionProperty = typeof(ProviderStatus).GetProperty(nameof(ProviderStatus.Error));
         Assert.NotNull(exceptionProperty);
         Assert.True(exceptionProperty.CanRead);
         Assert.True(exceptionProperty.CanWrite);

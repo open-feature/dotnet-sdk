@@ -85,16 +85,16 @@ public sealed class MultiProvider : FeatureProvider
             catch (Exception ex)
             {
                 rp.SetStatus(Constant.ProviderStatus.Fatal);
-                return new ProviderStatus { ProviderName = rp.Name, Exception = ex };
+                return new ProviderStatus { ProviderName = rp.Name, Error = ex };
             }
         });
 
         var results = await Task.WhenAll(initializationTasks).ConfigureAwait(false);
-        var failures = results.Where(r => r.Exception != null).ToList();
+        var failures = results.Where(r => r.Error != null).ToList();
 
         if (failures.Count != 0)
         {
-            var exceptions = failures.Select(f => f.Exception!).ToList();
+            var exceptions = failures.Select(f => f.Error!).ToList();
             var failedProviders = failures.Select(f => f.ProviderName).ToList();
             throw new AggregateException(
                 $"Failed to initialize providers: {string.Join(", ", failedProviders)}",
@@ -116,16 +116,16 @@ public sealed class MultiProvider : FeatureProvider
             catch (Exception ex)
             {
                 rp.SetStatus(Constant.ProviderStatus.Fatal);
-                return new ProviderStatus { ProviderName = rp.Name, Exception = ex };
+                return new ProviderStatus { ProviderName = rp.Name, Error = ex };
             }
         });
 
         var results = await Task.WhenAll(shutdownTasks).ConfigureAwait(false);
-        var failures = results.Where(r => r.Exception != null).ToList();
+        var failures = results.Where(r => r.Error != null).ToList();
 
         if (failures.Count != 0)
         {
-            var exceptions = failures.Select(f => f.Exception!).ToList();
+            var exceptions = failures.Select(f => f.Error!).ToList();
             var failedProviders = failures.Select(f => f.ProviderName).ToList();
             throw new AggregateException(
                 $"Failed to shutdown providers: {string.Join(", ", failedProviders)}",
