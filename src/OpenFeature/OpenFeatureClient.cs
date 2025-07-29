@@ -70,20 +70,20 @@ public sealed partial class FeatureClient : IFeatureClient
     /// <summary>
     /// Initializes a new instance of the <see cref="FeatureClient"/> class.
     /// </summary>
+    /// <param name="api">The API instance for accessing global state and providers</param>
     /// <param name="providerAccessor">Function to retrieve current provider</param>
     /// <param name="name">Name of client <see cref="ClientMetadata"/></param>
     /// <param name="version">Version of client <see cref="ClientMetadata"/></param>
-    /// <param name="api">The API instance for accessing global state and providers</param>
     /// <param name="logger">Logger used by client</param>
     /// <param name="context">Context given to this client</param>
     /// <exception cref="ArgumentNullException">Throws if any of the required parameters are null</exception>
-    internal FeatureClient(Func<FeatureProvider> providerAccessor, string? name, string? version, Api? api = null, ILogger? logger = null, EvaluationContext? context = null)
+    internal FeatureClient(Api api, Func<FeatureProvider> providerAccessor, string? name, string? version, ILogger? logger = null, EvaluationContext? context = null)
     {
+        this._api = api;
+        this._providerAccessor = providerAccessor;
         this._metadata = new ClientMetadata(name, version);
         this._logger = logger ?? NullLogger<FeatureClient>.Instance;
         this._evaluationContext = context ?? EvaluationContext.Empty;
-        this._providerAccessor = providerAccessor;
-        this._api = api ?? Api.Instance;
     }
 
     /// <inheritdoc />

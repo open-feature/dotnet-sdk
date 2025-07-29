@@ -121,7 +121,7 @@ public sealed class Api : IEventBus
     /// <returns><see cref="FeatureClient"/></returns>
     public FeatureClient GetClient(string? name = null, string? version = null, ILogger? logger = null,
         EvaluationContext? context = null) =>
-        new FeatureClient(() => this._repository.GetProvider(name), name, version, this, logger, context);
+        new FeatureClient(this, () => this._repository.GetProvider(name), name, version, logger, context);
 
     /// <summary>
     /// Appends list of hooks to global hooks list
