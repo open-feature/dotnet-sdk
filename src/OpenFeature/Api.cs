@@ -360,4 +360,12 @@ public sealed class Api : IEventBus
     {
         Instance = new Api();
     }
+
+    /// <summary>
+    /// This method should only be used in the Dependency Injection setup. It will set the singleton instance of the API using the provided instance.
+    /// </summary>
+    internal static void SetInstance(Api api)
+    {
+        Instance = api;
+    }
 }
