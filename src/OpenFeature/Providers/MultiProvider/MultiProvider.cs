@@ -25,8 +25,8 @@ public sealed class MultiProvider : FeatureProvider, IDisposable
 
     private readonly SemaphoreSlim _initializationSemaphore = new(1, 1);
     private readonly SemaphoreSlim _shutdownSemaphore = new(1, 1);
-    private volatile ProviderStatus _providerStatus = ProviderStatus.NotReady;
-    private volatile bool _disposed;
+    private ProviderStatus _providerStatus = ProviderStatus.NotReady;
+    private bool _disposed;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MultiProvider"/> class with the specified provider entries and evaluation strategy.

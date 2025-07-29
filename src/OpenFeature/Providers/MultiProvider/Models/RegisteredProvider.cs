@@ -8,7 +8,7 @@ internal class RegisteredProvider
     private readonly object _statusLock = new object();
 #endif
 
-    private volatile Constant.ProviderStatus _status = Constant.ProviderStatus.NotReady;
+    private Constant.ProviderStatus _status = Constant.ProviderStatus.NotReady;
 
     internal RegisteredProvider(FeatureProvider provider, string name)
     {
