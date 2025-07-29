@@ -24,7 +24,7 @@ public static partial class OpenFeatureServiceCollectionExtensions
         Guard.ThrowIfNull(configure);
 
         // Register core OpenFeature services as singletons.
-        services.TryAddSingleton(Api.Instance);
+        services.TryAddSingleton(new Api());
         services.TryAddSingleton<IFeatureLifecycleManager, FeatureLifecycleManager>();
 
         var builder = new OpenFeatureBuilder(services);

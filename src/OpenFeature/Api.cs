@@ -32,7 +32,7 @@ public sealed class Api : IEventBus
     // not to mark type as beforeFieldInit
     // IE Lazy way of ensuring this is thread safe without using locks
     static Api() { }
-    private Api() { }
+    internal Api() { }
 
     /// <summary>
     /// Sets the default feature provider. In order to wait for the provider to be set, and initialization to complete,
