@@ -14,6 +14,7 @@
 * Add TraceEnricherHookOptions Custom Attributes ([#526](https://github.com/open-feature/dotnet-sdk/issues/526)) ([5a91005](https://github.com/open-feature/dotnet-sdk/commit/5a91005c888c8966145eae7745cc40b2b066f343))
 * Add Track method to IFeatureClient ([#519](https://github.com/open-feature/dotnet-sdk/issues/519)) ([2e70072](https://github.com/open-feature/dotnet-sdk/commit/2e7007277e19a0fbc4c4c3944d24eea1608712e6))
 * Support JSON Serialize for Value ([#529](https://github.com/open-feature/dotnet-sdk/issues/529)) ([6e521d2](https://github.com/open-feature/dotnet-sdk/commit/6e521d25c3dd53c45f2fd30f5319cae5cd2ff46d))
+* Add Metric Hook Custom Attributes ([#512](https://github.com/open-feature/dotnet-sdk/issues/512)) ([8c05d1d](https://github.com/open-feature/dotnet-sdk/commit/8c05d1d7363db89b8379e1a4e46e455f210888e2))
 
 
 ### 🧹 Chore
