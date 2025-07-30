@@ -1,5 +1,42 @@
 # Changelog
 
+## [2.8.0](https://github.com/open-feature/dotnet-sdk/compare/v2.7.0...v2.8.0) (2025-07-30)
+
+
+### 🐛 Bug Fixes
+
+* update DI lifecycle to use container instead of static instance ([#534](https://github.com/open-feature/dotnet-sdk/issues/534)) ([1a3846d](https://github.com/open-feature/dotnet-sdk/commit/1a3846d7575e75b5d7d05ec2a7db0b0f82c7b274))
+
+
+### ✨ New Features
+
+* Add Hook Dependency Injection extension method with Hook instance ([#513](https://github.com/open-feature/dotnet-sdk/issues/513)) ([12396b7](https://github.com/open-feature/dotnet-sdk/commit/12396b7872a2db6533b33267cf9c299248c41472))
+* Add TraceEnricherHookOptions Custom Attributes ([#526](https://github.com/open-feature/dotnet-sdk/issues/526)) ([5a91005](https://github.com/open-feature/dotnet-sdk/commit/5a91005c888c8966145eae7745cc40b2b066f343))
+* Add Track method to IFeatureClient ([#519](https://github.com/open-feature/dotnet-sdk/issues/519)) ([2e70072](https://github.com/open-feature/dotnet-sdk/commit/2e7007277e19a0fbc4c4c3944d24eea1608712e6))
+* Support JSON Serialize for Value ([#529](https://github.com/open-feature/dotnet-sdk/issues/529)) ([6e521d2](https://github.com/open-feature/dotnet-sdk/commit/6e521d25c3dd53c45f2fd30f5319cae5cd2ff46d))
+
+
+### 🧹 Chore
+
+* Add comparison to Value ([#523](https://github.com/open-feature/dotnet-sdk/issues/523)) ([883f4f3](https://github.com/open-feature/dotnet-sdk/commit/883f4f3c8b553dc01b5accdbae2782ca7805e8ed))
+* **deps:** update github/codeql-action digest to 181d5ee ([#520](https://github.com/open-feature/dotnet-sdk/issues/520)) ([40bec0d](https://github.com/open-feature/dotnet-sdk/commit/40bec0d51b6fa782a8b6d90a3d84463f9fb73c1b))
+* **deps:** update github/codeql-action digest to 4e828ff ([#532](https://github.com/open-feature/dotnet-sdk/issues/532)) ([20d1f37](https://github.com/open-feature/dotnet-sdk/commit/20d1f37a4f8991419bb14dae7eec9a08c2b32bc6))
+* **deps:** update github/codeql-action digest to d6bbdef ([#527](https://github.com/open-feature/dotnet-sdk/issues/527)) ([03d3b9e](https://github.com/open-feature/dotnet-sdk/commit/03d3b9e5d6ff1706faffc25afeba80a0e2bb37ec))
+* **deps:** update spec digest to 224b26e ([#521](https://github.com/open-feature/dotnet-sdk/issues/521)) ([fbc2645](https://github.com/open-feature/dotnet-sdk/commit/fbc2645efd649c0c37bd1a1cf473fbd98d920948))
+* **deps:** update spec digest to baec39b ([#528](https://github.com/open-feature/dotnet-sdk/issues/528)) ([a0ae014](https://github.com/open-feature/dotnet-sdk/commit/a0ae014d3194fcf6e5e5e4a17a2f92b1df3dc7c7))
+* remove redundant rule (now in parent) ([929fa74](https://github.com/open-feature/dotnet-sdk/commit/929fa7497197214d385eeaa40aba008932d00896))
+
+
+### 📚 Documentation
+
+* fix anchor link in readme ([#525](https://github.com/open-feature/dotnet-sdk/issues/525)) ([18705c7](https://github.com/open-feature/dotnet-sdk/commit/18705c7338a0c89f163f808c81e513a029c95239))
+* remove curly brace from readme ([8c92524](https://github.com/open-feature/dotnet-sdk/commit/8c92524edbf4579d4ad62c699b338b9811a783fd))
+
+
+### 🔄 Refactoring
+
+* Simplify Provider Repository ([#515](https://github.com/open-feature/dotnet-sdk/issues/515)) ([2547a57](https://github.com/open-feature/dotnet-sdk/commit/2547a574e0d0328f909b7e69f3775d07492de3dd))
+
 ## [2.7.0](https://github.com/open-feature/dotnet-sdk/compare/v2.6.0...v2.7.0) (2025-07-03)
 
 
