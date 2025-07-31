@@ -42,13 +42,6 @@ public sealed class ComparisonStrategy : BaseEvaluationStrategy
         }
 
         var firstResult = successfulResolutions.First();
-        ProviderResolutionResult<T>? fallbackResolution = null;
-
-        // Find fallback provider if specified
-        if (this._fallbackProvider != null)
-        {
-            fallbackResolution = successfulResolutions.FirstOrDefault(r => ReferenceEquals(r.Provider, this._fallbackProvider));
-        }
 
         // Check if all successful results agree on the value
         var allAgree = successfulResolutions.All(r => EqualityComparer<T>.Default.Equals(r.ResolutionDetails.Value, firstResult.ResolutionDetails.Value));
@@ -56,6 +49,14 @@ public sealed class ComparisonStrategy : BaseEvaluationStrategy
         if (allAgree)
         {
             return ToFinalResult(firstResult);
+        }
+
+        ProviderResolutionResult<T>? fallbackResolution = null;
+
+        // Find fallback provider if specified
+        if (this._fallbackProvider != null)
+        {
+            fallbackResolution = successfulResolutions.FirstOrDefault(r => ReferenceEquals(r.Provider, this._fallbackProvider));
         }
 
         // Values don't agree, trigger mismatch callback if provided
