@@ -53,6 +53,11 @@ jobs:
       - name: Test
         run: dotnet test -c Release --no-build --logger GitHubActions
 
+      - name: aot-publish test
+        run: |
+          cd ./samples/AspNetCore
+          dotnet publish -p:PublishAot=true
+
   packaging:
     needs: build
 

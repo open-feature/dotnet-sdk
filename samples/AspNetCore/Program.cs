@@ -10,7 +10,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateSlimBuilder(args);
 
 // Add services to the container.
 builder.Services.ConfigureHttpJsonOptions(options =>
@@ -77,7 +77,7 @@ app.MapGet("/welcome", async ([FromServices] IFeatureClient featureClient) =>
 app.MapGet("/test-config", async ([FromServices] IFeatureClient featureClient) =>
 {
     var testConfigValue = await featureClient.GetObjectValueAsync("test-config",
-        new Value(Structure.Builder().Set("Threshold", 0).Build())
+            new Value(Structure.Builder().Set("Threshold", 0).Build())
         );
     var node = JsonSerializer.SerializeToNode(testConfigValue, AppJsonSerializerContext.Default.Value);
     return Results.Ok(node);

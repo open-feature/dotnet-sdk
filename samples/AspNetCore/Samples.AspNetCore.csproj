@@ -2,7 +2,9 @@
 
   <PropertyGroup>
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
-    <PublishAot>true</PublishAot>
+    <!-- Should be enabled for AOT when dotnet-format issue resolved https://github.com/dotnet/sdk/issues/50012 -->
+    <PublishAot>false</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 
   <ItemGroup>
