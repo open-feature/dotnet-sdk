@@ -49,10 +49,11 @@ builder.Services.AddOpenFeature(featureBuilder =>
                     new Dictionary<string, bool> { { "show", true }, { "hide", false } }, "show")
             },
             {
-                "test-config", new Flag<TestConfig>(new Dictionary<string, TestConfig>()
+                "test-config", new Flag<Value>(new Dictionary<string, Value>()
                 {
-                    { "enable", new TestConfig { Threshold = 100 } },
-                    { "disable", new TestConfig { Threshold = 0} }
+                    { "enable", new Value(Structure.Builder().Set(nameof(TestConfig.Threshold), 100).Build()) },
+                    { "half", new Value(Structure.Builder().Set(nameof(TestConfig.Threshold), 50).Build()) },
+                    { "disable", new Value(Structure.Builder().Set(nameof(TestConfig.Threshold), 0).Build()) }
                 }, "disable")
             }
         });
@@ -77,10 +78,11 @@ app.MapGet("/welcome", async ([FromServices] IFeatureClient featureClient) =>
 app.MapGet("/test-config", async ([FromServices] IFeatureClient featureClient) =>
 {
     var testConfigValue = await featureClient.GetObjectValueAsync("test-config",
-            new Value(Structure.Builder().Set("Threshold", 0).Build())
+            new Value(Structure.Builder().Set("Threshold", 50).Build())
         );
-    var node = JsonSerializer.SerializeToNode(testConfigValue, AppJsonSerializerContext.Default.Value);
-    return Results.Ok(node);
+    var json = JsonSerializer.Serialize(testConfigValue, AppJsonSerializerContext.Default.Value);
+    var config = JsonSerializer.Deserialize(json, AppJsonSerializerContext.Default.TestConfig);
+    return Results.Ok(config);
 });
 
 app.Run();
