@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.8.1](https://github.com/open-feature/dotnet-sdk/compare/v2.8.0...v2.8.1) (2025-07-31)
+
+
+### 🐛 Bug Fixes
+
+* expose ValueJsonConverter for generator support and add JsonSourceGenerator test cases ([#537](https://github.com/open-feature/dotnet-sdk/issues/537)) ([e03aeba](https://github.com/open-feature/dotnet-sdk/commit/e03aeba0f515f668afaba0a3c6f0ea01b44d6ee4))
+
 ## [2.8.0](https://github.com/open-feature/dotnet-sdk/compare/v2.7.0...v2.8.0) (2025-07-30)
 
 
