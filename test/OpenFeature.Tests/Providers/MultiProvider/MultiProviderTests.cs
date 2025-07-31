@@ -219,6 +219,29 @@ public class MultiProviderClassTests
     }
 
     [Fact]
+    public async Task ShutdownAsync_WithFatalProvider_ShutsDownAllProviders()
+    {
+        // Arrange
+        var providerEntries = new List<ProviderEntry>
+        {
+            new(this._mockProvider1, Provider1Name),
+            new(this._mockProvider2, Provider2Name)
+        };
+        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        multiProvider.SetStatus(ProviderStatus.Fatal);
+
+        this._mockProvider1.ShutdownAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+        this._mockProvider2.ShutdownAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+
+        // Act
+        await multiProvider.ShutdownAsync();
+
+        // Assert
+        await this._mockProvider1.Received(1).ShutdownAsync(Arg.Any<CancellationToken>());
+        await this._mockProvider2.Received(1).ShutdownAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task ShutdownAsync_WithSomeFailingProviders_ThrowsAggregateException()
     {
         // Arrange

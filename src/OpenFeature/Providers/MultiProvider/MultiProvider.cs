@@ -142,7 +142,8 @@ public sealed class MultiProvider : FeatureProvider, IDisposable
         await this._shutdownSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            if (this._providerStatus != ProviderStatus.Ready || this._disposed)
+            // We should be able to shutdown the provider when it is in Ready or Fatal status.
+            if ((this._providerStatus != ProviderStatus.Ready && this._providerStatus != ProviderStatus.Fatal) || this._disposed)
             {
                 return;
             }
