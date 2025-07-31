@@ -32,7 +32,7 @@ public sealed class Api : IEventBus
     // not to mark type as beforeFieldInit
     // IE Lazy way of ensuring this is thread safe without using locks
     static Api() { }
-    private Api() { }
+    internal Api() { }
 
     /// <summary>
     /// Sets the default feature provider. In order to wait for the provider to be set, and initialization to complete,
@@ -121,7 +121,7 @@ public sealed class Api : IEventBus
     /// <returns><see cref="FeatureClient"/></returns>
     public FeatureClient GetClient(string? name = null, string? version = null, ILogger? logger = null,
         EvaluationContext? context = null) =>
-        new FeatureClient(() => this._repository.GetProvider(name), name, version, logger, context);
+        new FeatureClient(this, () => this._repository.GetProvider(name), name, version, logger, context);
 
     /// <summary>
     /// Appends list of hooks to global hooks list
@@ -359,5 +359,13 @@ public sealed class Api : IEventBus
     internal static void ResetApi()
     {
         Instance = new Api();
+    }
+
+    /// <summary>
+    /// This method should only be used in the Dependency Injection setup. It will set the singleton instance of the API using the provided instance.
+    /// </summary>
+    internal static void SetInstance(Api api)
+    {
+        Instance = api;
     }
 }

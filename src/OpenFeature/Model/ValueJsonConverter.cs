@@ -4,11 +4,16 @@ using System.Text.Json.Serialization;
 
 namespace OpenFeature.Model;
 
-internal sealed class ValueJsonConverter : JsonConverter<Value>
+/// <summary>
+/// A <see cref="JsonConverter{T}"/> for <see cref="Value"/> for Json serialization
+/// </summary>
+public sealed class ValueJsonConverter : JsonConverter<Value>
 {
+    /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, Value value, JsonSerializerOptions options) =>
         WriteJsonValue(value, writer);
 
+    /// <inheritdoc />
     public override Value Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
         ReadJsonValue(ref reader);
 
