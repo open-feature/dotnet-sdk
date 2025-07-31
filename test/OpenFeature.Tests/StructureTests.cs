@@ -152,7 +152,7 @@ public class StructureTests
         var serializedJsonNode = JsonSerializer.SerializeToNode(value, ValueJsonSerializerContext.Default.Value);
         var expectValue = JsonSerializer.Deserialize(expectedJson, ValueJsonSerializerContext.Default.Value);
         Assert.NotNull(expectValue);
-        var expectJsonNode = JsonSerializer.SerializeToNode(expectValue,  ValueJsonSerializerContext.Default.Value);
+        var expectJsonNode = JsonSerializer.SerializeToNode(expectValue, ValueJsonSerializerContext.Default.Value);
         Assert.True(JsonNode.DeepEquals(expectJsonNode, serializedJsonNode));
     }
 
