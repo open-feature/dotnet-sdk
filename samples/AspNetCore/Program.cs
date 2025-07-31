@@ -1,9 +1,11 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using OpenFeature;
 using OpenFeature.DependencyInjection.Providers.Memory;
 using OpenFeature.Hooks;
+using OpenFeature.Model;
 using OpenFeature.Providers.Memory;
-using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -11,6 +13,11 @@ using OpenTelemetry.Trace;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default);
+});
+
 builder.Services.AddProblemDetails();
 
 // Configure OpenTelemetry
@@ -40,6 +47,13 @@ builder.Services.AddOpenFeature(featureBuilder =>
             {
                 "welcome-message", new Flag<bool>(
                     new Dictionary<string, bool> { { "show", true }, { "hide", false } }, "show")
+            },
+            {
+                "test-config", new Flag<TestConfig>(new Dictionary<string, TestConfig>()
+                {
+                    { "enable", new TestConfig { Threshold = 100 } },
+                    { "disable", new TestConfig { Threshold = 0} }
+                }, "disable")
             }
         });
 });
@@ -60,5 +74,23 @@ app.MapGet("/welcome", async ([FromServices] IFeatureClient featureClient) =>
 
     return TypedResults.Ok("Hello world!");
 });
+app.MapGet("/test-config", async ([FromServices] IFeatureClient featureClient) =>
+{
+    var testConfigValue = await featureClient.GetObjectValueAsync("test-config",
+        new Value(Structure.Builder().Set("Threshold", 0).Build())
+        );
+    var node = JsonSerializer.SerializeToNode(testConfigValue, AppJsonSerializerContext.Default.Value);
+    return Results.Ok(node);
+});
 
 app.Run();
+
+
+public class TestConfig
+{
+    public int Threshold { get; set; } = 10;
+}
+
+[JsonSerializable(typeof(TestConfig))]
+[JsonSerializable(typeof(Value))]
+public partial class AppJsonSerializerContext : JsonSerializerContext;

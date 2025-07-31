@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    <PublishAot>true</PublishAot>
   </PropertyGroup>
 
   <ItemGroup>
