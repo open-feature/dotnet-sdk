@@ -2,8 +2,9 @@
 
   <PropertyGroup>
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
-    <!-- Should be enabled for AOT when dotnet-format issue resolved https://github.com/dotnet/sdk/issues/50012 -->
-    <PublishAot>false</PublishAot>
+    <!-- Should be enabled for AOT by default when dotnet-format issue resolved https://github.com/dotnet/sdk/issues/50012 -->
+    <!-- Use another property since we could not use the PublishAot property directly, see the issue https://github.com/dotnet/runtime/issues/107807 -->
+    <PublishAot Condition="'$(EnableAot)' == 'true'">true</PublishAot>
     <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 
