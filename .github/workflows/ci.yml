@@ -55,7 +55,7 @@ jobs:
 
       - name: aot-publish test
         run: |
-          dotnet publish ./samples/AspNetCore/Samples.AspNetCore.csproj -p:EnableAot=true
+          dotnet publish ./samples/AspNetCore/Samples.AspNetCore.csproj
 
   packaging:
     needs: build

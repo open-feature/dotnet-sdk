@@ -23,4 +23,6 @@ jobs:
           global-json-file: global.json
 
       - name: dotnet format
-        run: dotnet format --verify-no-changes OpenFeature.slnx
+        run: |
+          # Exclude diagnostics to work around dotnet-format issue, see https://github.com/dotnet/sdk/issues/50012
+          dotnet format --verify-no-changes --exclude-diagnostics=IL2026 --exclude-diagnostics=IL3050 OpenFeature.slnx
