@@ -89,7 +89,7 @@ app.MapGet("/test-config", async ([FromServices] IFeatureClient featureClient) =
     return Results.Ok(config);
 });
 
-app.MapGet("/multi-provider", async context =>
+app.MapGet("/multi-provider", async () =>
 {
     // Create first in-memory provider with some flags
     var provider1Flags = new Dictionary<string, Flag>
@@ -131,27 +131,11 @@ app.MapGet("/multi-provider", async context =>
         // Test a flag that doesn't exist in any provider
         var unknownFlag = await client.GetBooleanDetailsAsync("unknown-flag", false);
 
-        var result = new
-        {
-            message = "Multi-provider evaluation results",
-            results = new
-            {
-                maxItemsFlag = new { value = maxItemsFlag },
-                providerNameFlag = new { value = providerNameFlag },
-            }
-        };
-
-        await context.Response.WriteAsJsonAsync(result);
+        return Results.Ok();
     }
-    catch (Exception ex)
+    catch (Exception)
     {
-        context.Response.StatusCode = 500;
-        await context.Response.WriteAsJsonAsync(new
-        {
-            title = "Multi-provider evaluation failed",
-            detail = ex.Message,
-            status = 500
-        });
+        return Results.InternalServerError();
     }
 });
 
