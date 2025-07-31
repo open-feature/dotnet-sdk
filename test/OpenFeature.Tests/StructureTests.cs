@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using OpenFeature.Model;
 
 namespace OpenFeature.Tests;
@@ -127,11 +128,31 @@ public class StructureTests
 
     [Theory]
     [MemberData(nameof(JsonSerializeTestData))]
+    public void JsonSerializeWithGeneratorTest(Value value, string expectedJson)
+    {
+        var serializedJsonNode = JsonSerializer.SerializeToNode(value, ValueJsonSerializerContext.Default.Value);
+        var expectJsonNode = JsonNode.Parse(expectedJson);
+        Assert.True(JsonNode.DeepEquals(expectJsonNode, serializedJsonNode));
+    }
+
+    [Theory]
+    [MemberData(nameof(JsonSerializeTestData))]
     public void JsonDeserializeTest(Value value, string expectedJson)
     {
         var serializedJsonNode = JsonSerializer.SerializeToNode(value);
         var expectValue = JsonSerializer.Deserialize<Value>(expectedJson);
         var expectJsonNode = JsonSerializer.SerializeToNode(expectValue);
+        Assert.True(JsonNode.DeepEquals(expectJsonNode, serializedJsonNode));
+    }
+
+    [Theory]
+    [MemberData(nameof(JsonSerializeTestData))]
+    public void JsonDeserializeWithGeneratorTest(Value value, string expectedJson)
+    {
+        var serializedJsonNode = JsonSerializer.SerializeToNode(value, ValueJsonSerializerContext.Default.Value);
+        var expectValue = JsonSerializer.Deserialize(expectedJson, ValueJsonSerializerContext.Default.Value);
+        Assert.NotNull(expectValue);
+        var expectJsonNode = JsonSerializer.SerializeToNode(expectValue, ValueJsonSerializerContext.Default.Value);
         Assert.True(JsonNode.DeepEquals(expectJsonNode, serializedJsonNode));
     }
 
@@ -177,4 +198,9 @@ public class StructureTests
             """
         ];
     }
+}
+
+[JsonSerializable(typeof(Value))]
+public partial class ValueJsonSerializerContext : JsonSerializerContext
+{
 }
