@@ -32,7 +32,7 @@ public sealed class MultiProvider : FeatureProvider, IDisposable
     /// Initializes a new instance of the <see cref="MultiProvider"/> class with the specified provider entries and evaluation strategy.
     /// </summary>
     /// <param name="providerEntries">A collection of provider entries containing the feature providers and their optional names.</param>
-    /// <param name="evaluationStrategy">The base evaluation strategy to use for determining how to evaluate features across multiple providers.</param>
+    /// <param name="evaluationStrategy">The base evaluation strategy to use for determining how to evaluate features across multiple providers. If not specified, the first matching strategy will be used.</param>
     public MultiProvider(IEnumerable<ProviderEntry> providerEntries, BaseEvaluationStrategy? evaluationStrategy = null)
     {
         if (providerEntries == null)
