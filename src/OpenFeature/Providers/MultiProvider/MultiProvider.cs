@@ -26,7 +26,9 @@ public sealed class MultiProvider : FeatureProvider, IDisposable
     private readonly SemaphoreSlim _initializationSemaphore = new(1, 1);
     private readonly SemaphoreSlim _shutdownSemaphore = new(1, 1);
     private ProviderStatus _providerStatus = ProviderStatus.NotReady;
-    private bool _disposed;
+    // 0 = Not disposed, 1 = Disposed
+    // This is to handle the dispose pattern correctly with the async initialization and shutdown methods
+    private int _disposed = 0;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MultiProvider"/> class with the specified provider entries and evaluation strategy.
@@ -80,7 +82,7 @@ public sealed class MultiProvider : FeatureProvider, IDisposable
     /// <inheritdoc/>
     public override async Task InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default)
     {
-        if (this._disposed)
+        if (this._disposed == 1)
         {
             throw new ObjectDisposedException(nameof(MultiProvider));
         }
@@ -88,7 +90,7 @@ public sealed class MultiProvider : FeatureProvider, IDisposable
         await this._initializationSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            if (this._providerStatus != ProviderStatus.NotReady || this._disposed)
+            if (this._providerStatus != ProviderStatus.NotReady || this._disposed == 1)
             {
                 return;
             }
@@ -134,7 +136,7 @@ public sealed class MultiProvider : FeatureProvider, IDisposable
     /// <inheritdoc/>
     public override async Task ShutdownAsync(CancellationToken cancellationToken = default)
     {
-        if (this._disposed)
+        if (this._disposed == 1)
         {
             throw new ObjectDisposedException(nameof(MultiProvider));
         }
@@ -143,7 +145,7 @@ public sealed class MultiProvider : FeatureProvider, IDisposable
         try
         {
             // We should be able to shutdown the provider when it is in Ready or Fatal status.
-            if ((this._providerStatus != ProviderStatus.Ready && this._providerStatus != ProviderStatus.Fatal) || this._disposed)
+            if ((this._providerStatus != ProviderStatus.Ready && this._providerStatus != ProviderStatus.Fatal) || this._disposed == 1)
             {
                 return;
             }
@@ -297,12 +299,14 @@ public sealed class MultiProvider : FeatureProvider, IDisposable
     /// </summary>
     public void Dispose()
     {
-        if (!this._disposed)
+        if (Interlocked.Exchange(ref this._disposed, 1) == 1)
         {
-            this._initializationSemaphore.Dispose();
-            this._shutdownSemaphore.Dispose();
-            this._disposed = true;
+            // Already disposed
+            return;
         }
+
+        this._initializationSemaphore.Dispose();
+        this._shutdownSemaphore.Dispose();
     }
 
     /// <summary>
