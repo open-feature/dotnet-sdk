@@ -28,7 +28,7 @@ public sealed class MultiProvider : FeatureProvider, IDisposable
     private ProviderStatus _providerStatus = ProviderStatus.NotReady;
     // 0 = Not disposed, 1 = Disposed
     // This is to handle the dispose pattern correctly with the async initialization and shutdown methods
-    private int _disposed = 0;
+    private volatile int _disposed = 0;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MultiProvider"/> class with the specified provider entries and evaluation strategy.
