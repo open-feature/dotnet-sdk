@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace OpenFeature.DependencyInjection.Internal;
+namespace OpenFeature.Hosting.Internal;
 
 internal sealed partial class FeatureLifecycleManager : IFeatureLifecycleManager
 {

@@ -1,4 +1,4 @@
-namespace OpenFeature.Hosting.Tests.DependencyInjection;
+namespace OpenFeature.Hosting.Tests;
 
 internal static class NoOpProvider
 {

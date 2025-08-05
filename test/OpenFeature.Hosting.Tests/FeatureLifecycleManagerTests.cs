@@ -2,11 +2,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging.Abstractions;
 using OpenFeature.Constant;
-using OpenFeature.DependencyInjection;
-using OpenFeature.DependencyInjection.Internal;
+using OpenFeature.Hosting.Internal;
 using OpenFeature.Model;
 
-namespace OpenFeature.Hosting.Tests.DependencyInjection;
+namespace OpenFeature.Hosting.Tests;
 
 public class FeatureLifecycleManagerTests
 {

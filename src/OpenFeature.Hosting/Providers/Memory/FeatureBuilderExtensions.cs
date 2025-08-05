@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using OpenFeature.Providers.Memory;
 
-namespace OpenFeature.DependencyInjection.Providers.Memory;
+namespace OpenFeature.Hosting.Providers.Memory;
 
 /// <summary>
 /// Extension methods for configuring feature providers with <see cref="OpenFeatureBuilder"/>.
@@ -44,7 +44,7 @@ public static partial class FeatureBuilderExtensions
     /// </param>
     /// <returns>The <see cref="OpenFeatureBuilder"/> instance for chaining.</returns>
     public static OpenFeatureBuilder AddInMemoryProvider(this OpenFeatureBuilder builder, string domain, Func<IServiceProvider, IDictionary<string, Flag>?> flagsFactory)
-        => AddInMemoryProvider(builder, domain, (provider, _) => flagsFactory(provider));
+        => builder.AddInMemoryProvider(domain, (provider, _) => flagsFactory(provider));
 
     /// <summary>
     /// Adds an in-memory feature provider to the <see cref="OpenFeatureBuilder"/> with a domain and contextual flag factory.

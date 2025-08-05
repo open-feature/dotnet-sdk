@@ -1,6 +1,6 @@
 using OpenFeature.Model;
 
-namespace OpenFeature.Hosting.Tests.DependencyInjection;
+namespace OpenFeature.Hosting.Tests;
 
 // This class replicates the NoOpFeatureProvider implementation from src/OpenFeature/NoOpFeatureProvider.cs.
 // It is used here to facilitate unit testing without relying on the internal NoOpFeatureProvider class.

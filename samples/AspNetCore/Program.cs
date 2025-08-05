@@ -2,7 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using OpenFeature;
-using OpenFeature.DependencyInjection.Providers.Memory;
+using OpenFeature.Hosting.Providers.Memory;
 using OpenFeature.Hooks;
 using OpenFeature.Model;
 using OpenFeature.Providers.Memory;

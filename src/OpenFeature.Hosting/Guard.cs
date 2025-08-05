@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace OpenFeature.DependencyInjection;
+namespace OpenFeature.Hosting;
 
 [DebuggerStepThrough]
 internal static class Guard

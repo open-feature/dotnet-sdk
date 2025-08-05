@@ -1,7 +1,7 @@
 using OpenFeature.Constant;
 using OpenFeature.Model;
 
-namespace OpenFeature.DependencyInjection.Internal;
+namespace OpenFeature.Hosting.Internal;
 
 internal record EventHandlerDelegateWrapper(
     ProviderEventTypes ProviderEventType,

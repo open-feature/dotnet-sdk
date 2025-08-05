@@ -1,6 +1,6 @@
 using OpenFeature.Model;
 
-namespace OpenFeature.Hosting.Tests.DependencyInjection;
+namespace OpenFeature.Hosting.Tests;
 
 internal class NoOpHook : Hook
 {

@@ -8,9 +8,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using OpenFeature.Constant;
-using OpenFeature.DependencyInjection;
-using OpenFeature.DependencyInjection.Providers.Memory;
 using OpenFeature.Hooks;
+using OpenFeature.Hosting;
+using OpenFeature.Hosting.Providers.Memory;
 using OpenFeature.IntegrationTests.Services;
 using OpenFeature.Providers.Memory;
 
