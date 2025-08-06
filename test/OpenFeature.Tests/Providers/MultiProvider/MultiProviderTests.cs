@@ -718,14 +718,14 @@ public class MultiProviderClassTests
     }
 
     [Fact]
-    public void Dispose_ShouldDisposeInternalResources()
+    public async Task DisposeAsync_ShouldDisposeInternalResources()
     {
         // Arrange
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
         var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
 
         // Act
-        multiProvider.Dispose();
+        await multiProvider.DisposeAsync();
 
         // Assert - Should not throw any exception
         // The internal semaphores should be disposed
@@ -733,16 +733,16 @@ public class MultiProviderClassTests
     }
 
     [Fact]
-    public void Dispose_CalledMultipleTimes_ShouldNotThrow()
+    public async Task DisposeAsync_CalledMultipleTimes_ShouldNotThrow()
     {
         // Arrange
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
         var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
 
         // Act & Assert - Multiple calls to Dispose should not throw
-        multiProvider.Dispose();
-        multiProvider.Dispose();
-        multiProvider.Dispose();
+        await multiProvider.DisposeAsync();
+        await multiProvider.DisposeAsync();
+        await multiProvider.DisposeAsync();
 
         // If we get here without exception, multiple disposal calls worked correctly
         Assert.True(true);
@@ -756,7 +756,7 @@ public class MultiProviderClassTests
         var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
 
         // Act
-        multiProvider.Dispose();
+        await multiProvider.DisposeAsync();
 
         // Assert
         var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
@@ -772,7 +772,7 @@ public class MultiProviderClassTests
         var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
 
         // Act
-        multiProvider.Dispose();
+        await multiProvider.DisposeAsync();
 
         // Assert
         var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
@@ -788,7 +788,7 @@ public class MultiProviderClassTests
         var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
 
         // Dispose before calling InitializeAsync
-        multiProvider.Dispose();
+        await multiProvider.DisposeAsync();
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
@@ -806,7 +806,7 @@ public class MultiProviderClassTests
         var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
 
         // Dispose before calling ShutdownAsync
-        multiProvider.Dispose();
+        await multiProvider.DisposeAsync();
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
@@ -816,5 +816,36 @@ public class MultiProviderClassTests
         await this._mockProvider1.DidNotReceive().ShutdownAsync(Arg.Any<CancellationToken>());
     }
 
+    [Fact]
+    public async Task EvaluateAsync_AfterDispose_ShouldThrowObjectDisposedException()
+    {
+        // Arrange
+        var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
+        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+
+        // Act
+        await multiProvider.DisposeAsync();
+
+        // Assert - All evaluate methods should throw ObjectDisposedException
+        var boolException = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
+            multiProvider.ResolveBooleanValueAsync(TestFlagKey, false));
+        Assert.Equal(nameof(MultiProviderImplementation.MultiProvider), boolException.ObjectName);
+
+        var stringException = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
+            multiProvider.ResolveStringValueAsync(TestFlagKey, "default"));
+        Assert.Equal(nameof(MultiProviderImplementation.MultiProvider), stringException.ObjectName);
+
+        var intException = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
+            multiProvider.ResolveIntegerValueAsync(TestFlagKey, 0));
+        Assert.Equal(nameof(MultiProviderImplementation.MultiProvider), intException.ObjectName);
+
+        var doubleException = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
+            multiProvider.ResolveDoubleValueAsync(TestFlagKey, 0.0));
+        Assert.Equal(nameof(MultiProviderImplementation.MultiProvider), doubleException.ObjectName);
+
+        var structureException = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
+            multiProvider.ResolveStructureValueAsync(TestFlagKey, new Value()));
+        Assert.Equal(nameof(MultiProviderImplementation.MultiProvider), structureException.ObjectName);
+    }
 
 }

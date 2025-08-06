@@ -17,7 +17,7 @@ namespace OpenFeature.Providers.MultiProvider;
 /// different feature flags may be served by different sources or providers within the same application.
 /// </remarks>
 /// <seealso href="https://openfeature.dev/specification/appendix-a/#multi-provider">Multi Provider specification</seealso>
-public sealed class MultiProvider : FeatureProvider, IDisposable
+public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
 {
     private readonly BaseEvaluationStrategy _evaluationStrategy;
     private readonly IReadOnlyList<RegisteredProvider> _registeredProviders;
@@ -141,52 +141,19 @@ public sealed class MultiProvider : FeatureProvider, IDisposable
             throw new ObjectDisposedException(nameof(MultiProvider));
         }
 
-        await this._shutdownSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
-        try
-        {
-            // We should be able to shutdown the provider when it is in Ready or Fatal status.
-            if ((this._providerStatus != ProviderStatus.Ready && this._providerStatus != ProviderStatus.Fatal) || this._disposed == 1)
-            {
-                return;
-            }
-
-            var shutdownTasks = this._registeredProviders.Select(async rp =>
-            {
-                try
-                {
-                    await rp.Provider.ShutdownAsync(cancellationToken).ConfigureAwait(false);
-                    rp.SetStatus(ProviderStatus.NotReady);
-                    return new ChildProviderStatus { ProviderName = rp.Name };
-                }
-                catch (Exception ex)
-                {
-                    rp.SetStatus(ProviderStatus.Fatal);
-                    return new ChildProviderStatus { ProviderName = rp.Name, Error = ex };
-                }
-            });
-
-            var results = await Task.WhenAll(shutdownTasks).ConfigureAwait(false);
-            var failures = results.Where(r => r.Error != null).ToList();
-
-            if (failures.Count != 0)
-            {
-                var exceptions = failures.Select(f => f.Error!).ToList();
-                var failedProviders = failures.Select(f => f.ProviderName).ToList();
-                throw new AggregateException(
-                    $"Failed to shutdown providers: {string.Join(", ", failedProviders)}",
-                    exceptions);
-            }
-
-            this._providerStatus = ProviderStatus.NotReady;
-        }
-        finally
-        {
-            this._shutdownSemaphore.Release();
-        }
+        await this.InternalShutdownAsync(cancellationToken).ConfigureAwait(false);
     }
 
     private async Task<ResolutionDetails<T>> EvaluateAsync<T>(string key, T defaultValue, EvaluationContext? evaluationContext = null, CancellationToken cancellationToken = default)
     {
+        // Check if the provider has been disposed
+        // This is to handle the dispose pattern correctly with the async initialization and shutdown methods
+        // It is checked here to avoid the check in every public EvaluateAsync method
+        if (this._disposed == 1)
+        {
+            throw new ObjectDisposedException(nameof(MultiProvider));
+        }
+
         var strategyContext = new StrategyEvaluationContext<T>(key);
         var resolutions = this._evaluationStrategy.RunMode switch
         {
@@ -297,7 +264,7 @@ public sealed class MultiProvider : FeatureProvider, IDisposable
     /// <summary>
     /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
     /// </summary>
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         if (Interlocked.Exchange(ref this._disposed, 1) == 1)
         {
@@ -305,8 +272,61 @@ public sealed class MultiProvider : FeatureProvider, IDisposable
             return;
         }
 
-        this._initializationSemaphore.Dispose();
-        this._shutdownSemaphore.Dispose();
+        try
+        {
+            await this.InternalShutdownAsync(CancellationToken.None).ConfigureAwait(false);
+        }
+        finally
+        {
+            this._initializationSemaphore.Dispose();
+            this._shutdownSemaphore.Dispose();
+        }
+    }
+
+    private async Task InternalShutdownAsync(CancellationToken cancellationToken)
+    {
+        await this._shutdownSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            // We should be able to shutdown the provider when it is in Ready or Fatal status.
+            if ((this._providerStatus != ProviderStatus.Ready && this._providerStatus != ProviderStatus.Fatal) || this._disposed == 1)
+            {
+                return;
+            }
+
+            var shutdownTasks = this._registeredProviders.Select(async rp =>
+            {
+                try
+                {
+                    await rp.Provider.ShutdownAsync(cancellationToken).ConfigureAwait(false);
+                    rp.SetStatus(ProviderStatus.NotReady);
+                    return new ChildProviderStatus { ProviderName = rp.Name };
+                }
+                catch (Exception ex)
+                {
+                    rp.SetStatus(ProviderStatus.Fatal);
+                    return new ChildProviderStatus { ProviderName = rp.Name, Error = ex };
+                }
+            });
+
+            var results = await Task.WhenAll(shutdownTasks).ConfigureAwait(false);
+            var failures = results.Where(r => r.Error != null).ToList();
+
+            if (failures.Count != 0)
+            {
+                var exceptions = failures.Select(f => f.Error!).ToList();
+                var failedProviders = failures.Select(f => f.ProviderName).ToList();
+                throw new AggregateException(
+                    $"Failed to shutdown providers: {string.Join(", ", failedProviders)}",
+                    exceptions);
+            }
+
+            this._providerStatus = ProviderStatus.NotReady;
+        }
+        finally
+        {
+            this._shutdownSemaphore.Release();
+        }
     }
 
     /// <summary>
