@@ -243,6 +243,19 @@ public partial class OpenFeatureBuilderExtensionsTests
     }
 
     [Fact]
+    public void AddProvider_WithNullKey_ThrowsArgumentNullException()
+    {
+        // Arrange & Act
+        _systemUnderTest.AddProvider(null!, (sp, domain) => new NoOpFeatureProvider());
+
+        // Assert
+        using var serviceProvider = _services.BuildServiceProvider();
+        var ex = Assert.Throws<ArgumentNullException>(() => serviceProvider.GetKeyedService<FeatureProvider>(null));
+
+        Assert.Equal("key", ex.ParamName);
+    }
+
+    [Fact]
     public void AddHook_AddsHookAsKeyedService()
     {
         // Arrange
@@ -388,5 +401,162 @@ public partial class OpenFeatureBuilderExtensionsTests
         // Assert
         Assert.NotNull(handler);
         Assert.Equal(eventHandler, handler.EventHandlerDelegate);
+    }
+
+    [Fact]
+    public void AddClient_AddsFeatureClient()
+    {
+        // Arrange
+        _services.AddSingleton(sp => Api.Instance);
+
+        // Act
+        _systemUnderTest.AddClient();
+
+        // Assert
+        using var serviceProvider = _services.BuildServiceProvider();
+        var client = serviceProvider.GetService<IFeatureClient>();
+
+        Assert.NotNull(client);
+    }
+
+    [Fact]
+    public void AddClient_WithContext_AddsFeatureClient()
+    {
+        // Arrange
+        _services.AddSingleton(sp => Api.Instance);
+
+        _systemUnderTest
+            .AddContext((a) => a.Set("region", "euw"))
+            .AddProvider(_systemUnderTest => new NoOpFeatureProvider());
+
+        // Act
+        _systemUnderTest.AddClient();
+
+        // Assert
+        using var serviceProvider = _services.BuildServiceProvider();
+        var client = serviceProvider.GetService<IFeatureClient>();
+
+        Assert.NotNull(client);
+
+        var context = client.GetContext();
+        var region = context.GetValue("region");
+        Assert.Equal("euw", region.AsString);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void AddClient_WithInvalidName_AddsFeatureClient(string? name)
+    {
+        // Arrange
+        _services.AddSingleton(sp => Api.Instance);
+
+        // Act
+        _systemUnderTest.AddClient(name);
+
+        // Assert
+        using var serviceProvider = _services.BuildServiceProvider();
+        var client = serviceProvider.GetService<IFeatureClient>();
+        Assert.NotNull(client);
+
+        var keyedClients = serviceProvider.GetKeyedServices<IFeatureClient>(name);
+        Assert.Empty(keyedClients);
+    }
+
+    [Fact]
+    public void AddClient_WithNullName_AddsFeatureClient()
+    {
+        // Arrange
+        _services.AddSingleton(sp => Api.Instance);
+
+        // Act
+        _systemUnderTest.AddClient(null);
+
+        // Assert
+        using var serviceProvider = _services.BuildServiceProvider();
+        var client = serviceProvider.GetService<IFeatureClient>();
+        Assert.NotNull(client);
+    }
+
+    [Fact]
+    public void AddClient_WithName_AddsFeatureClient()
+    {
+        // Arrange
+        _services.AddSingleton(sp => Api.Instance);
+
+        // Act
+        _systemUnderTest.AddClient("client-name");
+
+        // Assert
+        using var serviceProvider = _services.BuildServiceProvider();
+        var client = serviceProvider.GetKeyedService<IFeatureClient>("client-name");
+
+        Assert.NotNull(client);
+    }
+
+    [Fact]
+    public void AddClient_WithNameAndContext_AddsFeatureClient()
+    {
+        // Arrange
+        _services.AddSingleton(sp => Api.Instance);
+
+        _systemUnderTest
+            .AddContext((a) => a.Set("region", "euw"))
+            .AddProvider(_systemUnderTest => new NoOpFeatureProvider());
+
+        // Act
+        _systemUnderTest.AddClient("client-name");
+
+        // Assert
+        using var serviceProvider = _services.BuildServiceProvider();
+        var client = serviceProvider.GetKeyedService<IFeatureClient>("client-name");
+
+        Assert.NotNull(client);
+
+        var context = client.GetContext();
+        var region = context.GetValue("region");
+        Assert.Equal("euw", region.AsString);
+    }
+
+    [Fact]
+    public void AddPolicyBasedClient_AddsScopedFeatureClient()
+    {
+        // Arrange
+        _services.AddSingleton(sp => Api.Instance);
+
+        _services.AddOptions<PolicyNameOptions>()
+            .Configure(options => options.DefaultNameSelector = _ => "default-name");
+
+        _systemUnderTest.AddProvider("default-name", (_, key) => new NoOpFeatureProvider());
+
+        // Act
+        _systemUnderTest.AddPolicyBasedClient();
+
+        // Assert
+        using var serviceProvider = _services.BuildServiceProvider();
+        using var scope = serviceProvider.CreateScope();
+        var client = scope.ServiceProvider.GetService<IFeatureClient>();
+        Assert.NotNull(client);
+    }
+
+    [Fact(Skip = "Bug due to https://github.com/open-feature/dotnet-sdk/issues/543")]
+    public void AddPolicyBasedClient_WithNoDefaultName_AddsScopedFeatureClient()
+    {
+        // Arrange
+        _services.AddSingleton(sp => Api.Instance);
+
+        _services.AddOptions<PolicyNameOptions>()
+            .Configure(options => options.DefaultNameSelector = sp => null);
+
+        _systemUnderTest.AddProvider("default", (_, key) => new NoOpFeatureProvider());
+
+        // Act
+        _systemUnderTest.AddPolicyBasedClient();
+
+        // Assert
+        using var serviceProvider = _services.BuildServiceProvider();
+        using var scope = serviceProvider.CreateScope();
+        var client = scope.ServiceProvider.GetService<IFeatureClient>();
+        Assert.NotNull(client);
     }
 }
