@@ -14,6 +14,9 @@ internal sealed partial class EventExecutor : IAsyncDisposable
     private readonly Dictionary<string, FeatureProvider> _namedProviderReferences = [];
     private readonly List<FeatureProvider> _activeSubscriptions = [];
 
+    /// placeholder for anonymous clients
+    private static Guid _defaultClientName = Guid.NewGuid();
+
     private readonly Dictionary<ProviderEventTypes, List<EventHandlerDelegate>> _apiHandlers = [];
     private readonly Dictionary<string, Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>> _clientHandlers = [];
 
@@ -58,25 +61,27 @@ internal sealed partial class EventExecutor : IAsyncDisposable
 
     internal void AddClientHandler(string client, ProviderEventTypes eventType, EventHandlerDelegate handler)
     {
+        var clientName = GetClientName(client);
+
         lock (this._lockObj)
         {
             // check if there is already a list of handlers for the given client and event type
-            if (!this._clientHandlers.TryGetValue(client, out var registry))
+            if (!this._clientHandlers.TryGetValue(clientName, out var registry))
             {
                 registry = [];
-                this._clientHandlers[client] = registry;
+                this._clientHandlers[clientName] = registry;
             }
 
-            if (!this._clientHandlers[client].TryGetValue(eventType, out var eventHandlers))
+            if (!this._clientHandlers[clientName].TryGetValue(eventType, out var eventHandlers))
             {
                 eventHandlers = [];
-                this._clientHandlers[client][eventType] = eventHandlers;
+                this._clientHandlers[clientName][eventType] = eventHandlers;
             }
 
-            this._clientHandlers[client][eventType].Add(handler);
+            this._clientHandlers[clientName][eventType].Add(handler);
 
             this.EmitOnRegistration(
-                this._namedProviderReferences.TryGetValue(client, out var clientProviderReference)
+                this._namedProviderReferences.TryGetValue(clientName, out var clientProviderReference)
                     ? clientProviderReference
                     : this._defaultProvider, eventType, handler);
         }
@@ -84,9 +89,11 @@ internal sealed partial class EventExecutor : IAsyncDisposable
 
     internal void RemoveClientHandler(string client, ProviderEventTypes type, EventHandlerDelegate handler)
     {
+        var clientName = GetClientName(client);
+
         lock (this._lockObj)
         {
-            if (this._clientHandlers.TryGetValue(client, out var clientEventHandlers))
+            if (this._clientHandlers.TryGetValue(clientName, out var clientEventHandlers))
             {
                 if (clientEventHandlers.TryGetValue(type, out var eventHandlers))
                 {
@@ -118,15 +125,18 @@ internal sealed partial class EventExecutor : IAsyncDisposable
         {
             return;
         }
+
+        var clientName = GetClientName(client);
+
         lock (this._lockObj)
         {
             FeatureProvider? oldProvider = null;
-            if (this._namedProviderReferences.TryGetValue(client, out var foundOldProvider))
+            if (this._namedProviderReferences.TryGetValue(clientName, out var foundOldProvider))
             {
                 oldProvider = foundOldProvider;
             }
 
-            this._namedProviderReferences[client] = provider;
+            this._namedProviderReferences[clientName] = provider;
 
             this.StartListeningAndShutdownOld(provider, oldProvider);
         }
@@ -303,6 +313,14 @@ internal sealed partial class EventExecutor : IAsyncDisposable
         }
     }
 
+    private static string GetClientName(string client)
+    {
+        if (string.IsNullOrWhiteSpace(client))
+        {
+            return _defaultClientName.ToString();
+        }
+        return client;
+    }
 
     // map events to provider status as per spec: https://openfeature.dev/specification/sections/events/#requirement-535
     private static void UpdateProviderStatus(FeatureProvider provider, ProviderEventPayload eventPayload)

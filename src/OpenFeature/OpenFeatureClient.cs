@@ -10,7 +10,7 @@ using OpenFeature.Model;
 namespace OpenFeature;
 
 /// <summary>
-///
+/// OpenFeature Client implementation for resolving feature flags and tracking user interactions.
 /// </summary>
 public sealed partial class FeatureClient : IFeatureClient
 {
@@ -18,6 +18,7 @@ public sealed partial class FeatureClient : IFeatureClient
     private readonly ConcurrentStack<Hook> _hooks = new ConcurrentStack<Hook>();
     private readonly ILogger _logger;
     private readonly Func<FeatureProvider> _providerAccessor;
+    private readonly Api _api;
     private EvaluationContext _evaluationContext;
 
     private readonly object _evaluationContextLock = new object();
@@ -40,7 +41,7 @@ public sealed partial class FeatureClient : IFeatureClient
     {
         // Alias the provider reference so getting the method and returning the provider are
         // guaranteed to be the same object.
-        var provider = Api.Instance.GetProvider(this._metadata.Name!);
+        var provider = this._api.GetProvider(this._metadata.Name!);
 
         return (method(provider), provider);
     }
@@ -69,18 +70,20 @@ public sealed partial class FeatureClient : IFeatureClient
     /// <summary>
     /// Initializes a new instance of the <see cref="FeatureClient"/> class.
     /// </summary>
+    /// <param name="api">The API instance for accessing global state and providers</param>
     /// <param name="providerAccessor">Function to retrieve current provider</param>
     /// <param name="name">Name of client <see cref="ClientMetadata"/></param>
     /// <param name="version">Version of client <see cref="ClientMetadata"/></param>
     /// <param name="logger">Logger used by client</param>
     /// <param name="context">Context given to this client</param>
     /// <exception cref="ArgumentNullException">Throws if any of the required parameters are null</exception>
-    internal FeatureClient(Func<FeatureProvider> providerAccessor, string? name, string? version, ILogger? logger = null, EvaluationContext? context = null)
+    internal FeatureClient(Api api, Func<FeatureProvider> providerAccessor, string? name, string? version, ILogger? logger = null, EvaluationContext? context = null)
     {
+        this._api = api;
+        this._providerAccessor = providerAccessor;
         this._metadata = new ClientMetadata(name, version);
         this._logger = logger ?? NullLogger<FeatureClient>.Instance;
         this._evaluationContext = context ?? EvaluationContext.Empty;
-        this._providerAccessor = providerAccessor;
     }
 
     /// <inheritdoc />
@@ -99,13 +102,13 @@ public sealed partial class FeatureClient : IFeatureClient
     /// <inheritdoc />
     public void AddHandler(ProviderEventTypes eventType, EventHandlerDelegate handler)
     {
-        Api.Instance.AddClientHandler(this._metadata.Name!, eventType, handler);
+        this._api.AddClientHandler(this._metadata.Name!, eventType, handler);
     }
 
     /// <inheritdoc />
     public void RemoveHandler(ProviderEventTypes type, EventHandlerDelegate handler)
     {
-        Api.Instance.RemoveClientHandler(this._metadata.Name!, type, handler);
+        this._api.RemoveClientHandler(this._metadata.Name!, type, handler);
     }
 
     /// <inheritdoc />
@@ -213,13 +216,13 @@ public sealed partial class FeatureClient : IFeatureClient
 
         // merge api, client, transaction and invocation context
         var evaluationContextBuilder = EvaluationContext.Builder();
-        evaluationContextBuilder.Merge(Api.Instance.GetContext()); // API context
+        evaluationContextBuilder.Merge(this._api.GetContext()); // API context
         evaluationContextBuilder.Merge(this.GetContext()); // Client context
-        evaluationContextBuilder.Merge(Api.Instance.GetTransactionContext()); // Transaction context
+        evaluationContextBuilder.Merge(this._api.GetTransactionContext()); // Transaction context
         evaluationContextBuilder.Merge(context); // Invocation context
 
         var allHooks = ImmutableList.CreateBuilder<Hook>()
-            .Concat(Api.Instance.GetHooks())
+            .Concat(this._api.GetHooks())
             .Concat(this.GetHooks())
             .Concat(options?.Hooks ?? Enumerable.Empty<Hook>())
             .Concat(provider.GetProviderHooks())
@@ -302,13 +305,7 @@ public sealed partial class FeatureClient : IFeatureClient
         return evaluation;
     }
 
-    /// <summary>
-    /// Use this method to track user interactions and the application state.
-    /// </summary>
-    /// <param name="trackingEventName">The name associated with this tracking event</param>
-    /// <param name="evaluationContext">The evaluation context used in the evaluation of the flag (optional)</param>
-    /// <param name="trackingEventDetails">Data pertinent to the tracking event (Optional)</param>
-    /// <exception cref="ArgumentException">When trackingEventName is null or empty</exception>
+    /// <inheritdoc />
     public void Track(string trackingEventName, EvaluationContext? evaluationContext = default, TrackingEventDetails? trackingEventDetails = default)
     {
         if (string.IsNullOrWhiteSpace(trackingEventName))
@@ -316,7 +313,7 @@ public sealed partial class FeatureClient : IFeatureClient
             throw new ArgumentException("Tracking event cannot be null or empty.", nameof(trackingEventName));
         }
 
-        var globalContext = Api.Instance.GetContext();
+        var globalContext = this._api.GetContext();
         var clientContext = this.GetContext();
 
         var evaluationContextBuilder = EvaluationContext.Builder()

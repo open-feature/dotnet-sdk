@@ -272,10 +272,49 @@ public static partial class OpenFeatureBuilderExtensions
     /// <param name="builder">The <see cref="OpenFeatureBuilder"/> instance.</param>
     /// <param name="implementationFactory">Optional factory for controlling how <typeparamref name="THook"/> will be created in the DI container.</param>
     /// <returns>The <see cref="OpenFeatureBuilder"/> instance.</returns>
-    public static OpenFeatureBuilder AddHook<THook>(this OpenFeatureBuilder builder, Func<IServiceProvider, THook>? implementationFactory = null)
+    public static OpenFeatureBuilder AddHook<
+#if NET
+        [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)]
+#endif
+        THook>(this OpenFeatureBuilder builder, Func<IServiceProvider, THook>? implementationFactory = null)
         where THook : Hook
     {
         return builder.AddHook(typeof(THook).Name, implementationFactory);
+    }
+
+    /// <summary>
+    /// Adds a feature hook to the service collection. Hooks added here are not domain-bound.
+    /// </summary>
+    /// <typeparam name="THook">The type of<see cref="Hook"/> to be added.</typeparam>
+    /// <param name="builder">The <see cref="OpenFeatureBuilder"/> instance.</param>
+    /// <param name="hook">Instance of Hook to inject into the OpenFeature context.</param>
+    /// <returns>The <see cref="OpenFeatureBuilder"/> instance.</returns>
+    public static OpenFeatureBuilder AddHook<
+#if NET
+        [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)]
+#endif
+        THook>(this OpenFeatureBuilder builder, THook hook)
+        where THook : Hook
+    {
+        return builder.AddHook(typeof(THook).Name, hook);
+    }
+
+    /// <summary>
+    /// Adds a feature hook to the service collection with a specified name. Hooks added here are not domain-bound.
+    /// </summary>
+    /// <typeparam name="THook">The type of<see cref="Hook"/> to be added.</typeparam>
+    /// <param name="builder">The <see cref="OpenFeatureBuilder"/> instance.</param>
+    /// <param name="hookName">The name of the <see cref="Hook"/> that is being added.</param>
+    /// <param name="hook">Instance of Hook to inject into the OpenFeature context.</param>
+    /// <returns>The <see cref="OpenFeatureBuilder"/> instance.</returns>
+    public static OpenFeatureBuilder AddHook<
+#if NET
+        [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)]
+#endif
+        THook>(this OpenFeatureBuilder builder, string hookName, THook hook)
+        where THook : Hook
+    {
+        return builder.AddHook(hookName, _ => hook);
     }
 
     /// <summary>
@@ -286,7 +325,12 @@ public static partial class OpenFeatureBuilderExtensions
     /// <param name="hookName">The name of the <see cref="Hook"/> that is being added.</param>
     /// <param name="implementationFactory">Optional factory for controlling how <typeparamref name="THook"/> will be created in the DI container.</param>
     /// <returns>The <see cref="OpenFeatureBuilder"/> instance.</returns>
-    public static OpenFeatureBuilder AddHook<THook>(this OpenFeatureBuilder builder, string hookName, Func<IServiceProvider, THook>? implementationFactory = null)
+    public static OpenFeatureBuilder AddHook<
+#if NET
+            [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)]
+#endif
+            THook>
+        (this OpenFeatureBuilder builder, string hookName, Func<IServiceProvider, THook>? implementationFactory = null)
         where THook : Hook
     {
         builder.Services.PostConfigure<OpenFeatureOptions>(options => options.AddHookName(hookName));

@@ -10,8 +10,8 @@
 
 [![Specification](https://img.shields.io/static/v1?label=specification&message=v0.8.0&color=yellow&style=for-the-badge)](https://github.com/open-feature/spec/releases/tag/v0.8.0)
 [
-![Release](https://img.shields.io/static/v1?label=release&message=v2.6.0&color=blue&style=for-the-badge) <!-- x-release-please-version -->
-](https://github.com/open-feature/dotnet-sdk/releases/tag/v2.6.0) <!-- x-release-please-version -->
+![Release](https://img.shields.io/static/v1?label=release&message=v2.8.1&color=blue&style=for-the-badge) <!-- x-release-please-version -->
+](https://github.com/open-feature/dotnet-sdk/releases/tag/v2.8.1) <!-- x-release-please-version -->
 
 [![Slack](https://img.shields.io/badge/slack-%40cncf%2Fopenfeature-brightgreen?style=flat&logo=slack)](https://cloud-native.slack.com/archives/C0344AANLA1)
 [![Codecov](https://codecov.io/gh/open-feature/dotnet-sdk/branch/main/graph/badge.svg?token=MONAVJBXUJ)](https://codecov.io/gh/open-feature/dotnet-sdk)
@@ -79,23 +79,23 @@ public async Task Example()
 
 The [`samples/`](./samples) folder contains example applications demonstrating how to use OpenFeature in different .NET scenarios.
 
-| Sample Name                                       | Description                                                    |
-|---------------------------------------------------|----------------------------------------------------------------|
-| [AspNetCore](/samples/AspNetCore/README.md)       | Feature flags in an ASP.NET Core Web API.                      |
+| Sample Name                                 | Description                               |
+| ------------------------------------------- | ----------------------------------------- |
+| [AspNetCore](/samples/AspNetCore/README.md) | Feature flags in an ASP.NET Core Web API. |
 
 **Getting Started with a Sample:**
 
 1. Navigate to the sample directory
 
-   ```shell
-   cd samples/AspNetCore
-   ```
+    ```shell
+    cd samples/AspNetCore
+    ```
 
 2. Restore dependencies and run
 
-   ```shell
-   dotnet run
-   ```
+    ```shell
+    dotnet run
+    ```
 
 Want to contribute a new sample? See our [CONTRIBUTING](CONTRIBUTING.md) guide!
 
@@ -113,7 +113,7 @@ Want to contribute a new sample? See our [CONTRIBUTING](CONTRIBUTING.md) guide!
 | ✅     | [Shutdown](#shutdown)                                               | Gracefully clean up a provider during application shutdown.                                                                                                   |
 | ✅     | [Transaction Context Propagation](#transaction-context-propagation) | Set a specific [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context) for a transaction (e.g. an HTTP request or a thread). |
 | ✅     | [Extending](#extending)                                             | Extend OpenFeature with custom providers and hooks.                                                                                                           |
-| 🔬     | [DependencyInjection](#DependencyInjection)                         | Integrate OpenFeature with .NET's dependency injection for streamlined provider setup.                                                                        |
+| 🔬     | [DependencyInjection](#dependency-injection)                         | Integrate OpenFeature with .NET's dependency injection for streamlined provider setup.                                                                        |
 
 > Implemented: ✅ | In-progress: ⚠️ | Not implemented yet: ❌ | Experimental: 🔬
 
@@ -433,7 +433,7 @@ Hooks support passing per-evaluation data between that stages using `hook data`.
 
 Built a new hook? [Let us know](https://github.com/open-feature/openfeature.dev/issues/new?assignees=&labels=hook&projects=&template=document-hook.yaml&title=%5BHook%5D%3A+) so we can add it to the docs!
 
-### DependencyInjection
+### Dependency Injection
 
 > [!NOTE]
 > The OpenFeature.DependencyInjection and OpenFeature.Hosting packages are currently experimental. They streamline the integration of OpenFeature within .NET applications, allowing for seamless configuration and lifecycle management of feature flag providers using dependency injection and hosting services.
@@ -481,6 +481,7 @@ builder.Services.AddOpenFeature(featureBuilder => {
         .AddHostedFeatureLifecycle()
         .AddContext((contextBuilder, serviceProvider) => { /* Custom context configuration */ })
         .AddHook((serviceProvider) => new LoggingHook( /* Custom configuration */ ))
+        .AddHook(new MetricsHook())
         .AddInMemoryProvider("name1")
         .AddInMemoryProvider("name2")
         .AddPolicyName(options => {
@@ -532,6 +533,171 @@ services.AddOpenFeature(builder =>
         return new InMemoryProvider(flags);
     });
 });
+```
+
+### Trace Enricher Hook
+
+The `TraceEnricherHook` enriches telemetry traces with additional information during the feature flag evaluation lifecycle. This hook adds relevant flag evaluation details as tags and events to the current `Activity` for tracing purposes.
+
+For this hook to function correctly, an active span must be set in the current `Activity`, otherwise the hook will no-op.
+
+Below are the tags added to the trace event:
+
+| Tag Name                    | Description                                                                  | Source                        |
+| --------------------------- | ---------------------------------------------------------------------------- | ----------------------------- |
+| feature_flag.key            | The lookup key of the feature flag                                           | Hook context flag key         |
+| feature_flag.provider.name  | The name of the feature flag provider                                        | Provider metadata             |
+| feature_flag.result.reason  | The reason code which shows how a feature flag value was determined          | Evaluation details            |
+| feature_flag.result.variant | A semantic identifier for an evaluated flag value                            | Evaluation details            |
+| feature_flag.result.value   | The evaluated value of the feature flag                                      | Evaluation details            |
+| feature_flag.context.id     | The unique identifier for the flag evaluation context                        | Flag metadata (if available)  |
+| feature_flag.set.id         | The identifier of the flag set to which the feature flag belongs             | Flag metadata (if available)  |
+| feature_flag.version        | The version of the ruleset used during the evaluation                        | Flag metadata (if available)  |
+| error.type                  | Describes a class of error the operation ended with                          | Evaluation details (if error) |
+| error.message               | A message explaining the nature of an error occurring during flag evaluation | Evaluation details (if error) |
+
+#### Example
+
+The following example demonstrates the use of the `TraceEnricherHook` with the `OpenFeature dotnet-sdk`. The traces are sent to a `jaeger` OTLP collector running at `localhost:4317`.
+
+```csharp
+using OpenFeature.Contrib.Providers.Flagd;
+using OpenFeature.Hooks;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Resources;
+using OpenTelemetry;
+using OpenTelemetry.Trace;
+
+namespace OpenFeatureTestApp
+{
+    class Hello {
+        static void Main(string[] args) {
+
+            // set up the OpenTelemetry OTLP exporter
+            var tracerProvider = Sdk.CreateTracerProviderBuilder()
+                    .AddSource("my-tracer")
+                    .ConfigureResource(r => r.AddService("jaeger-test"))
+                    .AddOtlpExporter(o =>
+                    {
+                        o.ExportProcessorType = ExportProcessorType.Simple;
+                    })
+                    .Build();
+
+            // add the TraceEnricherHook to the OpenFeature instance
+            OpenFeature.Api.Instance.AddHooks(new TraceEnricherHook());
+
+            var flagdProvider = new FlagdProvider(new Uri("http://localhost:8013"));
+
+            // Set the flagdProvider as the provider for the OpenFeature SDK
+            OpenFeature.Api.Instance.SetProvider(flagdProvider);
+
+            var client = OpenFeature.Api.Instance.GetClient("my-app");
+
+            var val = client.GetBooleanValueAsync("myBoolFlag", false, null);
+
+            // Print the value of the 'myBoolFlag' feature flag
+            System.Console.WriteLine(val.Result.ToString());
+        }
+    }
+}
+```
+
+After running this example, you will be able to see the traces, including the events sent by the hook in your Jaeger UI.
+
+You can specify custom tags on spans created by the `TraceEnricherHook` by providing `TraceEnricherHookOptions` when adding the hook:
+
+```csharp
+var options = TraceEnricherHookOptions.CreateBuilder()
+    .WithTag("custom_dimension_key", "custom_dimension_value")
+    .Build();
+
+OpenFeature.Api.Instance.AddHooks(new TraceEnricherHook(options));
+```
+
+You can also write your own extraction logic against the Flag metadata by providing a callback to `WithFlagEvaluationMetadata`. The below example will add a tag to the span with the key `boolean` and a value specified by the callback.
+
+```csharp
+var options = TraceEnricherHookOptions.CreateBuilder()
+    .WithFlagEvaluationMetadata("boolean", s => s.GetBool("boolean"))
+    .Build();
+```
+
+### Metrics Hook
+
+For this hook to function correctly a global `MeterProvider` must be set.
+`MetricsHook` performs metric collection by tapping into various hook stages.
+
+Below are the metrics extracted by this hook and dimensions they carry:
+
+| Metric key                             | Description                     | Unit         | Dimensions                    |
+| -------------------------------------- | ------------------------------- | ------------ | ----------------------------- |
+| feature_flag.evaluation_requests_total | Number of evaluation requests   | request      | key, provider name            |
+| feature_flag.evaluation_success_total  | Flag evaluation successes       | impression   | key, provider name, reason    |
+| feature_flag.evaluation_error_total    | Flag evaluation errors          | 1            | key, provider name, exception |
+| feature_flag.evaluation_active_count   | Active flag evaluations counter | 1            | key, provider name            |
+
+Consider the following code example for usage.
+
+#### Example
+
+The following example demonstrates the use of the `MetricsHook` with the `OpenFeature dotnet-sdk`. The metrics are sent to the `console`.
+
+```csharp
+using OpenFeature.Contrib.Providers.Flagd;
+using OpenFeature;
+using OpenFeature.Hooks;
+using OpenTelemetry;
+using OpenTelemetry.Metrics;
+
+namespace OpenFeatureTestApp
+{
+    class Hello {
+        static void Main(string[] args) {
+
+            // set up the OpenTelemetry OTLP exporter
+            var meterProvider = Sdk.CreateMeterProviderBuilder()
+                    .AddMeter("OpenFeature")
+                    .ConfigureResource(r => r.AddService("openfeature-test"))
+                    .AddConsoleExporter()
+                    .Build();
+
+            // add the MetricsHook to the OpenFeature instance
+            OpenFeature.Api.Instance.AddHooks(new MetricsHook());
+
+            var flagdProvider = new FlagdProvider(new Uri("http://localhost:8013"));
+
+            // Set the flagdProvider as the provider for the OpenFeature SDK
+            OpenFeature.Api.Instance.SetProvider(flagdProvider);
+
+            var client = OpenFeature.Api.Instance.GetClient("my-app");
+
+            var val = client.GetBooleanValueAsync("myBoolFlag", false, null);
+
+            // Print the value of the 'myBoolFlag' feature flag
+            System.Console.WriteLine(val.Result.ToString());
+        }
+    }
+}
+```
+
+After running this example, you should be able to see some metrics being generated into the console.
+
+You can specify custom dimensions on all instruments by the `MetricsHook` by providing `MetricsHookOptions` when adding the hook:
+
+```csharp
+var options = MetricsHookOptions.CreateBuilder()
+    .WithCustomDimension("custom_dimension_key", "custom_dimension_value")
+    .Build();
+
+OpenFeature.Api.Instance.AddHooks(new MetricsHook(options));
+```
+
+You can also write your own extraction logic against the Flag metadata by providing a callback to `WithFlagEvaluationMetadata`.
+
+```csharp
+var options = MetricsHookOptions.CreateBuilder()
+    .WithFlagEvaluationMetadata("boolean", s => s.GetBool("boolean"))
+    .Build();
 ```
 
 <!-- x-hide-in-docs-start -->

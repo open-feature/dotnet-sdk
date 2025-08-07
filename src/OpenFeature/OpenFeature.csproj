@@ -8,7 +8,10 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0'" />
+    <PackageReference Include="Microsoft.Bcl.HashCode" Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0'" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0'" />
+    <PackageReference Include="System.Text.Json" Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0'" />
   </ItemGroup>
 
   <ItemGroup>
@@ -16,6 +19,7 @@
     <InternalsVisibleTo Include="OpenFeature.Benchmarks" />
     <InternalsVisibleTo Include="OpenFeature.Tests" />
     <InternalsVisibleTo Include="OpenFeature.E2ETests" />
+    <InternalsVisibleTo Include="OpenFeature.DependencyInjection" />
     <None Include="../../README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
 

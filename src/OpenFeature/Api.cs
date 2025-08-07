@@ -32,7 +32,7 @@ public sealed class Api : IEventBus
     // not to mark type as beforeFieldInit
     // IE Lazy way of ensuring this is thread safe without using locks
     static Api() { }
-    private Api() { }
+    internal Api() { }
 
     /// <summary>
     /// Sets the default feature provider. In order to wait for the provider to be set, and initialization to complete,
@@ -85,7 +85,7 @@ public sealed class Api : IEventBus
     /// Gets the feature provider with given domain
     /// </summary>
     /// <param name="domain">An identifier which logically binds clients with providers</param>
-    /// <returns>A provider associated with the given domain, if domain is empty or doesn't
+    /// <returns>A provider associated with the given domain, if domain is empty, null, whitespace or doesn't
     /// have a corresponding provider the default provider will be returned</returns>
     public FeatureProvider GetProvider(string domain)
     {
@@ -114,14 +114,14 @@ public sealed class Api : IEventBus
     /// <summary>
     /// Create a new instance of <see cref="FeatureClient"/> using the current provider
     /// </summary>
-    /// <param name="name">Name of client</param>
+    /// <param name="name">Name of client, if the <paramref name="name"/> is not provided a default name will be used</param>
     /// <param name="version">Version of client</param>
     /// <param name="logger">Logger instance used by client</param>
     /// <param name="context">Context given to this client</param>
     /// <returns><see cref="FeatureClient"/></returns>
     public FeatureClient GetClient(string? name = null, string? version = null, ILogger? logger = null,
         EvaluationContext? context = null) =>
-        new FeatureClient(() => this._repository.GetProvider(name), name, version, logger, context);
+        new FeatureClient(this, () => this._repository.GetProvider(name), name, version, logger, context);
 
     /// <summary>
     /// Appends list of hooks to global hooks list
@@ -359,5 +359,13 @@ public sealed class Api : IEventBus
     internal static void ResetApi()
     {
         Instance = new Api();
+    }
+
+    /// <summary>
+    /// This method should only be used in the Dependency Injection setup. It will set the singleton instance of the API using the provided instance.
+    /// </summary>
+    internal static void SetInstance(Api api)
+    {
+        Instance = api;
     }
 }
