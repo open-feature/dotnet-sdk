@@ -13,7 +13,7 @@ public class FeatureBuilderExtensionsTests
         // Arrange
         var services = new ServiceCollection();
         var builder = new OpenFeatureBuilder(services);
-        
+
         // Act
         builder.AddInMemoryProvider();
 
@@ -111,7 +111,7 @@ public class FeatureBuilderExtensionsTests
                     { "new-feature", new Flag<bool>(new Dictionary<string, bool> { { "on", true }, { "off", false } }, "off") },
                 };
             });
-            
+
         var builder = new OpenFeatureBuilder(services);
 
         // Act

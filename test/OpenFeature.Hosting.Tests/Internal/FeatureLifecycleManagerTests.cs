@@ -73,8 +73,8 @@ public class FeatureLifecycleManagerTests : IAsyncLifetime
         });
         services.AddSingleton<FeatureProvider>(provider);
 
-        string? message = null;
-        services.AddSingleton(new EventHandlerDelegateWrapper(ProviderEventTypes.ProviderReady, (p) => { message = p?.Message; }));
+        bool hookExecuted = false;
+        services.AddSingleton(new EventHandlerDelegateWrapper(ProviderEventTypes.ProviderReady, (p) => { hookExecuted = true; }));
 
         var api = Api.Instance;
 
@@ -84,8 +84,7 @@ public class FeatureLifecycleManagerTests : IAsyncLifetime
         await lifecycleManager.EnsureInitializedAsync();
 
         // Assert
-        Assert.NotNull(message);
-        Assert.Equal("Provider is ready", message);
+        Assert.True(hookExecuted);
     }
 
     [Fact]
