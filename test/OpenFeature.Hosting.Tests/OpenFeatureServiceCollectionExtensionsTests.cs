@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 
 namespace OpenFeature.Hosting.Tests;
@@ -33,5 +34,63 @@ public class OpenFeatureServiceCollectionExtensionsTests
 
         // Assert
         _configureAction.Received(1).Invoke(Arg.Any<OpenFeatureBuilder>());
+    }
+
+    [Fact]
+    public void AddOpenFeature_WithDefaultProvider()
+    {
+        // Act
+        _systemUnderTest.AddOpenFeature(builder =>
+        {
+            builder.AddProvider(_ => new NoOpFeatureProvider());
+        });
+
+        // Assert
+        using var serviceProvider = _systemUnderTest.BuildServiceProvider();
+        var featureClient = serviceProvider.GetRequiredService<IFeatureClient>();
+        Assert.NotNull(featureClient);
+    }
+
+    [Fact]
+    public void AddOpenFeature_WithNamedDefaultProvider()
+    {
+        // Act
+        _systemUnderTest.AddOpenFeature(builder =>
+        {
+            builder.AddProvider("no-opprovider", (_, key) => new NoOpFeatureProvider());
+        });
+
+        // Assert
+        using var serviceProvider = _systemUnderTest.BuildServiceProvider();
+        var featureClient = serviceProvider.GetRequiredService<IFeatureClient>();
+        Assert.NotNull(featureClient);
+    }
+
+    [Fact]
+    public void AddOpenFeature_WithNamedDefaultProvider_InvokesAddPolicyName()
+    {
+        // Arrange
+        var provider1 = new NoOpFeatureProvider();
+        var provider2 = new NoOpFeatureProvider();
+
+        // Act
+        _systemUnderTest.AddOpenFeature(builder =>
+        {
+            builder
+                .AddPolicyName(ss =>
+                {
+                    ss.DefaultNameSelector = (sp) => "no-opprovider";
+                })
+                .AddProvider("no-opprovider", (_, key) => provider1)
+                .AddProvider("no-opprovider-2", (_, key) => provider2);
+        });
+
+        // Assert
+        using var serviceProvider = _systemUnderTest.BuildServiceProvider();
+        var client = serviceProvider.GetKeyedService<IFeatureClient>("no-opprovider");
+        Assert.NotNull(client);
+
+        var otherClient = serviceProvider.GetService<IFeatureClient>();
+        Assert.NotNull(otherClient);
     }
 }
