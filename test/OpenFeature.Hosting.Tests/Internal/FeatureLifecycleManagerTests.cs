@@ -34,6 +34,33 @@ public class FeatureLifecycleManagerTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task EnsureInitializedAsync_SetsMultipleProvider()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var provider1 = new NoOpFeatureProvider();
+        var provider2 = new NoOpFeatureProvider();
+        services.AddOptions<OpenFeatureOptions>().Configure(options =>
+        {
+            options.AddProviderName("provider1");
+            options.AddProviderName("provider2");
+        });
+        services.AddKeyedSingleton<FeatureProvider>("provider1", provider1);
+        services.AddKeyedSingleton<FeatureProvider>("provider2", provider2);
+
+        var api = Api.Instance;
+
+        // Act
+        using var serviceProvider = services.BuildServiceProvider();
+        var lifecycleManager = new FeatureLifecycleManager(api, serviceProvider, NullLogger<FeatureLifecycleManager>.Instance);
+        await lifecycleManager.EnsureInitializedAsync();
+
+        // Assert
+        Assert.Equal(provider1, api.GetProvider("provider1"));
+        Assert.Equal(provider2, api.GetProvider("provider2"));
+    }
+
+    [Fact]
     public async Task EnsureInitializedAsync_AddsHooks()
     {
         // Arrange

@@ -53,6 +53,42 @@ public class FeatureBuilderExtensionsTests
     }
 
     [Fact]
+    public void AddInMemoryProvider_WithNullFlagsFactory_AddsProvider()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var builder = new OpenFeatureBuilder(services);
+
+        // Act
+        builder.AddInMemoryProvider((sp) => null);
+
+        // Assert
+        using var provider = services.BuildServiceProvider();
+
+        var featureProvider = provider.GetService<FeatureProvider>();
+        Assert.NotNull(featureProvider);
+        Assert.IsType<InMemoryProvider>(featureProvider);
+    }
+
+    [Fact]
+    public void AddInMemoryProvider_WithNullConfigure_AddsProvider()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var builder = new OpenFeatureBuilder(services);
+
+        // Act
+        builder.AddInMemoryProvider((Action<IDictionary<string, Flag>>?) null);
+
+        // Assert
+        using var provider = services.BuildServiceProvider();
+
+        var featureProvider = provider.GetService<FeatureProvider>();
+        Assert.NotNull(featureProvider);
+        Assert.IsType<InMemoryProvider>(featureProvider);
+    }
+
+    [Fact]
     public void AddInMemoryProvider_WithDomain_AddsProvider()
     {
         // Arrange
@@ -96,6 +132,24 @@ public class FeatureBuilderExtensionsTests
         var context = EvaluationContext.Builder().Set("group", "alpha").Build();
         var result = await featureProvider.ResolveBooleanValueAsync("feature2", false, context);
         Assert.True(result.Value);
+    }
+
+    [Fact]
+    public void AddInMemoryProvider_WithDomainAndNullFlagsFactory_AddsProvider()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var builder = new OpenFeatureBuilder(services);
+
+        // Act
+        builder.AddInMemoryProvider("domain", (sp) => null);
+
+        // Assert
+        using var provider = services.BuildServiceProvider();
+
+        var featureProvider = provider.GetKeyedService<FeatureProvider>("domain");
+        Assert.NotNull(featureProvider);
+        Assert.IsType<InMemoryProvider>(featureProvider);
     }
 
     [Fact]
@@ -156,5 +210,48 @@ public class FeatureBuilderExtensionsTests
 
         var result = await featureProvider.ResolveBooleanValueAsync("new-feature", true);
         Assert.False(result.Value);
+    }
+
+    [Fact]
+    public void AddInMemoryProvider_WithDomainAndNullOptions_AddsProvider()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddOptions<InMemoryProviderOptions>("domain-name")
+            .Configure((opts) =>
+            {
+                opts.Flags = null;
+            });
+
+        var builder = new OpenFeatureBuilder(services);
+
+        // Act
+        builder.AddInMemoryProvider("domain-name");
+
+        // Assert
+        using var provider = services.BuildServiceProvider();
+
+        var featureProvider = provider.GetKeyedService<FeatureProvider>("domain-name");
+        Assert.NotNull(featureProvider);
+        Assert.IsType<InMemoryProvider>(featureProvider);
+    }
+
+    [Fact]
+    public void AddInMemoryProvider_WithDomainAndNullConfigure_AddsProvider()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+
+        var builder = new OpenFeatureBuilder(services);
+
+        // Act
+        builder.AddInMemoryProvider("domain-name", (Action<IDictionary<string, Flag>>?) null);
+
+        // Assert
+        using var provider = services.BuildServiceProvider();
+
+        var featureProvider = provider.GetKeyedService<FeatureProvider>("domain-name");
+        Assert.NotNull(featureProvider);
+        Assert.IsType<InMemoryProvider>(featureProvider);
     }
 }
