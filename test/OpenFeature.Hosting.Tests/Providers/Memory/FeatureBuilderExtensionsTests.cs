@@ -78,7 +78,7 @@ public class FeatureBuilderExtensionsTests
         var builder = new OpenFeatureBuilder(services);
 
         // Act
-        builder.AddInMemoryProvider((Action<IDictionary<string, Flag>>?) null);
+        builder.AddInMemoryProvider((Action<IDictionary<string, Flag>>?)null);
 
         // Assert
         using var provider = services.BuildServiceProvider();
@@ -245,7 +245,7 @@ public class FeatureBuilderExtensionsTests
         var builder = new OpenFeatureBuilder(services);
 
         // Act
-        builder.AddInMemoryProvider("domain-name", (Action<IDictionary<string, Flag>>?) null);
+        builder.AddInMemoryProvider("domain-name", (Action<IDictionary<string, Flag>>?)null);
 
         // Assert
         using var provider = services.BuildServiceProvider();
