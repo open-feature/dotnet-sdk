@@ -130,6 +130,18 @@ Please make sure you follow the latest [conventions](https://www.conventionalcom
 
 If you want to point out a breaking change, you should use `!` after the type. For example: `feat!: excellent new feature`.
 
+### Changelog Visibility and Release Triggers
+
+Only certain types are visible in the generated changelog:
+
+-   `feat`: ✨ New Features - New functionality added
+-   `fix`: 🐛 Bug Fixes - Bug fixes and corrections
+-   `perf`: 🚀 Performance - Performance improvements
+-   `refactor`: 🔧 Refactoring - Code changes that neither fix bugs nor add features
+-   `revert`: 🔙 Reverts - Reverted changes
+
+### Changelog
+
 ## Design Choices
 
 As with other OpenFeature SDKs, dotnet-sdk follows the
