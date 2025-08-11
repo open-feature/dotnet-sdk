@@ -140,8 +140,6 @@ Only certain types are visible in the generated changelog:
 -   `refactor`: 🔧 Refactoring - Code changes that neither fix bugs nor add features
 -   `revert`: 🔙 Reverts - Reverted changes
 
-### Changelog
-
 ## Design Choices
 
 As with other OpenFeature SDKs, dotnet-sdk follows the
