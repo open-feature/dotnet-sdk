@@ -6,6 +6,9 @@ using OpenFeature.DependencyInjection.Providers.Memory;
 using OpenFeature.Hooks;
 using OpenFeature.Model;
 using OpenFeature.Providers.Memory;
+using OpenFeature.Providers.MultiProvider;
+using OpenFeature.Providers.MultiProvider.Models;
+using OpenFeature.Providers.MultiProvider.Strategies;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -75,6 +78,7 @@ app.MapGet("/welcome", async ([FromServices] IFeatureClient featureClient) =>
 
     return TypedResults.Ok("Hello world!");
 });
+
 app.MapGet("/test-config", async ([FromServices] IFeatureClient featureClient) =>
 {
     var testConfigValue = await featureClient.GetObjectValueAsync("test-config",
@@ -83,6 +87,56 @@ app.MapGet("/test-config", async ([FromServices] IFeatureClient featureClient) =
     var json = JsonSerializer.Serialize(testConfigValue, AppJsonSerializerContext.Default.Value);
     var config = JsonSerializer.Deserialize(json, AppJsonSerializerContext.Default.TestConfig);
     return Results.Ok(config);
+});
+
+app.MapGet("/multi-provider", async () =>
+{
+    // Create first in-memory provider with some flags
+    var provider1Flags = new Dictionary<string, Flag>
+    {
+        { "providername", new Flag<string>(new Dictionary<string, string> { { "enabled", "enabled-provider1" }, { "disabled", "disabled-provider1" } }, "enabled") },
+        { "max-items", new Flag<int>(new Dictionary<string, int> { { "low", 10 }, { "high", 100 } }, "high") },
+    };
+    var provider1 = new InMemoryProvider(provider1Flags);
+
+    // Create second in-memory provider with different flags
+    var provider2Flags = new Dictionary<string, Flag>
+    {
+        { "providername", new Flag<string>(new Dictionary<string, string> { { "enabled", "enabled-provider2" }, { "disabled", "disabled-provider2" } }, "enabled") },
+    };
+    var provider2 = new InMemoryProvider(provider2Flags);
+
+    // Create provider entries
+    var providerEntries = new List<ProviderEntry>
+    {
+        new(provider1, "Provider1"),
+        new(provider2, "Provider2")
+    };
+
+    // Create multi-provider with FirstMatchStrategy (default)
+    var multiProvider = new MultiProvider(providerEntries, new FirstMatchStrategy());
+
+    // Set the multi-provider as the default provider using OpenFeature API
+    await Api.Instance.SetProviderAsync(multiProvider);
+
+    // Create a client directly using the API
+    var client = Api.Instance.GetClient();
+
+    try
+    {
+        // Test flag evaluation from different providers
+        var maxItemsFlag = await client.GetIntegerDetailsAsync("max-items", 0);
+        var providerNameFlag = await client.GetStringDetailsAsync("providername", "default");
+
+        // Test a flag that doesn't exist in any provider
+        var unknownFlag = await client.GetBooleanDetailsAsync("unknown-flag", false);
+
+        return Results.Ok();
+    }
+    catch (Exception)
+    {
+        return Results.InternalServerError();
+    }
 });
 
 app.Run();

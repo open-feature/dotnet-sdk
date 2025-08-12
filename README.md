@@ -113,7 +113,8 @@ Want to contribute a new sample? See our [CONTRIBUTING](CONTRIBUTING.md) guide!
 | ✅     | [Shutdown](#shutdown)                                               | Gracefully clean up a provider during application shutdown.                                                                                                   |
 | ✅     | [Transaction Context Propagation](#transaction-context-propagation) | Set a specific [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context) for a transaction (e.g. an HTTP request or a thread). |
 | ✅     | [Extending](#extending)                                             | Extend OpenFeature with custom providers and hooks.                                                                                                           |
-| 🔬     | [DependencyInjection](#dependency-injection)                         | Integrate OpenFeature with .NET's dependency injection for streamlined provider setup.                                                                        |
+| 🔬     | [Multi-Provider](#multi-provider)                                   | Use multiple feature flag providers simultaneously with configurable evaluation strategies.                                                                   |
+| 🔬     | [DependencyInjection](#dependency-injection)                        | Integrate OpenFeature with .NET's dependency injection for streamlined provider setup.                                                                        |
 
 > Implemented: ✅ | In-progress: ⚠️ | Not implemented yet: ❌ | Experimental: 🔬
 
@@ -432,6 +433,96 @@ Hooks support passing per-evaluation data between that stages using `hook data`.
 ```
 
 Built a new hook? [Let us know](https://github.com/open-feature/openfeature.dev/issues/new?assignees=&labels=hook&projects=&template=document-hook.yaml&title=%5BHook%5D%3A+) so we can add it to the docs!
+
+### Multi-Provider
+
+> [!NOTE]
+> The Multi-Provider feature is currently experimental. Hooks and events are not supported at the moment.
+
+The Multi-Provider enables the use of multiple underlying feature flag providers simultaneously, allowing different providers to be used for different flag keys or based on specific evaluation strategies.
+
+#### Basic Usage
+
+```csharp
+using OpenFeature.Providers.MultiProvider;
+using OpenFeature.Providers.MultiProvider.Models;
+using OpenFeature.Providers.MultiProvider.Strategies;
+
+// Create provider entries
+var providerEntries = new List<ProviderEntry>
+{
+    new(new InMemoryProvider(provider1Flags), "Provider1"),
+    new(new InMemoryProvider(provider2Flags), "Provider2")
+};
+
+// Create multi-provider with FirstMatchStrategy (default)
+var multiProvider = new MultiProvider(providerEntries, new FirstMatchStrategy());
+
+// Set as the default provider
+await Api.Instance.SetProviderAsync(multiProvider);
+
+// Use normally - the multi-provider will handle delegation
+var client = Api.Instance.GetClient();
+var flagValue = await client.GetBooleanValueAsync("my-flag", false);
+```
+
+#### Evaluation Strategies
+
+The Multi-Provider supports different evaluation strategies that determine how multiple providers are used:
+
+##### FirstMatchStrategy (Default)
+
+Evaluates providers sequentially and returns the first result that is not "flag not found". If any provider returns an error, that error is returned immediately.
+
+```csharp
+var multiProvider = new MultiProvider(providerEntries, new FirstMatchStrategy());
+```
+
+##### FirstSuccessfulStrategy
+
+Evaluates providers sequentially and returns the first successful result, ignoring errors. Only if all providers fail will errors be returned.
+
+```csharp
+var multiProvider = new MultiProvider(providerEntries, new FirstSuccessfulStrategy());
+```
+
+##### ComparisonStrategy
+
+Evaluates all providers in parallel and compares results. If values agree, returns the agreed value. If they disagree, returns the fallback provider's value (or first provider if no fallback is specified) and optionally calls a mismatch callback.
+
+```csharp
+// Basic comparison
+var multiProvider = new MultiProvider(providerEntries, new ComparisonStrategy());
+
+// With fallback provider
+var multiProvider = new MultiProvider(providerEntries,
+    new ComparisonStrategy(fallbackProvider: provider1));
+
+// With mismatch callback
+var multiProvider = new MultiProvider(providerEntries,
+    new ComparisonStrategy(onMismatch: (mismatchDetails) => {
+        // Log or handle mismatches between providers
+        foreach (var kvp in mismatchDetails)
+        {
+            Console.WriteLine($"Provider {kvp.Key}: {kvp.Value}");
+        }
+    }));
+```
+
+#### Evaluation Modes
+
+The Multi-Provider supports two evaluation modes:
+
+-   **Sequential**: Providers are evaluated one after another (used by `FirstMatchStrategy` and `FirstSuccessfulStrategy`)
+-   **Parallel**: All providers are evaluated simultaneously (used by `ComparisonStrategy`)
+
+#### Limitations
+
+-   **Hooks are not supported**: Multi-Provider does not currently support hook registration or execution
+-   **Events are not supported**: Provider events are not propagated from underlying providers
+-   **Experimental status**: The API may change in future releases
+
+For a complete example, see the [AspNetCore sample](./samples/AspNetCore/README.md) which demonstrates Multi-Provider usage.
 
 ### Dependency Injection
 

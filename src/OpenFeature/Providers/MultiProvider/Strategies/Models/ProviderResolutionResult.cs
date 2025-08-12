@@ -1,0 +1,45 @@
+using OpenFeature.Model;
+
+namespace OpenFeature.Providers.MultiProvider.Strategies.Models;
+
+/// <summary>
+/// Base class for provider resolution results.
+/// </summary>
+public class ProviderResolutionResult<T>
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ProviderResolutionResult{T}"/> class
+    /// with the specified provider and resolution details.
+    /// </summary>
+    /// <param name="provider">The feature provider that produced this result.</param>
+    /// <param name="providerName">The name of the provider that produced this result.</param>
+    /// <param name="resolutionDetails">The resolution details.</param>
+    /// <param name="thrownError">The exception that occurred during resolution, if any.</param>
+    public ProviderResolutionResult(FeatureProvider provider, string providerName, ResolutionDetails<T> resolutionDetails, Exception? thrownError = null)
+    {
+        this.Provider = provider;
+        this.ProviderName = providerName;
+        this.ResolutionDetails = resolutionDetails;
+        this.ThrownError = thrownError;
+    }
+
+    /// <summary>
+    /// The feature provider that produced this result.
+    /// </summary>
+    public FeatureProvider Provider { get; private set; }
+
+    /// <summary>
+    /// The resolution details.
+    /// </summary>
+    public ResolutionDetails<T> ResolutionDetails { get; private set; }
+
+    /// <summary>
+    /// The name of the provider that produced this result.
+    /// </summary>
+    public string ProviderName { get; private set; }
+
+    /// <summary>
+    /// The exception that occurred during resolution, if any.
+    /// </summary>
+    public Exception? ThrownError { get; private set; }
+}
