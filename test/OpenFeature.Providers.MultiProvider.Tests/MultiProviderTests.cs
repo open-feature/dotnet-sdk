@@ -8,7 +8,7 @@ using OpenFeature.Providers.MultiProvider.Strategies;
 using OpenFeature.Providers.MultiProvider.Strategies.Models;
 using MultiProviderImplementation = OpenFeature.Providers.MultiProvider;
 
-namespace OpenFeature.Tests.Providers.MultiProvider;
+namespace OpenFeature.Providers.MultiProvider.Tests;
 
 public class MultiProviderClassTests
 {

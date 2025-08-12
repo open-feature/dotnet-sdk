@@ -2,10 +2,9 @@ using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using OpenFeature.Constant;
 using OpenFeature.Model;
-using OpenFeature.Providers.MultiProvider;
 using OpenFeature.Providers.MultiProvider.Strategies.Models;
 
-namespace OpenFeature.Tests.Providers.MultiProvider;
+namespace OpenFeature.Providers.MultiProvider.Tests;
 
 public class ProviderExtensionsTests
 {

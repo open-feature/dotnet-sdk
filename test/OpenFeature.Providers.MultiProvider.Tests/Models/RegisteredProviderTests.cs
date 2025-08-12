@@ -1,7 +1,8 @@
 using NSubstitute;
 using OpenFeature.Providers.MultiProvider.Models;
+using OpenFeature.Tests;
 
-namespace OpenFeature.Tests.Providers.MultiProvider.Models;
+namespace OpenFeature.Providers.MultiProvider.Tests.Models;
 
 public class RegisteredProviderTests
 {

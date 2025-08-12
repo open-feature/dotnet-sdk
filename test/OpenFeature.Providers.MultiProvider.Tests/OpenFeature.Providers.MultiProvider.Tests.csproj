@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <TargetFrameworks Condition="$(OS) == 'Windows_NT'">$(TargetFrameworks);net462</TargetFrameworks>
-    <RootNamespace>OpenFeature.Tests</RootNamespace>
+    <RootNamespace>OpenFeature.Providers.MultiProvider.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,7 +29,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\OpenFeature\OpenFeature.csproj" />
+    <ProjectReference Include="..\..\src\OpenFeature.Providers.MultiProvider\OpenFeature.Providers.MultiProvider.csproj" />
+    <ProjectReference Include="..\OpenFeature.Tests\OpenFeature.Tests.csproj" />
   </ItemGroup>
 
 </Project>

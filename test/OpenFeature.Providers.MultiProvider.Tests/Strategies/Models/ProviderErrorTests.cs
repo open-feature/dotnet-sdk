@@ -1,6 +1,6 @@
 using OpenFeature.Providers.MultiProvider.Strategies.Models;
 
-namespace OpenFeature.Tests.Providers.MultiProvider.Strategies.Models;
+namespace OpenFeature.Providers.MultiProvider.Tests.Strategies.Models;
 
 public class ProviderErrorTests
 {
