@@ -23,10 +23,12 @@
     },
     {
       "type": "chore",
+      "hidden": true,
       "section": "🧹 Chore"
     },
     {
       "type": "docs",
+      "hidden": true,
       "section": "📚 Documentation"
     },
     {
@@ -40,6 +42,7 @@
     },
     {
       "type": "deps",
+      "hidden": true,
       "section": "📦 Dependencies"
     },
     {
@@ -49,7 +52,7 @@
     },
     {
       "type": "refactor",
-      "section": "🔄 Refactoring"
+      "section": "🔧 Refactoring"
     },
     {
       "type": "revert",
