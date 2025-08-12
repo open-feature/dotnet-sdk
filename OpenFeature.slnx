@@ -5,7 +5,7 @@
     <File Path=".gitmodules" />
     <File Path=".release-please-manifest.json" />
     <File Path="CHANGELOG.md" />
-    <File Path="CODEOWNERS" />
+    <File Path=".github/CODEOWNERS" />
     <File Path="CONTRIBUTING.md" />
     <File Path="global.json" />
     <File Path="LICENSE" />
