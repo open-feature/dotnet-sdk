@@ -11,4 +11,8 @@
     <InternalsVisibleTo Include="OpenFeature.Tests" />
     <None Include="README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenFeature\OpenFeature.csproj" />
+  </ItemGroup>
 </Project>

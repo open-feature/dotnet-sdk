@@ -29,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\OpenFeature.Providers.MultiProvider\OpenFeature.Providers.MultiProvider.csproj" />
     <ProjectReference Include="..\..\src\OpenFeature\OpenFeature.csproj" />
   </ItemGroup>
 
