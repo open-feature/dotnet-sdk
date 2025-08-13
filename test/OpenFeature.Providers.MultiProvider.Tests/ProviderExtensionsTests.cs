@@ -286,7 +286,9 @@ public class ProviderExtensionsTests
         this._mockProvider.ResolveBooleanValueAsync(TestFlagKey, defaultValue, this._evaluationContext, cancellationTokenSource.Token)
             .Returns(async _ =>
             {
-                await cancellationTokenSource.CancelAsync();
+                // net462 does not support CancellationTokenSource.CancelAfter
+                // ReSharper disable once MethodHasAsyncOverload
+                cancellationTokenSource.Cancel();
                 await Task.Delay(100, cancellationTokenSource.Token);
                 return new ResolutionDetails<bool>(TestFlagKey, true);
             });
