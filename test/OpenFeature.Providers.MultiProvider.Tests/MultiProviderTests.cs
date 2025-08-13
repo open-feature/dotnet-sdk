@@ -66,11 +66,8 @@ public class MultiProviderClassTests
     [Fact]
     public void Constructor_WithEmptyProviderEntries_ThrowsArgumentException()
     {
-        // Arrange
-        var emptyProviderEntries = new List<ProviderEntry>();
-
         // Act & Assert
-        var exception = Assert.Throws<ArgumentException>(() => new MultiProvider(emptyProviderEntries, this._mockStrategy));
+        var exception = Assert.Throws<ArgumentException>(() => new MultiProvider([], this._mockStrategy));
         Assert.Contains("At least one provider entry must be provided", exception.Message);
         Assert.Equal("providerEntries", exception.ParamName);
     }
@@ -82,7 +79,7 @@ public class MultiProviderClassTests
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
 
         // Act
-        var multiProvider = new MultiProvider(providerEntries, null);
+        var multiProvider = new MultiProvider(providerEntries);
 
         // Assert
         Assert.NotNull(multiProvider);
@@ -653,7 +650,6 @@ public class MultiProviderClassTests
     {
         // Arrange
         const int providerCount = 20;
-        var random = new Random();
         var providerEntries = new List<ProviderEntry>();
 
         for (int i = 0; i < providerCount; i++)
@@ -790,7 +786,7 @@ public class MultiProviderClassTests
         await multiProvider.DisposeAsync();
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
+        await Assert.ThrowsAsync<ObjectDisposedException>(() =>
             multiProvider.InitializeAsync(this._evaluationContext));
 
         // Verify that the underlying provider was never called since the object was disposed
@@ -808,7 +804,7 @@ public class MultiProviderClassTests
         await multiProvider.DisposeAsync();
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
+        await Assert.ThrowsAsync<ObjectDisposedException>(() =>
             multiProvider.ShutdownAsync());
 
         // Verify that the underlying provider was never called since the object was disposed
