@@ -30,7 +30,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\OpenFeature.Providers.MultiProvider\OpenFeature.Providers.MultiProvider.csproj" />
-    <ProjectReference Include="..\OpenFeature.Tests\OpenFeature.Tests.csproj" />
   </ItemGroup>
 
 </Project>
