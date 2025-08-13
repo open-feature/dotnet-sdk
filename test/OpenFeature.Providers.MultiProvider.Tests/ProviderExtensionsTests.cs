@@ -284,9 +284,9 @@ public class ProviderExtensionsTests
         var providerContext = new StrategyPerProviderContext<bool>(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey);
 
         this._mockProvider.ResolveBooleanValueAsync(TestFlagKey, defaultValue, this._evaluationContext, cancellationTokenSource.Token)
-            .Returns(async callInfo =>
+            .Returns(async _ =>
             {
-                cancellationTokenSource.Cancel();
+                await cancellationTokenSource.CancelAsync();
                 await Task.Delay(100, cancellationTokenSource.Token);
                 return new ResolutionDetails<bool>(TestFlagKey, true);
             });

@@ -326,7 +326,7 @@ public class ComparisonStrategyTests
         var resolutions = new List<ProviderResolutionResult<bool>> { result1, result2 };
 
         // Act
-        var result = strategy.DetermineFinalResult(this._strategyContext, TestFlagKey, DefaultBoolValue, this._evaluationContext, resolutions);
+        strategy.DetermineFinalResult(this._strategyContext, TestFlagKey, DefaultBoolValue, this._evaluationContext, resolutions);
 
         // Assert
         Assert.True(onMismatchCalled);
@@ -361,7 +361,7 @@ public class ComparisonStrategyTests
         var resolutions = new List<ProviderResolutionResult<bool>> { result1, result2 };
 
         // Act
-        var result = strategy.DetermineFinalResult(this._strategyContext, TestFlagKey, DefaultBoolValue, this._evaluationContext, resolutions);
+        strategy.DetermineFinalResult(this._strategyContext, TestFlagKey, DefaultBoolValue, this._evaluationContext, resolutions);
 
         // Assert
         Assert.False(onMismatchCalled);
