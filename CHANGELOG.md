@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.0](https://github.com/open-feature/dotnet-sdk/compare/v2.8.1...v2.9.0) (2025-08-14)
+
+
+### ✨ New Features
+
+* Add multi-provider support ([#488](https://github.com/open-feature/dotnet-sdk/issues/488)) ([7237053](https://github.com/open-feature/dotnet-sdk/commit/7237053561d9c36194197169734522f0b978f6e5))
+
 ## [2.8.1](https://github.com/open-feature/dotnet-sdk/compare/v2.8.0...v2.8.1) (2025-07-31)
 
 
