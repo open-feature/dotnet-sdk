@@ -1,7 +1,7 @@
 using NSubstitute;
 using OpenFeature.Providers.MultiProvider.Models;
 
-namespace OpenFeature.Tests.Providers.MultiProvider.Models;
+namespace OpenFeature.Providers.MultiProvider.Tests.Models;
 
 public class ChildProviderEntryTests
 {
@@ -44,7 +44,7 @@ public class ChildProviderEntryTests
     public void Constructor_WithNullName_CreatesProviderEntryWithNullName()
     {
         // Act
-        var providerEntry = new ProviderEntry(this._mockProvider, null);
+        var providerEntry = new ProviderEntry(this._mockProvider);
 
         // Assert
         Assert.Equal(this._mockProvider, providerEntry.Provider);
@@ -65,9 +65,6 @@ public class ChildProviderEntryTests
     [Fact]
     public void Provider_Property_IsReadOnly()
     {
-        // Arrange
-        var providerEntry = new ProviderEntry(this._mockProvider);
-
         // Act & Assert
         // Verify that Provider property is read-only by checking it has no setter
         var providerProperty = typeof(ProviderEntry).GetProperty(nameof(ProviderEntry.Provider));
@@ -79,10 +76,6 @@ public class ChildProviderEntryTests
     [Fact]
     public void Name_Property_IsReadOnly()
     {
-        // Arrange
-        const string customName = "test-name";
-        var providerEntry = new ProviderEntry(this._mockProvider, customName);
-
         // Act & Assert
         // Verify that Name property is read-only by checking it has no setter
         var nameProperty = typeof(ProviderEntry).GetProperty(nameof(ProviderEntry.Name));

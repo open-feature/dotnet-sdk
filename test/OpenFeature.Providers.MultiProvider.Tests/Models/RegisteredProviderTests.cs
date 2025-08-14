@@ -1,7 +1,8 @@
 using NSubstitute;
+using OpenFeature.Providers.Memory;
 using OpenFeature.Providers.MultiProvider.Models;
 
-namespace OpenFeature.Tests.Providers.MultiProvider.Models;
+namespace OpenFeature.Providers.MultiProvider.Tests.Models;
 
 public class RegisteredProviderTests
 {
@@ -105,7 +106,7 @@ public class RegisteredProviderTests
     public void SetStatus_WithDifferentStatuses_UpdatesCorrectly(Constant.ProviderStatus status)
     {
         // Arrange
-        var registeredProvider = new RegisteredProvider(new TestProvider(), "test");
+        var registeredProvider = new RegisteredProvider(new InMemoryProvider(), "test");
 
         // Act
         registeredProvider.SetStatus(status);

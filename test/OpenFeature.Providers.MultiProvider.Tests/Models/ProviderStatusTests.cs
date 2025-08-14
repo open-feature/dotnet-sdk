@@ -1,6 +1,6 @@
 using OpenFeature.Providers.MultiProvider.Models;
 
-namespace OpenFeature.Tests.Providers.MultiProvider.Models;
+namespace OpenFeature.Providers.MultiProvider.Tests.Models;
 
 public class ProviderStatusTests
 {

@@ -6,9 +6,8 @@ using OpenFeature.Model;
 using OpenFeature.Providers.MultiProvider.Models;
 using OpenFeature.Providers.MultiProvider.Strategies;
 using OpenFeature.Providers.MultiProvider.Strategies.Models;
-using MultiProviderImplementation = OpenFeature.Providers.MultiProvider;
 
-namespace OpenFeature.Tests.Providers.MultiProvider;
+namespace OpenFeature.Providers.MultiProvider.Tests;
 
 public class MultiProviderClassTests
 {
@@ -48,7 +47,7 @@ public class MultiProviderClassTests
         };
 
         // Act
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         // Assert
         Assert.NotNull(multiProvider);
@@ -60,18 +59,15 @@ public class MultiProviderClassTests
     public void Constructor_WithNullProviderEntries_ThrowsArgumentNullException()
     {
         // Act & Assert
-        var exception = Assert.Throws<ArgumentNullException>(() => new MultiProviderImplementation.MultiProvider(null!, this._mockStrategy));
+        var exception = Assert.Throws<ArgumentNullException>(() => new MultiProvider(null!, this._mockStrategy));
         Assert.Equal("providerEntries", exception.ParamName);
     }
 
     [Fact]
     public void Constructor_WithEmptyProviderEntries_ThrowsArgumentException()
     {
-        // Arrange
-        var emptyProviderEntries = new List<ProviderEntry>();
-
         // Act & Assert
-        var exception = Assert.Throws<ArgumentException>(() => new MultiProviderImplementation.MultiProvider(emptyProviderEntries, this._mockStrategy));
+        var exception = Assert.Throws<ArgumentException>(() => new MultiProvider([], this._mockStrategy));
         Assert.Contains("At least one provider entry must be provided", exception.Message);
         Assert.Equal("providerEntries", exception.ParamName);
     }
@@ -83,7 +79,7 @@ public class MultiProviderClassTests
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
 
         // Act
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, null);
+        var multiProvider = new MultiProvider(providerEntries);
 
         // Assert
         Assert.NotNull(multiProvider);
@@ -102,7 +98,7 @@ public class MultiProviderClassTests
         };
 
         // Act & Assert
-        var exception = Assert.Throws<ArgumentException>(() => new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy));
+        var exception = Assert.Throws<ArgumentException>(() => new MultiProvider(providerEntries, this._mockStrategy));
         Assert.Contains("Multiple providers cannot have the same explicit name: 'duplicate-name'", exception.Message);
     }
 
@@ -116,7 +112,7 @@ public class MultiProviderClassTests
         var finalResult = new FinalResult<bool>(expectedDetails, this._mockProvider1, Provider1Name, null);
 
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext<bool>>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<bool>>>())
             .Returns(finalResult);
@@ -139,7 +135,7 @@ public class MultiProviderClassTests
         var finalResult = new FinalResult<string>(expectedDetails, this._mockProvider1, Provider1Name, null);
 
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext<string>>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<string>>>())
             .Returns(finalResult);
@@ -160,7 +156,7 @@ public class MultiProviderClassTests
             new(this._mockProvider1, Provider1Name),
             new(this._mockProvider2, Provider2Name)
         };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         this._mockProvider1.InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
         this._mockProvider2.InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
@@ -183,7 +179,7 @@ public class MultiProviderClassTests
             new(this._mockProvider1, Provider1Name),
             new(this._mockProvider2, Provider2Name)
         };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         this._mockProvider1.InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
         this._mockProvider2.InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>()).ThrowsAsync(expectedException);
@@ -204,7 +200,7 @@ public class MultiProviderClassTests
             new(this._mockProvider1, Provider1Name),
             new(this._mockProvider2, Provider2Name)
         };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
         multiProvider.SetStatus(ProviderStatus.Ready);
 
         this._mockProvider1.ShutdownAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
@@ -227,7 +223,7 @@ public class MultiProviderClassTests
             new(this._mockProvider1, Provider1Name),
             new(this._mockProvider2, Provider2Name)
         };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
         multiProvider.SetStatus(ProviderStatus.Fatal);
 
         this._mockProvider1.ShutdownAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
@@ -251,7 +247,7 @@ public class MultiProviderClassTests
             new(this._mockProvider1, Provider1Name),
             new(this._mockProvider2, Provider2Name)
         };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
         multiProvider.SetStatus(ProviderStatus.Ready);
 
         this._mockProvider1.ShutdownAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
@@ -269,7 +265,7 @@ public class MultiProviderClassTests
     {
         // Arrange
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         // Act
         var metadata = multiProvider.GetMetadata();
@@ -289,7 +285,7 @@ public class MultiProviderClassTests
         var finalResult = new FinalResult<double>(expectedDetails, this._mockProvider1, Provider1Name, null);
 
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext<double>>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<double>>>())
             .Returns(finalResult);
@@ -312,7 +308,7 @@ public class MultiProviderClassTests
         var finalResult = new FinalResult<int>(expectedDetails, this._mockProvider1, Provider1Name, null);
 
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext<int>>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<int>>>())
             .Returns(finalResult);
@@ -334,7 +330,7 @@ public class MultiProviderClassTests
         var finalResult = new FinalResult<Value>(expectedDetails, this._mockProvider1, Provider1Name, null);
 
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext<Value>>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<Value>>>())
             .Returns(finalResult);
@@ -360,7 +356,7 @@ public class MultiProviderClassTests
             new(this._mockProvider1, Provider1Name),
             new(this._mockProvider2, Provider2Name)
         };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         this._mockStrategy.RunMode.Returns(RunMode.Sequential);
         this._mockStrategy.ShouldEvaluateThisProvider(Arg.Any<StrategyPerProviderContext<bool>>(), this._evaluationContext).Returns(true);
@@ -394,7 +390,7 @@ public class MultiProviderClassTests
             new(this._mockProvider1, Provider1Name),
             new(this._mockProvider2, Provider2Name)
         };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         this._mockStrategy.RunMode.Returns(RunMode.Parallel);
         this._mockStrategy.ShouldEvaluateThisProvider(Arg.Any<StrategyPerProviderContext<bool>>(), this._evaluationContext).Returns(true);
@@ -421,7 +417,7 @@ public class MultiProviderClassTests
         // Arrange
         const bool defaultValue = false;
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         this._mockStrategy.RunMode.Returns((RunMode)999); // Invalid enum value
 
@@ -445,7 +441,7 @@ public class MultiProviderClassTests
             new(this._mockProvider1, Provider1Name),
             new(this._mockProvider2, Provider2Name)
         };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         this._mockStrategy.RunMode.Returns(RunMode.Sequential);
         this._mockStrategy.ShouldEvaluateThisProvider(Arg.Any<StrategyPerProviderContext<bool>>(), this._evaluationContext)
@@ -478,7 +474,7 @@ public class MultiProviderClassTests
         var finalResult = new FinalResult<bool>(expectedDetails, this._mockProvider1, Provider1Name, null);
 
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         this._mockStrategy.RunMode.Returns(RunMode.Sequential);
         this._mockStrategy.ShouldEvaluateThisProvider(Arg.Any<StrategyPerProviderContext<bool>>(), this._evaluationContext).Returns(true);
@@ -515,7 +511,7 @@ public class MultiProviderClassTests
         };
 
         // Act
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         // Assert
         Assert.NotNull(multiProvider);
@@ -534,7 +530,7 @@ public class MultiProviderClassTests
         var providerEntries = new List<ProviderEntry> { new(provider) };
 
         // Act
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         // Assert
         Assert.NotNull(multiProvider);
@@ -553,7 +549,7 @@ public class MultiProviderClassTests
         var providerEntries = new List<ProviderEntry> { new(provider) };
 
         // Act
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         // Assert
         Assert.NotNull(multiProvider);
@@ -566,7 +562,7 @@ public class MultiProviderClassTests
     {
         // Arrange
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         this._mockProvider1.InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
 
@@ -584,7 +580,7 @@ public class MultiProviderClassTests
     {
         // Arrange
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
         multiProvider.SetStatus(ProviderStatus.Ready);
 
         this._mockProvider1.ShutdownAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
@@ -608,7 +604,7 @@ public class MultiProviderClassTests
             new(this._mockProvider2, Provider2Name),
             new(this._mockProvider3, Provider3Name)
         };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         this._mockProvider1.InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
         this._mockProvider2.InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
@@ -633,7 +629,7 @@ public class MultiProviderClassTests
             new(this._mockProvider2, Provider2Name),
             new(this._mockProvider3, Provider3Name)
         };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
         multiProvider.SetStatus(ProviderStatus.Ready);
 
         this._mockProvider1.ShutdownAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
@@ -654,7 +650,6 @@ public class MultiProviderClassTests
     {
         // Arrange
         const int providerCount = 20;
-        var random = new Random();
         var providerEntries = new List<ProviderEntry>();
 
         for (int i = 0; i < providerCount; i++)
@@ -673,7 +668,7 @@ public class MultiProviderClassTests
             providerEntries.Add(new ProviderEntry(provider));
         }
 
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries);
+        var multiProvider = new MultiProvider(providerEntries);
 
         // Act: simulate concurrent initialization and shutdown with one task each
         var initTasks = Enumerable.Range(0, 1).Select(_ =>
@@ -699,7 +694,7 @@ public class MultiProviderClassTests
         // Consider replacing this with an internal or public method if testing becomes more frequent.
         IEnumerable<ProviderStatus> GetRegisteredStatuses()
         {
-            var field = typeof(MultiProviderImplementation.MultiProvider).GetField("_registeredProviders", BindingFlags.NonPublic | BindingFlags.Instance);
+            var field = typeof(MultiProvider).GetField("_registeredProviders", BindingFlags.NonPublic | BindingFlags.Instance);
             if (field?.GetValue(multiProvider) is not IEnumerable<object> list)
                 throw new InvalidOperationException("Could not retrieve registered providers via reflection.");
 
@@ -722,7 +717,7 @@ public class MultiProviderClassTests
     {
         // Arrange
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         // Act
         await multiProvider.DisposeAsync();
@@ -737,7 +732,7 @@ public class MultiProviderClassTests
     {
         // Arrange
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         // Act & Assert - Multiple calls to Dispose should not throw
         await multiProvider.DisposeAsync();
@@ -753,7 +748,7 @@ public class MultiProviderClassTests
     {
         // Arrange
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         // Act
         await multiProvider.DisposeAsync();
@@ -761,7 +756,7 @@ public class MultiProviderClassTests
         // Assert
         var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
             multiProvider.InitializeAsync(this._evaluationContext));
-        Assert.Equal(nameof(MultiProviderImplementation.MultiProvider), exception.ObjectName);
+        Assert.Equal(nameof(MultiProvider), exception.ObjectName);
     }
 
     [Fact]
@@ -769,7 +764,7 @@ public class MultiProviderClassTests
     {
         // Arrange
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         // Act
         await multiProvider.DisposeAsync();
@@ -777,7 +772,7 @@ public class MultiProviderClassTests
         // Assert
         var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
             multiProvider.ShutdownAsync());
-        Assert.Equal(nameof(MultiProviderImplementation.MultiProvider), exception.ObjectName);
+        Assert.Equal(nameof(MultiProvider), exception.ObjectName);
     }
 
     [Fact]
@@ -785,13 +780,13 @@ public class MultiProviderClassTests
     {
         // Arrange
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         // Dispose before calling InitializeAsync
         await multiProvider.DisposeAsync();
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
+        await Assert.ThrowsAsync<ObjectDisposedException>(() =>
             multiProvider.InitializeAsync(this._evaluationContext));
 
         // Verify that the underlying provider was never called since the object was disposed
@@ -803,13 +798,13 @@ public class MultiProviderClassTests
     {
         // Arrange
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         // Dispose before calling ShutdownAsync
         await multiProvider.DisposeAsync();
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
+        await Assert.ThrowsAsync<ObjectDisposedException>(() =>
             multiProvider.ShutdownAsync());
 
         // Verify that the underlying provider was never called since the object was disposed
@@ -821,7 +816,7 @@ public class MultiProviderClassTests
     {
         // Arrange
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
-        var multiProvider = new MultiProviderImplementation.MultiProvider(providerEntries, this._mockStrategy);
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         // Act
         await multiProvider.DisposeAsync();
@@ -829,23 +824,23 @@ public class MultiProviderClassTests
         // Assert - All evaluate methods should throw ObjectDisposedException
         var boolException = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
             multiProvider.ResolveBooleanValueAsync(TestFlagKey, false));
-        Assert.Equal(nameof(MultiProviderImplementation.MultiProvider), boolException.ObjectName);
+        Assert.Equal(nameof(MultiProvider), boolException.ObjectName);
 
         var stringException = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
             multiProvider.ResolveStringValueAsync(TestFlagKey, "default"));
-        Assert.Equal(nameof(MultiProviderImplementation.MultiProvider), stringException.ObjectName);
+        Assert.Equal(nameof(MultiProvider), stringException.ObjectName);
 
         var intException = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
             multiProvider.ResolveIntegerValueAsync(TestFlagKey, 0));
-        Assert.Equal(nameof(MultiProviderImplementation.MultiProvider), intException.ObjectName);
+        Assert.Equal(nameof(MultiProvider), intException.ObjectName);
 
         var doubleException = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
             multiProvider.ResolveDoubleValueAsync(TestFlagKey, 0.0));
-        Assert.Equal(nameof(MultiProviderImplementation.MultiProvider), doubleException.ObjectName);
+        Assert.Equal(nameof(MultiProvider), doubleException.ObjectName);
 
         var structureException = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
             multiProvider.ResolveStructureValueAsync(TestFlagKey, new Value()));
-        Assert.Equal(nameof(MultiProviderImplementation.MultiProvider), structureException.ObjectName);
+        Assert.Equal(nameof(MultiProvider), structureException.ObjectName);
     }
 
 }

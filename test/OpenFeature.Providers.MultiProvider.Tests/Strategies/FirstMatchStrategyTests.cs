@@ -4,7 +4,7 @@ using OpenFeature.Model;
 using OpenFeature.Providers.MultiProvider.Strategies;
 using OpenFeature.Providers.MultiProvider.Strategies.Models;
 
-namespace OpenFeature.Tests.Providers.MultiProvider.Strategies;
+namespace OpenFeature.Providers.MultiProvider.Tests.Strategies;
 
 public class FirstMatchStrategyTests
 {

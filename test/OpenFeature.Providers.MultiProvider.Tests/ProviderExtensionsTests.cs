@@ -2,10 +2,9 @@ using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using OpenFeature.Constant;
 using OpenFeature.Model;
-using OpenFeature.Providers.MultiProvider;
 using OpenFeature.Providers.MultiProvider.Strategies.Models;
 
-namespace OpenFeature.Tests.Providers.MultiProvider;
+namespace OpenFeature.Providers.MultiProvider.Tests;
 
 public class ProviderExtensionsTests
 {
@@ -285,8 +284,10 @@ public class ProviderExtensionsTests
         var providerContext = new StrategyPerProviderContext<bool>(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey);
 
         this._mockProvider.ResolveBooleanValueAsync(TestFlagKey, defaultValue, this._evaluationContext, cancellationTokenSource.Token)
-            .Returns(async callInfo =>
+            .Returns(async _ =>
             {
+                // net462 does not support CancellationTokenSource.CancelAfter
+                // ReSharper disable once MethodHasAsyncOverload
                 cancellationTokenSource.Cancel();
                 await Task.Delay(100, cancellationTokenSource.Token);
                 return new ResolutionDetails<bool>(TestFlagKey, true);
