@@ -5,9 +5,12 @@ using Microsoft.Extensions.Logging;
 using OpenFeature.Constant;
 using OpenFeature.Extension;
 using OpenFeature.Model;
+using OpenFeature.Providers.MultiProvider;
+using OpenFeature.Providers.MultiProvider.Models;
+using OpenFeature.Providers.MultiProvider.Strategies;
 using OpenFeature.Serialization;
 
-namespace OpenFeature.AotTests;
+namespace OpenFeature.AotCompatibility;
 
 /// <summary>
 /// This program validates OpenFeature SDK compatibility with NativeAOT.
@@ -24,6 +27,9 @@ internal class Program
         {
             // Test basic API functionality
             await TestBasicApiAsync();
+
+            // Test MultiProvider AOT compatibility
+            await TestMultiProviderAotCompatibilityAsync();
 
             // Test JSON serialization with AOT-compatible serializer context
             TestJsonSerialization();
@@ -76,6 +82,81 @@ internal class Program
             .Build();
         api.SetContext(context);
         Console.WriteLine($"✓- Evaluation context set with {context.Count} attributes");
+    }
+
+    private static async Task TestMultiProviderAotCompatibilityAsync()
+    {
+        Console.WriteLine("\nTesting MultiProvider AOT compatibility...");
+
+        // Create test providers for MultiProvider
+        var primaryProvider = new TestProvider();
+        var fallbackProvider = new TestProvider();
+
+        // Create provider entries for MultiProvider
+        var providerEntries = new List<ProviderEntry>
+        {
+            new(primaryProvider, "primary"), new(fallbackProvider, "fallback")
+        };
+
+        // Test MultiProvider creation with FirstMatchStrategy (default)
+        var multiProvider = new MultiProvider(providerEntries);
+        Console.WriteLine($"✓- MultiProvider created with {providerEntries.Count} providers");
+
+        // Test MultiProvider metadata
+        var metadata = multiProvider.GetMetadata();
+        Console.WriteLine($"✓- MultiProvider metadata: {metadata.Name}");
+
+        await TestStrategy(providerEntries, new FirstMatchStrategy(), "FirstMatchStrategy");
+        await TestStrategy(providerEntries, new ComparisonStrategy(), "ComparisonStrategy");
+        await TestStrategy(providerEntries, new FirstSuccessfulStrategy(), "FirstSuccessfulStrategy");
+    }
+
+    private static async Task TestStrategy(List<ProviderEntry> providerEntries, BaseEvaluationStrategy strategy, string strategyName)
+    {
+        // Test MultiProvider with strategy
+        var multiProvider = new MultiProvider(providerEntries, strategy);
+        Console.WriteLine($"✓- MultiProvider created with {strategyName}");
+
+        // Test all value types with MultiProvider
+        var evaluationContext = EvaluationContext.Builder()
+            .Set("userId", "aot-test-user")
+            .Set("environment", "test")
+            .Build();
+
+        // Test boolean evaluation
+        var boolResult = await multiProvider.ResolveBooleanValueAsync("test-bool-flag", false, evaluationContext);
+        Console.WriteLine($"✓- MultiProvider boolean evaluation: {boolResult.Value} (from {boolResult.Variant})");
+
+        // Test string evaluation
+        var stringResult =
+            await multiProvider.ResolveStringValueAsync("test-string-flag", "default", evaluationContext);
+        Console.WriteLine($"✓- MultiProvider string evaluation: {stringResult.Value} (from {stringResult.Variant})");
+
+        // Test integer evaluation
+        var intResult = await multiProvider.ResolveIntegerValueAsync("test-int-flag", 0, evaluationContext);
+        Console.WriteLine($"✓- MultiProvider integer evaluation: {intResult.Value} (from {intResult.Variant})");
+
+        // Test double evaluation
+        var doubleResult = await multiProvider.ResolveDoubleValueAsync("test-double-flag", 0.0, evaluationContext);
+        Console.WriteLine($"✓- MultiProvider double evaluation: {doubleResult.Value} (from {doubleResult.Variant})");
+
+        // Test structure evaluation
+        var structureResult =
+            await multiProvider.ResolveStructureValueAsync("test-structure-flag", new Value("default"),
+                evaluationContext);
+        Console.WriteLine(
+            $"✓- MultiProvider structure evaluation: {structureResult.Value} (from {structureResult.Variant})");
+
+        // Test MultiProvider lifecycle
+        await multiProvider.InitializeAsync(evaluationContext);
+        Console.WriteLine("✓- MultiProvider initialization completed");
+
+        await multiProvider.ShutdownAsync();
+        Console.WriteLine("✓- MultiProvider shutdown completed");
+
+        // Test MultiProvider disposal
+        await multiProvider.DisposeAsync();
+        Console.WriteLine("✓- MultiProvider disposal completed");
     }
 
     private static void TestJsonSerialization()
@@ -136,14 +217,8 @@ internal class Program
         // Test ErrorType descriptions (this was the main reflection usage we fixed)
         var errorTypes = new[]
         {
-            ErrorType.None,
-            ErrorType.ProviderNotReady,
-            ErrorType.FlagNotFound,
-            ErrorType.ParseError,
-            ErrorType.TypeMismatch,
-            ErrorType.General,
-            ErrorType.InvalidContext,
-            ErrorType.TargetingKeyMissing,
+            ErrorType.None, ErrorType.ProviderNotReady, ErrorType.FlagNotFound, ErrorType.ParseError,
+            ErrorType.TypeMismatch, ErrorType.General, ErrorType.InvalidContext, ErrorType.TargetingKeyMissing,
             ErrorType.ProviderFatal
         };
 
@@ -162,19 +237,24 @@ internal class TestProvider : FeatureProvider
 {
     public override Metadata GetMetadata() => new("test-provider");
 
-    public override Task<ResolutionDetails<bool>> ResolveBooleanValueAsync(string flagKey, bool defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
+    public override Task<ResolutionDetails<bool>> ResolveBooleanValueAsync(string flagKey, bool defaultValue,
+        EvaluationContext? context = null, CancellationToken cancellationToken = default)
         => Task.FromResult(new ResolutionDetails<bool>(flagKey, true));
 
-    public override Task<ResolutionDetails<string>> ResolveStringValueAsync(string flagKey, string defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
+    public override Task<ResolutionDetails<string>> ResolveStringValueAsync(string flagKey, string defaultValue,
+        EvaluationContext? context = null, CancellationToken cancellationToken = default)
         => Task.FromResult(new ResolutionDetails<string>(flagKey, "test-value"));
 
-    public override Task<ResolutionDetails<int>> ResolveIntegerValueAsync(string flagKey, int defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
+    public override Task<ResolutionDetails<int>> ResolveIntegerValueAsync(string flagKey, int defaultValue,
+        EvaluationContext? context = null, CancellationToken cancellationToken = default)
         => Task.FromResult(new ResolutionDetails<int>(flagKey, 123));
 
-    public override Task<ResolutionDetails<double>> ResolveDoubleValueAsync(string flagKey, double defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
+    public override Task<ResolutionDetails<double>> ResolveDoubleValueAsync(string flagKey, double defaultValue,
+        EvaluationContext? context = null, CancellationToken cancellationToken = default)
         => Task.FromResult(new ResolutionDetails<double>(flagKey, 123.45));
 
-    public override Task<ResolutionDetails<Value>> ResolveStructureValueAsync(string flagKey, Value defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
+    public override Task<ResolutionDetails<Value>> ResolveStructureValueAsync(string flagKey, Value defaultValue,
+        EvaluationContext? context = null, CancellationToken cancellationToken = default)
         => Task.FromResult(new ResolutionDetails<Value>(flagKey, new Value("test")));
 }
 

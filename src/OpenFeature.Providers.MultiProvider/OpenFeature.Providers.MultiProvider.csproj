@@ -9,6 +9,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
     <InternalsVisibleTo Include="OpenFeature.Providers.MultiProvider.Tests" />
+    <InternalsVisibleTo Include="OpenFeature.AotCompatibility" />
     <None Include="README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
 

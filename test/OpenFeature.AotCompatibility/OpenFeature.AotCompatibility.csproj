@@ -16,13 +16,13 @@
         <!-- Suppress vulnerable package warnings for this test project -->
         <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
         <WarningsNotAsErrors>NU1903</WarningsNotAsErrors>
-        <RootNamespace>OpenFeature.AotTests</RootNamespace>
+        <RootNamespace>OpenFeature.AotCompatibility</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\OpenFeature\OpenFeature.csproj" />
-        <ProjectReference
-            Include="..\..\src\OpenFeature.DependencyInjection\OpenFeature.DependencyInjection.csproj" />
+        <ProjectReference Include="..\..\src\OpenFeature.DependencyInjection\OpenFeature.DependencyInjection.csproj" />
+        <ProjectReference Include="..\..\src\OpenFeature.Providers.MultiProvider\OpenFeature.Providers.MultiProvider.csproj" />
     </ItemGroup>
 
     <ItemGroup>
