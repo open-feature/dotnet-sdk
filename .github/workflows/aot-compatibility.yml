@@ -2,7 +2,7 @@ name: AOT Compatibility
 
 on:
   push:
-    branches: [main, askpt/440-feature-investigate-nativeaot]
+    branches: [main]
   pull_request:
     branches: [main]
   merge_group:
@@ -80,12 +80,7 @@ jobs:
         run: |
           dotnet publish test/OpenFeature.AotCompatibility/OpenFeature.AotCompatibility.csproj \
             -c Release \
-            -r ${{ matrix.runtime }} \
-            --self-contained true \
-            -p:PublishAot=true \
-            -p:IsAotCompatible=true \
-            -p:InvariantGlobalization=true \
-            -p:TrimMode=full \
+            -r ${{ matrix.runtime }}
             -o ./aot-output
 
       - name: Run AOT compatibility test
@@ -106,22 +101,7 @@ jobs:
           dotnet publish test/OpenFeature.AotCompatibility/OpenFeature.AotCompatibility.csproj \
             -c Release \
             -r ${{ matrix.runtime }} \
-            --self-contained true \
-            -p:PublishAot=true \
-            -p:IsAotCompatible=true \
-            -p:InvariantGlobalization=true \
-            -p:TrimMode=full \
             -o ./aot-output-cross
-
-      - name: Test AspNetCore sample AOT compilation
-        if: matrix.arch != 'arm64' || runner.arch == 'ARM64'
-        run: |
-          dotnet publish samples/AspNetCore/Samples.AspNetCore.csproj \
-            -c Release \
-            -r ${{ matrix.runtime }} \
-            --self-contained true \
-            -p:PublishAot=true \
-            -o ./aspnetcore-aot-output
 
       - name: Verify AOT output size and characteristics
         if: matrix.arch != 'arm64' || runner.arch == 'ARM64'
@@ -136,24 +116,13 @@ jobs:
             echo "Binary size: $(stat -c %s ./aot-output/OpenFeature.AotCompatibility) bytes"
           fi
 
-          echo ""
-          echo "=== AspNetCore Sample Binary ==="
-          if [[ "${{ runner.os }}" == "Windows" ]]; then
-            ls -la ./aspnetcore-aot-output/Samples.AspNetCore.exe
-            echo "Binary size: $(stat -c %s ./aspnetcore-aot-output/Samples.AspNetCore.exe) bytes"
-          else
-            ls -la ./aspnetcore-aot-output/Samples.AspNetCore
-            echo "Binary size: $(stat -c %s ./aspnetcore-aot-output/Samples.AspNetCore) bytes"
-          fi
-
       - name: Upload AOT artifacts
         if: always() && (matrix.arch != 'arm64' || runner.arch == 'ARM64')
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4
         with:
           name: aot-binaries-${{ matrix.os }}-${{ matrix.arch }}
           path: |
-            aot-output/
-            aspnetcore-aot-output/
+            aot-output
           retention-days: 7
 
   aot-size-comparison:
@@ -189,15 +158,6 @@ jobs:
                 aot_size=$(stat -c %s "$dir/aot-output/OpenFeature.AotCompatibility")
               else
                 aot_size="N/A"
-              fi
-
-              # Find the AspNetCore sample binary
-              if [[ -f "$dir/aspnetcore-aot-output/Samples.AspNetCore.exe" ]]; then
-                aspnet_size=$(stat -c %s "$dir/aspnetcore-aot-output/Samples.AspNetCore.exe")
-              elif [[ -f "$dir/aspnetcore-aot-output/Samples.AspNetCore" ]]; then
-                aspnet_size=$(stat -c %s "$dir/aspnetcore-aot-output/Samples.AspNetCore")
-              else
-                aspnet_size="N/A"
               fi
 
               # Format sizes
