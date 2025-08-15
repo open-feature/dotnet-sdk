@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+
+        <!-- NativeAOT Configuration -->
+        <PublishAot>true</PublishAot>
+        <IsAotCompatible>true</IsAotCompatible>
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <TrimMode>full</TrimMode>
+        <IlcOptimizationPreference>Size</IlcOptimizationPreference>
+
+        <!-- Suppress vulnerable package warnings for this test project -->
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+        <WarningsNotAsErrors>NU1903</WarningsNotAsErrors>
+        <RootNamespace>OpenFeature.AotTests</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\OpenFeature\OpenFeature.csproj" />
+        <ProjectReference
+            Include="..\..\src\OpenFeature.DependencyInjection\OpenFeature.DependencyInjection.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+    </ItemGroup>
+
+</Project>
