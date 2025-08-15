@@ -1,0 +1,241 @@
+name: AOT Compatibility
+
+on:
+  push:
+    branches: [main, askpt/440-feature-investigate-nativeaot]
+  pull_request:
+    branches: [main]
+  merge_group:
+  workflow_dispatch:
+
+jobs:
+  aot-compatibility:
+    name: AOT Test (${{ matrix.os }}, ${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux x64
+          - os: ubuntu-latest
+            arch: x64
+            runtime: linux-x64
+          # Linux ARM64
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            runtime: linux-arm64
+          # Windows x64
+          - os: windows-latest
+            arch: x64
+            runtime: win-x64
+          # Windows ARM64
+          - os: windows-11-arm
+            arch: arm64
+            runtime: win-arm64
+          # macOS x64
+          - os: macos-13
+            arch: x64
+            runtime: osx-x64
+          # macOS ARM64 (Apple Silicon)
+          - os: macos-latest
+            arch: arm64
+            runtime: osx-arm64
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          global-json-file: global.json
+          source-url: https://nuget.pkg.github.com/open-feature/index.json
+
+      - name: Cache NuGet packages
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-${{ matrix.arch }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.arch }}-nuget-
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build solution
+        run: dotnet build -c Release --no-restore
+
+      - name: Test AOT compatibility project build
+        run: dotnet build test/OpenFeature.AotCompatibility/OpenFeature.AotCompatibility.csproj -c Release --no-restore
+
+      - name: Publish AOT compatibility test (cross-platform)
+        if: matrix.arch != 'arm64' || runner.arch == 'ARM64'
+        run: |
+          dotnet publish test/OpenFeature.AotCompatibility/OpenFeature.AotCompatibility.csproj \
+            -c Release \
+            -r ${{ matrix.runtime }} \
+            --self-contained true \
+            -p:PublishAot=true \
+            -p:IsAotCompatible=true \
+            -p:InvariantGlobalization=true \
+            -p:TrimMode=full \
+            -o ./aot-output
+
+      - name: Run AOT compatibility test
+        if: matrix.arch != 'arm64' || runner.arch == 'ARM64'
+        shell: bash
+        run: |
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            ./aot-output/OpenFeature.AotCompatibility.exe
+          else
+            chmod +x ./aot-output/OpenFeature.AotCompatibility
+            ./aot-output/OpenFeature.AotCompatibility
+          fi
+
+      # For ARM64 cross-compilation on non-ARM64 runners, we only test the build
+      - name: Test AOT cross-compilation build only (ARM64)
+        if: matrix.arch == 'arm64' && runner.arch != 'ARM64'
+        run: |
+          dotnet publish test/OpenFeature.AotCompatibility/OpenFeature.AotCompatibility.csproj \
+            -c Release \
+            -r ${{ matrix.runtime }} \
+            --self-contained true \
+            -p:PublishAot=true \
+            -p:IsAotCompatible=true \
+            -p:InvariantGlobalization=true \
+            -p:TrimMode=full \
+            -o ./aot-output-cross
+
+      - name: Test AspNetCore sample AOT compilation
+        if: matrix.arch != 'arm64' || runner.arch == 'ARM64'
+        run: |
+          dotnet publish samples/AspNetCore/Samples.AspNetCore.csproj \
+            -c Release \
+            -r ${{ matrix.runtime }} \
+            --self-contained true \
+            -p:PublishAot=true \
+            -o ./aspnetcore-aot-output
+
+      - name: Verify AOT output size and characteristics
+        if: matrix.arch != 'arm64' || runner.arch == 'ARM64'
+        shell: bash
+        run: |
+          echo "=== AOT Compatibility Test Binary ==="
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            ls -la ./aot-output/OpenFeature.AotCompatibility.exe
+            echo "Binary size: $(stat -c %s ./aot-output/OpenFeature.AotCompatibility.exe) bytes"
+          else
+            ls -la ./aot-output/OpenFeature.AotCompatibility
+            echo "Binary size: $(stat -c %s ./aot-output/OpenFeature.AotCompatibility) bytes"
+          fi
+
+          echo ""
+          echo "=== AspNetCore Sample Binary ==="
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            ls -la ./aspnetcore-aot-output/Samples.AspNetCore.exe
+            echo "Binary size: $(stat -c %s ./aspnetcore-aot-output/Samples.AspNetCore.exe) bytes"
+          else
+            ls -la ./aspnetcore-aot-output/Samples.AspNetCore
+            echo "Binary size: $(stat -c %s ./aspnetcore-aot-output/Samples.AspNetCore) bytes"
+          fi
+
+      - name: Upload AOT artifacts
+        if: always() && (matrix.arch != 'arm64' || runner.arch == 'ARM64')
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4
+        with:
+          name: aot-binaries-${{ matrix.os }}-${{ matrix.arch }}
+          path: |
+            aot-output/
+            aspnetcore-aot-output/
+          retention-days: 7
+
+  aot-size-comparison:
+    name: AOT Size Comparison
+    needs: aot-compatibility
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Download all AOT artifacts
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
+        with:
+          pattern: aot-binaries-*
+          path: ./artifacts
+
+      - name: Generate size comparison report
+        shell: bash
+        run: |
+          echo "# AOT Binary Size Report" > size_report.md
+          echo "" >> size_report.md
+          echo "| Platform | Architecture | AOT Test Binary | AspNetCore Sample |" >> size_report.md
+          echo "|----------|--------------|-----------------|-------------------|" >> size_report.md
+
+          for dir in ./artifacts/aot-binaries-*; do
+            if [[ -d "$dir" ]]; then
+              platform=$(basename "$dir" | sed 's/aot-binaries-//' | sed 's/-[^-]*$//')
+              arch=$(basename "$dir" | sed 's/.*-//')
+
+              # Find the AOT test binary
+              if [[ -f "$dir/aot-output/OpenFeature.AotCompatibility.exe" ]]; then
+                aot_size=$(stat -c %s "$dir/aot-output/OpenFeature.AotCompatibility.exe")
+              elif [[ -f "$dir/aot-output/OpenFeature.AotCompatibility" ]]; then
+                aot_size=$(stat -c %s "$dir/aot-output/OpenFeature.AotCompatibility")
+              else
+                aot_size="N/A"
+              fi
+
+              # Find the AspNetCore sample binary
+              if [[ -f "$dir/aspnetcore-aot-output/Samples.AspNetCore.exe" ]]; then
+                aspnet_size=$(stat -c %s "$dir/aspnetcore-aot-output/Samples.AspNetCore.exe")
+              elif [[ -f "$dir/aspnetcore-aot-output/Samples.AspNetCore" ]]; then
+                aspnet_size=$(stat -c %s "$dir/aspnetcore-aot-output/Samples.AspNetCore")
+              else
+                aspnet_size="N/A"
+              fi
+
+              # Format sizes
+              if [[ "$aot_size" != "N/A" ]]; then
+                aot_size_mb=$(echo "scale=2; $aot_size / 1048576" | bc)
+                aot_display="${aot_size_mb}MB"
+              else
+                aot_display="N/A"
+              fi
+
+              if [[ "$aspnet_size" != "N/A" ]]; then
+                aspnet_size_mb=$(echo "scale=2; $aspnet_size / 1048576" | bc)
+                aspnet_display="${aspnet_size_mb}MB"
+              else
+                aspnet_display="N/A"
+              fi
+
+              echo "| $platform | $arch | $aot_display | $aspnet_display |" >> size_report.md
+            fi
+          done
+
+          echo "" >> size_report.md
+          echo "Generated on: $(date)" >> size_report.md
+
+          cat size_report.md
+
+      - name: Find PR Comment
+        uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e # v3
+        id: find-comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: 'AOT Binary Size Report'
+
+      - name: Create or update PR comment
+        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4
+        with:
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body-path: size_report.md
+          edit-mode: replace
