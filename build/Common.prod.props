@@ -27,8 +27,6 @@
   <!-- AOT and Trimming Support -->
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net9.0'">
     <IsAotCompatible>true</IsAotCompatible>
-    <IsTrimmable>true</IsTrimmable>
-    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
   </PropertyGroup>
 
   <ItemGroup>
