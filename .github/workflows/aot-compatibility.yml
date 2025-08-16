@@ -76,7 +76,6 @@ jobs:
         run: dotnet build test/OpenFeature.AotCompatibility/OpenFeature.AotCompatibility.csproj -c Release --no-restore
 
       - name: Publish AOT compatibility test (cross-platform)
-        if: matrix.arch != 'arm64' || runner.arch == 'ARM64'
         run: |
           dotnet publish test/OpenFeature.AotCompatibility/OpenFeature.AotCompatibility.csproj \
             -c Release \
@@ -84,40 +83,16 @@ jobs:
             -o ./aot-output
 
       - name: Run AOT compatibility test
-        if: matrix.arch != 'arm64' || runner.arch == 'ARM64'
-        shell: bash
+        shell: pwsh
         run: |
-          if [[ "${{ runner.os }}" == "Windows" ]]; then
+          if ("${{ runner.os }}" -eq "Windows") {
             ./aot-output/OpenFeature.AotCompatibility.exe
-          else
+          } else {
             chmod +x ./aot-output/OpenFeature.AotCompatibility
             ./aot-output/OpenFeature.AotCompatibility
-          fi
-
-      # For ARM64 cross-compilation on non-ARM64 runners, we only test the build
-      - name: Test AOT cross-compilation build only (ARM64)
-        if: matrix.arch == 'arm64' && runner.arch != 'ARM64'
-        run: |
-          dotnet publish test/OpenFeature.AotCompatibility/OpenFeature.AotCompatibility.csproj \
-            -c Release \
-            -r ${{ matrix.runtime }} \
-            -o ./aot-output-cross
-
-      - name: Verify AOT output size and characteristics
-        if: matrix.arch != 'arm64' || runner.arch == 'ARM64'
-        shell: bash
-        run: |
-          echo "=== AOT Compatibility Test Binary ==="
-          if [[ "${{ runner.os }}" == "Windows" ]]; then
-            ls -la ./aot-output/OpenFeature.AotCompatibility.exe
-            echo "Binary size: $(stat -c %s ./aot-output/OpenFeature.AotCompatibility.exe) bytes"
-          else
-            ls -la ./aot-output/OpenFeature.AotCompatibility
-            echo "Binary size: $(stat -c %s ./aot-output/OpenFeature.AotCompatibility) bytes"
-          fi
+          }
 
       - name: Upload AOT artifacts
-        if: always() && (matrix.arch != 'arm64' || runner.arch == 'ARM64')
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4
         with:
           name: aot-binaries-${{ matrix.os }}-${{ matrix.arch }}
@@ -139,50 +114,47 @@ jobs:
           path: ./artifacts
 
       - name: Generate size comparison report
-        shell: bash
+        shell: pwsh
         run: |
-          echo "# AOT Binary Size Report" > size_report.md
-          echo "" >> size_report.md
-          echo "| Platform | Architecture | AOT Test Binary | AspNetCore Sample |" >> size_report.md
-          echo "|----------|--------------|-----------------|-------------------|" >> size_report.md
+          "# AOT Binary Size Report" | Out-File -FilePath size_report.md -Encoding utf8
+          "" | Out-File -FilePath size_report.md -Append -Encoding utf8
+          "| Platform | Architecture | AOT Test Binary | AspNetCore Sample |" | Out-File -FilePath size_report.md -Append -Encoding utf8
+          "|----------|--------------|-----------------|-------------------|" | Out-File -FilePath size_report.md -Append -Encoding utf8
 
-          for dir in ./artifacts/aot-binaries-*; do
-            if [[ -d "$dir" ]]; then
-              platform=$(basename "$dir" | sed 's/aot-binaries-//' | sed 's/-[^-]*$//')
-              arch=$(basename "$dir" | sed 's/.*-//')
+          $artifactDirs = Get-ChildItem -Path ./artifacts -Directory -Name "aot-binaries-*"
+
+          foreach ($dir in $artifactDirs) {
+            $fullPath = "./artifacts/$dir"
+            if (Test-Path -Path $fullPath -PathType Container) {
+              $platform = ($dir -replace '^aot-binaries-', '') -replace '-[^-]*$', ''
+              $arch = ($dir -split '-')[-1]
 
               # Find the AOT test binary
-              if [[ -f "$dir/aot-output/OpenFeature.AotCompatibility.exe" ]]; then
-                aot_size=$(stat -c %s "$dir/aot-output/OpenFeature.AotCompatibility.exe")
-              elif [[ -f "$dir/aot-output/OpenFeature.AotCompatibility" ]]; then
-                aot_size=$(stat -c %s "$dir/aot-output/OpenFeature.AotCompatibility")
-              else
-                aot_size="N/A"
-              fi
+              $aotSize = "N/A"
+              if (Test-Path "$fullPath/aot-output/OpenFeature.AotCompatibility.exe") {
+                $aotSize = (Get-Item "$fullPath/aot-output/OpenFeature.AotCompatibility.exe").Length
+              } elseif (Test-Path "$fullPath/aot-output/OpenFeature.AotCompatibility") {
+                $aotSize = (Get-Item "$fullPath/aot-output/OpenFeature.AotCompatibility").Length
+              }
 
               # Format sizes
-              if [[ "$aot_size" != "N/A" ]]; then
-                aot_size_mb=$(echo "scale=2; $aot_size / 1048576" | bc)
-                aot_display="${aot_size_mb}MB"
-              else
-                aot_display="N/A"
-              fi
+              if ($aotSize -ne "N/A") {
+                $aotSizeMb = [math]::Round($aotSize / 1048576, 2)
+                $aotDisplay = "$aotSizeMb" + "MB"
+              } else {
+                $aotDisplay = "N/A"
+              }
 
-              if [[ "$aspnet_size" != "N/A" ]]; then
-                aspnet_size_mb=$(echo "scale=2; $aspnet_size / 1048576" | bc)
-                aspnet_display="${aspnet_size_mb}MB"
-              else
-                aspnet_display="N/A"
-              fi
+              $aspnetDisplay = "N/A"  # AspNetCore sample not implemented yet
 
-              echo "| $platform | $arch | $aot_display | $aspnet_display |" >> size_report.md
-            fi
-          done
+              "| $platform | $arch | $aotDisplay | $aspnetDisplay |" | Out-File -FilePath size_report.md -Append -Encoding utf8
+            }
+          }
 
-          echo "" >> size_report.md
-          echo "Generated on: $(date)" >> size_report.md
+          "" | Out-File -FilePath size_report.md -Append -Encoding utf8
+          "Generated on: $(Get-Date)" | Out-File -FilePath size_report.md -Append -Encoding utf8
 
-          cat size_report.md
+          Get-Content size_report.md
 
       - name: Find PR Comment
         uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e # v3
