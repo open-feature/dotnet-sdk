@@ -67,19 +67,23 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: Restore dependencies
+        shell: pwsh
         run: dotnet restore
 
       - name: Build solution
+        shell: pwsh
         run: dotnet build -c Release --no-restore
 
       - name: Test AOT compatibility project build
+        shell: pwsh
         run: dotnet build test/OpenFeature.AotCompatibility/OpenFeature.AotCompatibility.csproj -c Release --no-restore
 
       - name: Publish AOT compatibility test (cross-platform)
+        shell: pwsh
         run: |
-          dotnet publish test/OpenFeature.AotCompatibility/OpenFeature.AotCompatibility.csproj \
-            -c Release \
-            -r ${{ matrix.runtime }} \
+          dotnet publish test/OpenFeature.AotCompatibility/OpenFeature.AotCompatibility.csproj `
+            -c Release `
+            -r ${{ matrix.runtime }} `
             -o ./aot-output
 
       - name: Run AOT compatibility test
