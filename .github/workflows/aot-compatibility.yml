@@ -122,8 +122,8 @@ jobs:
         run: |
           "# AOT Binary Size Report" | Out-File -FilePath size_report.md -Encoding utf8
           "" | Out-File -FilePath size_report.md -Append -Encoding utf8
-          "| Platform | Architecture | AOT Test Binary | AspNetCore Sample |" | Out-File -FilePath size_report.md -Append -Encoding utf8
-          "|----------|--------------|-----------------|-------------------|" | Out-File -FilePath size_report.md -Append -Encoding utf8
+          "| Platform | Architecture | AOT Test Binary |" | Out-File -FilePath size_report.md -Append -Encoding utf8
+          "|----------|--------------|-----------------|" | Out-File -FilePath size_report.md -Append -Encoding utf8
 
           $artifactDirs = Get-ChildItem -Path ./artifacts -Directory -Name "aot-binaries-*"
 
@@ -135,23 +135,28 @@ jobs:
 
               # Find the AOT test binary
               $aotSize = "N/A"
-              if (Test-Path "$fullPath/aot-output/OpenFeature.AotCompatibility.exe") {
-                $aotSize = (Get-Item "$fullPath/aot-output/OpenFeature.AotCompatibility.exe").Length
-              } elseif (Test-Path "$fullPath/aot-output/OpenFeature.AotCompatibility") {
-                $aotSize = (Get-Item "$fullPath/aot-output/OpenFeature.AotCompatibility").Length
+              $exePath = "$fullPath/aot-output/OpenFeature.AotCompatibility.exe"
+              $linuxPath = "$fullPath/aot-output/OpenFeature.AotCompatibility"
+
+              if (Test-Path $exePath) {
+                $aotSize = (Get-Item $exePath).Length
+                Write-Host "Found Windows binary: $exePath, Size: $aotSize bytes"
+              } elseif (Test-Path $linuxPath) {
+                $aotSize = (Get-Item $linuxPath).Length
+                Write-Host "Found Unix binary: $linuxPath, Size: $aotSize bytes"
+              } else {
+                Write-Host "No binary found in $fullPath/aot-output/"
               }
 
               # Format sizes
               if ($aotSize -ne "N/A") {
                 $aotSizeMb = [math]::Round($aotSize / 1048576, 2)
-                $aotDisplay = "$aotSizeMb" + "MB"
+                $aotDisplay = "{0:N2}MB" -f $aotSizeMb
               } else {
                 $aotDisplay = "N/A"
               }
 
-              $aspnetDisplay = "N/A"  # AspNetCore sample not implemented yet
-
-              "| $platform | $arch | $aotDisplay | $aspnetDisplay |" | Out-File -FilePath size_report.md -Append -Encoding utf8
+              "| $platform | $arch | $aotDisplay |" | Out-File -FilePath size_report.md -Append -Encoding utf8
             }
           }
 
