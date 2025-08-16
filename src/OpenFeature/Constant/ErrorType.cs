@@ -1,5 +1,3 @@
-using System.ComponentModel;
-
 namespace OpenFeature.Constant;
 
 /// <summary>
@@ -16,40 +14,40 @@ public enum ErrorType
     /// <summary>
     /// Provider has yet been initialized
     /// </summary>
-    [Description("PROVIDER_NOT_READY")] ProviderNotReady,
+    ProviderNotReady,
 
     /// <summary>
     /// Provider was unable to find the flag
     /// </summary>
-    [Description("FLAG_NOT_FOUND")] FlagNotFound,
+    FlagNotFound,
 
     /// <summary>
     /// Provider failed to parse the flag response
     /// </summary>
-    [Description("PARSE_ERROR")] ParseError,
+    ParseError,
 
     /// <summary>
     /// Request type does not match the expected type
     /// </summary>
-    [Description("TYPE_MISMATCH")] TypeMismatch,
+    TypeMismatch,
 
     /// <summary>
     /// Abnormal execution of the provider
     /// </summary>
-    [Description("GENERAL")] General,
+    General,
 
     /// <summary>
     /// Context does not satisfy provider requirements.
     /// </summary>
-    [Description("INVALID_CONTEXT")] InvalidContext,
+    InvalidContext,
 
     /// <summary>
     /// Context does not contain a targeting key and the provider requires one.
     /// </summary>
-    [Description("TARGETING_KEY_MISSING")] TargetingKeyMissing,
+    TargetingKeyMissing,
 
     /// <summary>
     /// The provider has entered an irrecoverable error state.
     /// </summary>
-    [Description("PROVIDER_FATAL")] ProviderFatal,
+    ProviderFatal,
 }

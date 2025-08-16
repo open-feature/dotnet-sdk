@@ -5,7 +5,9 @@ using System.Text.Json.Serialization;
 namespace OpenFeature.Model;
 
 /// <summary>
-/// A <see cref="JsonConverter{T}"/> for <see cref="Value"/> for Json serialization
+/// A <see cref="JsonConverter{T}"/> for <see cref="Value"/> for Json serialization.
+/// This converter is AOT-compatible as it uses manual JSON reading/writing 
+/// instead of reflection-based serialization.
 /// </summary>
 public sealed class ValueJsonConverter : JsonConverter<Value>
 {
