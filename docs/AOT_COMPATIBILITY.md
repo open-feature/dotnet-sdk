@@ -4,25 +4,18 @@ The OpenFeature .NET SDK is compatible with .NET NativeAOT compilation, allowing
 
 ## Compatibility Status
 
-✅ **Fully Compatible** - The SDK can be used in NativeAOT applications without any issues.
+**Fully Compatible** - The SDK can be used in NativeAOT applications without any issues.
 
 ### What's AOT-Compatible
 
--   ✅ Core API functionality (`Api.Instance`, `GetClient()`, flag evaluations)
--   ✅ All built-in providers (`NoOpProvider`, etc.)
--   ✅ JSON serialization of `Value`, `Structure`, and `EvaluationContext`
--   ✅ Error handling and enum descriptions
--   ✅ Hook system
--   ✅ Event handling
--   ✅ Metrics collection
--   ✅ Basic dependency injection (with proper setup)
-
-### AOT Optimizations Made
-
-1. **Removed Reflection Usage**: Replaced reflection-based enum description reading with compile-time switch expressions
-2. **JSON Source Generation**: Added `OpenFeatureJsonSerializerContext` for AOT-compatible JSON serialization
-3. **Trimming Annotations**: Added appropriate trimming and AOT compatibility attributes
-4. **Manual JSON Converter**: The `ValueJsonConverter` uses manual JSON reading/writing instead of reflection
+-   Core API functionality (`Api.Instance`, `GetClient()`, flag evaluations)
+-   All built-in providers (`NoOpProvider`, etc.)
+-   JSON serialization of `Value`, `Structure`, and `EvaluationContext`
+-   Error handling and enum descriptions
+-   Hook system
+-   Event handling
+-   Metrics collection
+-   Dependency injection
 
 ## Using OpenFeature with NativeAOT
 
@@ -84,27 +77,7 @@ var json = JsonSerializer.Serialize(value, OpenFeatureJsonSerializerContext.Defa
 var deserialized = JsonSerializer.Deserialize(json, OpenFeatureJsonSerializerContext.Default.Value);
 ```
 
-### 4. Error Handling
-
-Error types provide AOT-compatible descriptions:
-
-```csharp
-using OpenFeature.Constant;
-using OpenFeature.Extension;
-
-try
-{
-    var result = await client.GetBooleanValueAsync("missing-flag", false);
-}
-catch (FeatureProviderException ex)
-{
-    // GetDescription() is AOT-compatible
-    var errorDescription = ex.ErrorType.GetDescription();
-    Console.WriteLine($"Error: {errorDescription}");
-}
-```
-
-### 5. Publishing for NativeAOT
+### 4. Publishing for NativeAOT
 
 Build and publish your AOT application:
 
