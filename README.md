@@ -33,6 +33,10 @@
 
 Note that the packages will aim to support all current .NET versions. Refer to the currently supported versions [.NET](https://dotnet.microsoft.com/download/dotnet) and [.NET Framework](https://dotnet.microsoft.com/download/dotnet-framework) excluding .NET Framework 3.5
 
+### NativeAOT Support
+
+✅ **Full NativeAOT Compatibility** - The OpenFeature .NET SDK is fully compatible with .NET NativeAOT compilation for fast startup and small deployment size. See the [AOT Compatibility Guide](docs/AOT_COMPATIBILITY.md) for detailed instructions.
+
 ### Install
 
 Use the following to initialize your project:
