@@ -31,9 +31,6 @@ To enable NativeAOT in your project, add these properties to your `.csproj` file
 
     <!-- Enable NativeAOT -->
     <PublishAot>true</PublishAot>
-    <IsAotCompatible>true</IsAotCompatible>
-    <InvariantGlobalization>true</InvariantGlobalization>
-    <TrimMode>full</TrimMode>
   </PropertyGroup>
 
   <ItemGroup>
