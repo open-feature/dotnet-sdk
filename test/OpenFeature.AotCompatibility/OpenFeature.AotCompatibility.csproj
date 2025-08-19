@@ -8,10 +8,7 @@
 
         <!-- NativeAOT Configuration -->
         <PublishAot>true</PublishAot>
-        <IsAotCompatible>true</IsAotCompatible>
         <InvariantGlobalization>true</InvariantGlobalization>
-        <TrimMode>full</TrimMode>
-        <IlcOptimizationPreference>Size</IlcOptimizationPreference>
 
         <!-- Suppress vulnerable package warnings for this test project -->
         <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
@@ -28,7 +25,6 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
         <PackageReference Include="Microsoft.Extensions.Hosting" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Console" />
     </ItemGroup>
 
 </Project>
