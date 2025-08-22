@@ -21,7 +21,6 @@
     <InternalsVisibleTo Include="OpenFeature.E2ETests" />
     <InternalsVisibleTo Include="OpenFeature.DependencyInjection" />
     <InternalsVisibleTo Include="OpenFeature.Providers.MultiProvider.Tests" />
-    <InternalsVisibleTo Include="OpenFeature.AotCompatibility" />
     <None Include="../../README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
 
