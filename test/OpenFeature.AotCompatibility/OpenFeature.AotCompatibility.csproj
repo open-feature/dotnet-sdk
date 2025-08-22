@@ -27,4 +27,8 @@
         <PackageReference Include="Microsoft.Extensions.Hosting" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="System.Text.Json" />
+    </ItemGroup>
+
 </Project>
