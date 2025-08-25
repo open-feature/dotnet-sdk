@@ -42,8 +42,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
+      - name: Install SonarCloud
+        run: dotnet tool install --global dotnet-sonarscanner --version 10.3.0
+
+      - name: Begin SonarCloud analysis
+        run: |
+          dotnet sonarscanner begin /k:"open-feature_dotnet-sdk" /o:"kylejuliandev" /d:sonar.token="${{ secrets.SONARCLOUD_TOKEN }}" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
+
       - name: Run Test
         run: dotnet test --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+
+      - name: End SonarCloud analysis
+        run: |
+          dotnet sonarscanner end /d:sonar.token="${{ secrets.SONARCLOUD_TOKEN }}"
 
       - uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # v5.5.0
         with:
