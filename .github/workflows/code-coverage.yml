@@ -50,7 +50,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
         run: |
           dotnet sonarscanner begin /k:"open-feature_dotnet-sdk" \
-                                    /o:"open-feature" \
+                                    /o:"kylejuliandev" \
                                     /d:sonar.token="$SONAR_TOKEN" \
                                     /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
 
