@@ -33,6 +33,12 @@
 
 Note that the packages will aim to support all current .NET versions. Refer to the currently supported versions [.NET](https://dotnet.microsoft.com/download/dotnet) and [.NET Framework](https://dotnet.microsoft.com/download/dotnet-framework) excluding .NET Framework 3.5
 
+### NativeAOT Support
+
+✅ **Full NativeAOT Compatibility** - The OpenFeature .NET SDK is fully compatible with .NET NativeAOT compilation for fast startup and small deployment size. See the [AOT Compatibility Guide](docs/AOT_COMPATIBILITY.md) for detailed instructions.
+
+> While the core OpenFeature SDK is fully NativeAOT compatible, contrib and community-provided providers, hooks, and extensions may not be. Please check with individual provider/hook documentation for their NativeAOT compatibility status.
+
 ### Install
 
 Use the following to initialize your project:
@@ -720,12 +726,12 @@ For this hook to function correctly a global `MeterProvider` must be set.
 
 Below are the metrics extracted by this hook and dimensions they carry:
 
-| Metric key                             | Description                     | Unit         | Dimensions                    |
-| -------------------------------------- | ------------------------------- | ------------ | ----------------------------- |
-| feature_flag.evaluation_requests_total | Number of evaluation requests   | request      | key, provider name            |
-| feature_flag.evaluation_success_total  | Flag evaluation successes       | impression   | key, provider name, reason    |
-| feature_flag.evaluation_error_total    | Flag evaluation errors          | 1            | key, provider name, exception |
-| feature_flag.evaluation_active_count   | Active flag evaluations counter | 1            | key, provider name            |
+| Metric key                             | Description                     | Unit       | Dimensions                    |
+| -------------------------------------- | ------------------------------- | ---------- | ----------------------------- |
+| feature_flag.evaluation_requests_total | Number of evaluation requests   | request    | key, provider name            |
+| feature_flag.evaluation_success_total  | Flag evaluation successes       | impression | key, provider name, reason    |
+| feature_flag.evaluation_error_total    | Flag evaluation errors          | 1          | key, provider name, exception |
+| feature_flag.evaluation_active_count   | Active flag evaluations counter | 1          | key, provider name            |
 
 Consider the following code example for usage.
 
