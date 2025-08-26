@@ -447,8 +447,28 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
         }
     }
 
+    private async Task ShutdownEventProcessingAsync()
+    {
+        // Cancel event processing
+        this._eventProcessingCancellation.Cancel();
+
+        // Wait for all event listening tasks to complete, ignoring cancellation exceptions
+        if (this._eventListeningTasks.Count != 0)
+        {
+            try
+            {
+                await Task.WhenAll(this._eventListeningTasks.Values).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected when shutting down
+            }
+        }
+    }
+
     private async Task InternalShutdownAsync(CancellationToken cancellationToken)
     {
+        await this.ShutdownEventProcessingAsync().ConfigureAwait(false);
         await this._shutdownSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
