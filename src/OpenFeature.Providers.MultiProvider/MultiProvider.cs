@@ -267,6 +267,14 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
             // Handle PROVIDER_CONFIGURATION_CHANGED events specially - these are always re-emitted
             if (eventPayload.Type == ProviderEventTypes.ProviderConfigurationChanged)
             {
+                await this.EmitEvent(new ProviderEventPayload
+                {
+                    ProviderName = $"{this._metadata.Name}/{registeredProvider.Name}",
+                    Type = eventPayload.Type,
+                    Message = eventPayload.Message ?? $"Configuration changed in provider {registeredProvider.Name}",
+                    FlagsChanged = eventPayload.FlagsChanged,
+                    EventMetadata = eventPayload.EventMetadata
+                }, cancellationToken).ConfigureAwait(false);
                 return;
             }
 
