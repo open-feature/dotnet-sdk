@@ -384,7 +384,9 @@ public class MultiProviderEventTests
         // Act - Simulate one provider going to error state
         await EmitEventToChildProvider(this._mockProvider1, new ProviderEventPayload
         {
-            ProviderName = Provider1Name, Type = ProviderEventTypes.ProviderError, ErrorType = ErrorType.General
+            ProviderName = Provider1Name,
+            Type = ProviderEventTypes.ProviderError,
+            ErrorType = ErrorType.General
         });
 
         await Task.Delay(100);
