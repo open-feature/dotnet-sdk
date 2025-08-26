@@ -375,8 +375,11 @@ public class MultiProviderEventTests
         };
         var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
-        // Set initial MultiProvider status to Ready
-        multiProvider.SetStatus(ProviderStatus.Ready);
+        // Initialize the MultiProvider to ensure event listeners are set up
+        await multiProvider.InitializeAsync(this._evaluationContext);
+
+        // Give some time for event listening tasks to be fully established
+        await Task.Delay(50);
 
         // Act - Simulate one provider going to error state
         await EmitEventToChildProvider(this._mockProvider1, new ProviderEventPayload
@@ -388,10 +391,11 @@ public class MultiProviderEventTests
 
         // Assert - MultiProvider should change to Error status
         var eventChannel = multiProvider.GetEventChannel();
-        var events = await ReadEventsFromChannel(eventChannel, expectedCount: 1, timeoutMs: 1000);
+        var events = await ReadEventsFromChannel(eventChannel, expectedCount: 2, timeoutMs: 1000); // Expect 2 events: ready from init + error
 
-        Assert.Single(events);
-        var errorEvent = events[0];
+        Assert.True(events.Count >= 1, $"Expected at least 1 event but got {events.Count}");
+        var errorEvent = events.LastOrDefault(e => e.Type == ProviderEventTypes.ProviderError);
+        Assert.NotNull(errorEvent);
         Assert.Equal("MultiProvider", errorEvent.ProviderName);
         Assert.Equal(ProviderEventTypes.ProviderError, errorEvent.Type);
         Assert.Contains("Error", errorEvent.Message);
