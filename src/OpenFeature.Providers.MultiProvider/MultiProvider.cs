@@ -28,10 +28,10 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
     private ProviderStatus _providerStatus = ProviderStatus.NotReady;
     // 0 = Not disposed, 1 = Disposed
     // This is to handle the dispose pattern correctly with the async initialization and shutdown methods
-    private volatile int _disposed = 0;
+    private volatile int _disposed;
 
     // Event handling infrastructure
-    private readonly Dictionary<FeatureProvider, Task> _eventListeningTasks = new();
+    private readonly Dictionary<FeatureProvider, Task> _eventListeningTasks = [];
     private readonly CancellationTokenSource _eventProcessingCancellation = new();
 
     /// <summary>
@@ -230,14 +230,13 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
     {
         foreach (var registeredProvider in this._registeredProviders)
         {
-            var provider = registeredProvider.Provider;
-            this._eventListeningTasks[provider] = this.ProcessProviderEventsAsync(provider);
+            this._eventListeningTasks[registeredProvider.Provider] = this.ProcessProviderEventsAsync(registeredProvider);
         }
     }
 
-    private async Task ProcessProviderEventsAsync(FeatureProvider provider)
+    private async Task ProcessProviderEventsAsync(RegisteredProvider registeredProvider)
     {
-        var eventChannel = provider.GetEventChannel();
+        var eventChannel = registeredProvider.Provider.GetEventChannel();
         var cancellationToken = this._eventProcessingCancellation.Token;
 
         while (await eventChannel.Reader.WaitToReadAsync(cancellationToken).ConfigureAwait(false))
@@ -247,18 +246,134 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
                 continue;
             }
 
-            if (item is not Event e)
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+
+            if (item is not Event { EventPayload: { } eventPayload })
             {
                 continue;
             }
 
-            await this.HandleProviderEventAsync(provider, e, cancellationToken).ConfigureAwait(false);
+            await this.HandleProviderEventAsync(registeredProvider, eventPayload, cancellationToken).ConfigureAwait(false);
         }
     }
 
-    private Task HandleProviderEventAsync(FeatureProvider provider, Event e, CancellationToken cancellationToken = default)
+    private async Task HandleProviderEventAsync(RegisteredProvider registeredProvider, ProviderEventPayload eventPayload, CancellationToken cancellationToken = default)
     {
-        return Task.CompletedTask;
+        try
+        {
+            // Handle PROVIDER_CONFIGURATION_CHANGED events specially - these are always re-emitted
+            if (eventPayload.Type == ProviderEventTypes.ProviderConfigurationChanged)
+            {
+                return;
+            }
+
+            // For status-changing events, update provider status and check if MultiProvider status should change
+            UpdateProviderStatusFromEvent(registeredProvider, eventPayload);
+
+            // Check if MultiProvider status has changed due to this provider's status change
+            var providerStatuses = this._registeredProviders.Select(rp => rp.Status).ToList();
+            var newMultiProviderStatus = DetermineAggregateStatus(providerStatuses);
+
+            // Only emit event if MultiProvider status actually changed
+            if (newMultiProviderStatus != this._providerStatus)
+            {
+                var previousStatus = this._providerStatus;
+                this._providerStatus = newMultiProviderStatus;
+
+                var eventType = newMultiProviderStatus switch
+                {
+                    ProviderStatus.Ready => ProviderEventTypes.ProviderReady,
+                    ProviderStatus.Error or ProviderStatus.Fatal => ProviderEventTypes.ProviderError,
+                    ProviderStatus.Stale => ProviderEventTypes.ProviderStale,
+                    _ => (ProviderEventTypes?)null
+                };
+
+                if (eventType.HasValue)
+                {
+                    await this.EmitEvent(new ProviderEventPayload
+                    {
+                        ProviderName = this._metadata.Name,
+                        Type = eventType.Value,
+                        Message = $"MultiProvider status changed from {previousStatus} to {newMultiProviderStatus} due to provider {registeredProvider.Name}",
+                        ErrorType = newMultiProviderStatus == ProviderStatus.Fatal ? ErrorType.ProviderFatal : eventPayload.ErrorType,
+                        FlagsChanged = eventPayload.FlagsChanged,
+                        EventMetadata = eventPayload.EventMetadata
+                    }, cancellationToken).ConfigureAwait(false);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // If there's an error processing the event, emit an error event
+            await this.EmitEvent(new ProviderEventPayload
+            {
+                ProviderName = this._metadata.Name,
+                Type = ProviderEventTypes.ProviderError,
+                Message = $"Error processing event from provider {registeredProvider.Name}: {ex.Message}",
+                ErrorType = ErrorType.General
+            }, cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    private static void UpdateProviderStatusFromEvent(RegisteredProvider registeredProvider, ProviderEventPayload eventPayload)
+    {
+        var newStatus = eventPayload.Type switch
+        {
+            ProviderEventTypes.ProviderReady => ProviderStatus.Ready,
+            ProviderEventTypes.ProviderError => eventPayload.ErrorType == ErrorType.ProviderFatal
+                ? ProviderStatus.Fatal
+                : ProviderStatus.Error,
+            ProviderEventTypes.ProviderStale => ProviderStatus.Stale,
+            _ => registeredProvider.Status // No status change for PROVIDER_CONFIGURATION_CHANGED
+        };
+
+        if (newStatus != registeredProvider.Status)
+        {
+            registeredProvider.SetStatus(newStatus);
+        }
+    }
+
+    private async Task EmitEvent(ProviderEventPayload eventPayload, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await this.EventChannel.Writer.WriteAsync(eventPayload, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            // If we can't write to the event channel (e.g., it's closed), ignore the error
+        }
+    }
+
+    private static ProviderStatus DetermineAggregateStatus(List<ProviderStatus> providerStatuses)
+    {
+        // Check in precedence order as per specification
+        if (providerStatuses.Any(status => status == ProviderStatus.Fatal))
+        {
+            return ProviderStatus.Fatal;
+        }
+
+        if (providerStatuses.Any(status => status == ProviderStatus.NotReady))
+        {
+            return ProviderStatus.NotReady;
+        }
+
+        if (providerStatuses.Any(status => status == ProviderStatus.Error))
+        {
+            return ProviderStatus.Error;
+        }
+
+        if (providerStatuses.Any(status => status == ProviderStatus.Stale))
+        {
+            return ProviderStatus.Stale;
+        }
+
+        return providerStatuses.All(status => status == ProviderStatus.Ready) ? ProviderStatus.Ready :
+            // Default to NotReady if we have mixed statuses not covered above
+            ProviderStatus.NotReady;
     }
 
     private static ReadOnlyCollection<RegisteredProvider> RegisterProviders(IEnumerable<ProviderEntry> providerEntries)
@@ -329,7 +444,7 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
         await this._shutdownSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            // We should be able to shutdown the provider when it is in Ready or Fatal status.
+            // We should be able to shut down the provider when it is in Ready or Fatal status.
             if ((this._providerStatus != ProviderStatus.Ready && this._providerStatus != ProviderStatus.Fatal) || this._disposed == 1)
             {
                 return;
