@@ -32,6 +32,7 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
 
     // Event handling infrastructure
     private readonly Dictionary<FeatureProvider, Task> _eventListeningTasks = new();
+    private readonly CancellationTokenSource _eventProcessingCancellation = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MultiProvider"/> class with the specified provider entries and evaluation strategy.
@@ -58,7 +59,7 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
         this._metadata = new Metadata(MultiProviderConstants.ProviderName);
 
         // Start listening to events from all registered providers
-        this.StartListeningToProviderEvents();
+        Task.Run(this.StartListeningToProviderEvents);
     }
 
     /// <inheritdoc/>
@@ -227,7 +228,37 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
 
     private void StartListeningToProviderEvents()
     {
-        throw new NotImplementedException();
+        foreach (var registeredProvider in this._registeredProviders)
+        {
+            var provider = registeredProvider.Provider;
+            this._eventListeningTasks[provider] = this.ProcessProviderEventsAsync(provider);
+        }
+    }
+
+    private async Task ProcessProviderEventsAsync(FeatureProvider provider)
+    {
+        var eventChannel = provider.GetEventChannel();
+        var cancellationToken = this._eventProcessingCancellation.Token;
+
+        while (await eventChannel.Reader.WaitToReadAsync(cancellationToken).ConfigureAwait(false))
+        {
+            if (!eventChannel.Reader.TryRead(out var item))
+            {
+                continue;
+            }
+
+            if (item is not Event e)
+            {
+                continue;
+            }
+
+            await this.HandleProviderEventAsync(provider, e, cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    private Task HandleProviderEventAsync(FeatureProvider provider, Event e, CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
     }
 
     private static ReadOnlyCollection<RegisteredProvider> RegisterProviders(IEnumerable<ProviderEntry> providerEntries)
