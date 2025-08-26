@@ -326,7 +326,7 @@ public class MultiProviderEventTests
             while (events.Count < expectedCount && !cts.Token.IsCancellationRequested)
             {
                 if (!await channel.Reader.WaitToReadAsync(cts.Token))
-                    continue;
+                    break;
 
                 while (channel.Reader.TryRead(out var item) && events.Count < expectedCount)
                 {

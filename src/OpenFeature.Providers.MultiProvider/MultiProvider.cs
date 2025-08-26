@@ -59,7 +59,7 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
         this._metadata = new Metadata(MultiProviderConstants.ProviderName);
 
         // Start listening to events from all registered providers
-        Task.Run(this.StartListeningToProviderEvents);
+        this.StartListeningToProviderEvents();
     }
 
     /// <inheritdoc/>
@@ -294,22 +294,20 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
 
         while (await eventChannel.Reader.WaitToReadAsync(cancellationToken).ConfigureAwait(false))
         {
-            if (!eventChannel.Reader.TryRead(out var item))
+            while (eventChannel.Reader.TryRead(out var item))
             {
-                continue;
-            }
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return;
+                }
 
-            if (cancellationToken.IsCancellationRequested)
-            {
-                return;
-            }
+                if (item is not Event { EventPayload: { } eventPayload })
+                {
+                    continue;
+                }
 
-            if (item is not Event { EventPayload: { } eventPayload })
-            {
-                continue;
+                await this.HandleProviderEventAsync(registeredProvider, eventPayload, cancellationToken).ConfigureAwait(false);
             }
-
-            await this.HandleProviderEventAsync(registeredProvider, eventPayload, cancellationToken).ConfigureAwait(false);
         }
     }
 
