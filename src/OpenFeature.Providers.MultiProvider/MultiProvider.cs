@@ -124,6 +124,16 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
                 var exceptions = failures.Select(f => f.Error!).ToList();
                 var failedProviders = failures.Select(f => f.ProviderName).ToList();
                 this._providerStatus = ProviderStatus.Fatal;
+
+                // Emit error event
+                await this.EmitEvent(new ProviderEventPayload
+                {
+                    ProviderName = this._metadata.Name,
+                    Type = ProviderEventTypes.ProviderError,
+                    Message = $"Failed to initialize providers: {string.Join(", ", failedProviders)}",
+                    ErrorType = ErrorType.ProviderFatal
+                }, cancellationToken).ConfigureAwait(false);
+
                 throw new AggregateException(
                     $"Failed to initialize providers: {string.Join(", ", failedProviders)}",
                     exceptions);
@@ -131,6 +141,14 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
             else
             {
                 this._providerStatus = ProviderStatus.Ready;
+
+                // Emit ready event
+                await this.EmitEvent(new ProviderEventPayload
+                {
+                    ProviderName = this._metadata.Name,
+                    Type = ProviderEventTypes.ProviderReady,
+                    Message = "MultiProvider successfully initialized"
+                }, cancellationToken).ConfigureAwait(false);
             }
         }
         finally
@@ -165,13 +183,31 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
             var strategyContext = new StrategyEvaluationContext<T>(key);
             var resolutions = this._evaluationStrategy.RunMode switch
             {
-                RunMode.Parallel => await this.ParallelEvaluationAsync(key, defaultValue, evaluationContext, cancellationToken).ConfigureAwait(false),
-                RunMode.Sequential => await this.SequentialEvaluationAsync(key, defaultValue, evaluationContext, cancellationToken).ConfigureAwait(false),
+                RunMode.Parallel => await this
+                    .ParallelEvaluationAsync(key, defaultValue, evaluationContext, cancellationToken)
+                    .ConfigureAwait(false),
+                RunMode.Sequential => await this
+                    .SequentialEvaluationAsync(key, defaultValue, evaluationContext, cancellationToken)
+                    .ConfigureAwait(false),
                 _ => throw new NotSupportedException($"Unsupported run mode: {this._evaluationStrategy.RunMode}")
             };
 
-            var finalResult = this._evaluationStrategy.DetermineFinalResult(strategyContext, key, defaultValue, evaluationContext, resolutions);
+            var finalResult = this._evaluationStrategy.DetermineFinalResult(strategyContext, key, defaultValue,
+                evaluationContext, resolutions);
             return finalResult.Details;
+        }
+        catch (NotSupportedException ex)
+        {
+            // Emit error event for unsupported run mode
+            await this.EmitEvent(new ProviderEventPayload
+            {
+                ProviderName = this._metadata.Name,
+                Type = ProviderEventTypes.ProviderError,
+                Message = $"Error evaluating flag '{key}' with run mode {this._evaluationStrategy.RunMode}",
+                ErrorType = ErrorType.ProviderFatal
+            }, cancellationToken).ConfigureAwait(false);
+
+            return new ResolutionDetails<T>(key, defaultValue, ErrorType.ProviderFatal, Reason.Error, errorMessage: ex.Message);
         }
         catch (Exception ex)
         {
