@@ -160,16 +160,33 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
             throw new ObjectDisposedException(nameof(MultiProvider));
         }
 
-        var strategyContext = new StrategyEvaluationContext<T>(key);
-        var resolutions = this._evaluationStrategy.RunMode switch
+        try
         {
-            RunMode.Parallel => await this.ParallelEvaluationAsync(key, defaultValue, evaluationContext, cancellationToken).ConfigureAwait(false),
-            RunMode.Sequential => await this.SequentialEvaluationAsync(key, defaultValue, evaluationContext, cancellationToken).ConfigureAwait(false),
-            _ => throw new NotSupportedException($"Unsupported run mode: {this._evaluationStrategy.RunMode}")
-        };
+            var strategyContext = new StrategyEvaluationContext<T>(key);
+            var resolutions = this._evaluationStrategy.RunMode switch
+            {
+                RunMode.Parallel => await this.ParallelEvaluationAsync(key, defaultValue, evaluationContext, cancellationToken).ConfigureAwait(false),
+                RunMode.Sequential => await this.SequentialEvaluationAsync(key, defaultValue, evaluationContext, cancellationToken).ConfigureAwait(false),
+                _ => throw new NotSupportedException($"Unsupported run mode: {this._evaluationStrategy.RunMode}")
+            };
 
-        var finalResult = this._evaluationStrategy.DetermineFinalResult(strategyContext, key, defaultValue, evaluationContext, resolutions);
-        return finalResult.Details;
+            var finalResult = this._evaluationStrategy.DetermineFinalResult(strategyContext, key, defaultValue, evaluationContext, resolutions);
+            return finalResult.Details;
+        }
+        catch (Exception ex)
+        {
+            // Emit error event for evaluation failures
+            await this.EmitEvent(new ProviderEventPayload
+            {
+                ProviderName = this._metadata.Name,
+                Type = ProviderEventTypes.ProviderError,
+                Message = $"Error evaluating flag '{key}': {ex.Message}",
+                ErrorType = ErrorType.General,
+                FlagsChanged = [key]
+            }, cancellationToken).ConfigureAwait(false);
+
+            return new ResolutionDetails<T>(key, defaultValue, ErrorType.General, Reason.Error, errorMessage: ex.Message);
+        }
     }
 
     private async Task<List<ProviderResolutionResult<T>>> SequentialEvaluationAsync<T>(string key, T defaultValue, EvaluationContext? evaluationContext, CancellationToken cancellationToken)
