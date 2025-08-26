@@ -30,6 +30,9 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
     // This is to handle the dispose pattern correctly with the async initialization and shutdown methods
     private volatile int _disposed = 0;
 
+    // Event handling infrastructure
+    private readonly Dictionary<FeatureProvider, Task> _eventListeningTasks = new();
+
     /// <summary>
     /// Initializes a new instance of the <see cref="MultiProvider"/> class with the specified provider entries and evaluation strategy.
     /// </summary>
@@ -53,6 +56,9 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
 
         // Create aggregate metadata
         this._metadata = new Metadata(MultiProviderConstants.ProviderName);
+
+        // Start listening to events from all registered providers
+        this.StartListeningToProviderEvents();
     }
 
     /// <inheritdoc/>
@@ -77,7 +83,6 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
     /// <inheritdoc/>
     public override Task<ResolutionDetails<Value>> ResolveStructureValueAsync(string flagKey, Value defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default) =>
         this.EvaluateAsync(flagKey, defaultValue, context, cancellationToken);
-
 
     /// <inheritdoc/>
     public override async Task InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default)
@@ -218,6 +223,11 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
         resolutions.AddRange(results);
 
         return resolutions;
+    }
+
+    private void StartListeningToProviderEvents()
+    {
+        throw new NotImplementedException();
     }
 
     private static ReadOnlyCollection<RegisteredProvider> RegisterProviders(IEnumerable<ProviderEntry> providerEntries)
