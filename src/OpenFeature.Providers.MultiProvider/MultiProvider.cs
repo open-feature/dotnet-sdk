@@ -495,6 +495,7 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
         {
             this._initializationSemaphore.Dispose();
             this._shutdownSemaphore.Dispose();
+            this._eventProcessingCancellation.Dispose();
         }
     }
 
