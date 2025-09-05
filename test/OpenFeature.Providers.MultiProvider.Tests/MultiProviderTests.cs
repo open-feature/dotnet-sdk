@@ -412,7 +412,7 @@ public class MultiProviderClassTests
     }
 
     [Fact]
-    public async Task EvaluateAsync_WithUnsupportedRunMode_ThrowsNotSupportedException()
+    public async Task EvaluateAsync_WithUnsupportedRunMode_ReturnsErrorDetails()
     {
         // Arrange
         const bool defaultValue = false;
@@ -422,9 +422,10 @@ public class MultiProviderClassTests
         this._mockStrategy.RunMode.Returns((RunMode)999); // Invalid enum value
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<NotSupportedException>(() =>
-            multiProvider.ResolveBooleanValueAsync(TestFlagKey, defaultValue, this._evaluationContext));
-        Assert.Contains("Unsupported run mode", exception.Message);
+        var details = await multiProvider.ResolveBooleanValueAsync(TestFlagKey, defaultValue, this._evaluationContext);
+        Assert.Equal(ErrorType.ProviderFatal, details.ErrorType);
+        Assert.Equal(Reason.Error, details.Reason);
+        Assert.Contains("Unsupported run mode", details.ErrorMessage);
     }
 
     [Fact]
