@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using OpenFeature.Constant;
 using OpenFeature.Model;
@@ -32,7 +33,7 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
     private volatile int _disposed;
 
     // Event handling infrastructure
-    private readonly Dictionary<FeatureProvider, Task> _eventListeningTasks = [];
+    private readonly ConcurrentDictionary<FeatureProvider, Task> _eventListeningTasks = new();
     private readonly CancellationTokenSource _eventProcessingCancellation = new();
 
     /// <summary>
