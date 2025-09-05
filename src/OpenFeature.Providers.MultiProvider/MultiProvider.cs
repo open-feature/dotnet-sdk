@@ -311,7 +311,18 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
     private async Task ProcessProviderEventsAsync(RegisteredProvider registeredProvider)
     {
         var eventChannel = registeredProvider.Provider.GetEventChannel();
-        var cancellationToken = this._eventProcessingCancellation.Token;
+
+        // Get the cancellation token safely for this provider's event processing (this prevents ObjectDisposedException during concurrent shutdown)
+        CancellationToken cancellationToken;
+        try
+        {
+            cancellationToken = this._eventProcessingCancellation.Token;
+        }
+        catch (ObjectDisposedException)
+        {
+            // Already disposed, exit early
+            return;
+        }
 
         while (await eventChannel.Reader.WaitToReadAsync(cancellationToken).ConfigureAwait(false))
         {
@@ -532,8 +543,15 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
 
     private async Task ShutdownEventProcessingAsync()
     {
-        // Cancel event processing
-        this._eventProcessingCancellation.Cancel();
+        // Cancel event processing - protect against ObjectDisposedException during concurrent shutdown
+        try
+        {
+            this._eventProcessingCancellation.Cancel();
+        }
+        catch (ObjectDisposedException)
+        {
+            // Expected if already disposed during concurrent shutdown
+        }
 
         // Wait for all event listening tasks to complete, ignoring cancellation exceptions
         if (this._eventListeningTasks.Count != 0)
