@@ -25,6 +25,7 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
 
     private readonly SemaphoreSlim _initializationSemaphore = new(1, 1);
     private readonly SemaphoreSlim _shutdownSemaphore = new(1, 1);
+    private readonly object _providerStatusLock = new();
     private ProviderStatus _providerStatus = ProviderStatus.NotReady;
     // 0 = Not disposed, 1 = Disposed
     // This is to handle the dispose pattern correctly with the async initialization and shutdown methods
@@ -66,6 +67,25 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
     public override Metadata GetMetadata() => this._metadata;
 
     /// <inheritdoc/>
+    internal override ProviderStatus Status
+    {
+        get
+        {
+            lock (this._providerStatusLock)
+            {
+                return this._providerStatus;
+            }
+        }
+        set
+        {
+            lock (this._providerStatusLock)
+            {
+                this._providerStatus = value;
+            }
+        }
+    }
+
+    /// <inheritdoc/>
     public override Task<ResolutionDetails<bool>> ResolveBooleanValueAsync(string flagKey, bool defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default) =>
         this.EvaluateAsync(flagKey, defaultValue, context, cancellationToken);
 
@@ -96,7 +116,7 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
         await this._initializationSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            if (this._providerStatus != ProviderStatus.NotReady || this._disposed == 1)
+            if (this.Status != ProviderStatus.NotReady || this._disposed == 1)
             {
                 return;
             }
@@ -123,7 +143,7 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
             {
                 var exceptions = failures.Select(f => f.Error!).ToList();
                 var failedProviders = failures.Select(f => f.ProviderName).ToList();
-                this._providerStatus = ProviderStatus.Fatal;
+                this.Status = ProviderStatus.Fatal;
 
                 // Emit error event
                 await this.EmitEvent(new ProviderEventPayload
@@ -140,7 +160,7 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
             }
             else
             {
-                this._providerStatus = ProviderStatus.Ready;
+                this.Status = ProviderStatus.Ready;
 
                 // Emit ready event
                 await this.EmitEvent(new ProviderEventPayload
@@ -336,32 +356,42 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
             var providerStatuses = this._registeredProviders.Select(rp => rp.Status).ToList();
             var newMultiProviderStatus = DetermineAggregateStatus(providerStatuses);
 
+            ProviderStatus previousStatus;
+            ProviderEventTypes? eventType = null;
+
             // Only emit event if MultiProvider status actually changed
-            if (newMultiProviderStatus != this._providerStatus)
+            lock (this._providerStatusLock)
             {
-                var previousStatus = this._providerStatus;
-                this._providerStatus = newMultiProviderStatus;
-
-                var eventType = newMultiProviderStatus switch
+                if (newMultiProviderStatus != this._providerStatus)
                 {
-                    ProviderStatus.Ready => ProviderEventTypes.ProviderReady,
-                    ProviderStatus.Error or ProviderStatus.Fatal => ProviderEventTypes.ProviderError,
-                    ProviderStatus.Stale => ProviderEventTypes.ProviderStale,
-                    _ => (ProviderEventTypes?)null
-                };
+                    previousStatus = this._providerStatus;
+                    this._providerStatus = newMultiProviderStatus;
 
-                if (eventType.HasValue)
-                {
-                    await this.EmitEvent(new ProviderEventPayload
+                    eventType = newMultiProviderStatus switch
                     {
-                        ProviderName = this._metadata.Name,
-                        Type = eventType.Value,
-                        Message = $"MultiProvider status changed from {previousStatus} to {newMultiProviderStatus} due to provider {registeredProvider.Name}",
-                        ErrorType = newMultiProviderStatus == ProviderStatus.Fatal ? ErrorType.ProviderFatal : eventPayload.ErrorType,
-                        FlagsChanged = eventPayload.FlagsChanged,
-                        EventMetadata = eventPayload.EventMetadata
-                    }, cancellationToken).ConfigureAwait(false);
+                        ProviderStatus.Ready => ProviderEventTypes.ProviderReady,
+                        ProviderStatus.Error or ProviderStatus.Fatal => ProviderEventTypes.ProviderError,
+                        ProviderStatus.Stale => ProviderEventTypes.ProviderStale,
+                        _ => (ProviderEventTypes?)null
+                    };
                 }
+                else
+                {
+                    return; // No status change, no event to emit
+                }
+            }
+
+            if (eventType.HasValue)
+            {
+                await this.EmitEvent(new ProviderEventPayload
+                {
+                    ProviderName = this._metadata.Name,
+                    Type = eventType.Value,
+                    Message = $"MultiProvider status changed from {previousStatus} to {newMultiProviderStatus} due to provider {registeredProvider.Name}",
+                    ErrorType = newMultiProviderStatus == ProviderStatus.Fatal ? ErrorType.ProviderFatal : eventPayload.ErrorType,
+                    FlagsChanged = eventPayload.FlagsChanged,
+                    EventMetadata = eventPayload.EventMetadata
+                }, cancellationToken).ConfigureAwait(false);
             }
         }
         catch (Exception ex)
@@ -525,7 +555,7 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
         try
         {
             // We should be able to shut down the provider when it is in Ready or Fatal status.
-            if ((this._providerStatus != ProviderStatus.Ready && this._providerStatus != ProviderStatus.Fatal) || this._disposed == 1)
+            if ((this.Status != ProviderStatus.Ready && this.Status != ProviderStatus.Fatal) || this._disposed == 1)
             {
                 return;
             }
@@ -557,7 +587,7 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
                     exceptions);
             }
 
-            this._providerStatus = ProviderStatus.NotReady;
+            this.Status = ProviderStatus.NotReady;
         }
         finally
         {
@@ -571,6 +601,6 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
     /// <param name="providerStatus">The status to set.</param>
     internal void SetStatus(ProviderStatus providerStatus)
     {
-        this._providerStatus = providerStatus;
+        this.Status = providerStatus;
     }
 }
