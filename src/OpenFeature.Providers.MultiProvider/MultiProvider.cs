@@ -565,7 +565,7 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
             {
                 // Expected when shutting down
             }
-            this._providerStatus = ProviderStatus.Fatal;
+            this.Status = ProviderStatus.Fatal;
         }
     }
 
