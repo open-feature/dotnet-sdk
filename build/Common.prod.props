@@ -1,5 +1,5 @@
 <Project>
-  <Import Project=".\Common.props" />
+  <Import Project=".\Common.props"/>
 
   <PropertyGroup>
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <VersionNumber>2.8.0</VersionNumber> <!--x-release-please-version -->
+    <VersionNumber>2.8.1</VersionNumber> <!--x-release-please-version -->
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/open-feature/dotnet-sdk</RepositoryUrl>
     <Description>OpenFeature is an open standard for feature flag management, created to support a robust feature flag ecosystem using cloud native technologies. OpenFeature will provide a unified API and SDK, and a developer-first, cloud-native implementation, with extensibility for open source and commercial offerings.</Description>
@@ -24,8 +24,13 @@
     <FileVersion>$(VersionNumber)</FileVersion>
   </PropertyGroup>
 
+  <!-- AOT and Trimming Support -->
+  <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+
   <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)openfeature-icon.png" Pack="true" PackagePath="\" />
+    <None Include="$(MSBuildThisFileDirectory)openfeature-icon.png" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
 </Project>

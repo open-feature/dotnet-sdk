@@ -8,7 +8,8 @@
       "versioning": "default",
       "extra-files": [
         "build/Common.prod.props",
-        "README.md"
+        "README.md",
+		    "src/OpenFeature.DependencyInjection/README.md"
       ]
     }
   },
@@ -23,10 +24,12 @@
     },
     {
       "type": "chore",
+      "hidden": true,
       "section": "🧹 Chore"
     },
     {
       "type": "docs",
+      "hidden": true,
       "section": "📚 Documentation"
     },
     {
@@ -40,6 +43,7 @@
     },
     {
       "type": "deps",
+      "hidden": true,
       "section": "📦 Dependencies"
     },
     {
@@ -49,7 +53,7 @@
     },
     {
       "type": "refactor",
-      "section": "🔄 Refactoring"
+      "section": "🔧 Refactoring"
     },
     {
       "type": "revert",

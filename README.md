@@ -10,8 +10,8 @@
 
 [![Specification](https://img.shields.io/static/v1?label=specification&message=v0.8.0&color=yellow&style=for-the-badge)](https://github.com/open-feature/spec/releases/tag/v0.8.0)
 [
-![Release](https://img.shields.io/static/v1?label=release&message=v2.8.0&color=blue&style=for-the-badge) <!-- x-release-please-version -->
-](https://github.com/open-feature/dotnet-sdk/releases/tag/v2.8.0) <!-- x-release-please-version -->
+![Release](https://img.shields.io/static/v1?label=release&message=v2.8.1&color=blue&style=for-the-badge) <!-- x-release-please-version -->
+](https://github.com/open-feature/dotnet-sdk/releases/tag/v2.8.1) <!-- x-release-please-version -->
 
 [![Slack](https://img.shields.io/badge/slack-%40cncf%2Fopenfeature-brightgreen?style=flat&logo=slack)](https://cloud-native.slack.com/archives/C0344AANLA1)
 [![Codecov](https://codecov.io/gh/open-feature/dotnet-sdk/branch/main/graph/badge.svg?token=MONAVJBXUJ)](https://codecov.io/gh/open-feature/dotnet-sdk)
@@ -32,6 +32,12 @@
 -   .NET Framework 4.6.2+
 
 Note that the packages will aim to support all current .NET versions. Refer to the currently supported versions [.NET](https://dotnet.microsoft.com/download/dotnet) and [.NET Framework](https://dotnet.microsoft.com/download/dotnet-framework) excluding .NET Framework 3.5
+
+### NativeAOT Support
+
+✅ **Full NativeAOT Compatibility** - The OpenFeature .NET SDK is fully compatible with .NET NativeAOT compilation for fast startup and small deployment size. See the [AOT Compatibility Guide](docs/AOT_COMPATIBILITY.md) for detailed instructions.
+
+> While the core OpenFeature SDK is fully NativeAOT compatible, contrib and community-provided providers, hooks, and extensions may not be. Please check with individual provider/hook documentation for their NativeAOT compatibility status.
 
 ### Install
 
@@ -113,7 +119,8 @@ Want to contribute a new sample? See our [CONTRIBUTING](CONTRIBUTING.md) guide!
 | ✅     | [Shutdown](#shutdown)                                               | Gracefully clean up a provider during application shutdown.                                                                                                   |
 | ✅     | [Transaction Context Propagation](#transaction-context-propagation) | Set a specific [evaluation context](https://openfeature.dev/docs/reference/concepts/evaluation-context) for a transaction (e.g. an HTTP request or a thread). |
 | ✅     | [Extending](#extending)                                             | Extend OpenFeature with custom providers and hooks.                                                                                                           |
-| 🔬     | [DependencyInjection](#dependency-injection)                         | Integrate OpenFeature with .NET's dependency injection for streamlined provider setup.                                                                        |
+| 🔬     | [Multi-Provider](#multi-provider)                                   | Use multiple feature flag providers simultaneously with configurable evaluation strategies.                                                                   |
+| 🔬     | [DependencyInjection](#dependency-injection)                        | Integrate OpenFeature with .NET's dependency injection for streamlined provider setup.                                                                        |
 
 > Implemented: ✅ | In-progress: ⚠️ | Not implemented yet: ❌ | Experimental: 🔬
 
@@ -433,6 +440,96 @@ Hooks support passing per-evaluation data between that stages using `hook data`.
 
 Built a new hook? [Let us know](https://github.com/open-feature/openfeature.dev/issues/new?assignees=&labels=hook&projects=&template=document-hook.yaml&title=%5BHook%5D%3A+) so we can add it to the docs!
 
+### Multi-Provider
+
+> [!NOTE]
+> The Multi-Provider feature is currently experimental. Hooks and events are not supported at the moment.
+
+The Multi-Provider enables the use of multiple underlying feature flag providers simultaneously, allowing different providers to be used for different flag keys or based on specific evaluation strategies.
+
+#### Basic Usage
+
+```csharp
+using OpenFeature.Providers.MultiProvider;
+using OpenFeature.Providers.MultiProvider.Models;
+using OpenFeature.Providers.MultiProvider.Strategies;
+
+// Create provider entries
+var providerEntries = new List<ProviderEntry>
+{
+    new(new InMemoryProvider(provider1Flags), "Provider1"),
+    new(new InMemoryProvider(provider2Flags), "Provider2")
+};
+
+// Create multi-provider with FirstMatchStrategy (default)
+var multiProvider = new MultiProvider(providerEntries, new FirstMatchStrategy());
+
+// Set as the default provider
+await Api.Instance.SetProviderAsync(multiProvider);
+
+// Use normally - the multi-provider will handle delegation
+var client = Api.Instance.GetClient();
+var flagValue = await client.GetBooleanValueAsync("my-flag", false);
+```
+
+#### Evaluation Strategies
+
+The Multi-Provider supports different evaluation strategies that determine how multiple providers are used:
+
+##### FirstMatchStrategy (Default)
+
+Evaluates providers sequentially and returns the first result that is not "flag not found". If any provider returns an error, that error is returned immediately.
+
+```csharp
+var multiProvider = new MultiProvider(providerEntries, new FirstMatchStrategy());
+```
+
+##### FirstSuccessfulStrategy
+
+Evaluates providers sequentially and returns the first successful result, ignoring errors. Only if all providers fail will errors be returned.
+
+```csharp
+var multiProvider = new MultiProvider(providerEntries, new FirstSuccessfulStrategy());
+```
+
+##### ComparisonStrategy
+
+Evaluates all providers in parallel and compares results. If values agree, returns the agreed value. If they disagree, returns the fallback provider's value (or first provider if no fallback is specified) and optionally calls a mismatch callback.
+
+```csharp
+// Basic comparison
+var multiProvider = new MultiProvider(providerEntries, new ComparisonStrategy());
+
+// With fallback provider
+var multiProvider = new MultiProvider(providerEntries,
+    new ComparisonStrategy(fallbackProvider: provider1));
+
+// With mismatch callback
+var multiProvider = new MultiProvider(providerEntries,
+    new ComparisonStrategy(onMismatch: (mismatchDetails) => {
+        // Log or handle mismatches between providers
+        foreach (var kvp in mismatchDetails)
+        {
+            Console.WriteLine($"Provider {kvp.Key}: {kvp.Value}");
+        }
+    }));
+```
+
+#### Evaluation Modes
+
+The Multi-Provider supports two evaluation modes:
+
+-   **Sequential**: Providers are evaluated one after another (used by `FirstMatchStrategy` and `FirstSuccessfulStrategy`)
+-   **Parallel**: All providers are evaluated simultaneously (used by `ComparisonStrategy`)
+
+#### Limitations
+
+-   **Hooks are not supported**: Multi-Provider does not currently support hook registration or execution
+-   **Events are not supported**: Provider events are not propagated from underlying providers
+-   **Experimental status**: The API may change in future releases
+
+For a complete example, see the [AspNetCore sample](./samples/AspNetCore/README.md) which demonstrates Multi-Provider usage.
+
 ### Dependency Injection
 
 > [!NOTE]
@@ -629,12 +726,12 @@ For this hook to function correctly a global `MeterProvider` must be set.
 
 Below are the metrics extracted by this hook and dimensions they carry:
 
-| Metric key                             | Description                     | Unit         | Dimensions                    |
-| -------------------------------------- | ------------------------------- | ------------ | ----------------------------- |
-| feature_flag.evaluation_requests_total | Number of evaluation requests   | request      | key, provider name            |
-| feature_flag.evaluation_success_total  | Flag evaluation successes       | impression   | key, provider name, reason    |
-| feature_flag.evaluation_error_total    | Flag evaluation errors          | 1            | key, provider name, exception |
-| feature_flag.evaluation_active_count   | Active flag evaluations counter | 1            | key, provider name            |
+| Metric key                             | Description                     | Unit       | Dimensions                    |
+| -------------------------------------- | ------------------------------- | ---------- | ----------------------------- |
+| feature_flag.evaluation_requests_total | Number of evaluation requests   | request    | key, provider name            |
+| feature_flag.evaluation_success_total  | Flag evaluation successes       | impression | key, provider name, reason    |
+| feature_flag.evaluation_error_total    | Flag evaluation errors          | 1          | key, provider name, exception |
+| feature_flag.evaluation_active_count   | Active flag evaluations counter | 1          | key, provider name            |
 
 Consider the following code example for usage.
 
