@@ -68,8 +68,8 @@ builder.Services.AddOpenFeature(featureBuilder => {
 You can register a custom provider using a factory:
 
 ```csharp
-services.AddOpenFeature(builder => {
-    builder.AddProvider(provider => {
+builder.Services.AddOpenFeature(featureBuilder => {
+    featureBuilder.AddProvider(provider => {
         // Resolve services or configuration as needed
         return new MyCustomProvider();
     });
@@ -123,6 +123,8 @@ builder.Services.AddOpenFeature(featureBuilder => {
 var app = builder.Build();
 
 app.MapGet("/", async ([FromKeyedServices("beta")] IFeatureClient client) => {
+    bool enabled = await client.GetBooleanValueAsync("my-flag", false);
+    return enabled ? "Feature enabled!" : "Feature disabled.";
 });
 
 app.Run();
