@@ -42,20 +42,32 @@ public sealed class ImmutableMetadata
     /// Gets the integer value associated with the specified key.
     /// </summary>
     /// <param name="key">The key of the value to retrieve.</param>
-    /// <returns>The integer value associated with the key, or null if the key is not found.</returns>
+    /// <returns>The value associated with the key as an integer, if it is of type double or int; otherwise, null.</returns>
     public int? GetInt(string key)
     {
-        return this.GetValue<int>(key);
+        var hasValue = this._metadata.TryGetValue(key, out var value);
+        if (!hasValue)
+        {
+            return null;
+        }
+
+        return value is double || value is int ? Convert.ToInt32(value) : null;
     }
 
     /// <summary>
     /// Gets the double value associated with the specified key.
     /// </summary>
     /// <param name="key">The key of the value to retrieve.</param>
-    /// <returns>The double value associated with the key, or null if the key is not found.</returns>
+    /// <returns>The value associated with the key as a double, if it is of type double or int; otherwise, null.</returns>
     public double? GetDouble(string key)
     {
-        return this.GetValue<double>(key);
+        var hasValue = this._metadata.TryGetValue(key, out var value);
+        if (!hasValue)
+        {
+            return null;
+        }
+
+        return value is double || value is int ? Convert.ToDouble(value) : null;
     }
 
     /// <summary>
