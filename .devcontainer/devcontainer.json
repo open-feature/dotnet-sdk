@@ -18,12 +18,10 @@
         "GitHub.vscode-github-actions",
         "GitHub.vscode-pull-request-github",
         "ms-dotnettools.csharp",
-        "ms-dotnettools.csdevkit",
-        "vscjava.vscode-java-pack",
         "esbenp.prettier-vscode",
         "redhat.vscode-yaml",
-        "rust-lang.rust-analyzer",
-        "oven.bun-vscode"
+        "cucumberopen.cucumber-official",
+        "ms-dotnettools.csdevkit"
       ]
     }
   },
