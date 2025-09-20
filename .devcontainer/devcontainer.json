@@ -27,7 +27,7 @@
   },
   "remoteUser": "vscode",
   "hostRequirements": {
-    "memory": "8GB"
+    "memory": "8gb"
   },
   "postCreateCommand": "git submodule update --init --recursive"
 }
