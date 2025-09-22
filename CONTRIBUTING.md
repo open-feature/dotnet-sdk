@@ -18,6 +18,26 @@ On all platforms, the minimum requirements are:
 -   JetBrains Rider 2022.2+ or Visual Studio 2022+ or Visual Studio Code
 -   .NET Framework 4.6.2+
 
+### Development Containers
+
+This repository includes support for [Development Containers](https://containers.dev/) (devcontainers), which provide a consistent, containerized development environment. The devcontainer configuration includes all necessary dependencies and tools pre-configured.
+
+To use the devcontainer:
+
+1. **Prerequisites**: Install [Docker](https://www.docker.com/) and either:
+   -   [Visual Studio Code](https://code.visualstudio.com/) with the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+   -   [GitHub Codespaces](https://github.com/features/codespaces)
+
+2. **Using with VS Code**:
+   -   Open the repository in VS Code
+   -   When prompted, click "Reopen in Container" or use the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and select "Dev Containers: Reopen in Container"
+
+3. **Using with GitHub Codespaces**:
+   -   Navigate to the repository on GitHub
+   -   Click the "Code" button and select "Create codespace on [branch-name]"
+
+The devcontainer provides a pre-configured environment with the .NET SDK and all necessary tools for development and testing.
+
 ## Pull Request
 
 All contributions to the OpenFeature project are welcome via GitHub pull requests.
@@ -129,6 +149,16 @@ Please make sure you follow the latest [conventions](https://www.conventionalcom
 -   test: Adding missing tests or correcting existing tests
 
 If you want to point out a breaking change, you should use `!` after the type. For example: `feat!: excellent new feature`.
+
+### Changelog Visibility and Release Triggers
+
+Only certain types are visible in the generated changelog:
+
+-   `feat`: ✨ New Features - New functionality added
+-   `fix`: 🐛 Bug Fixes - Bug fixes and corrections
+-   `perf`: 🚀 Performance - Performance improvements
+-   `refactor`: 🔧 Refactoring - Code changes that neither fix bugs nor add features
+-   `revert`: 🔙 Reverts - Reverted changes
 
 ## Design Choices
 

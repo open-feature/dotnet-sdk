@@ -1,5 +1,5 @@
 <Project>
-  <Import Project=".\Common.props" />
+  <Import Project=".\Common.props"/>
 
   <PropertyGroup>
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
@@ -24,8 +24,13 @@
     <FileVersion>$(VersionNumber)</FileVersion>
   </PropertyGroup>
 
+  <!-- AOT and Trimming Support -->
+  <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+
   <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)openfeature-icon.png" Pack="true" PackagePath="\" />
+    <None Include="$(MSBuildThisFileDirectory)openfeature-icon.png" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
 </Project>
