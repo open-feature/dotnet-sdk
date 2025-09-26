@@ -1,5 +1,7 @@
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using OpenFeature.Constant;
 using OpenFeature.Model;
 using OpenFeature.Providers.MultiProvider.Models;
@@ -18,7 +20,7 @@ namespace OpenFeature.Providers.MultiProvider;
 /// different feature flags may be served by different sources or providers within the same application.
 /// </remarks>
 /// <seealso href="https://openfeature.dev/specification/appendix-a/#multi-provider">Multi Provider specification</seealso>
-public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
+public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
 {
     private readonly BaseEvaluationStrategy _evaluationStrategy;
     private readonly IReadOnlyList<RegisteredProvider> _registeredProviders;
@@ -35,13 +37,15 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
     // Event handling infrastructure
     private readonly ConcurrentDictionary<FeatureProvider, Task> _eventListeningTasks = new();
     private readonly CancellationTokenSource _eventProcessingCancellation = new();
+    private readonly ILogger _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MultiProvider"/> class with the specified provider entries and evaluation strategy.
     /// </summary>
     /// <param name="providerEntries">A collection of provider entries containing the feature providers and their optional names.</param>
     /// <param name="evaluationStrategy">The base evaluation strategy to use for determining how to evaluate features across multiple providers. If not specified, the first matching strategy will be used.</param>
-    public MultiProvider(IEnumerable<ProviderEntry> providerEntries, BaseEvaluationStrategy? evaluationStrategy = null)
+    /// <param name="logger">The logger for the client.</param>
+    public MultiProvider(IEnumerable<ProviderEntry> providerEntries, BaseEvaluationStrategy? evaluationStrategy = null, ILogger? logger = null)
     {
         if (providerEntries == null)
         {
@@ -62,6 +66,9 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
 
         // Start listening to events from all registered providers
         this.StartListeningToProviderEvents();
+
+        // Set logger
+        this._logger = logger ?? NullLogger<MultiProvider>.Instance;
     }
 
     /// <inheritdoc/>
@@ -305,12 +312,11 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
         foreach (var registeredProvider in this._registeredProviders)
         {
             var key = registeredProvider.Provider;
-            if (this._eventListeningTasks.ContainsKey(key))
+            if (!this._eventListeningTasks.TryAdd(key, this.ProcessProviderEventsAsync(registeredProvider)))
             {
-                continue;
+                // Log a warning if the provider is already being listened to
+                this.LogProviderAlreadyBeingListenedTo(registeredProvider.Name);
             }
-
-            this._eventListeningTasks[key] = this.ProcessProviderEventsAsync(registeredProvider);
         }
     }
 
@@ -630,4 +636,7 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
     {
         this.Status = providerStatus;
     }
+
+    [LoggerMessage(EventId = 1, Level = LogLevel.Debug, Message = "Provider {ProviderName} is already being listened to")]
+    private partial void LogProviderAlreadyBeingListenedTo(string providerName);
 }
