@@ -304,7 +304,13 @@ public sealed class MultiProvider : FeatureProvider, IAsyncDisposable
     {
         foreach (var registeredProvider in this._registeredProviders)
         {
-            this._eventListeningTasks[registeredProvider.Provider] = this.ProcessProviderEventsAsync(registeredProvider);
+            var key = registeredProvider.Provider;
+            if (this._eventListeningTasks.ContainsKey(key))
+            {
+                continue;
+            }
+
+            this._eventListeningTasks[key] = this.ProcessProviderEventsAsync(registeredProvider);
         }
     }
 
