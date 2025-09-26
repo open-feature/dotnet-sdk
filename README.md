@@ -533,14 +533,13 @@ For a complete example, see the [AspNetCore sample](./samples/AspNetCore/README.
 ### Dependency Injection
 
 > [!NOTE]
-> The OpenFeature.DependencyInjection and OpenFeature.Hosting packages are currently experimental. They streamline the integration of OpenFeature within .NET applications, allowing for seamless configuration and lifecycle management of feature flag providers using dependency injection and hosting services.
+> The OpenFeature.Hosting package is currently experimental. The Hosting package streamlines the integration of OpenFeature within .NET applications, allowing for seamless configuration and lifecycle management of feature flag providers using dependency injection and hosting services.
 
 #### Installation
 
-To set up dependency injection and hosting capabilities for OpenFeature, install the following packages:
+To set up dependency injection and hosting capabilities for OpenFeature, install the following package:
 
 ```sh
-dotnet add package OpenFeature.DependencyInjection
 dotnet add package OpenFeature.Hosting
 ```
 
@@ -553,7 +552,6 @@ For a basic configuration, you can use the InMemoryProvider. This provider is si
 ```csharp
 builder.Services.AddOpenFeature(featureBuilder => {
     featureBuilder
-        .AddHostedFeatureLifecycle() // From Hosting package
         .AddInMemoryProvider();
 });
 ```
@@ -575,7 +573,6 @@ builder.Services.AddOpenFeature(featureBuilder => {
 ```csharp
 builder.Services.AddOpenFeature(featureBuilder => {
     featureBuilder
-        .AddHostedFeatureLifecycle()
         .AddContext((contextBuilder, serviceProvider) => { /* Custom context configuration */ })
         .AddHook((serviceProvider) => new LoggingHook( /* Custom configuration */ ))
         .AddHook(new MetricsHook())
