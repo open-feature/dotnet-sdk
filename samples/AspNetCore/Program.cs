@@ -2,8 +2,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using OpenFeature;
-using OpenFeature.DependencyInjection.Providers.Memory;
 using OpenFeature.Hooks;
+using OpenFeature.Hosting.Providers.Memory;
 using OpenFeature.Model;
 using OpenFeature.Providers.Memory;
 using OpenFeature.Providers.MultiProvider;
@@ -41,7 +41,7 @@ builder.Services.AddOpenFeature(featureBuilder =>
         .WithFlagEvaluationMetadata("boolean", s => s.GetBool("boolean"))
         .Build();
 
-    featureBuilder.AddHostedFeatureLifecycle()
+    featureBuilder
         .AddHook(sp => new LoggingHook(sp.GetRequiredService<ILogger<LoggingHook>>()))
         .AddHook(_ => new MetricsHook(metricsHookOptions))
         .AddHook<TraceEnricherHook>()

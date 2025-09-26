@@ -1,0 +1,33 @@
+{
+  "name": "OpenFeature .NET SDK",
+  "image": "mcr.microsoft.com/devcontainers/dotnet:9.0-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/dotnet:latest": {
+      "version": "9.0",
+      "additionalVersions": "8.0"
+    },
+    "ghcr.io/devcontainers/features/github-cli:latest": {},
+    "ghcr.io/devcontainers/features/docker-in-docker": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "EditorConfig.EditorConfig",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "GitHub.vscode-github-actions",
+        "GitHub.vscode-pull-request-github",
+        "ms-dotnettools.csharp",
+        "esbenp.prettier-vscode",
+        "redhat.vscode-yaml",
+        "cucumberopen.cucumber-official",
+        "ms-dotnettools.csdevkit"
+      ]
+    }
+  },
+  "remoteUser": "vscode",
+  "hostRequirements": {
+    "memory": "8gb"
+  },
+  "postCreateCommand": "git submodule update --init --recursive"
+}
