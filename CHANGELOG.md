@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.9.0](https://github.com/open-feature/dotnet-sdk/compare/v2.8.1...v2.9.0) (2025-09-26)
+
+
+### 🐛 Bug Fixes
+
+* update provider status to Fatal during disposal ([#580](https://github.com/open-feature/dotnet-sdk/issues/580)) ([76bd94b](https://github.com/open-feature/dotnet-sdk/commit/76bd94b03ea19ad3c432a52dd644317e362b99ec))
+
+
+### ✨ New Features
+
+* Add multi-provider support ([#488](https://github.com/open-feature/dotnet-sdk/issues/488)) ([7237053](https://github.com/open-feature/dotnet-sdk/commit/7237053561d9c36194197169734522f0b978f6e5))
+* Deprecate AddHostedFeatureLifecycle method ([#531](https://github.com/open-feature/dotnet-sdk/issues/531)) ([fdf2297](https://github.com/open-feature/dotnet-sdk/commit/fdf229737118639d323e74cceac490d44c4c24dd))
+* Support retrieving numeric metadata as either integers or decimals  ([#490](https://github.com/open-feature/dotnet-sdk/issues/490)) ([12de5f1](https://github.com/open-feature/dotnet-sdk/commit/12de5f10421bac749fdd45c748e7b970f3f69a39))
+
+
+### 🚀 Performance
+
+* Add NativeAOT Support ([#554](https://github.com/open-feature/dotnet-sdk/issues/554)) ([acd0486](https://github.com/open-feature/dotnet-sdk/commit/acd0486563f7b67a782ee169315922fb5d0f343e))
+
 ## [2.8.1](https://github.com/open-feature/dotnet-sdk/compare/v2.8.0...v2.8.1) (2025-07-31)
 
 
