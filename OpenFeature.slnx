@@ -60,6 +60,7 @@
     <Project Path="test/OpenFeature.Benchmarks/OpenFeature.Benchmarks.csproj" />
     <Project Path="test/OpenFeature.DependencyInjection.Tests/OpenFeature.DependencyInjection.Tests.csproj" />
     <Project Path="test/OpenFeature.E2ETests/OpenFeature.E2ETests.csproj" />
+    <Project Path="test/OpenFeature.Hosting.Tests/OpenFeature.Hosting.Tests.csproj" />
     <Project Path="test/OpenFeature.IntegrationTests/OpenFeature.IntegrationTests.csproj" />
     <Project Path="test/OpenFeature.Providers.MultiProvider.Tests/OpenFeature.Providers.MultiProvider.Tests.csproj" />
     <Project Path="test/OpenFeature.Tests/OpenFeature.Tests.csproj" />

@@ -30,7 +30,7 @@
 
   <ItemGroup Label="test">
     <PackageVersion Include="AutoFixture" Version="5.0.0-preview0012" />
-    <PackageVersion Include="BenchmarkDotNet" Version="0.15.2" />
+    <PackageVersion Include="BenchmarkDotNet" Version="0.15.4" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="coverlet.msbuild" Version="6.0.4" />
     <PackageVersion Include="GitHubActionsTestLogger" Version="2.4.1" />
