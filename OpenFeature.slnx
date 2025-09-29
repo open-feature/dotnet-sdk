@@ -14,9 +14,6 @@
     <File Path="renovate.json" />
     <File Path="version.txt" />
   </Folder>
-  <Folder Name="/.root/.config/">
-    <File Path=".config/dotnet-tools.json" />
-  </Folder>
   <Folder Name="/.root/.github/" />
   <Folder Name="/.root/.github/ISSUE_TEMPLATE/">
     <File Path=".github/ISSUE_TEMPLATE/bug.yaml" />
@@ -59,13 +56,13 @@
     <File Path="src/Directory.Build.targets" />
   </Folder>
   <Folder Name="/test/">
+    <Project Path="test/OpenFeature.AotCompatibility/OpenFeature.AotCompatibility.csproj" />
     <Project Path="test/OpenFeature.Benchmarks/OpenFeature.Benchmarks.csproj" />
     <Project Path="test/OpenFeature.DependencyInjection.Tests/OpenFeature.DependencyInjection.Tests.csproj" />
     <Project Path="test/OpenFeature.E2ETests/OpenFeature.E2ETests.csproj" />
     <Project Path="test/OpenFeature.IntegrationTests/OpenFeature.IntegrationTests.csproj" />
-    <Project Path="test/OpenFeature.Tests/OpenFeature.Tests.csproj" />
-    <Project Path="test/OpenFeature.AotCompatibility/OpenFeature.AotCompatibility.csproj" />
     <Project Path="test/OpenFeature.Providers.MultiProvider.Tests/OpenFeature.Providers.MultiProvider.Tests.csproj" />
+    <Project Path="test/OpenFeature.Tests/OpenFeature.Tests.csproj" />
     <File Path="test/Directory.Build.props" />
   </Folder>
 </Solution>
