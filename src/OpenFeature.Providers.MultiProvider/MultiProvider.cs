@@ -625,6 +625,7 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
             }
 
             this.Status = ProviderStatus.NotReady;
+            this._eventListeningTasks.Clear();
         }
         finally
         {
