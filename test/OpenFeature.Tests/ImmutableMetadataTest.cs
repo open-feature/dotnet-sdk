@@ -100,6 +100,28 @@ public class ImmutableMetadataTest
         Assert.NotNull(result);
         Assert.Equal(1, result);
     }
+    [Fact]
+    [Specification("1.4.14",
+        "If the `flag metadata` field in the `flag resolution` structure returned by the configured `provider` is set, the `evaluation details` structure's `flag metadata` field MUST contain that value. Otherwise, it MUST contain an empty record.")]
+    [Specification("1.4.14.1", "Condition: `Flag metadata` MUST be immutable.")]
+    public void GetInt_Should_Return_Value_If_Key_Found_although_double()
+    {
+        // Arrange
+        var metadata = new Dictionary<string, object>
+        {
+            {
+                "intKey", 1.0
+            }
+        };
+        var flagMetadata = new ImmutableMetadata(metadata);
+
+        // Act
+        var result = flagMetadata.GetInt("intKey");
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(1, result);
+    }
 
     [Fact]
     [Specification("1.4.14",
@@ -158,6 +180,29 @@ public class ImmutableMetadataTest
         // Assert
         Assert.NotNull(result);
         Assert.Equal(1.2, result);
+    }
+
+    [Fact]
+    [Specification("1.4.14",
+        "If the `flag metadata` field in the `flag resolution` structure returned by the configured `provider` is set, the `evaluation details` structure's `flag metadata` field MUST contain that value. Otherwise, it MUST contain an empty record.")]
+    [Specification("1.4.14.1", "Condition: `Flag metadata` MUST be immutable.")]
+    public void GetDouble_Should_Return_Value_If_Key_Found_Although_Int()
+    {
+        // Arrange
+        var metadata = new Dictionary<string, object>
+        {
+            {
+                "doubleKey", 1
+            }
+        };
+        var flagMetadata = new ImmutableMetadata(metadata);
+
+        // Act
+        var result = flagMetadata.GetDouble("doubleKey");
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(1.0, result);
     }
 
     [Fact]
