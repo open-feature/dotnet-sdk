@@ -311,12 +311,7 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
     {
         foreach (var registeredProvider in this._registeredProviders)
         {
-            var key = registeredProvider.Provider;
-            if (!this._eventListeningTasks.ContainsKey(key))
-            {
-                this._eventListeningTasks.TryAdd(key, value: this.ProcessProviderEventsAsync(registeredProvider));
-            }
-            else
+            if (!this._eventListeningTasks.TryAdd(registeredProvider.Provider, this.ProcessProviderEventsAsync(registeredProvider)))
             {
                 // Log a warning if the provider is already being listened to
                 this.LogProviderAlreadyBeingListenedTo(registeredProvider.Name);
