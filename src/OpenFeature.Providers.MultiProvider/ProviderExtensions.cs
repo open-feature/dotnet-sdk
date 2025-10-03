@@ -96,7 +96,7 @@ internal static class ProviderExtensions
                 key,
                 defaultValue,
                 GetFlagValueType<T>(),
-                null, // Provide a client metadata instead of null?
+                new ClientMetadata(MultiProviderConstants.ProviderName, null),
                 provider.GetMetadata()
             );
 
@@ -138,7 +138,7 @@ internal static class ProviderExtensions
                 key,
                 defaultValue,
                 GetFlagValueType<T>(),
-                null, // Provide a client metadata instead of null?
+                new ClientMetadata(MultiProviderConstants.ProviderName, null),
                 provider.GetMetadata()
             );
 
