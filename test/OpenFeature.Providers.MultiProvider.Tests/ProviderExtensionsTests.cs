@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
@@ -333,5 +334,53 @@ public class ProviderExtensionsTests
         Assert.NotNull(result);
         Assert.Equal(expectedDetails, result.ResolutionDetails);
         await this._mockProvider.Received(1).ResolveDoubleValueAsync(TestFlagKey, defaultValue, complexContext, this._cancellationToken);
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_WithProviderHooksAndErrorResult_TriggersErrorHooks()
+    {
+        // Arrange
+        var mockHook = Substitute.For<Hook>();
+        
+        // Setup hook to return evaluation context successfully
+        mockHook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), Arg.Any<CancellationToken>())
+            .Returns(EvaluationContext.Empty);
+
+        // Setup provider metadata
+        var providerMetadata = new Metadata(TestProviderName);
+        this._mockProvider.GetMetadata().Returns(providerMetadata);
+        this._mockProvider.GetProviderHooks().Returns(ImmutableList.Create(mockHook));
+
+        const bool defaultValue = false;
+        var errorDetails = new ResolutionDetails<bool>(
+            TestFlagKey, 
+            defaultValue, 
+            ErrorType.FlagNotFound, 
+            Reason.Error, 
+            TestVariant, 
+            errorMessage: "Flag not found");
+        
+        var providerContext = new StrategyPerProviderContext<bool>(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey);
+
+        this._mockProvider.ResolveBooleanValueAsync(TestFlagKey, defaultValue, Arg.Any<EvaluationContext>(), this._cancellationToken)
+            .Returns(errorDetails);
+
+        // Act
+        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue, this._mockLogger, this._cancellationToken);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(ErrorType.FlagNotFound, result.ResolutionDetails.ErrorType);
+        Assert.Equal(Reason.Error, result.ResolutionDetails.Reason);
+
+        // Verify before hook was called
+        await mockHook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), Arg.Any<CancellationToken>());
+        
+        // Verify error hook was called (not after hook)
+        await mockHook.Received(1).ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), Arg.Any<IReadOnlyDictionary<string, object>>(), Arg.Any<CancellationToken>());
+        await mockHook.DidNotReceive().AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), Arg.Any<CancellationToken>());
+        
+        // Verify finally hook was called
+        await mockHook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), Arg.Any<CancellationToken>());
     }
 }
