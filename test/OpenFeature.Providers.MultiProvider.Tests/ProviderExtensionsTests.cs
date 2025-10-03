@@ -341,7 +341,7 @@ public class ProviderExtensionsTests
     {
         // Arrange
         var mockHook = Substitute.For<Hook>();
-        
+
         // Setup hook to return evaluation context successfully
         mockHook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), Arg.Any<CancellationToken>())
             .Returns(EvaluationContext.Empty);
@@ -353,13 +353,13 @@ public class ProviderExtensionsTests
 
         const bool defaultValue = false;
         var errorDetails = new ResolutionDetails<bool>(
-            TestFlagKey, 
-            defaultValue, 
-            ErrorType.FlagNotFound, 
-            Reason.Error, 
-            TestVariant, 
+            TestFlagKey,
+            defaultValue,
+            ErrorType.FlagNotFound,
+            Reason.Error,
+            TestVariant,
             errorMessage: "Flag not found");
-        
+
         var providerContext = new StrategyPerProviderContext<bool>(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey);
 
         this._mockProvider.ResolveBooleanValueAsync(TestFlagKey, defaultValue, Arg.Any<EvaluationContext>(), this._cancellationToken)
@@ -375,11 +375,11 @@ public class ProviderExtensionsTests
 
         // Verify before hook was called
         await mockHook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), Arg.Any<CancellationToken>());
-        
+
         // Verify error hook was called (not after hook)
         await mockHook.Received(1).ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), Arg.Any<IReadOnlyDictionary<string, object>>(), Arg.Any<CancellationToken>());
         await mockHook.DidNotReceive().AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), Arg.Any<CancellationToken>());
-        
+
         // Verify finally hook was called
         await mockHook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), Arg.Any<CancellationToken>());
     }
