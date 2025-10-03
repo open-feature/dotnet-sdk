@@ -29,7 +29,7 @@ public class ProviderExtensionsTests
             .Returns(expectedDetails);
 
         // Act
-        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue, this._cancellationToken);
+        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue, null, this._cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -53,7 +53,7 @@ public class ProviderExtensionsTests
             .Returns(expectedDetails);
 
         // Act
-        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue, this._cancellationToken);
+        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue, null, this._cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -77,7 +77,7 @@ public class ProviderExtensionsTests
             .Returns(expectedDetails);
 
         // Act
-        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue, this._cancellationToken);
+        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue, null, this._cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -101,7 +101,7 @@ public class ProviderExtensionsTests
             .Returns(expectedDetails);
 
         // Act
-        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue, this._cancellationToken);
+        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue, null, this._cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -125,7 +125,7 @@ public class ProviderExtensionsTests
             .Returns(expectedDetails);
 
         // Act
-        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue, this._cancellationToken);
+        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue, null, this._cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -144,7 +144,7 @@ public class ProviderExtensionsTests
         var providerContext = new StrategyPerProviderContext<DateTime>(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey);
 
         // Act
-        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue, this._cancellationToken);
+        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue, null, this._cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -171,7 +171,7 @@ public class ProviderExtensionsTests
             .ThrowsAsync(expectedException);
 
         // Act
-        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue, this._cancellationToken);
+        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue, null, this._cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -198,7 +198,7 @@ public class ProviderExtensionsTests
             .Returns(expectedDetails);
 
         // Act
-        var result = await this._mockProvider.EvaluateAsync(providerContext, null, defaultValue, this._cancellationToken);
+        var result = await this._mockProvider.EvaluateAsync(providerContext, null, defaultValue, null, this._cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -223,7 +223,7 @@ public class ProviderExtensionsTests
             .Returns(expectedDetails);
 
         // Act
-        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue, customCancellationToken);
+        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue, null, customCancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -244,7 +244,7 @@ public class ProviderExtensionsTests
             .Returns(expectedDetails);
 
         // Act
-        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue!, this._cancellationToken);
+        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue!, null, this._cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -266,7 +266,7 @@ public class ProviderExtensionsTests
             .Returns(expectedDetails);
 
         // Act
-        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue, this._cancellationToken);
+        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue, null, this._cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -294,7 +294,7 @@ public class ProviderExtensionsTests
             });
 
         // Act
-        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue, cancellationTokenSource.Token);
+        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue, null, cancellationTokenSource.Token);
 
         // Assert
         Assert.NotNull(result);
@@ -325,7 +325,7 @@ public class ProviderExtensionsTests
             .Returns(expectedDetails);
 
         // Act
-        var result = await this._mockProvider.EvaluateAsync(providerContext, complexContext, defaultValue, this._cancellationToken);
+        var result = await this._mockProvider.EvaluateAsync(providerContext, complexContext, defaultValue, null, this._cancellationToken);
 
         // Assert
         Assert.NotNull(result);
