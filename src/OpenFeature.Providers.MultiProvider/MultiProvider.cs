@@ -79,13 +79,14 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
     public override IImmutableList<Hook> GetProviderHooks()
     {
         var hooks = new List<Hook>();
-        
+
         foreach (var registeredProvider in this._registeredProviders)
         {
             var providerHooks = registeredProvider.Provider.GetProviderHooks();
             hooks.AddRange(providerHooks);
         }
-        
+
+        // Should we return this?
         return hooks.ToImmutableList();
     }
 
@@ -285,7 +286,7 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
                 continue;
             }
 
-            var result = await registeredProvider.Provider.EvaluateAsync(providerContext, evaluationContext, defaultValue, cancellationToken).ConfigureAwait(false);
+            var result = await registeredProvider.Provider.EvaluateAsync(providerContext, evaluationContext, defaultValue, this._logger, cancellationToken).ConfigureAwait(false);
             resolutions.Add(result);
 
             if (!this._evaluationStrategy.ShouldEvaluateNextProvider(providerContext, evaluationContext, result))
@@ -312,7 +313,7 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
 
             if (this._evaluationStrategy.ShouldEvaluateThisProvider(providerContext, evaluationContext))
             {
-                tasks.Add(registeredProvider.Provider.EvaluateAsync(providerContext, evaluationContext, defaultValue, cancellationToken));
+                tasks.Add(registeredProvider.Provider.EvaluateAsync(providerContext, evaluationContext, defaultValue, this._logger, cancellationToken));
             }
         }
 
