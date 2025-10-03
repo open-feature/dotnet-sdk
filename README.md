@@ -443,9 +443,11 @@ Built a new hook? [Let us know](https://github.com/open-feature/openfeature.dev/
 ### Multi-Provider
 
 > [!NOTE]
-> The Multi-Provider feature is currently experimental. Hooks and events are not supported at the moment.
+> The Multi-Provider feature is currently experimental. Events are not fully supported at the moment.
 
 The Multi-Provider enables the use of multiple underlying feature flag providers simultaneously, allowing different providers to be used for different flag keys or based on specific evaluation strategies.
+
+The Multi-Provider supports provider hooks and executes them in accordance with the OpenFeature specification. Each provider's hooks are executed with context isolation, ensuring that context modifications by one provider's hooks do not affect other providers.
 
 #### Basic Usage
 
@@ -524,9 +526,7 @@ The Multi-Provider supports two evaluation modes:
 
 #### Limitations
 
--   **Hooks are not supported**: Multi-Provider does not currently support hook registration or execution
--   **Events are not supported**: Provider events are not propagated from underlying providers
--   **Experimental status**: The API may change in future releases
+- **Experimental status**: The API may change in future releases
 
 For a complete example, see the [AspNetCore sample](./samples/AspNetCore/README.md) which demonstrates Multi-Provider usage.
 
