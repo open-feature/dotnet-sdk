@@ -808,6 +808,10 @@ var options = MetricsHookOptions.CreateBuilder()
 -   Join us on [Slack](https://cloud-native.slack.com/archives/C0344AANLA1)
 -   For more information, check out our [community page](https://openfeature.dev/community/)
 
+## 📋 Project Structure
+
+This repository contains multiple subprojects that are compiled into separate packages. For a comprehensive overview of all subprojects, their status, and intended purpose, see the [Project Structure documentation](PROJECT_STRUCTURE.md).
+
 ## 🤝 Contributing
 
 Interested in contributing? Great, we'd love your help! To get started, take a look at the [CONTRIBUTING](CONTRIBUTING.md) guide.
