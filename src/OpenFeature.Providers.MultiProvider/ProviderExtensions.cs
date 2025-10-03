@@ -15,7 +15,7 @@ internal static class ProviderExtensions
         StrategyPerProviderContext<T> providerContext,
         EvaluationContext? evaluationContext,
         T defaultValue,
-        ILogger? logger = null,
+        ILogger logger,
         CancellationToken cancellationToken = default)
     {
         var key = providerContext.FlagKey;
@@ -87,7 +87,7 @@ internal static class ProviderExtensions
         string key,
         T defaultValue,
         EvaluationContext? evaluationContext,
-        ILogger? logger,
+        ILogger logger,
         CancellationToken cancellationToken)
     {
         try
@@ -101,7 +101,7 @@ internal static class ProviderExtensions
             );
 
             var initialContext = evaluationContext ?? EvaluationContext.Empty;
-            var hookRunner = new HookRunner<T>([.. hooks], initialContext, sharedHookContext, logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance);
+            var hookRunner = new HookRunner<T>([.. hooks], initialContext, sharedHookContext, logger);
 
             // Execute before hooks for this provider
             var modifiedContext = await hookRunner.TriggerBeforeHooksAsync(null, cancellationToken).ConfigureAwait(false);
@@ -129,7 +129,7 @@ internal static class ProviderExtensions
         T defaultValue,
         EvaluationContext? evaluationContext,
         ResolutionDetails<T> result,
-        ILogger? logger,
+        ILogger logger,
         CancellationToken cancellationToken)
     {
         try
@@ -142,7 +142,7 @@ internal static class ProviderExtensions
                 provider.GetMetadata()
             );
 
-            var hookRunner = new HookRunner<T>([.. hooks], evaluationContext ?? EvaluationContext.Empty, sharedHookContext, logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance);
+            var hookRunner = new HookRunner<T>([.. hooks], evaluationContext ?? EvaluationContext.Empty, sharedHookContext, logger);
 
             var evaluationDetails = result.ToFlagEvaluationDetails();
 
@@ -161,7 +161,7 @@ internal static class ProviderExtensions
         catch (Exception hookEx)
         {
             // Log hook execution errors but don't fail the evaluation
-            logger?.LogWarning(hookEx, "Provider after/finally hook execution failed for provider {ProviderName}", provider.GetMetadata()?.Name ?? "unknown");
+            logger.LogWarning(hookEx, "Provider after/finally hook execution failed for provider {ProviderName}", provider.GetMetadata()?.Name ?? "unknown");
         }
     }
 
