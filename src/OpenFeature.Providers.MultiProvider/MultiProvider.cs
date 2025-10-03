@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -73,6 +74,20 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
 
     /// <inheritdoc/>
     public override Metadata GetMetadata() => this._metadata;
+
+    /// <inheritdoc/>
+    public override IImmutableList<Hook> GetProviderHooks()
+    {
+        var hooks = new List<Hook>();
+        
+        foreach (var registeredProvider in this._registeredProviders)
+        {
+            var providerHooks = registeredProvider.Provider.GetProviderHooks();
+            hooks.AddRange(providerHooks);
+        }
+        
+        return hooks.ToImmutableList();
+    }
 
     /// <inheritdoc/>
     internal override ProviderStatus Status
