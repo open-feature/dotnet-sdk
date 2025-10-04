@@ -94,7 +94,7 @@ public static partial class FeatureBuilderExtensions
     public static OpenFeatureProviderBuilder AddInMemoryProvider(this OpenFeatureProviderBuilder builder, string domain, Action<IDictionary<string, Flag>>? configure = null)
         => builder.AddProvider<InMemoryProviderOptions>(domain, CreateProvider, options => ConfigureFlags(options, configure));
 
-    private static InMemoryProvider CreateProvider(IServiceProvider provider, string domain)
+    private static FeatureProvider CreateProvider(IServiceProvider provider, string domain)
     {
         var options = provider.GetRequiredService<IOptionsSnapshot<InMemoryProviderOptions>>().Get(domain);
         if (options.Flags == null)
@@ -105,7 +105,7 @@ public static partial class FeatureBuilderExtensions
         return new InMemoryProvider(options.Flags);
     }
 
-    private static InMemoryProvider CreateProvider(IServiceProvider provider)
+    private static FeatureProvider CreateProvider(IServiceProvider provider)
     {
         var options = provider.GetRequiredService<IOptions<InMemoryProviderOptions>>().Value;
         if (options.Flags == null)

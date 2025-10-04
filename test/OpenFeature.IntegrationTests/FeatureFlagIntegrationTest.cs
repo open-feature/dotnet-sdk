@@ -224,8 +224,8 @@ public class FeatureFlagIntegrationTest
             {
                 if (serviceLifetime == ServiceLifetime.Scoped)
                 {
-                    using var scoped = provider.CreateScope();
-                    var flagService = scoped.ServiceProvider.GetRequiredService<IFeatureFlagConfigurationService>();
+                    using var scope = provider.CreateScope();
+                    var flagService = scope.ServiceProvider.GetRequiredService<IFeatureFlagConfigurationService>();
                     return flagService.GetFlags();
                 }
                 else
@@ -248,7 +248,6 @@ public class FeatureFlagIntegrationTest
         {
             var client = context.RequestServices.GetRequiredService<IFeatureClient>();
             var featureName = UserInfoHelper.GetFeatureName(context);
-            var res = await client.GetBooleanValueAsync(featureName, false).ConfigureAwait(true);
             var result = await client.GetBooleanValueAsync(featureName, false).ConfigureAwait(true);
 
             var response = new FeatureFlagResponse<bool>(featureName, result);
