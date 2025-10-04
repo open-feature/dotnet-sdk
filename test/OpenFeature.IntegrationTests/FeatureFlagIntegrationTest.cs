@@ -248,6 +248,7 @@ public class FeatureFlagIntegrationTest
         {
             var client = context.RequestServices.GetRequiredService<IFeatureClient>();
             var featureName = UserInfoHelper.GetFeatureName(context);
+            var res = await client.GetBooleanValueAsync(featureName, false).ConfigureAwait(true);
             var result = await client.GetBooleanValueAsync(featureName, false).ConfigureAwait(true);
 
             var response = new FeatureFlagResponse<bool>(featureName, result);
