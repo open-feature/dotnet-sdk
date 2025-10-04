@@ -15,4 +15,8 @@
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\OpenFeature\OpenFeature.csproj" />
+  </ItemGroup>
+
 </Project>

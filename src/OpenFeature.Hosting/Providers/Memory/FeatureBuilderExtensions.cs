@@ -79,7 +79,7 @@ public static partial class FeatureBuilderExtensions
     /// </param>
     /// <returns>The <see cref="OpenFeatureProviderBuilder"/> instance for chaining.</returns>
     public static OpenFeatureProviderBuilder AddInMemoryProvider(this OpenFeatureProviderBuilder builder, Action<IDictionary<string, Flag>>? configure = null)
-        => builder.AddProvider<InMemoryProvider, InMemoryProviderOptions>(CreateProvider, options => ConfigureFlags(options, configure));
+        => builder.AddProvider<InMemoryProviderOptions>(CreateProvider, options => ConfigureFlags(options, configure));
 
     /// <summary>
     /// Adds an in-memory feature provider with a specific domain to the <see cref="OpenFeatureProviderBuilder"/> with optional flag configuration.
@@ -92,7 +92,7 @@ public static partial class FeatureBuilderExtensions
     /// </param>
     /// <returns>The <see cref="OpenFeatureProviderBuilder"/> instance for chaining.</returns>
     public static OpenFeatureProviderBuilder AddInMemoryProvider(this OpenFeatureProviderBuilder builder, string domain, Action<IDictionary<string, Flag>>? configure = null)
-        => builder.AddProvider<InMemoryProvider, InMemoryProviderOptions>(domain, CreateProvider, options => ConfigureFlags(options, configure));
+        => builder.AddProvider<InMemoryProviderOptions>(domain, CreateProvider, options => ConfigureFlags(options, configure));
 
     private static InMemoryProvider CreateProvider(IServiceProvider provider, string domain)
     {
