@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using OpenFeature.DependencyInjection.Abstractions;
 using OpenFeature.Hosting.Internal;
 using OpenFeature.Model;
 
@@ -58,7 +59,7 @@ public partial class OpenFeatureBuilderExtensionsTests
     }
 
 #if NET8_0_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.Experimental(Diagnostics.FeatureCodes.NewDi)]
+    [System.Diagnostics.CodeAnalysis.Experimental(DependencyInjection.Abstractions.Diagnostics.FeatureCodes.NewDi)]
 #endif
     [Theory]
     [InlineData(1, true, 0)]
@@ -72,8 +73,8 @@ public partial class OpenFeatureBuilderExtensionsTests
         {
             1 => _systemUnderTest.AddProvider(_ => new NoOpFeatureProvider()),
             2 => _systemUnderTest.AddProvider("test", (_, _) => new NoOpFeatureProvider()),
-            3 => _systemUnderTest.AddProvider<TestOptions>(_ => new NoOpFeatureProvider(), o => { }),
-            4 => _systemUnderTest.AddProvider<TestOptions>("test", (_, _) => new NoOpFeatureProvider(), o => { }),
+            3 => _systemUnderTest.AddProvider<NoOpFeatureProvider, TestOptions>(_ => new NoOpFeatureProvider(), o => { }),
+            4 => _systemUnderTest.AddProvider<NoOpFeatureProvider, TestOptions>("test", (_, _) => new NoOpFeatureProvider(), o => { }),
             _ => throw new InvalidOperationException("Invalid mode.")
         };
 
@@ -91,7 +92,7 @@ public partial class OpenFeatureBuilderExtensionsTests
     class TestOptions : OpenFeatureOptions { }
 
 #if NET8_0_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.Experimental(Diagnostics.FeatureCodes.NewDi)]
+    [System.Diagnostics.CodeAnalysis.Experimental(DependencyInjection.Abstractions.Diagnostics.FeatureCodes.NewDi)]
 #endif
     [Theory]
     [InlineData(1)]
@@ -105,8 +106,8 @@ public partial class OpenFeatureBuilderExtensionsTests
         {
             1 => _systemUnderTest.AddProvider(_ => new NoOpFeatureProvider()),
             2 => _systemUnderTest.AddProvider("test", (_, _) => new NoOpFeatureProvider()),
-            3 => _systemUnderTest.AddProvider<TestOptions>(_ => new NoOpFeatureProvider(), o => { }),
-            4 => _systemUnderTest.AddProvider<TestOptions>("test", (_, _) => new NoOpFeatureProvider(), o => { }),
+            3 => _systemUnderTest.AddProvider<NoOpFeatureProvider, TestOptions>(_ => new NoOpFeatureProvider(), o => { }),
+            4 => _systemUnderTest.AddProvider<NoOpFeatureProvider, TestOptions>("test", (_, _) => new NoOpFeatureProvider(), o => { }),
             _ => throw new InvalidOperationException("Invalid mode.")
         };
 
@@ -149,22 +150,22 @@ public partial class OpenFeatureBuilderExtensionsTests
                     .AddProvider("test1", (_, _) => new NoOpFeatureProvider())
                     .AddProvider("test2", (_, _) => new NoOpFeatureProvider()),
             4 => _systemUnderTest
-                    .AddProvider<TestOptions>(_ => new NoOpFeatureProvider(), o => { })
+                    .AddProvider<NoOpFeatureProvider, TestOptions>(_ => new NoOpFeatureProvider(), o => { })
                     .AddProvider("test", (_, _) => new NoOpFeatureProvider()),
             5 => _systemUnderTest
-                    .AddProvider<TestOptions>(_ => new NoOpFeatureProvider(), o => { })
+                    .AddProvider<NoOpFeatureProvider, TestOptions>(_ => new NoOpFeatureProvider(), o => { })
                     .AddProvider("test", (_, _) => new NoOpFeatureProvider()),
             6 => _systemUnderTest
-                    .AddProvider<TestOptions>("test1", (_, _) => new NoOpFeatureProvider(), o => { })
+                    .AddProvider<NoOpFeatureProvider, TestOptions>("test1", (_, _) => new NoOpFeatureProvider(), o => { })
                     .AddProvider("test2", (_, _) => new NoOpFeatureProvider()),
             7 => _systemUnderTest
                     .AddProvider(_ => new NoOpFeatureProvider())
                     .AddProvider("test", (_, _) => new NoOpFeatureProvider())
                     .AddProvider("test2", (_, _) => new NoOpFeatureProvider()),
             8 => _systemUnderTest
-                    .AddProvider<TestOptions>(_ => new NoOpFeatureProvider(), o => { })
-                    .AddProvider<TestOptions>("test", (_, _) => new NoOpFeatureProvider(), o => { })
-                    .AddProvider<TestOptions>("test2", (_, _) => new NoOpFeatureProvider(), o => { }),
+                    .AddProvider<NoOpFeatureProvider, TestOptions>(_ => new NoOpFeatureProvider(), o => { })
+                    .AddProvider<NoOpFeatureProvider, TestOptions>("test", (_, _) => new NoOpFeatureProvider(), o => { })
+                    .AddProvider<NoOpFeatureProvider, TestOptions>("test2", (_, _) => new NoOpFeatureProvider(), o => { }),
             _ => throw new InvalidOperationException("Invalid mode.")
         };
 
@@ -203,15 +204,15 @@ public partial class OpenFeatureBuilderExtensionsTests
                     .AddProvider("test2", (_, _) => new NoOpFeatureProvider())
                     .AddPolicyName(policy => policy.DefaultNameSelector = provider => policyName),
             4 => _systemUnderTest
-                    .AddProvider<TestOptions>(_ => new NoOpFeatureProvider(), o => { })
+                    .AddProvider<NoOpFeatureProvider, TestOptions>(_ => new NoOpFeatureProvider(), o => { })
                     .AddProvider("test", (_, _) => new NoOpFeatureProvider())
                     .AddPolicyName(policy => policy.DefaultNameSelector = provider => policyName),
             5 => _systemUnderTest
-                    .AddProvider<TestOptions>(_ => new NoOpFeatureProvider(), o => { })
+                    .AddProvider<NoOpFeatureProvider, TestOptions>(_ => new NoOpFeatureProvider(), o => { })
                     .AddProvider("test", (_, _) => new NoOpFeatureProvider())
                     .AddPolicyName(policy => policy.DefaultNameSelector = provider => policyName),
             6 => _systemUnderTest
-                    .AddProvider<TestOptions>("test1", (_, _) => new NoOpFeatureProvider(), o => { })
+                    .AddProvider<NoOpFeatureProvider, TestOptions>("test1", (_, _) => new NoOpFeatureProvider(), o => { })
                     .AddProvider("test2", (_, _) => new NoOpFeatureProvider())
                     .AddPolicyName(policy => policy.DefaultNameSelector = provider => policyName),
             7 => _systemUnderTest
@@ -220,9 +221,9 @@ public partial class OpenFeatureBuilderExtensionsTests
                     .AddProvider("test2", (_, _) => new NoOpFeatureProvider())
                     .AddPolicyName(policy => policy.DefaultNameSelector = provider => policyName),
             8 => _systemUnderTest
-                    .AddProvider<TestOptions>(_ => new NoOpFeatureProvider(), o => { })
-                    .AddProvider<TestOptions>("test", (_, _) => new NoOpFeatureProvider(), o => { })
-                    .AddProvider<TestOptions>("test2", (_, _) => new NoOpFeatureProvider(), o => { })
+                    .AddProvider<NoOpFeatureProvider, TestOptions>(_ => new NoOpFeatureProvider(), o => { })
+                    .AddProvider<NoOpFeatureProvider, TestOptions>("test", (_, _) => new NoOpFeatureProvider(), o => { })
+                    .AddProvider<NoOpFeatureProvider, TestOptions>("test2", (_, _) => new NoOpFeatureProvider(), o => { })
                     .AddPolicyName(policy => policy.DefaultNameSelector = provider => policyName),
             _ => throw new InvalidOperationException("Invalid mode.")
         };
