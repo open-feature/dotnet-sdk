@@ -181,6 +181,69 @@ await multiProvider.ShutdownAsync();
 await multiProvider.DisposeAsync();
 ```
 
+## Events
+
+The MultiProvider supports OpenFeature events and provides specification-compliant event handling. It follows the [OpenFeature Multi-Provider specification](https://openfeature.dev/specification/appendix-a#status-and-event-handling) for event handling behavior.
+
+### Event Handling Example
+
+```csharp
+using OpenFeature;
+using OpenFeature.Providers.MultiProvider;
+
+// Create the MultiProvider with multiple providers
+var providerEntries = new[]
+{
+    new ProviderEntry(new ProviderA(), "provider-a"),
+    new ProviderEntry(new ProviderB(), "provider-b")
+};
+var multiProvider = new MultiProvider(providerEntries);
+
+// Subscribe to MultiProvider events
+Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, (eventDetails) =>
+{
+    Console.WriteLine($"MultiProvider is ready: {eventDetails?.ProviderName}");
+});
+
+Api.Instance.AddHandler(ProviderEventTypes.ProviderStale, (eventDetails) =>
+{
+    Console.WriteLine($"MultiProvider became stale: {eventDetails?.Message}");
+});
+
+Api.Instance.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, (eventDetails) =>
+{
+    Console.WriteLine($"Configuration changed - Flags: {string.Join(", ", eventDetails?.FlagsChanged ?? [])}");
+});
+
+Api.Instance.AddHandler(ProviderEventTypes.ProviderError, (eventDetails) =>
+{
+    Console.WriteLine($"MultiProvider error: {eventDetails?.Message}");
+});
+
+// Set the provider - this will initialize all underlying providers
+// and emit PROVIDER_READY when all are successfully initialized
+await Api.Instance.SetProviderAsync(multiProvider);
+
+// Later, if an underlying provider becomes stale and changes MultiProvider status:
+// Only then will a PROVIDER_STALE event be emitted from MultiProvider
+```
+
+### Event Lifecycle
+
+1. **During Initialization**:
+
+    - MultiProvider emits `PROVIDER_READY` when all underlying providers initialize successfully
+    - MultiProvider emits `PROVIDER_ERROR` if any providers fail to initialize (causing aggregate status to become ERROR/FATAL)
+
+2. **Runtime Status Changes**:
+
+    - Status-changing events from underlying providers are captured internally
+    - MultiProvider only emits events when its aggregate status changes due to these internal events
+    - Example: If MultiProvider is READY and one provider becomes STALE, MultiProvider emits `PROVIDER_STALE`
+
+3. **Configuration Changes**:
+    - `PROVIDER_CONFIGURATION_CHANGED` events from underlying providers are always re-emitted
+
 ## Requirements
 
 - .NET 8+
