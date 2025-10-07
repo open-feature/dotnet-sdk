@@ -383,4 +383,23 @@ public class ProviderExtensionsTests
         // Verify finally hook was called
         await mockHook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), Arg.Any<CancellationToken>());
     }
+
+    [Theory]
+    [InlineData(typeof(bool), FlagValueType.Boolean)]
+    [InlineData(typeof(string), FlagValueType.String)]
+    [InlineData(typeof(int), FlagValueType.Number)]
+    [InlineData(typeof(double), FlagValueType.Number)]
+    [InlineData(typeof(Value), FlagValueType.Object)]
+    [InlineData(typeof(ProviderExtensionsTests), FlagValueType.Object)] // fallback path
+    public void GetFlagValueType_ReturnsExpectedFlagValueType(Type inputType, FlagValueType expected)
+    {
+        FlagValueType result = inputType == typeof(bool) ? ProviderExtensions.GetFlagValueType<bool>()
+            : inputType == typeof(string) ? ProviderExtensions.GetFlagValueType<string>()
+            : inputType == typeof(int) ? ProviderExtensions.GetFlagValueType<int>()
+            : inputType == typeof(double) ? ProviderExtensions.GetFlagValueType<double>()
+            : inputType == typeof(Value) ? ProviderExtensions.GetFlagValueType<Value>()
+            : ProviderExtensions.GetFlagValueType<ProviderExtensionsTests>();
+
+        Assert.Equal(expected, result);
+    }
 }

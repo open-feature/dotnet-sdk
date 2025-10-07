@@ -165,7 +165,7 @@ internal static class ProviderExtensions
         }
     }
 
-    private static FlagValueType GetFlagValueType<T>()
+    internal static FlagValueType GetFlagValueType<T>()
     {
         return typeof(T) switch
         {
