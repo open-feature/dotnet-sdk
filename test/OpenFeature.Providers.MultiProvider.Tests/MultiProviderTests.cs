@@ -864,7 +864,7 @@ public class MultiProviderClassTests
     }
 
     [Fact]
-    public void GetProviderHooks_WithSingleProviderWithHooks_ReturnsProviderHooks()
+    public void GetProviderHooks_WithSingleProviderWithHooks_ReturnsEmptyList()
     {
         // Arrange
         var hook1 = Substitute.For<Hook>();
@@ -880,13 +880,11 @@ public class MultiProviderClassTests
         var hooks = multiProvider.GetProviderHooks();
 
         // Assert
-        Assert.Equal(2, hooks.Count);
-        Assert.Contains(hook1, hooks);
-        Assert.Contains(hook2, hooks);
+        Assert.Empty(hooks);
     }
 
     [Fact]
-    public void GetProviderHooks_WithMultipleProvidersWithHooks_ReturnsAllHooks()
+    public void GetProviderHooks_WithMultipleProvidersWithHooks_ReturnsEmptyList()
     {
         // Arrange
         var hook1 = Substitute.For<Hook>();
@@ -907,10 +905,7 @@ public class MultiProviderClassTests
         var hooks = multiProvider.GetProviderHooks();
 
         // Assert
-        Assert.Equal(3, hooks.Count);
-        Assert.Contains(hook1, hooks);
-        Assert.Contains(hook2, hooks);
-        Assert.Contains(hook3, hooks);
+        Assert.Empty(hooks);
     }
 
     [Fact]
