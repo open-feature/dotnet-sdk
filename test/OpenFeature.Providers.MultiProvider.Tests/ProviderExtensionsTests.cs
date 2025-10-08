@@ -402,4 +402,63 @@ public class ProviderExtensionsTests
 
         Assert.Equal(expected, result);
     }
+
+    [Fact]
+    public async Task EvaluateAsync_WhenAfterHookThrowsException_LogsWarningButSucceeds()
+    {
+        // Arrange
+        var hookException = new InvalidOperationException("After hook failed");
+        var throwingHook = new ThrowingAfterHook(hookException);
+
+        // Setup provider metadata and hooks
+        var providerMetadata = new Metadata(TestProviderName);
+        this._mockProvider.GetMetadata().Returns(providerMetadata);
+        this._mockProvider.GetProviderHooks().Returns(ImmutableList.Create<Hook>(throwingHook));
+
+        const bool defaultValue = false;
+        const bool resolvedValue = true;
+        var successDetails = new ResolutionDetails<bool>(
+            TestFlagKey,
+            resolvedValue,
+            ErrorType.None,
+            Reason.Static,
+            TestVariant);
+
+        var providerContext = new StrategyPerProviderContext<bool>(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey);
+
+        this._mockProvider.ResolveBooleanValueAsync(TestFlagKey, defaultValue, Arg.Any<EvaluationContext>(), this._cancellationToken)
+            .Returns(successDetails);
+
+        // Act
+        var result = await this._mockProvider.EvaluateAsync(providerContext, this._evaluationContext, defaultValue, this._mockLogger, this._cancellationToken);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(resolvedValue, result.ResolutionDetails.Value);
+        Assert.Equal(ErrorType.None, result.ResolutionDetails.ErrorType);
+        Assert.Null(result.ThrownError); // Hook errors don't propagate
+
+        // Verify warning was logged
+        this._mockLogger.Received(1).Log(
+            LogLevel.Warning,
+            Arg.Any<EventId>(),
+            Arg.Is<object>(v => v.ToString()!.Contains("Provider after/finally hook execution failed")),
+            Arg.Is<Exception>(ex => ex == hookException),
+            Arg.Any<Func<object, Exception?, string>>());
+    }
+}
+
+internal class ThrowingAfterHook : Hook
+{
+    private InvalidOperationException hookException;
+
+    public ThrowingAfterHook(InvalidOperationException hookException)
+    {
+        this.hookException = hookException;
+    }
+
+    public override ValueTask AfterAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details, IReadOnlyDictionary<string, object>? hints = null, CancellationToken cancellationToken = default)
+    {
+        throw this.hookException;
+    }
 }
