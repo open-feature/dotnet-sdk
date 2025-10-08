@@ -270,7 +270,7 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
                 continue;
             }
 
-            var result = await registeredProvider.Provider.EvaluateAsync(providerContext, evaluationContext, defaultValue, cancellationToken).ConfigureAwait(false);
+            var result = await registeredProvider.Provider.EvaluateAsync(providerContext, evaluationContext, defaultValue, this._logger, cancellationToken).ConfigureAwait(false);
             resolutions.Add(result);
 
             if (!this._evaluationStrategy.ShouldEvaluateNextProvider(providerContext, evaluationContext, result))
@@ -297,7 +297,7 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
 
             if (this._evaluationStrategy.ShouldEvaluateThisProvider(providerContext, evaluationContext))
             {
-                tasks.Add(registeredProvider.Provider.EvaluateAsync(providerContext, evaluationContext, defaultValue, cancellationToken));
+                tasks.Add(registeredProvider.Provider.EvaluateAsync(providerContext, evaluationContext, defaultValue, this._logger, cancellationToken));
             }
         }
 
