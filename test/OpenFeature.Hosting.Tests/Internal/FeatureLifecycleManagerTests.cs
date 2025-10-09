@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Testing;
 using OpenFeature.Constant;
+using OpenFeature.DependencyInjection.Abstractions;
 using OpenFeature.Hosting.Internal;
 
 namespace OpenFeature.Hosting.Tests.Internal;
@@ -15,7 +16,7 @@ public class FeatureLifecycleManagerTests : IAsyncLifetime
         // Arrange
         var services = new ServiceCollection();
         var provider = new NoOpFeatureProvider();
-        services.AddOptions<OpenFeatureOptions>().Configure(options =>
+        services.AddOptions<OpenFeatureProviderOptions>().Configure(options =>
         {
             options.AddProviderName(null);
         });
@@ -40,7 +41,7 @@ public class FeatureLifecycleManagerTests : IAsyncLifetime
         var services = new ServiceCollection();
         var provider1 = new NoOpFeatureProvider();
         var provider2 = new NoOpFeatureProvider();
-        services.AddOptions<OpenFeatureOptions>().Configure(options =>
+        services.AddOptions<OpenFeatureProviderOptions>().Configure(options =>
         {
             options.AddProviderName("provider1");
             options.AddProviderName("provider2");
@@ -67,9 +68,12 @@ public class FeatureLifecycleManagerTests : IAsyncLifetime
         var services = new ServiceCollection();
         var provider = new NoOpFeatureProvider();
         var hook = new NoOpHook();
-        services.AddOptions<OpenFeatureOptions>().Configure(options =>
+        services.AddOptions<OpenFeatureProviderOptions>().Configure(options =>
         {
             options.AddProviderName(null);
+        });
+        services.AddOptions<OpenFeatureOptions>().Configure(options =>
+        {
             options.AddHookName("TestHook");
         });
         services.AddSingleton<FeatureProvider>(provider);
@@ -94,7 +98,7 @@ public class FeatureLifecycleManagerTests : IAsyncLifetime
         // Arrange
         var services = new ServiceCollection();
         var provider = new NoOpFeatureProvider();
-        services.AddOptions<OpenFeatureOptions>().Configure(options =>
+        services.AddOptions<OpenFeatureProviderOptions>().Configure(options =>
         {
             options.AddProviderName(null);
         });
@@ -169,7 +173,7 @@ public class FeatureLifecycleManagerTests : IAsyncLifetime
         // Arrange
         var services = new ServiceCollection();
         var provider = new NoOpFeatureProvider();
-        services.AddOptions<OpenFeatureOptions>().Configure(options =>
+        services.AddOptions<OpenFeatureProviderOptions>().Configure(options =>
         {
             options.AddProviderName(null);
         });
