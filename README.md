@@ -443,7 +443,7 @@ Built a new hook? [Let us know](https://github.com/open-feature/openfeature.dev/
 ### Multi-Provider
 
 > [!NOTE]
-> The Multi-Provider feature is currently experimental. Events are not fully supported at the moment.
+> The Multi-Provider feature is currently experimental.
 
 The Multi-Provider enables the use of multiple underlying feature flag providers simultaneously, allowing different providers to be used for different flag keys or based on specific evaluation strategies.
 
