@@ -20,7 +20,7 @@ public class ProviderStepDefinition
     {
         var provider = Substitute.For<FeatureProvider>();
         provider.GetMetadata().Returns(new Metadata("NSubstituteProvider"));
-        provider.Status.Returns(ProviderStatus.NotReady);
+        provider.Status.Returns(ProviderStatus.Ready, ProviderStatus.NotReady);
 
         await Api.Instance.SetProviderAsync(provider).ConfigureAwait(false);
         this.State.Client = Api.Instance.GetClient("TestClient", "1.0.0");
