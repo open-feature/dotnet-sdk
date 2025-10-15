@@ -243,13 +243,6 @@ public class Evaluationv2StepDefinitions : BaseStepDefinitions
         throw new PendingStepException();
     }
 
-    [Then(@"the provider status should be ""(.*)""")]
-    public void ThenTheProviderStatusShouldBe(string status)
-    {
-        var expectedStatus = ParseFromDescription<ProviderStatus>(status);
-        Assert.Equal(expectedStatus, this.State.Provider!.Status);
-    }
-
     [Given("evaluation options containing specific hooks")]
     public void GivenEvaluationOptionsContainingSpecificHooks()
     {
