@@ -23,7 +23,9 @@ public class BaseStepDefinitions
     }
 
     [Given(@"a Boolean-flag with key ""(.*)"" and a default value ""(.*)""")]
+    [Given(@"a Boolean-flag with key ""(.*)"" and a fallback value ""(.*)""")]
     [Given(@"a boolean-flag with key ""(.*)"" and a default value ""(.*)""")]
+    [Given(@"a boolean-flag with key ""(.*)"" and a fallback value ""(.*)""")]
     public void GivenABoolean_FlagWithKeyAndADefaultValue(string key, string defaultType)
     {
         var flagState = new FlagState(key, defaultType, FlagType.Boolean);
@@ -31,7 +33,9 @@ public class BaseStepDefinitions
     }
 
     [Given(@"a Float-flag with key ""(.*)"" and a default value ""(.*)""")]
+    [Given(@"a Float-flag with key ""(.*)"" and a fallback value ""(.*)""")]
     [Given(@"a float-flag with key ""(.*)"" and a default value ""(.*)""")]
+    [Given(@"a float-flag with key ""(.*)"" and a fallback value ""(.*)""")]
     public void GivenAFloat_FlagWithKeyAndADefaultValue(string key, string defaultType)
     {
         var flagState = new FlagState(key, defaultType, FlagType.Float);
@@ -39,7 +43,9 @@ public class BaseStepDefinitions
     }
 
     [Given(@"a Integer-flag with key ""(.*)"" and a default value ""(.*)""")]
+    [Given(@"a Integer-flag with key ""(.*)"" and a fallback value ""(.*)""")]
     [Given(@"a integer-flag with key ""(.*)"" and a default value ""(.*)""")]
+    [Given(@"a integer-flag with key ""(.*)"" and a fallback value ""(.*)""")]
     public void GivenAnInteger_FlagWithKeyAndADefaultValue(string key, string defaultType)
     {
         var flagState = new FlagState(key, defaultType, FlagType.Integer);
@@ -47,11 +53,20 @@ public class BaseStepDefinitions
     }
 
     [Given(@"a String-flag with key ""(.*)"" and a default value ""(.*)""")]
+    [Given(@"a String-flag with key ""(.*)"" and a fallback value ""(.*)""")]
     [Given(@"a string-flag with key ""(.*)"" and a default value ""(.*)""")]
+    [Given(@"a string-flag with key ""(.*)"" and a fallback value ""(.*)""")]
     public void GivenAString_FlagWithKeyAndADefaultValue(string key, string defaultType)
     {
         var flagState = new FlagState(key, defaultType, FlagType.String);
         this.State.Flag = flagState;
+    }
+
+    [Given(@"a Object-flag with key ""(.*)"" and a fallback value ""(.*)""")]
+    [Given(@"a object-flag with key ""(.*)"" and a fallback value ""(.*)""")]
+    public void GivenAObject_FlagWithKeyAndADefaultValue(string key, string defaultType)
+    {
+        Skip.If(true, "Object e2e test not supported");
     }
 
     [Given("a stable provider with retrievable context is registered")]
@@ -125,6 +140,9 @@ public class BaseStepDefinitions
                 this.State.FlagEvaluationDetailsResult = await this.State.Client!.GetStringDetailsAsync(flag.Key, flag.DefaultValue)
                     .ConfigureAwait(false);
                 break;
+            case FlagType.Object:
+                Skip.If(true, "Object e2e test not supported");
+                break;
         }
     }
     private void InitializeContext(string level, EvaluationContext context)
@@ -179,6 +197,106 @@ public class BaseStepDefinitions
     private static readonly IDictionary<string, Flag> E2EFlagConfig = new Dictionary<string, Flag>
     {
         {
+            "boolean-flag", new Flag<bool>(
+                variants: new Dictionary<string, bool> { { "on", true }, { "off", false } },
+                defaultVariant: "on"
+            )
+        },
+        {
+            "boolean-disabled-flag", new Flag<bool>(
+                variants: new Dictionary<string, bool> { { "on", true }, { "off", false } },
+                defaultVariant: "on"
+            )
+        },
+        {
+            "boolean-targeted-zero-flag", new Flag<bool>(
+                variants: new Dictionary<string, bool> { { "zero", false }, { "non-zero", true } },
+                defaultVariant: "zero",
+                contextEvaluator: (context) =>
+                {
+                    return context.GetValue("email").AsString == "ballmer@macrosoft.com" ? "zero" : "";
+                }
+            )
+        },
+        {
+            "boolean-zero-flag", new Flag<bool>(
+                variants: new Dictionary<string, bool> { { "zero", false }, { "non-zero", true } },
+                defaultVariant: "zero"
+            )
+        },
+        {
+            "complex-targeted", new Flag<string>(
+                variants: new Dictionary<string, string>() { { "internal", "INTERNAL" }, { "external", "EXTERNAL" } },
+                defaultVariant: "external",
+                (context) =>
+                {
+                    if (context.GetValue("email").AsString == "ballmer@macrosoft.com"
+                        && context.GetValue("age").AsInteger > 10
+                        && context.GetValue("customer").AsBoolean == false)
+                    {
+                        return "internal";
+                    }
+                    return "external";
+                }
+            )
+        },
+        {
+            "float-flag", new Flag<double>(
+                variants: new Dictionary<string, double>() { { "tenth", 0.1 }, { "half", 0.5 } },
+                defaultVariant: "half"
+            )
+        },
+        {
+            "float-disabled-flag", new Flag<double>(
+                variants: new Dictionary<string, double>() { { "tenth", 0.1 }, { "half", 0.5 } },
+                defaultVariant: "half"
+            )
+        },
+        {
+            "float-targeted-zero-flag", new Flag<double>(
+                variants: new Dictionary<string, double>() { { "zero", 0.0 }, { "non-zero", 1.0 } },
+                defaultVariant: "zero",
+                contextEvaluator: (context) =>
+                {
+                    return context.GetValue("email").AsString == "ballmer@macrosoft.com" ? "zero" : "";
+                }
+            )
+        },
+        {
+            "float-zero-flag", new Flag<double>(
+                variants: new Dictionary<string, double>() { { "zero", 0.0 }, { "non-zero", 1.0 } },
+                defaultVariant: "zero"
+            )
+        },
+        {
+            "integer-flag", new Flag<int>(
+                variants: new Dictionary<string, int>() { { "one", 1 }, { "ten", 10 } },
+                defaultVariant: "ten"
+            )
+        },
+        {
+            "integer-disabled-flag", new Flag<int>(
+                variants: new Dictionary<string, int>() { { "one", 1 }, { "ten", 10 } },
+                defaultVariant: "ten"
+            )
+        },
+        {
+            "integer-targeted-zero-flag", new Flag<int>(
+                variants: new Dictionary<string, int>() { { "zero", 0 }, { "non-zero", 1 } },
+                defaultVariant: "zero",
+                contextEvaluator: (context) =>
+                {
+                    return context.GetValue("email").AsString == "ballmer@macrosoft.com" ? "zero" : "";
+                }
+            )
+        },
+        {
+            "integer-zero-flag", new Flag<int>(
+                variants: new Dictionary<string, int>() { { "zero", 0 }, { "non-zero", 1 } },
+                defaultVariant: "zero"
+            )
+        },
+        {
             "metadata-flag", new Flag<bool>(
                 variants: new Dictionary<string, bool> { { "on", true }, { "off", false } },
                 defaultVariant: "on",
@@ -189,27 +307,9 @@ public class BaseStepDefinitions
             )
         },
         {
-            "boolean-flag", new Flag<bool>(
+            "null-default-flag", new Flag<bool>(
                 variants: new Dictionary<string, bool> { { "on", true }, { "off", false } },
-                defaultVariant: "on"
-            )
-        },
-        {
-            "string-flag", new Flag<string>(
-                variants: new Dictionary<string, string>() { { "greeting", "hi" }, { "parting", "bye" } },
-                defaultVariant: "greeting"
-            )
-        },
-        {
-            "integer-flag", new Flag<int>(
-                variants: new Dictionary<string, int>() { { "one", 1 }, { "ten", 10 } },
-                defaultVariant: "ten"
-            )
-        },
-        {
-            "float-flag", new Flag<double>(
-                variants: new Dictionary<string, double>() { { "tenth", 0.1 }, { "half", 0.5 } },
-                defaultVariant: "half"
+                defaultVariant: null!
             )
         },
         {
@@ -229,6 +329,98 @@ public class BaseStepDefinitions
             )
         },
         {
+            "object-disabled-flag", new Flag<Value>(
+                variants: new Dictionary<string, Value>()
+                {
+                    { "empty", new Value() },
+                    {
+                        "template", new Value(Structure.Builder()
+                            .Set("showImages", true)
+                            .Set("title", "Check out these pics!")
+                            .Set("imagesPerPage", 100).Build()
+                        )
+                    }
+                },
+                defaultVariant: "template"
+            )
+        },
+        {
+            "object-targeted-zero-flag", new Flag<Value>(
+                variants: new Dictionary<string, Value>()
+                {
+                    { "zero", new Value() },
+                    {
+                        "non-zero", new Value(Structure.Builder()
+                            .Set("showImages", true)
+                            .Set("title", "Check out these pics!")
+                            .Set("imagesPerPage", 100).Build()
+                        )
+                    }
+                },
+                defaultVariant: "zero",
+                contextEvaluator: (context) =>
+                {
+                    return context.GetValue("email").AsString == "ballmer@macrosoft.com" ? "zero" : "";
+                }
+            )
+        },
+        {
+            "object-zero-flag", new Flag<Value>(
+                variants: new Dictionary<string, Value>()
+                {
+                    { "zero", new Value() },
+                    {
+                        "non-zero", new Value(Structure.Builder()
+                            .Set("showImages", true)
+                            .Set("title", "Check out these pics!")
+                            .Set("imagesPerPage", 100).Build()
+                        )
+                    }
+                },
+                defaultVariant: "zero"
+            )
+        },
+        {
+            "string-flag", new Flag<string>(
+                variants: new Dictionary<string, string>() { { "greeting", "hi" }, { "parting", "bye" } },
+                defaultVariant: "greeting"
+            )
+        },
+        {
+            "string-disabled-flag", new Flag<string>(
+                variants: new Dictionary<string, string>() { { "greeting", "hi" }, { "parting", "bye" } },
+                defaultVariant: "greeting"
+            )
+        },
+        {
+            "string-targeted-zero-flag", new Flag<string>(
+                variants: new Dictionary<string, string>() { { "zero", "" }, { "non-zero", "str" } },
+                defaultVariant: "zero",
+                contextEvaluator: (context) =>
+                {
+                    return context.GetValue("email").AsString == "ballmer@macrosoft.com" ? "zero" : "";
+                }
+            )
+        },
+        {
+            "string-zero-flag", new Flag<string>(
+                variants: new Dictionary<string, string>() { { "zero", "" }, { "non-zero", "str" } },
+                defaultVariant: "zero"
+            )
+        },
+        {
+            "undefined-default-flag", new Flag<int>(
+                variants: new Dictionary<string, int>() { { "small", 10 }, { "big", 1000 } },
+                defaultVariant: null!
+            )
+        },
+        {
+            "wrong-flag", new Flag<string>(
+                variants: new Dictionary<string, string>() { { "one", "uno" }, { "two", "dos" } },
+                defaultVariant: "one"
+            )
+        },
+        {
             "context-aware", new Flag<string>(
                 variants: new Dictionary<string, string>() { { "internal", "INTERNAL" }, { "external", "EXTERNAL" } },
                 defaultVariant: "external",
@@ -243,12 +435,6 @@ public class BaseStepDefinitions
                     }
                     else return "external";
                 }
-            )
-        },
-        {
-            "wrong-flag", new Flag<string>(
-                variants: new Dictionary<string, string>() { { "one", "uno" }, { "two", "dos" } },
-                defaultVariant: "one"
             )
         }
     };

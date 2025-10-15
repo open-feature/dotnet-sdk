@@ -7,7 +7,7 @@ namespace OpenFeature.E2ETests.Steps;
 [Scope(Feature = "Metadata")]
 public class MetadataStepDefinitions : BaseStepDefinitions
 {
-    MetadataStepDefinitions(State state) : base(state)
+    public MetadataStepDefinitions(State state) : base(state)
     {
     }
 
