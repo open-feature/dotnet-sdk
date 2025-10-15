@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Reflection;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
@@ -843,5 +844,252 @@ public class MultiProviderClassTests
             multiProvider.ResolveStructureValueAsync(TestFlagKey, new Value()));
         Assert.Equal(nameof(MultiProvider), structureException.ObjectName);
     }
+
+    #region Hook Tests
+
+    [Fact]
+    public void GetProviderHooks_WithNoProviders_ReturnsEmptyList()
+    {
+        // Arrange - Create provider without hooks
+        var provider = Substitute.For<FeatureProvider>();
+        provider.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
+        var providerEntries = new List<ProviderEntry> { new(provider, Provider1Name) };
+
+        // Act
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
+        var hooks = multiProvider.GetProviderHooks();
+
+        // Assert
+        Assert.Empty(hooks);
+    }
+
+    [Fact]
+    public void GetProviderHooks_WithSingleProviderWithHooks_ReturnsEmptyList()
+    {
+        // Arrange
+        var hook1 = Substitute.For<Hook>();
+        var hook2 = Substitute.For<Hook>();
+        var providerHooks = ImmutableList.Create(hook1, hook2);
+
+        var provider = Substitute.For<FeatureProvider>();
+        provider.GetProviderHooks().Returns(providerHooks);
+        var providerEntries = new List<ProviderEntry> { new(provider, Provider1Name) };
+
+        // Act
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
+        var hooks = multiProvider.GetProviderHooks();
+
+        // Assert
+        Assert.Empty(hooks);
+    }
+
+    [Fact]
+    public void GetProviderHooks_WithMultipleProvidersWithHooks_ReturnsEmptyList()
+    {
+        // Arrange
+        var hook1 = Substitute.For<Hook>();
+        var hook2 = Substitute.For<Hook>();
+        var hook3 = Substitute.For<Hook>();
+
+        this._mockProvider1.GetProviderHooks().Returns(ImmutableList.Create(hook1, hook2));
+        this._mockProvider2.GetProviderHooks().Returns(ImmutableList.Create(hook3));
+
+        var providerEntries = new List<ProviderEntry>
+        {
+            new(this._mockProvider1, Provider1Name),
+            new(this._mockProvider2, Provider2Name)
+        };
+
+        // Act
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
+        var hooks = multiProvider.GetProviderHooks();
+
+        // Assert
+        Assert.Empty(hooks);
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_WithProviderHooks_ExecutesHooksForEachProvider()
+    {
+        // Arrange
+        var hook1 = Substitute.For<Hook>();
+        var hook2 = Substitute.For<Hook>();
+
+        // Setup hooks to return modified context
+        var modifiedContext = new EvaluationContextBuilder()
+            .Set("modified", "value")
+            .Build();
+
+        hook1.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), Arg.Any<CancellationToken>())
+            .Returns(modifiedContext);
+        hook2.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), Arg.Any<CancellationToken>())
+            .Returns(EvaluationContext.Empty);
+
+        this._mockProvider1.GetProviderHooks().Returns(ImmutableList.Create(hook1));
+        this._mockProvider2.GetProviderHooks().Returns(ImmutableList.Create(hook2));
+
+        // Setup providers to return successful results
+        const bool expectedValue = true;
+        var expectedDetails = new ResolutionDetails<bool>(TestFlagKey, expectedValue, ErrorType.None, Reason.Static, TestVariant);
+
+        this._mockProvider1.ResolveBooleanValueAsync(TestFlagKey, false, Arg.Any<EvaluationContext>(), Arg.Any<CancellationToken>())
+            .Returns(expectedDetails);
+        this._mockProvider2.ResolveBooleanValueAsync(TestFlagKey, false, Arg.Any<EvaluationContext>(), Arg.Any<CancellationToken>())
+            .Returns(expectedDetails);
+
+        var providerEntries = new List<ProviderEntry>
+        {
+            new(this._mockProvider1, Provider1Name),
+            new(this._mockProvider2, Provider2Name)
+        };
+
+        // Setup strategy to evaluate both providers
+        this._mockStrategy.ShouldEvaluateThisProvider(Arg.Any<StrategyPerProviderContext<bool>>(), Arg.Any<EvaluationContext>()).Returns(true);
+        this._mockStrategy.ShouldEvaluateNextProvider(Arg.Any<StrategyPerProviderContext<bool>>(), Arg.Any<EvaluationContext>(), Arg.Any<ProviderResolutionResult<bool>>()).Returns(true);
+        this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext<bool>>(), TestFlagKey, false, Arg.Any<EvaluationContext>(), Arg.Any<List<ProviderResolutionResult<bool>>>())
+            .Returns(new FinalResult<bool>(expectedDetails, this._mockProvider1, Provider1Name, null));
+
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
+
+        // Act
+        var result = await multiProvider.ResolveBooleanValueAsync(TestFlagKey, false, this._evaluationContext);
+
+        // Assert
+        Assert.Equal(expectedValue, result.Value);
+
+        // Verify hooks were called
+        await hook1.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), Arg.Any<CancellationToken>());
+        await hook2.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), Arg.Any<CancellationToken>());
+
+        // Verify after hooks were called
+        await hook1.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), Arg.Any<CancellationToken>());
+        await hook2.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), Arg.Any<CancellationToken>());
+
+        // Verify finally hooks were called
+        await hook1.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), Arg.Any<CancellationToken>());
+        await hook2.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_WithHookContextModification_IsolatesContextBetweenProviders()
+    {
+        // Arrange
+        var hook1 = Substitute.For<Hook>();
+        var hook2 = Substitute.For<Hook>();
+
+        // Setup hook1 to modify context
+        var modifiedContext1 = new EvaluationContextBuilder()
+            .Set("provider1", "modified")
+            .Build();
+
+        // Setup hook2 to modify context differently
+        var modifiedContext2 = new EvaluationContextBuilder()
+            .Set("provider2", "modified")
+            .Build();
+
+        hook1.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), Arg.Any<CancellationToken>())
+            .Returns(modifiedContext1);
+        hook2.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), Arg.Any<CancellationToken>())
+            .Returns(modifiedContext2);
+
+        this._mockProvider1.GetProviderHooks().Returns(ImmutableList.Create(hook1));
+        this._mockProvider2.GetProviderHooks().Returns(ImmutableList.Create(hook2));
+
+        // Setup providers to return results and capture context
+        EvaluationContext? capturedContext1 = null;
+        EvaluationContext? capturedContext2 = null;
+
+        const bool expectedValue = true;
+        var expectedDetails = new ResolutionDetails<bool>(TestFlagKey, expectedValue, ErrorType.None, Reason.Static, TestVariant);
+
+        this._mockProvider1.ResolveBooleanValueAsync(TestFlagKey, false, Arg.Do<EvaluationContext?>(ctx => capturedContext1 = ctx), Arg.Any<CancellationToken>())
+            .Returns(expectedDetails);
+        this._mockProvider2.ResolveBooleanValueAsync(TestFlagKey, false, Arg.Do<EvaluationContext?>(ctx => capturedContext2 = ctx), Arg.Any<CancellationToken>())
+            .Returns(expectedDetails);
+
+        var providerEntries = new List<ProviderEntry>
+        {
+            new(this._mockProvider1, Provider1Name),
+            new(this._mockProvider2, Provider2Name)
+        };
+
+        // Setup strategy to evaluate both providers
+        this._mockStrategy.ShouldEvaluateThisProvider(Arg.Any<StrategyPerProviderContext<bool>>(), Arg.Any<EvaluationContext>()).Returns(true);
+        this._mockStrategy.ShouldEvaluateNextProvider(Arg.Any<StrategyPerProviderContext<bool>>(), Arg.Any<EvaluationContext>(), Arg.Any<ProviderResolutionResult<bool>>()).Returns(true);
+        this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext<bool>>(), TestFlagKey, false, Arg.Any<EvaluationContext>(), Arg.Any<List<ProviderResolutionResult<bool>>>())
+            .Returns(new FinalResult<bool>(expectedDetails, this._mockProvider1, Provider1Name, null));
+
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
+
+        // Act
+        await multiProvider.ResolveBooleanValueAsync(TestFlagKey, false, this._evaluationContext);
+
+        // Assert - Verify context isolation
+        Assert.NotNull(capturedContext1);
+        Assert.NotNull(capturedContext2);
+
+        // Provider1 should have received the context modified by hook1
+        Assert.True(capturedContext1!.ContainsKey("provider1"));
+        Assert.Equal("modified", capturedContext1.GetValue("provider1").AsString);
+        Assert.False(capturedContext1.ContainsKey("provider2"));
+
+        // Provider2 should have received the context modified by hook2
+        Assert.True(capturedContext2!.ContainsKey("provider2"));
+        Assert.Equal("modified", capturedContext2.GetValue("provider2").AsString);
+        Assert.False(capturedContext2.ContainsKey("provider1"));
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_WithHookError_HandlesErrorAndContinuesEvaluation()
+    {
+        // Arrange
+        var throwingHook = Substitute.For<Hook>();
+        var normalHook = Substitute.For<Hook>();
+
+        // Setup throwing hook to throw exception in before hook
+        throwingHook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), Arg.Any<CancellationToken>())
+            .Throws(new InvalidOperationException("Hook error"));
+
+        // Setup normal hook
+        normalHook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), Arg.Any<CancellationToken>())
+            .Returns(EvaluationContext.Empty);
+
+        this._mockProvider1.GetProviderHooks().Returns(ImmutableList.Create(throwingHook));
+        this._mockProvider2.GetProviderHooks().Returns(ImmutableList.Create(normalHook));
+
+        // Setup provider2 to return successful result
+        const bool expectedValue = true;
+        var expectedDetails = new ResolutionDetails<bool>(TestFlagKey, expectedValue, ErrorType.None, Reason.Static, TestVariant);
+
+        this._mockProvider2.ResolveBooleanValueAsync(TestFlagKey, false, Arg.Any<EvaluationContext>(), Arg.Any<CancellationToken>())
+            .Returns(expectedDetails);
+
+        var providerEntries = new List<ProviderEntry>
+        {
+            new(this._mockProvider1, Provider1Name),
+            new(this._mockProvider2, Provider2Name)
+        };
+
+        // Setup strategy to continue evaluation after first provider error
+        this._mockStrategy.ShouldEvaluateThisProvider(Arg.Any<StrategyPerProviderContext<bool>>(), Arg.Any<EvaluationContext>()).Returns(true);
+        this._mockStrategy.ShouldEvaluateNextProvider(Arg.Any<StrategyPerProviderContext<bool>>(), Arg.Any<EvaluationContext>(), Arg.Any<ProviderResolutionResult<bool>>()).Returns(true);
+        this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext<bool>>(), TestFlagKey, false, Arg.Any<EvaluationContext>(), Arg.Any<List<ProviderResolutionResult<bool>>>())
+            .Returns(new FinalResult<bool>(expectedDetails, this._mockProvider2, Provider2Name, null));
+
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
+
+        // Act
+        var result = await multiProvider.ResolveBooleanValueAsync(TestFlagKey, false, this._evaluationContext);
+
+        // Assert
+        Assert.Equal(expectedValue, result.Value);
+
+        // Verify that the first provider returned an error due to hook failure
+        // and the second provider succeeded
+        await this._mockProvider1.DidNotReceive().ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>(), Arg.Any<CancellationToken>());
+        await this._mockProvider2.Received(1).ResolveBooleanValueAsync(TestFlagKey, false, Arg.Any<EvaluationContext>(), Arg.Any<CancellationToken>());
+    }
+
+    #endregion
 
 }
