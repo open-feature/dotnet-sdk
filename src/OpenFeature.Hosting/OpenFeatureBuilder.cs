@@ -1,4 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using OpenFeature.DependencyInjection.Abstractions;
+using OpenFeature.Model;
 
 namespace OpenFeature.Hosting;
 
@@ -6,11 +9,8 @@ namespace OpenFeature.Hosting;
 /// Describes a <see cref="OpenFeatureBuilder"/> backed by an <see cref="IServiceCollection"/>.
 /// </summary>
 /// <param name="services">The services being configured.</param>
-public class OpenFeatureBuilder(IServiceCollection services)
+public class OpenFeatureBuilder(IServiceCollection services) : OpenFeatureProviderBuilder(services)
 {
-    /// <summary> The services being configured. </summary>
-    public IServiceCollection Services { get; } = services;
-
     /// <summary>
     /// Indicates whether the evaluation context has been configured.
     /// This property is used to determine if specific configurations or services
@@ -19,42 +19,76 @@ public class OpenFeatureBuilder(IServiceCollection services)
     public bool IsContextConfigured { get; internal set; }
 
     /// <summary>
-    /// Indicates whether the policy has been configured.
+    /// Internal convenience API to add a client by name (or the default client when <paramref name="name"/> is null/empty).
+    /// Delegates to the overridable <see cref="TryAddClient(string?)"/>.
     /// </summary>
-    public bool IsPolicyConfigured { get; internal set; }
+    /// <param name="name">Optional key for a named client registration.</param>
+    /// <returns>The current <see cref="OpenFeatureProviderBuilder"/>.</returns>
+    internal OpenFeatureProviderBuilder AddClient(string? name = null)
+        => TryAddClient(name);
 
     /// <summary>
-    /// Gets a value indicating whether a default provider has been registered.
+    /// Adds an <see cref="IFeatureClient"/> to the container, optionally keyed by <paramref name="name"/>.
+    /// If an evaluation context is configured, the client is created with that context.
     /// </summary>
-    public bool HasDefaultProvider { get; internal set; }
+    /// <param name="name">Optional key for a named client registration.</param>
+    /// <returns>The current <see cref="OpenFeatureProviderBuilder"/>.</returns>
+    protected override OpenFeatureProviderBuilder TryAddClient(string? name = null)
+        => string.IsNullOrWhiteSpace(name) ? AddClient() : AddDomainBoundClient(name!);
 
     /// <summary>
-    /// Gets the count of domain-bound providers that have been registered.
-    /// This count does not include the default provider.
+    /// Adds a global (domain-agnostic) <see cref="IFeatureClient"/>.
+    /// The evaluation context (if configured) is resolved per scope at resolve-time.
     /// </summary>
-    public int DomainBoundProviderRegistrationCount { get; internal set; }
-
-    /// <summary>
-    /// Validates the current configuration, ensuring that a policy is set when multiple providers are registered
-    /// or when a default provider is registered alongside another provider.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown if multiple providers are registered without a policy, or if both a default provider 
-    /// and an additional provider are registered without a policy configuration.
-    /// </exception>
-    public void Validate()
+    /// <returns>The current <see cref="OpenFeatureProviderBuilder"/>.</returns>
+    private OpenFeatureProviderBuilder AddClient()
     {
-        if (!IsPolicyConfigured)
+        if (IsContextConfigured)
         {
-            if (DomainBoundProviderRegistrationCount > 1)
+            Services.TryAddScoped<IFeatureClient>(static provider =>
             {
-                throw new InvalidOperationException("Multiple providers have been registered, but no policy has been configured.");
-            }
-
-            if (HasDefaultProvider && DomainBoundProviderRegistrationCount == 1)
-            {
-                throw new InvalidOperationException("A default provider and an additional provider have been registered without a policy configuration.");
-            }
+                var api = provider.GetRequiredService<Api>();
+                var client = api.GetClient();
+                var context = provider.GetRequiredService<EvaluationContext>();
+                client.SetContext(context);
+                return client;
+            });
         }
+        else
+        {
+            Services.TryAddScoped<IFeatureClient>(static provider =>
+            {
+                var api = provider.GetRequiredService<Api>();
+                return api.GetClient();
+            });
+        }
+
+        return this;
+    }
+
+    /// <inheritdoc />
+    private OpenFeatureProviderBuilder AddDomainBoundClient(string name)
+    {
+        if (IsContextConfigured)
+        {
+            Services.TryAddKeyedScoped<IFeatureClient>(name, static (provider, key) =>
+            {
+                var api = provider.GetRequiredService<Api>();
+                var client = api.GetClient(key!.ToString());
+                var context = provider.GetRequiredService<EvaluationContext>();
+                client.SetContext(context);
+                return client;
+            });
+        }
+        else
+        {
+            Services.TryAddKeyedScoped<IFeatureClient>(name, static (provider, key) =>
+            {
+                var api = provider.GetRequiredService<Api>();
+                return api.GetClient(key!.ToString());
+            });
+        }
+
+        return this;
     }
 }
