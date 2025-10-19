@@ -126,18 +126,22 @@ public class BaseStepDefinitions
         {
             case FlagType.Boolean:
                 this.State.FlagEvaluationDetailsResult = await this.State.Client!
-                    .GetBooleanDetailsAsync(flag.Key, bool.Parse(flag.DefaultValue)).ConfigureAwait(false);
+                    .GetBooleanDetailsAsync(flag.Key, bool.Parse(flag.DefaultValue), this.State.EvaluationContext)
+                    .ConfigureAwait(false);
                 break;
             case FlagType.Float:
                 this.State.FlagEvaluationDetailsResult = await this.State.Client!
-                    .GetDoubleDetailsAsync(flag.Key, double.Parse(flag.DefaultValue)).ConfigureAwait(false);
+                    .GetDoubleDetailsAsync(flag.Key, double.Parse(flag.DefaultValue), this.State.EvaluationContext)
+                    .ConfigureAwait(false);
                 break;
             case FlagType.Integer:
                 this.State.FlagEvaluationDetailsResult = await this.State.Client!
-                    .GetIntegerDetailsAsync(flag.Key, int.Parse(flag.DefaultValue)).ConfigureAwait(false);
+                    .GetIntegerDetailsAsync(flag.Key, int.Parse(flag.DefaultValue), this.State.EvaluationContext)
+                    .ConfigureAwait(false);
                 break;
             case FlagType.String:
-                this.State.FlagEvaluationDetailsResult = await this.State.Client!.GetStringDetailsAsync(flag.Key, flag.DefaultValue)
+                this.State.FlagEvaluationDetailsResult = await this.State.Client!
+                    .GetStringDetailsAsync(flag.Key, flag.DefaultValue, this.State.EvaluationContext)
                     .ConfigureAwait(false);
                 break;
             case FlagType.Object:
@@ -214,7 +218,8 @@ public class BaseStepDefinitions
                 defaultVariant: "zero",
                 contextEvaluator: (context) =>
                 {
-                    return context.GetValue("email").AsString == "ballmer@macrosoft.com" ? "zero" : "";
+                    return context.TryGetValue("email", out var email)
+                        && email?.AsString == "ballmer@macrosoft.com" ? "zero" : "";
                 }
             )
         },
@@ -230,9 +235,12 @@ public class BaseStepDefinitions
                 defaultVariant: "external",
                 (context) =>
                 {
-                    if (context.GetValue("email").AsString == "ballmer@macrosoft.com"
-                        && context.GetValue("age").AsInteger > 10
-                        && context.GetValue("customer").AsBoolean == false)
+                    if (context.TryGetValue("email", out var email)
+                        && email?.AsString == "ballmer@macrosoft.com"
+                        && context.TryGetValue("age", out var age)
+                        && age?.AsInteger > 10
+                        && context.TryGetValue("customer", out var customer)
+                        && customer?.AsBoolean == false)
                     {
                         return "internal";
                     }
@@ -258,7 +266,8 @@ public class BaseStepDefinitions
                 defaultVariant: "zero",
                 contextEvaluator: (context) =>
                 {
-                    return context.GetValue("email").AsString == "ballmer@macrosoft.com" ? "zero" : "";
+                    return context.TryGetValue("email", out var email)
+                        && email?.AsString == "ballmer@macrosoft.com" ? "zero" : "";
                 }
             )
         },
@@ -286,7 +295,8 @@ public class BaseStepDefinitions
                 defaultVariant: "zero",
                 contextEvaluator: (context) =>
                 {
-                    return context.GetValue("email").AsString == "ballmer@macrosoft.com" ? "zero" : "";
+                    return context.TryGetValue("email", out var email)
+                        && email?.AsString == "ballmer@macrosoft.com" ? "zero" : "";
                 }
             )
         },
@@ -360,7 +370,8 @@ public class BaseStepDefinitions
                 defaultVariant: "zero",
                 contextEvaluator: (context) =>
                 {
-                    return context.GetValue("email").AsString == "ballmer@macrosoft.com" ? "zero" : "";
+                    return context.TryGetValue("email", out var email)
+                        && email?.AsString == "ballmer@macrosoft.com" ? "zero" : "";
                 }
             )
         },
@@ -398,7 +409,8 @@ public class BaseStepDefinitions
                 defaultVariant: "zero",
                 contextEvaluator: (context) =>
                 {
-                    return context.GetValue("email").AsString == "ballmer@macrosoft.com" ? "zero" : "";
+                    return context.TryGetValue("email", out var email)
+                        && email?.AsString == "ballmer@macrosoft.com" ? "zero" : "";
                 }
             )
         },

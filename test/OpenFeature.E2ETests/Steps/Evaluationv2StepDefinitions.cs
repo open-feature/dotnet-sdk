@@ -228,13 +228,48 @@ public class Evaluationv2StepDefinitions : BaseStepDefinitions
     [Then("the resolved metadata should contain")]
     public void ThenTheResolvedMetadataShouldContain(DataTable dataTable)
     {
-        throw new PendingStepException();
+        switch (this.State.Flag!.Type)
+        {
+            case FlagType.Integer:
+                var intResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<int>;
+                Assert.NotNull(intResult);
+                Assert.NotNull(intResult.FlagMetadata);
+                AssertMetadataContains(dataTable, intResult);
+                break;
+            case FlagType.Float:
+                var floatResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<double>;
+                Assert.NotNull(floatResult);
+                Assert.NotNull(floatResult.FlagMetadata);
+                AssertMetadataContains(dataTable, floatResult);
+                break;
+            case FlagType.String:
+                var stringResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<string>;
+                Assert.NotNull(stringResult);
+                Assert.NotNull(stringResult.FlagMetadata);
+                AssertMetadataContains(dataTable, stringResult);
+                break;
+            case FlagType.Boolean:
+                var booleanResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<bool>;
+                Assert.NotNull(booleanResult);
+                Assert.NotNull(booleanResult.FlagMetadata);
+                AssertMetadataContains(dataTable, booleanResult);
+                break;
+            case FlagType.Object:
+                Skip.If(true, "Object e2e test not supported");
+                break;
+            default:
+                Assert.Fail("FlagType not yet supported.");
+                break;
+        }
     }
 
     [Given(@"a context containing a key ""(.*)"" with null value")]
     public void GivenAContextContainingAKeyWithNullValue(string key)
     {
-        throw new PendingStepException();
+        this.State.EvaluationContext = EvaluationContext.Builder()
+            .Merge(this.State.EvaluationContext ?? EvaluationContext.Empty)
+            .Set(key, (string?)null!)
+            .Build();
     }
 
     [Then(@"the resolved details value should be ""(.*)""showImages\\\\""(.*)""title\\\\""(.*)""Check out these pics!\\\\""(.*)""imagesPerPage\\\\""(.*)""")]
@@ -308,5 +343,35 @@ public class Evaluationv2StepDefinitions : BaseStepDefinitions
             }
         }
         throw new ArgumentException($"No {typeof(TEnum).Name} with description '{description}' found.");
+    }
+
+    private static void AssertMetadataContains<T>(DataTable dataTable, FlagEvaluationDetails<T> details)
+    {
+        foreach (var row in dataTable.Rows)
+        {
+            var key = row[0];
+            var metadataType = row[1];
+            var expected = row[2];
+
+            object expectedValue = metadataType switch
+            {
+                "String" => expected,
+                "Integer" => int.Parse(expected),
+                "Float" => double.Parse(expected),
+                "Boolean" => bool.Parse(expected),
+                _ => throw new ArgumentException("Unsupported metadata type"),
+            };
+            object? actualValue = metadataType switch
+            {
+                "String" => details.FlagMetadata!.GetString(key),
+                "Integer" => details.FlagMetadata!.GetInt(key),
+                "Float" => details.FlagMetadata!.GetDouble(key),
+                "Boolean" => details.FlagMetadata!.GetBool(key),
+                _ => throw new ArgumentException("Unsupported metadata type")
+            };
+
+            Assert.NotNull(actualValue);
+            Assert.Equal(expectedValue, actualValue);
+        }
     }
 }
