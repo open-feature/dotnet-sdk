@@ -28,7 +28,6 @@ public partial class OpenFeatureBuilderExtensionsTests
 
         // Assert
         Assert.Equal(_systemUnderTest, featureBuilder);
-        Assert.True(_systemUnderTest.IsContextConfigured, "The context should be configured.");
         Assert.Single(_services, serviceDescriptor =>
             serviceDescriptor.ServiceType == typeof(EvaluationContext) &&
             serviceDescriptor.Lifetime == ServiceLifetime.Transient);
@@ -52,7 +51,6 @@ public partial class OpenFeatureBuilderExtensionsTests
         var context = serviceProvider.GetService<EvaluationContext>();
 
         // Assert
-        Assert.True(_systemUnderTest.IsContextConfigured, "The context should be configured.");
         Assert.NotNull(context);
         Assert.True(delegateCalled, "The delegate should be invoked.");
     }
@@ -78,7 +76,6 @@ public partial class OpenFeatureBuilderExtensionsTests
         };
 
         // Assert
-        Assert.False(_systemUnderTest.IsContextConfigured, "The context should not be configured.");
         Assert.Equal(expectsDefaultProvider, _systemUnderTest.HasDefaultProvider);
         Assert.False(_systemUnderTest.IsPolicyConfigured, "The policy should not be configured.");
         Assert.Equal(expectsDomainBoundProvider, _systemUnderTest.DomainBoundProviderRegistrationCount);
@@ -169,7 +166,6 @@ public partial class OpenFeatureBuilderExtensionsTests
         };
 
         // Assert
-        Assert.False(_systemUnderTest.IsContextConfigured, "The context should not be configured.");
         Assert.Equal(expectsDefaultProvider, _systemUnderTest.HasDefaultProvider);
         Assert.False(_systemUnderTest.IsPolicyConfigured, "The policy should not be configured.");
         Assert.Equal(expectsDomainBoundProvider, _systemUnderTest.DomainBoundProviderRegistrationCount);
@@ -503,6 +499,30 @@ public partial class OpenFeatureBuilderExtensionsTests
         _systemUnderTest
             .AddContext((a) => a.Set("region", "euw"))
             .AddProvider(_systemUnderTest => new NoOpFeatureProvider());
+
+        // Act
+        _systemUnderTest.AddClient("client-name");
+
+        // Assert
+        using var serviceProvider = _services.BuildServiceProvider();
+        var client = serviceProvider.GetKeyedService<IFeatureClient>("client-name");
+
+        Assert.NotNull(client);
+
+        var context = client.GetContext();
+        var region = context.GetValue("region");
+        Assert.Equal("euw", region.AsString);
+    }
+
+    [Fact]
+    public void AddClient_WithContextAfterAddProvider_AddsFeatureClient()
+    {
+        // Arrange
+        _services.AddSingleton(sp => Api.Instance);
+
+        _systemUnderTest
+            .AddProvider(_systemUnderTest => new NoOpFeatureProvider())
+            .AddContext((a) => a.Set("region", "euw"));
 
         // Act
         _systemUnderTest.AddClient("client-name");

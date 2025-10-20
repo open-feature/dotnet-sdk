@@ -40,7 +40,6 @@ public static partial class OpenFeatureBuilderExtensions
         Guard.ThrowIfNull(builder);
         Guard.ThrowIfNull(configure);
 
-        builder.IsContextConfigured = true;
         builder.Services.TryAddTransient(provider =>
         {
             var contextBuilder = EvaluationContext.Builder();
@@ -163,47 +162,35 @@ public static partial class OpenFeatureBuilderExtensions
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            if (builder.IsContextConfigured)
+            builder.Services.TryAddScoped<IFeatureClient>(static provider =>
             {
-                builder.Services.TryAddScoped<IFeatureClient>(static provider =>
+                var api = provider.GetRequiredService<Api>();
+                var client = api.GetClient();
+
+                var context = provider.GetService<EvaluationContext>();
+                if (context is not null)
                 {
-                    var api = provider.GetRequiredService<Api>();
-                    var client = api.GetClient();
-                    var context = provider.GetRequiredService<EvaluationContext>();
                     client.SetContext(context);
-                    return client;
-                });
-            }
-            else
-            {
-                builder.Services.TryAddScoped<IFeatureClient>(static provider =>
-                {
-                    var api = provider.GetRequiredService<Api>();
-                    return api.GetClient();
-                });
-            }
+                }
+
+                return client;
+            });
         }
         else
         {
-            if (builder.IsContextConfigured)
+            builder.Services.TryAddKeyedScoped<IFeatureClient>(name, static (provider, key) =>
             {
-                builder.Services.TryAddKeyedScoped<IFeatureClient>(name, static (provider, key) =>
+                var api = provider.GetRequiredService<Api>();
+                var client = api.GetClient(key!.ToString());
+
+                var context = provider.GetService<EvaluationContext>();
+                if (context is not null)
                 {
-                    var api = provider.GetRequiredService<Api>();
-                    var client = api.GetClient(key!.ToString());
-                    var context = provider.GetRequiredService<EvaluationContext>();
                     client.SetContext(context);
-                    return client;
-                });
-            }
-            else
-            {
-                builder.Services.TryAddKeyedScoped<IFeatureClient>(name, static (provider, key) =>
-                {
-                    var api = provider.GetRequiredService<Api>();
-                    return api.GetClient(key!.ToString());
-                });
-            }
+                }
+
+                return client;
+            });
         }
 
         return builder;
