@@ -10,8 +10,8 @@
 
 [![Specification](https://img.shields.io/static/v1?label=specification&message=v0.8.0&color=yellow&style=for-the-badge)](https://github.com/open-feature/spec/releases/tag/v0.8.0)
 [
-![Release](https://img.shields.io/static/v1?label=release&message=v2.8.1&color=blue&style=for-the-badge) <!-- x-release-please-version -->
-](https://github.com/open-feature/dotnet-sdk/releases/tag/v2.8.1) <!-- x-release-please-version -->
+![Release](https://img.shields.io/static/v1?label=release&message=v2.9.0&color=blue&style=for-the-badge) <!-- x-release-please-version -->
+](https://github.com/open-feature/dotnet-sdk/releases/tag/v2.9.0) <!-- x-release-please-version -->
 
 [![Slack](https://img.shields.io/badge/slack-%40cncf%2Fopenfeature-brightgreen?style=flat&logo=slack)](https://cloud-native.slack.com/archives/C0344AANLA1)
 [![Codecov](https://codecov.io/gh/open-feature/dotnet-sdk/branch/main/graph/badge.svg?token=MONAVJBXUJ)](https://codecov.io/gh/open-feature/dotnet-sdk)
@@ -443,9 +443,11 @@ Built a new hook? [Let us know](https://github.com/open-feature/openfeature.dev/
 ### Multi-Provider
 
 > [!NOTE]
-> The Multi-Provider feature is currently experimental. Hooks and events are not supported at the moment.
+> The Multi-Provider feature is currently experimental.
 
 The Multi-Provider enables the use of multiple underlying feature flag providers simultaneously, allowing different providers to be used for different flag keys or based on specific evaluation strategies.
+
+The Multi-Provider supports provider hooks and executes them in accordance with the OpenFeature specification. Each provider's hooks are executed with context isolation, ensuring that context modifications by one provider's hooks do not affect other providers.
 
 #### Basic Usage
 
@@ -524,23 +526,20 @@ The Multi-Provider supports two evaluation modes:
 
 #### Limitations
 
--   **Hooks are not supported**: Multi-Provider does not currently support hook registration or execution
--   **Events are not supported**: Provider events are not propagated from underlying providers
--   **Experimental status**: The API may change in future releases
+- **Experimental status**: The API may change in future releases
 
 For a complete example, see the [AspNetCore sample](./samples/AspNetCore/README.md) which demonstrates Multi-Provider usage.
 
 ### Dependency Injection
 
 > [!NOTE]
-> The OpenFeature.DependencyInjection and OpenFeature.Hosting packages are currently experimental. They streamline the integration of OpenFeature within .NET applications, allowing for seamless configuration and lifecycle management of feature flag providers using dependency injection and hosting services.
+> The OpenFeature.Hosting package is currently experimental. The Hosting package streamlines the integration of OpenFeature within .NET applications, allowing for seamless configuration and lifecycle management of feature flag providers using dependency injection and hosting services.
 
 #### Installation
 
-To set up dependency injection and hosting capabilities for OpenFeature, install the following packages:
+To set up dependency injection and hosting capabilities for OpenFeature, install the following package:
 
 ```sh
-dotnet add package OpenFeature.DependencyInjection
 dotnet add package OpenFeature.Hosting
 ```
 
@@ -553,7 +552,6 @@ For a basic configuration, you can use the InMemoryProvider. This provider is si
 ```csharp
 builder.Services.AddOpenFeature(featureBuilder => {
     featureBuilder
-        .AddHostedFeatureLifecycle() // From Hosting package
         .AddInMemoryProvider();
 });
 ```
@@ -575,7 +573,6 @@ builder.Services.AddOpenFeature(featureBuilder => {
 ```csharp
 builder.Services.AddOpenFeature(featureBuilder => {
     featureBuilder
-        .AddHostedFeatureLifecycle()
         .AddContext((contextBuilder, serviceProvider) => { /* Custom context configuration */ })
         .AddHook((serviceProvider) => new LoggingHook( /* Custom configuration */ ))
         .AddHook(new MetricsHook())
