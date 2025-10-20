@@ -521,13 +521,14 @@ public partial class OpenFeatureBuilderExtensionsTests
         _services.AddSingleton(sp => Api.Instance);
 
         _systemUnderTest
-            .AddProvider(_systemUnderTest => new NoOpFeatureProvider())
+            .AddProvider("client-name", (_systemUnderTest, name) => new NoOpFeatureProvider());
+
+        // Act
+        _systemUnderTest
+            .AddClient("client-name")
             .AddContext((a) => a.Set("region", "euw"));
 
         // Act
-        _systemUnderTest.AddClient("client-name");
-
-        // Assert
         using var serviceProvider = _services.BuildServiceProvider();
         var client = serviceProvider.GetKeyedService<IFeatureClient>("client-name");
 
