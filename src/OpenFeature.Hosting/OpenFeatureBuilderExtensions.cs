@@ -223,14 +223,40 @@ public static partial class OpenFeatureBuilderExtensions
         {
             var policy = provider.GetRequiredService<IOptions<PolicyNameOptions>>().Value;
             var name = policy.DefaultNameSelector(provider);
+
             if (name == null)
             {
-                return provider.GetRequiredService<IFeatureClient>();
+                return ResolveFeatureClient(provider);
             }
-            return provider.GetRequiredKeyedService<IFeatureClient>(name);
+
+            return ResolveFeatureClient(provider, name);
         });
 
         return builder;
+    }
+
+    private static IFeatureClient ResolveFeatureClient(IServiceProvider provider, string? name = null)
+    {
+        var api = provider.GetRequiredService<Api>();
+        var context = provider.GetService<EvaluationContext>();
+        FeatureClient client;
+        if (name == null)
+        {
+            client = api.GetClient();
+            if (context is not null)
+            {
+                client.SetContext(context);
+            }
+            return client;
+        }
+
+        client = api.GetClient(name);
+        if (context is not null)
+        {
+            client.SetContext(context);
+        }
+
+        return client;
     }
 
     /// <summary>
