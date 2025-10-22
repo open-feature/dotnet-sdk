@@ -12,6 +12,13 @@ public class OpenFeatureBuilder(IServiceCollection services)
     public IServiceCollection Services { get; } = services;
 
     /// <summary>
+    /// Indicates whether the evaluation context has been configured.
+    /// This property is used to determine if specific configurations or services
+    /// should be initialized based on the presence of an evaluation context.
+    /// </summary>
+    public bool IsContextConfigured { get; internal set; }
+
+    /// <summary>
     /// Indicates whether the policy has been configured.
     /// </summary>
     public bool IsPolicyConfigured { get; internal set; }

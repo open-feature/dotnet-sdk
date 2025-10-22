@@ -28,6 +28,7 @@ public partial class OpenFeatureBuilderExtensionsTests
 
         // Assert
         Assert.Equal(_systemUnderTest, featureBuilder);
+        Assert.True(_systemUnderTest.IsContextConfigured, "The context should be configured.");
         Assert.Single(_services, serviceDescriptor =>
             serviceDescriptor.ServiceType == typeof(EvaluationContext) &&
             serviceDescriptor.Lifetime == ServiceLifetime.Transient);
@@ -51,6 +52,7 @@ public partial class OpenFeatureBuilderExtensionsTests
         var context = serviceProvider.GetService<EvaluationContext>();
 
         // Assert
+        Assert.True(_systemUnderTest.IsContextConfigured, "The context should be configured.");
         Assert.NotNull(context);
         Assert.True(delegateCalled, "The delegate should be invoked.");
     }
@@ -76,6 +78,7 @@ public partial class OpenFeatureBuilderExtensionsTests
         };
 
         // Assert
+        Assert.False(_systemUnderTest.IsContextConfigured, "The context should not be configured.");
         Assert.Equal(expectsDefaultProvider, _systemUnderTest.HasDefaultProvider);
         Assert.False(_systemUnderTest.IsPolicyConfigured, "The policy should not be configured.");
         Assert.Equal(expectsDomainBoundProvider, _systemUnderTest.DomainBoundProviderRegistrationCount);
@@ -166,6 +169,7 @@ public partial class OpenFeatureBuilderExtensionsTests
         };
 
         // Assert
+        Assert.False(_systemUnderTest.IsContextConfigured, "The context should not be configured.");
         Assert.Equal(expectsDefaultProvider, _systemUnderTest.HasDefaultProvider);
         Assert.False(_systemUnderTest.IsPolicyConfigured, "The policy should not be configured.");
         Assert.Equal(expectsDomainBoundProvider, _systemUnderTest.DomainBoundProviderRegistrationCount);
