@@ -330,18 +330,16 @@ public static partial class OpenFeatureBuilderExtensions
         (this OpenFeatureBuilder builder, string hookName, Func<IServiceProvider, THook>? implementationFactory = null)
         where THook : Hook
     {
-        builder.Services.PostConfigure<OpenFeatureOptions>(options => options.AddHookName(hookName));
-
         if (implementationFactory is not null)
         {
-            builder.Services.TryAddKeyedSingleton<Hook>(hookName, (serviceProvider, key) =>
+            builder.Services.AddSingleton<Hook>((serviceProvider) =>
             {
                 return implementationFactory(serviceProvider);
             });
         }
         else
         {
-            builder.Services.TryAddKeyedSingleton<Hook, THook>(hookName);
+            builder.Services.AddSingleton<Hook, THook>();
         }
 
         return builder;

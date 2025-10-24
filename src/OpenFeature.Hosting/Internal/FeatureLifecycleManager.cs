@@ -35,13 +35,7 @@ internal sealed partial class FeatureLifecycleManager : IFeatureLifecycleManager
             await _featureApi.SetProviderAsync(name, featureProvider).ConfigureAwait(false);
         }
 
-        var hooks = new List<Hook>();
-        foreach (var hookName in options.HookNames)
-        {
-            var hook = _serviceProvider.GetRequiredKeyedService<Hook>(hookName);
-            hooks.Add(hook);
-        }
-
+        var hooks = _serviceProvider.GetServices<Hook>();
         _featureApi.AddHooks(hooks);
 
         var handlers = _serviceProvider.GetServices<EventHandlerDelegateWrapper>();

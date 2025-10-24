@@ -256,7 +256,7 @@ public partial class OpenFeatureBuilderExtensionsTests
     }
 
     [Fact]
-    public void AddHook_AddsHookAsKeyedService()
+    public void AddHook_AddsHookAsSingletonService()
     {
         // Arrange
         _systemUnderTest.AddHook<NoOpHook>();
@@ -264,37 +264,7 @@ public partial class OpenFeatureBuilderExtensionsTests
         var serviceProvider = _services.BuildServiceProvider();
 
         // Act
-        var hook = serviceProvider.GetKeyedService<Hook>("NoOpHook");
-
-        // Assert
-        Assert.NotNull(hook);
-    }
-
-    [Fact]
-    public void AddHook_AddsHookNameToOpenFeatureOptions()
-    {
-        // Arrange
-        _systemUnderTest.AddHook(sp => new NoOpHook());
-
-        var serviceProvider = _services.BuildServiceProvider();
-
-        // Act
-        var options = serviceProvider.GetRequiredService<IOptions<OpenFeatureOptions>>();
-
-        // Assert
-        Assert.Contains(options.Value.HookNames, t => t == "NoOpHook");
-    }
-
-    [Fact]
-    public void AddHook_WithSpecifiedNameToOpenFeatureOptions()
-    {
-        // Arrange
-        _systemUnderTest.AddHook<NoOpHook>("my-custom-name");
-
-        var serviceProvider = _services.BuildServiceProvider();
-
-        // Act
-        var hook = serviceProvider.GetKeyedService<Hook>("my-custom-name");
+        var hook = serviceProvider.GetRequiredService<Hook>();
 
         // Assert
         Assert.NotNull(hook);
@@ -309,14 +279,14 @@ public partial class OpenFeatureBuilderExtensionsTests
         var serviceProvider = _services.BuildServiceProvider();
 
         // Act
-        var hook = serviceProvider.GetKeyedService<Hook>("my-custom-name");
+        var hook = serviceProvider.GetRequiredService<Hook>();
 
         // Assert
         Assert.NotNull(hook);
     }
 
     [Fact]
-    public void AddHook_WithInstance_AddsHookAsKeyedService()
+    public void AddHook_WithInstance_AddsHookAsSingletonService()
     {
         // Arrange
         var expectedHook = new NoOpHook();
@@ -325,7 +295,7 @@ public partial class OpenFeatureBuilderExtensionsTests
         var serviceProvider = _services.BuildServiceProvider();
 
         // Act
-        var actualHook = serviceProvider.GetKeyedService<Hook>("NoOpHook");
+        var actualHook = serviceProvider.GetRequiredService<Hook>();
 
         // Assert
         Assert.NotNull(actualHook);
@@ -333,7 +303,7 @@ public partial class OpenFeatureBuilderExtensionsTests
     }
 
     [Fact]
-    public void AddHook_WithSpecifiedNameAndInstance_AddsHookAsKeyedService()
+    public void AddHook_WithSpecifiedNameAndInstance_AddsHookAsSingletonService()
     {
         // Arrange
         var expectedHook = new NoOpHook();
@@ -342,7 +312,7 @@ public partial class OpenFeatureBuilderExtensionsTests
         var serviceProvider = _services.BuildServiceProvider();
 
         // Act
-        var actualHook = serviceProvider.GetKeyedService<Hook>("custom-hook");
+        var actualHook = serviceProvider.GetRequiredService<Hook>();
 
         // Assert
         Assert.NotNull(actualHook);
