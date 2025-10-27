@@ -275,7 +275,7 @@ public class MultiProviderTrackingTests
     [InlineData(null)]
     [InlineData("")]
     [InlineData(" ")]
-    public async Task Track_WhenEmptyTrackingDetails_DoesNotThrow(string? trackingEventName)
+    public async Task Track_WhenInvalidTrackingEventName_DoesNotCallProviders(string? trackingEventName)
     {
         // Arrange
         var providerEntries = new List<ProviderEntry>

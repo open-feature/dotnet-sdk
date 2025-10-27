@@ -133,7 +133,7 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
                 registeredProvider.Provider,
                 registeredProvider.Name,
                 registeredProvider.Status,
-                string.Empty); // Empty flag key for tracking context
+                string.Empty); // Tracking operations are not flag-specific, so the flag key is intentionally set to an empty string
 
             if (this._evaluationStrategy.ShouldTrackWithThisProvider(providerContext, evaluationContext, trackingEventName, trackingEventDetails))
             {
