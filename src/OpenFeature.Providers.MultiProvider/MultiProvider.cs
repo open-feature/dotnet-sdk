@@ -676,9 +676,9 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
     [LoggerMessage(EventId = 1, Level = LogLevel.Debug, Message = "Provider {ProviderName} is already being listened to")]
     private partial void LogProviderAlreadyBeingListenedTo(string providerName);
 
-    [LoggerMessage(EventId = 2, Level = LogLevel.Debug, Message = "Error tracking event {TrackingEventName} with provider {ProviderName}")]
+    [LoggerMessage(EventId = 2, Level = LogLevel.Error, Message = "Error tracking event {TrackingEventName} with provider {ProviderName}")]
     private partial void LogErrorTrackingEvent(string providerName, string trackingEventName, Exception exception);
 
-    [LoggerMessage(EventId = 3, Level = LogLevel.Debug, Message = "Tracking event with empty name is not allowed")]
+    [LoggerMessage(EventId = 3, Level = LogLevel.Error, Message = "Tracking event with empty name is not allowed")]
     private partial void LogErrorTrackingEventEmptyName();
 }
