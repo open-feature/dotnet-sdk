@@ -66,7 +66,7 @@ public abstract class BaseEvaluationStrategy
     /// <param name="trackingEventName">The name of the tracking event.</param>
     /// <param name="trackingEventDetails">The tracking event details.</param>
     /// <returns>True if the provider should receive tracking events, false otherwise.</returns>
-    public virtual bool ShouldTrackWithThisProvider(StrategyPerProviderContext<object> strategyContext, EvaluationContext? evaluationContext, string trackingEventName, TrackingEventDetails? trackingEventDetails)
+    public virtual bool ShouldTrackWithThisProvider<T>(StrategyPerProviderContext<T> strategyContext, EvaluationContext? evaluationContext, string trackingEventName, TrackingEventDetails? trackingEventDetails)
     {
         // By default, track with providers that are ready
         return strategyContext.ProviderStatus == ProviderStatus.Ready;
