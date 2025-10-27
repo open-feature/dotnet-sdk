@@ -1,4 +1,4 @@
-namespace OpenFeature.Hosting.Diagnostics;
+namespace OpenFeature.DependencyInjection.Abstractions.Diagnostics;
 
 /// <summary>
 /// Contains identifiers for experimental features and diagnostics in the OpenFeature framework.
@@ -22,7 +22,7 @@ namespace OpenFeature.Hosting.Diagnostics;
 ///     - "001" - Unique identifier for a specific feature.
 /// </code>
 /// </example>
-internal static class FeatureCodes
+public static class FeatureCodes
 {
     /// <summary>
     /// Identifier for the experimental Dependency Injection features within the OpenFeature framework.

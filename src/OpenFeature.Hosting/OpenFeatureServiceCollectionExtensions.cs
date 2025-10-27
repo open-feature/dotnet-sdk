@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using OpenFeature.DependencyInjection.Abstractions;
 using OpenFeature.Hosting;
 using OpenFeature.Hosting.Internal;
 
@@ -49,7 +50,7 @@ public static partial class OpenFeatureServiceCollectionExtensions
             {
                 options.DefaultNameSelector = provider =>
                 {
-                    var options = provider.GetRequiredService<IOptions<OpenFeatureOptions>>().Value;
+                    var options = provider.GetRequiredService<IOptions<OpenFeatureProviderOptions>>().Value;
                     return options.ProviderNames.First();
                 };
             });
