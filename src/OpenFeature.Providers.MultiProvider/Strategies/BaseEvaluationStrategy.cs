@@ -59,6 +59,20 @@ public abstract class BaseEvaluationStrategy
     public abstract FinalResult<T> DetermineFinalResult<T>(StrategyEvaluationContext<T> strategyContext, string key, T defaultValue, EvaluationContext? evaluationContext, List<ProviderResolutionResult<T>> resolutions);
 
     /// <summary>
+    /// Determines whether a specific provider should receive tracking events.
+    /// </summary>
+    /// <param name="strategyContext">Context information about the provider.</param>
+    /// <param name="evaluationContext">The evaluation context for the tracking event.</param>
+    /// <param name="trackingEventName">The name of the tracking event.</param>
+    /// <param name="trackingEventDetails">The tracking event details.</param>
+    /// <returns>True if the provider should receive tracking events, false otherwise.</returns>
+    public virtual bool ShouldTrackWithThisProvider(StrategyPerProviderContext<object> strategyContext, EvaluationContext? evaluationContext, string trackingEventName, TrackingEventDetails? trackingEventDetails)
+    {
+        // By default, track with providers that are ready
+        return strategyContext.ProviderStatus == ProviderStatus.Ready;
+    }
+
+    /// <summary>
     /// Checks if a resolution result represents an error.
     /// </summary>
     /// <typeparam name="T">The type of the resolved value.</typeparam>

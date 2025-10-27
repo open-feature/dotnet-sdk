@@ -114,6 +114,37 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
         this.EvaluateAsync(flagKey, defaultValue, context, cancellationToken);
 
     /// <inheritdoc/>
+    public override void Track(string trackingEventName, EvaluationContext? evaluationContext = default, TrackingEventDetails? trackingEventDetails = default)
+    {
+        if (this._disposed == 1)
+        {
+            throw new ObjectDisposedException(nameof(MultiProvider));
+        }
+
+        foreach (var registeredProvider in this._registeredProviders)
+        {
+            var providerContext = new StrategyPerProviderContext<object>(
+                registeredProvider.Provider,
+                registeredProvider.Name,
+                registeredProvider.Status,
+                string.Empty); // Empty flag key for tracking context
+
+            if (this._evaluationStrategy.ShouldTrackWithThisProvider(providerContext, evaluationContext, trackingEventName, trackingEventDetails))
+            {
+                try
+                {
+                    registeredProvider.Provider.Track(trackingEventName, evaluationContext, trackingEventDetails);
+                }
+                catch (Exception ex)
+                {
+                    // Log tracking errors but don't throw - tracking should not disrupt application flow
+                    this.LogErrorTrackingEvent(registeredProvider.Name, trackingEventName, ex);
+                }
+            }
+        }
+    }
+
+    /// <inheritdoc/>
     public override async Task InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default)
     {
         if (this._disposed == 1)
@@ -638,4 +669,7 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
 
     [LoggerMessage(EventId = 1, Level = LogLevel.Debug, Message = "Provider {ProviderName} is already being listened to")]
     private partial void LogProviderAlreadyBeingListenedTo(string providerName);
+
+    [LoggerMessage(EventId = 2, Level = LogLevel.Debug, Message = "Error tracking event {TrackingEventName} with provider {ProviderName}")]
+    private partial void LogErrorTrackingEvent(string providerName, string trackingEventName, Exception exception);
 }
