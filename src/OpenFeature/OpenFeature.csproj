@@ -1,28 +1,31 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net8.0;net9.0;netstandard2.0;net462</TargetFrameworks>
-    <RootNamespace>OpenFeature</RootNamespace>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-  </PropertyGroup>
+    <PropertyGroup>
+        <RootNamespace>OpenFeature</RootNamespace>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0'" />
-    <PackageReference Include="Microsoft.Bcl.HashCode" Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0'" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0'" />
-    <PackageReference Include="System.Text.Json" Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0'" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces"
+            Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0'" />
+        <PackageReference Include="Microsoft.Bcl.HashCode"
+            Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0'" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+        <PackageReference Include="System.Diagnostics.DiagnosticSource"
+            Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0'" />
+        <PackageReference Include="System.Text.Json"
+            Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0'" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
-    <InternalsVisibleTo Include="OpenFeature.Benchmarks" />
-    <InternalsVisibleTo Include="OpenFeature.Tests" />
-    <InternalsVisibleTo Include="OpenFeature.E2ETests" />
-    <InternalsVisibleTo Include="OpenFeature.DependencyInjection" />
-    <InternalsVisibleTo Include="OpenFeature.Providers.MultiProvider" />
-    <InternalsVisibleTo Include="OpenFeature.Providers.MultiProvider.Tests" />
-    <None Include="../../README.md" Pack="true" PackagePath="/" />
-  </ItemGroup>
+    <ItemGroup>
+        <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+        <InternalsVisibleTo Include="OpenFeature.Benchmarks" />
+        <InternalsVisibleTo Include="OpenFeature.Tests" />
+        <InternalsVisibleTo Include="OpenFeature.E2ETests" />
+        <InternalsVisibleTo Include="OpenFeature.DependencyInjection" />
+        <InternalsVisibleTo Include="OpenFeature.Providers.MultiProvider" />
+        <InternalsVisibleTo Include="OpenFeature.Providers.MultiProvider.Tests" />
+        <None Include="../../README.md" Pack="true" PackagePath="/" />
+    </ItemGroup>
 
 </Project>
