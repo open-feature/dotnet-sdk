@@ -6,7 +6,19 @@ namespace OpenFeature.Providers.MultiProvider.Tests.Utils;
 /// <summary>
 /// Represents a tracking invocation for testing purposes.
 /// </summary>
-public record TrackingInvocation(string EventName, EvaluationContext? EvaluationContext, TrackingEventDetails? TrackingEventDetails);
+public class TrackingInvocation
+{
+    public string EventName { get; }
+    public EvaluationContext? EvaluationContext { get; }
+    public TrackingEventDetails? TrackingEventDetails { get; }
+
+    public TrackingInvocation(string eventName, EvaluationContext? evaluationContext, TrackingEventDetails? trackingEventDetails)
+    {
+        this.EventName = eventName;
+        this.EvaluationContext = evaluationContext;
+        this.TrackingEventDetails = trackingEventDetails;
+    }
+}
 
 /// <summary>
 /// A test implementation of FeatureProvider for MultiProvider testing.
