@@ -121,6 +121,12 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
             throw new ObjectDisposedException(nameof(MultiProvider));
         }
 
+        if (string.IsNullOrWhiteSpace(trackingEventName))
+        {
+            this.LogErrorTrackingEventEmptyName();
+            return;
+        }
+
         foreach (var registeredProvider in this._registeredProviders)
         {
             var providerContext = new StrategyPerProviderContext<object>(
@@ -672,4 +678,7 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
 
     [LoggerMessage(EventId = 2, Level = LogLevel.Debug, Message = "Error tracking event {TrackingEventName} with provider {ProviderName}")]
     private partial void LogErrorTrackingEvent(string providerName, string trackingEventName, Exception exception);
+
+    [LoggerMessage(EventId = 3, Level = LogLevel.Debug, Message = "Tracking event with empty name is not allowed")]
+    private partial void LogErrorTrackingEventEmptyName();
 }
