@@ -1,6 +1,12 @@
+using OpenFeature.Constant;
 using OpenFeature.Model;
 
 namespace OpenFeature.Providers.MultiProvider.Tests.Utils;
+
+/// <summary>
+/// Represents a tracking invocation for testing purposes.
+/// </summary>
+public record TrackingInvocation(string EventName, EvaluationContext? EvaluationContext, TrackingEventDetails? TrackingEventDetails);
 
 /// <summary>
 /// A test implementation of FeatureProvider for MultiProvider testing.
@@ -10,6 +16,7 @@ public class TestProvider : FeatureProvider
     private readonly string _name;
     private readonly Exception? _initException;
     private readonly Exception? _shutdownException;
+    private readonly List<TrackingInvocation> _trackingInvocations = new();
 
     public TestProvider(string name, Exception? initException = null, Exception? shutdownException = null)
     {
@@ -17,6 +24,10 @@ public class TestProvider : FeatureProvider
         this._initException = initException;
         this._shutdownException = shutdownException;
     }
+
+    public IReadOnlyList<TrackingInvocation> GetTrackingInvocations() => this._trackingInvocations.AsReadOnly();
+
+    public void ResetTrackingInvocations() => this._trackingInvocations.Clear();
 
     public override Metadata GetMetadata() => new(this._name);
 
@@ -59,4 +70,23 @@ public class TestProvider : FeatureProvider
     public override Task<ResolutionDetails<Value>> ResolveStructureValueAsync(string flagKey, Value defaultValue,
         EvaluationContext? context = null, CancellationToken cancellationToken = default) =>
         Task.FromResult(new ResolutionDetails<Value>(flagKey, defaultValue));
+
+    public override void Track(string trackingEventName, EvaluationContext? evaluationContext = default, TrackingEventDetails? trackingEventDetails = default)
+    {
+        this._trackingInvocations.Add(new TrackingInvocation(trackingEventName, evaluationContext, trackingEventDetails));
+    }
+
+    /// <summary>
+    /// Sends a provider event to simulate status changes.
+    /// </summary>
+    public async Task SendProviderEventAsync(ProviderEventTypes eventType, ErrorType? errorType = null, CancellationToken cancellationToken = default)
+    {
+        var payload = new ProviderEventPayload
+        {
+            Type = eventType,
+            ProviderName = this._name,
+            ErrorType = errorType
+        };
+        await this.EventChannel.Writer.WriteAsync(payload, cancellationToken);
+    }
 }
