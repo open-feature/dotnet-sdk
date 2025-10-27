@@ -51,7 +51,7 @@
     <Project Path="samples/AspNetCore/Samples.AspNetCore.csproj" />
   </Folder>
   <Folder Name="/src/">
-    <Project Path="src/OpenFeature.DependencyInjection.Abstractions/OpenFeature.DependencyInjection.Abstractions.csproj" Id="607a23fa-2c2f-4d2e-9079-adae18326512" />
+    <Project Path="src/OpenFeature.DependencyInjection.Abstractions/OpenFeature.DependencyInjection.Abstractions.csproj" />
     <Project Path="src/OpenFeature.DependencyInjection/OpenFeature.DependencyInjection.csproj" />
     <Project Path="src/OpenFeature.Hosting/OpenFeature.Hosting.csproj" />
     <Project Path="src/OpenFeature.Providers.MultiProvider/OpenFeature.Providers.MultiProvider.csproj" />
