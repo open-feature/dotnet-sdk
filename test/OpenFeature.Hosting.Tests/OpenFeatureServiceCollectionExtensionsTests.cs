@@ -92,4 +92,16 @@ public class OpenFeatureServiceCollectionExtensionsTests
         var otherClient = serviceProvider.GetService<IFeatureClient>();
         Assert.NotNull(otherClient);
     }
+
+    [Fact]
+    public void AddOpenFeature_WithNoProvider_CanResolveFeatureClient()
+    {
+        // Act
+        _systemUnderTest.AddOpenFeature(builder => {});
+
+        // Assert
+        using var serviceProvider = _systemUnderTest.BuildServiceProvider();
+        var client = serviceProvider.GetService<IFeatureClient>();
+        Assert.NotNull(client);
+    }
 }
