@@ -98,6 +98,18 @@ public class InMemoryProviderTests
                         return "missing";
                     }
                 )
+            },
+            {
+                "evaluator-throws-flag", new Flag<bool>(
+                    variants: new Dictionary<string, bool>(){
+                        { "on", true },
+                        { "off", false }
+                    },
+                    defaultVariant: "on",
+                    (context) => {
+                        throw new Exception("Cannot evaluate flag at the moment.");
+                    }
+                )
             }
         });
 
@@ -198,9 +210,25 @@ public class InMemoryProviderTests
     }
 
     [Fact]
-    public async Task MissingEvaluatedVariant_ShouldThrow()
+    public async Task MissingEvaluatedVariant_ReturnsDefaultVariant()
     {
-        await Assert.ThrowsAsync<GeneralException>(() => this.commonProvider.ResolveBooleanValueAsync("invalid-evaluator-flag", false, EvaluationContext.Empty));
+        // Act
+        var result = await this.commonProvider.ResolveBooleanValueAsync("invalid-evaluator-flag", false, EvaluationContext.Empty);
+
+        // Assert
+        Assert.True(result.Value);
+        Assert.Equal(Reason.Default, result.Reason);
+    }
+
+    [Fact]
+    public async Task ContextEvaluatorThrows_ReturnsDefaultVariant()
+    {
+        // Act
+        var result = await this.commonProvider.ResolveBooleanValueAsync("evaluator-throws-flag", false, EvaluationContext.Empty);
+
+        // Assert
+        Assert.True(result.Value);
+        Assert.Equal(Reason.Default, result.Reason);
     }
 
     [Fact]
