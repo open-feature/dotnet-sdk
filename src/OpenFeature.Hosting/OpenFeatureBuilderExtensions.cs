@@ -163,47 +163,35 @@ public static partial class OpenFeatureBuilderExtensions
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            if (builder.IsContextConfigured)
+            builder.Services.TryAddScoped<IFeatureClient>(static provider =>
             {
-                builder.Services.TryAddScoped<IFeatureClient>(static provider =>
+                var api = provider.GetRequiredService<Api>();
+                var client = api.GetClient();
+
+                var context = provider.GetService<EvaluationContext>();
+                if (context is not null)
                 {
-                    var api = provider.GetRequiredService<Api>();
-                    var client = api.GetClient();
-                    var context = provider.GetRequiredService<EvaluationContext>();
                     client.SetContext(context);
-                    return client;
-                });
-            }
-            else
-            {
-                builder.Services.TryAddScoped<IFeatureClient>(static provider =>
-                {
-                    var api = provider.GetRequiredService<Api>();
-                    return api.GetClient();
-                });
-            }
+                }
+
+                return client;
+            });
         }
         else
         {
-            if (builder.IsContextConfigured)
+            builder.Services.TryAddKeyedScoped<IFeatureClient>(name, static (provider, key) =>
             {
-                builder.Services.TryAddKeyedScoped<IFeatureClient>(name, static (provider, key) =>
+                var api = provider.GetRequiredService<Api>();
+                var client = api.GetClient(key!.ToString());
+
+                var context = provider.GetService<EvaluationContext>();
+                if (context is not null)
                 {
-                    var api = provider.GetRequiredService<Api>();
-                    var client = api.GetClient(key!.ToString());
-                    var context = provider.GetRequiredService<EvaluationContext>();
                     client.SetContext(context);
-                    return client;
-                });
-            }
-            else
-            {
-                builder.Services.TryAddKeyedScoped<IFeatureClient>(name, static (provider, key) =>
-                {
-                    var api = provider.GetRequiredService<Api>();
-                    return api.GetClient(key!.ToString());
-                });
-            }
+                }
+
+                return client;
+            });
         }
 
         return builder;
@@ -223,14 +211,23 @@ public static partial class OpenFeatureBuilderExtensions
         {
             var policy = provider.GetRequiredService<IOptions<PolicyNameOptions>>().Value;
             var name = policy.DefaultNameSelector(provider);
-            if (name == null)
-            {
-                return provider.GetRequiredService<IFeatureClient>();
-            }
-            return provider.GetRequiredKeyedService<IFeatureClient>(name);
+            return ResolveFeatureClient(provider, name);
         });
 
         return builder;
+    }
+
+    private static IFeatureClient ResolveFeatureClient(IServiceProvider provider, string? name = null)
+    {
+        var api = provider.GetRequiredService<Api>();
+        var client = api.GetClient(name);
+        var context = provider.GetService<EvaluationContext>();
+        if (context != null)
+        {
+            client.SetContext(context);
+        }
+
+        return client;
     }
 
     /// <summary>
