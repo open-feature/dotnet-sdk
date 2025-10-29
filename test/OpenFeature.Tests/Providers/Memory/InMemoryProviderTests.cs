@@ -236,6 +236,18 @@ public class InMemoryProviderTests
     }
 
     [Fact]
+    public async Task GetString_ContextSensitive_WithNoEvaluationContext_ShouldEvaluateWithReasonAndVariant()
+    {
+        // Act
+        ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("context-aware", "nope");
+
+        // Assert
+        Assert.Equal("EXTERNAL", details.Value);
+        Assert.Equal(Reason.Default, details.Reason);
+        Assert.Equal("external", details.Variant);
+    }
+
+    [Fact]
     public async Task EmptyFlags_ShouldWork()
     {
         var provider = new InMemoryProvider();
