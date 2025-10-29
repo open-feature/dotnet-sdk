@@ -55,16 +55,14 @@ public sealed class Flag<T> : Flag
         {
             return this.EvaluateDefaultVariant(flagKey, Reason.Default);
         }
-        else
-        {
-            return new ResolutionDetails<T>(
-                flagKey,
-                value,
-                variant: variant,
-                reason: Reason.TargetingMatch,
-                flagMetadata: this._flagMetadata
-            );
-        }
+
+        return new ResolutionDetails<T>(
+            flagKey,
+            value,
+            variant: variant,
+            reason: Reason.TargetingMatch,
+            flagMetadata: this._flagMetadata
+        );
     }
 
     private ResolutionDetails<T> EvaluateDefaultVariant(string flagKey, string reason = Reason.Static)
@@ -79,9 +77,7 @@ public sealed class Flag<T> : Flag
                 flagMetadata: this._flagMetadata
             );
         }
-        else
-        {
-            throw new GeneralException($"variant {this._defaultVariant} not found");
-        }
+
+        throw new GeneralException($"variant {this._defaultVariant} not found");
     }
 }

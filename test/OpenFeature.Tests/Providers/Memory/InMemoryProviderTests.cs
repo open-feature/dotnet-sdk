@@ -126,9 +126,33 @@ public class InMemoryProviderTests
     }
 
     [Fact]
+    public async Task GetBoolean_WithNoEvaluationContext_ShouldEvaluateWithReasonAndVariant()
+    {
+        // Act
+        ResolutionDetails<bool> details = await this.commonProvider.ResolveBooleanValueAsync("boolean-flag", false);
+
+        // Assert
+        Assert.True(details.Value);
+        Assert.Equal(Reason.Static, details.Reason);
+        Assert.Equal("on", details.Variant);
+    }
+
+    [Fact]
     public async Task GetString_ShouldEvaluateWithReasonAndVariant()
     {
         ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("string-flag", "nope", EvaluationContext.Empty);
+        Assert.Equal("hi", details.Value);
+        Assert.Equal(Reason.Static, details.Reason);
+        Assert.Equal("greeting", details.Variant);
+    }
+
+    [Fact]
+    public async Task GetString_WithNoEvaluationContext_ShouldEvaluateWithReasonAndVariant()
+    {
+        // Act
+        ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("string-flag", "nope");
+
+        // Assert
         Assert.Equal("hi", details.Value);
         Assert.Equal(Reason.Static, details.Reason);
         Assert.Equal("greeting", details.Variant);
@@ -144,6 +168,18 @@ public class InMemoryProviderTests
     }
 
     [Fact]
+    public async Task GetInt_WithNoEvaluationContext_ShouldEvaluateWithReasonAndVariant()
+    {
+        // Act
+        ResolutionDetails<int> details = await this.commonProvider.ResolveIntegerValueAsync("integer-flag", 13);
+
+        // Assert
+        Assert.Equal(10, details.Value);
+        Assert.Equal(Reason.Static, details.Reason);
+        Assert.Equal("ten", details.Variant);
+    }
+
+    [Fact]
     public async Task GetDouble_ShouldEvaluateWithReasonAndVariant()
     {
         ResolutionDetails<double> details = await this.commonProvider.ResolveDoubleValueAsync("float-flag", 13, EvaluationContext.Empty);
@@ -153,9 +189,35 @@ public class InMemoryProviderTests
     }
 
     [Fact]
+    public async Task GetDouble_WithNoEvaluationContext_ShouldEvaluateWithReasonAndVariant()
+    {
+        // Arrange
+        ResolutionDetails<double> details = await this.commonProvider.ResolveDoubleValueAsync("float-flag", 13);
+
+        // Assert
+        Assert.Equal(0.5, details.Value);
+        Assert.Equal(Reason.Static, details.Reason);
+        Assert.Equal("half", details.Variant);
+    }
+
+    [Fact]
     public async Task GetStruct_ShouldEvaluateWithReasonAndVariant()
     {
         ResolutionDetails<Value> details = await this.commonProvider.ResolveStructureValueAsync("object-flag", new Value(), EvaluationContext.Empty);
+        Assert.Equal(true, details.Value.AsStructure?["showImages"].AsBoolean);
+        Assert.Equal("Check out these pics!", details.Value.AsStructure?["title"].AsString);
+        Assert.Equal(100, details.Value.AsStructure?["imagesPerPage"].AsInteger);
+        Assert.Equal(Reason.Static, details.Reason);
+        Assert.Equal("template", details.Variant);
+    }
+
+    [Fact]
+    public async Task GetStruct_WithNoEvaluationContext_ShouldEvaluateWithReasonAndVariant()
+    {
+        // Act
+        ResolutionDetails<Value> details = await this.commonProvider.ResolveStructureValueAsync("object-flag", new Value());
+
+        // Assert
         Assert.Equal(true, details.Value.AsStructure?["showImages"].AsBoolean);
         Assert.Equal("Check out these pics!", details.Value.AsStructure?["title"].AsString);
         Assert.Equal(100, details.Value.AsStructure?["imagesPerPage"].AsInteger);
@@ -218,6 +280,7 @@ public class InMemoryProviderTests
         // Assert
         Assert.True(result.Value);
         Assert.Equal(Reason.Default, result.Reason);
+        Assert.Equal("on", result.Variant);
     }
 
     [Fact]
@@ -229,6 +292,7 @@ public class InMemoryProviderTests
         // Assert
         Assert.True(result.Value);
         Assert.Equal(Reason.Default, result.Reason);
+        Assert.Equal("on", result.Variant);
     }
 
     [Fact]
