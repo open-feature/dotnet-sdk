@@ -97,7 +97,7 @@ public class OpenFeatureServiceCollectionExtensionsTests
     public void AddOpenFeature_WithNoProvider_CanResolveFeatureClient()
     {
         // Act
-        _systemUnderTest.AddOpenFeature(builder => {});
+        _systemUnderTest.AddOpenFeature(builder => { });
 
         // Assert
         using var serviceProvider = _systemUnderTest.BuildServiceProvider();
