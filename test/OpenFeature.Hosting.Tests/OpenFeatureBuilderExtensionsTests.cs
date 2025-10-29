@@ -519,6 +519,31 @@ public partial class OpenFeatureBuilderExtensionsTests
     }
 
     [Fact]
+    public void AddClient_WithContextAfterAddProvider_AddsFeatureClient()
+    {
+        // Arrange
+        _services.AddSingleton(sp => Api.Instance);
+
+        _systemUnderTest
+            .AddProvider("client-name", (_systemUnderTest, name) => new NoOpFeatureProvider());
+
+        // Act
+        _systemUnderTest
+            .AddClient("client-name")
+            .AddContext((a) => a.Set("region", "euw"));
+
+        // Act
+        using var serviceProvider = _services.BuildServiceProvider();
+        var client = serviceProvider.GetKeyedService<IFeatureClient>("client-name");
+
+        Assert.NotNull(client);
+
+        var context = client.GetContext();
+        var region = context.GetValue("region");
+        Assert.Equal("euw", region.AsString);
+    }
+
+    [Fact]
     public void AddPolicyBasedClient_AddsScopedFeatureClient()
     {
         // Arrange
