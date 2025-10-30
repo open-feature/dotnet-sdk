@@ -38,7 +38,7 @@
   </Target>
 
   <ItemGroup>
-    <None Update="Features\test-flags.json">
+    <None Include="..\..\spec\specification\assets\gherkin\test-flags.json" Link="Features\test-flags.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
