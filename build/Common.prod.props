@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <VersionNumber>2.8.1</VersionNumber> <!--x-release-please-version -->
+    <VersionNumber>2.9.0</VersionNumber> <!--x-release-please-version -->
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/open-feature/dotnet-sdk</RepositoryUrl>
     <Description>OpenFeature is an open standard for feature flag management, created to support a robust feature flag ecosystem using cloud native technologies. OpenFeature will provide a unified API and SDK, and a developer-first, cloud-native implementation, with extensibility for open source and commercial offerings.</Description>
@@ -32,5 +32,17 @@
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)openfeature-icon.png" Pack="true" PackagePath="\"/>
   </ItemGroup>
+
+  <!-- SourceLink configuration for .NET SDK 8+ -->
+  <!-- https://learn.microsoft.com/dotnet/core/compatibility/sdk/8.0/source-link -->
+  <PropertyGroup Label="SourceLink">
+    <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <!-- Embed source files that are not tracked by the source control manager in the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <!-- Include symbols in a separate .snupkg file -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
 
 </Project>
