@@ -37,7 +37,9 @@
     <Copy SourceFiles="@(GherkinFiles)" DestinationFolder="Features/" />
   </Target>
 
-  <ItemGroup>
+  <!-- Only link test-flags.json if the submodule is cloned -->
+  <!-- If no submodule is cloned, Reqnroll wont generate the e2e tests -->
+  <ItemGroup Condition="Exists('..\..\spec\specification\assets\gherkin\test-flags.json')">
     <None Include="..\..\spec\specification\assets\gherkin\test-flags.json" Link="Features\test-flags.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
