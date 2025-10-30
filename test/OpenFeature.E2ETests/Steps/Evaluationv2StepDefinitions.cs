@@ -1,5 +1,3 @@
-using System.ComponentModel;
-using System.Reflection;
 using OpenFeature.Constant;
 using OpenFeature.E2ETests.Utils;
 using OpenFeature.Model;
@@ -125,7 +123,7 @@ public class Evaluationv2StepDefinitions : BaseStepDefinitions
     [Then(@"the error-code should be ""(.*)""")]
     public void ThenTheError_CodeShouldBe(string error)
     {
-        var errorType = ParseFromDescription<ErrorType>(error);
+        var errorType = EnumHelpers.ParseFromDescription<ErrorType>(error);
         switch (this.State.Flag!.Type)
         {
             case FlagType.Integer:
@@ -330,19 +328,6 @@ public class Evaluationv2StepDefinitions : BaseStepDefinitions
     public void ThenTheEvaluationShouldCompleteWithoutBlocking()
     {
         throw new PendingStepException();
-    }
-
-    public static TEnum ParseFromDescription<TEnum>(string description) where TEnum : struct, Enum
-    {
-        foreach (var field in typeof(TEnum).GetFields(BindingFlags.Public | BindingFlags.Static))
-        {
-            var attr = field.GetCustomAttribute<DescriptionAttribute>();
-            if (attr != null && attr.Description == description)
-            {
-                return (TEnum)field.GetValue(null)!;
-            }
-        }
-        throw new ArgumentException($"No {typeof(TEnum).Name} with description '{description}' found.");
     }
 
     private static void AssertMetadataContains<T>(DataTable dataTable, FlagEvaluationDetails<T> details)

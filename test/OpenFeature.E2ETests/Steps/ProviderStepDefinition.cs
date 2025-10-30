@@ -1,5 +1,3 @@
-using System.ComponentModel;
-using System.Reflection;
 using NSubstitute;
 using OpenFeature.Constant;
 using OpenFeature.E2ETests.Utils;
@@ -75,21 +73,8 @@ public class ProviderStepDefinition
     [Then(@"the provider status should be ""(.*)""")]
     public void ThenTheProviderStatusShouldBe(string status)
     {
-        var expectedStatus = ParseFromDescription<ProviderStatus>(status);
+        var expectedStatus = EnumHelpers.ParseFromDescription<ProviderStatus>(status);
         var provider = Api.Instance.GetProvider();
         Assert.Equal(expectedStatus, provider.Status);
-    }
-
-    public static TEnum ParseFromDescription<TEnum>(string description) where TEnum : struct, Enum
-    {
-        foreach (var field in typeof(TEnum).GetFields(BindingFlags.Public | BindingFlags.Static))
-        {
-            var attr = field.GetCustomAttribute<DescriptionAttribute>();
-            if (attr != null && attr.Description == description)
-            {
-                return (TEnum)field.GetValue(null)!;
-            }
-        }
-        throw new ArgumentException($"No {typeof(TEnum).Name} with description '{description}' found.");
     }
 }
