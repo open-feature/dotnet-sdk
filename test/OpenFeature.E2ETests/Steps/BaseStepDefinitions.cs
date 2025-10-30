@@ -77,7 +77,8 @@ public class BaseStepDefinitions
     [Given(@"a object-flag with key ""(.*)"" and a fallback value ""(.*)""")]
     public void GivenAObject_FlagWithKeyAndADefaultValue(string key, string defaultType)
     {
-        Skip.If(true, "Object e2e test not supported");
+        var flagState = new FlagState(key, defaultType, FlagType.Object);
+        this.State.Flag = flagState;
     }
 
     [Given("a stable provider with retrievable context is registered")]
@@ -156,7 +157,10 @@ public class BaseStepDefinitions
                     .ConfigureAwait(false);
                 break;
             case FlagType.Object:
-                Skip.If(true, "Object e2e test not supported");
+                var defaultStructure = JsonStructureLoader.ParseJsonValue(flag.DefaultValue);
+                this.State.FlagEvaluationDetailsResult = await this.State.Client!
+                    .GetObjectDetailsAsync(flag.Key, new Value(defaultStructure), this.State.EvaluationContext)
+                    .ConfigureAwait(false);
                 break;
         }
     }

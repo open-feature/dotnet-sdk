@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using OpenFeature.Model;
@@ -127,36 +128,36 @@ public sealed class FlagDictionaryJsonConverter : JsonConverter<Dictionary<strin
         return dict.Count == 0 ? null : new ImmutableMetadata(dict);
     }
 
-    private static Dictionary<string, object> ExtractObjectVariant(JsonElement obj)
+    private static Value ExtractObjectVariant(JsonElement obj)
     {
-        var result = new Dictionary<string, object>(StringComparer.Ordinal);
+        if (obj.ValueKind != JsonValueKind.Object)
+            throw new JsonException("Expected object for variant");
+
+        var dict = new Dictionary<string, Value>(StringComparer.Ordinal);
         foreach (var p in obj.EnumerateObject())
         {
-            switch (p.Value.ValueKind)
-            {
-                case JsonValueKind.String: result[p.Name] = p.Value.GetString()!; break;
-                case JsonValueKind.Number:
-                    if (p.Value.TryGetInt64(out var l) && l >= int.MinValue && l <= int.MaxValue)
-                        result[p.Name] = (int)l;
-                    else
-                        result[p.Name] = p.Value.GetDouble();
-                    break;
-                case JsonValueKind.True:
-                case JsonValueKind.False:
-                    result[p.Name] = p.Value.GetBoolean();
-                    break;
-                case JsonValueKind.Object:
-                case JsonValueKind.Array:
-                    // Nested complex structures not required by current test data; could be added if needed.
-                    result[p.Name] = p.Value.Clone();
-                    break;
-                case JsonValueKind.Null:
-                    result[p.Name] = null!;
-                    break;
-            }
+            dict[p.Name] = ConvertElement(p.Value);
         }
-        return result;
+
+        var structure = dict.Count == 0 ? Structure.Empty : new Structure(dict);
+        return new Value(structure);
     }
+
+    private static Value ConvertElement(JsonElement el) =>
+        el.ValueKind switch
+        {
+            JsonValueKind.Object => ExtractObjectVariant(el), // delegates to structure builder
+            JsonValueKind.Array => new Value(el.EnumerateArray().Select(ConvertElement).ToImmutableList()),
+            JsonValueKind.String => new Value(el.GetString()!),
+            JsonValueKind.Number => el.TryGetInt64(out var l) && l is >= int.MinValue and <= int.MaxValue
+                ? new Value((int)l)
+                : new Value(el.GetDouble()),
+            JsonValueKind.True => new Value(true),
+            JsonValueKind.False => new Value(false),
+            JsonValueKind.Null => new Value(),
+            JsonValueKind.Undefined => new Value(),
+            _ => throw new JsonException($"Unsupported JSON token: {el.ValueKind}")
+        };
 
     private enum VariantKind { Boolean, Integer, Double, String, Object }
 

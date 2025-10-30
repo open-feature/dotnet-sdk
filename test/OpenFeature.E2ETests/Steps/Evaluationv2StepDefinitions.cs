@@ -34,7 +34,8 @@ public class Evaluationv2StepDefinitions : BaseStepDefinitions
                 AssertOnDetails<bool>(r => Assert.Equal(booleanValue, r.Value));
                 break;
             case FlagType.Object:
-                Skip.If(true, "Object e2e test not supported");
+                var objectValue = JsonStructureLoader.ParseJsonValue(value);
+                AssertOnDetails<Value>(r => Assert.Equal(new Value(objectValue), r.Value));
                 break;
             default:
                 Assert.Fail("FlagType not yet supported.");
@@ -60,7 +61,7 @@ public class Evaluationv2StepDefinitions : BaseStepDefinitions
                 AssertOnDetails<bool>(r => Assert.Equal(reason, r.Reason));
                 break;
             case FlagType.Object:
-                Skip.If(true, "Object e2e test not supported");
+                AssertOnDetails<Value>(r => Assert.Equal(reason, r.Reason));
                 break;
             default:
                 Assert.Fail("FlagType not yet supported.");
@@ -71,37 +72,32 @@ public class Evaluationv2StepDefinitions : BaseStepDefinitions
     [Given(@"a context containing a key ""(.*)"", with type ""(.*)"" and with value ""(.*)""")]
     public void GivenAContextContainingAKeyWithTypeAndWithValue(string key, string type, string value)
     {
-        Type expectedType = typeof(string);
+        var context = EvaluationContext.Builder()
+            .Merge(this.State.EvaluationContext ?? EvaluationContext.Empty);
+
         switch (type)
         {
             case "Integer":
-                expectedType = typeof(int);
+                context = context.Set(key, int.Parse(value));
                 break;
             case "Float":
-                expectedType = typeof(double);
+                context = context.Set(key, double.Parse(value));
                 break;
             case "String":
+                context = context.Set(key, value);
                 break;
             case "Boolean":
-                expectedType = typeof(bool);
+                context = context.Set(key, bool.Parse(value));
                 break;
             case "Object":
-                Skip.If(true, "Object e2e test not supported");
+                context = context.Set(key, new Value(value));
                 break;
             default:
                 Assert.Fail("FlagType not yet supported.");
                 break;
         }
 
-        var structureBuilder = new StructureBuilder()
-            .Set(key, new Value(Convert.ChangeType(value, expectedType)));
-
-        foreach (var item in this.State.EvaluationContext ?? EvaluationContext.Empty)
-        {
-            structureBuilder.Set(item.Key, item.Value);
-        }
-
-        this.State.EvaluationContext = new EvaluationContext(structureBuilder.Build());
+        this.State.EvaluationContext = context.Build();
     }
 
     [Then(@"the error-code should be ""(.*)""")]
@@ -123,7 +119,7 @@ public class Evaluationv2StepDefinitions : BaseStepDefinitions
                 AssertOnDetails<bool>(r => Assert.Equal(errorType, r.ErrorType));
                 break;
             case FlagType.Object:
-                Skip.If(true, "Object e2e test not supported");
+                AssertOnDetails<Value>(r => Assert.Equal(errorType, r.ErrorType));
                 break;
             default:
                 Assert.Fail("FlagType not yet supported.");
@@ -149,7 +145,7 @@ public class Evaluationv2StepDefinitions : BaseStepDefinitions
                 AssertOnDetails<bool>(r => Assert.Equal(key, r.FlagKey));
                 break;
             case FlagType.Object:
-                Skip.If(true, "Object e2e test not supported");
+                AssertOnDetails<Value>(r => Assert.Equal(key, r.FlagKey));
                 break;
             default:
                 Assert.Fail("FlagType not yet supported.");
@@ -175,7 +171,7 @@ public class Evaluationv2StepDefinitions : BaseStepDefinitions
                 AssertOnDetails<bool>(r => Assert.Equal(variant, r.Variant));
                 break;
             case FlagType.Object:
-                Skip.If(true, "Object e2e test not supported");
+                AssertOnDetails<Value>(r => Assert.Equal(variant, r.Variant));
                 break;
             default:
                 Assert.Fail("FlagType not yet supported.");
@@ -201,7 +197,7 @@ public class Evaluationv2StepDefinitions : BaseStepDefinitions
                 AssertOnDetails<bool>(r => AssertMetadataContains(dataTable, r));
                 break;
             case FlagType.Object:
-                Skip.If(true, "Object e2e test not supported");
+                AssertOnDetails<Value>(r => AssertMetadataContains(dataTable, r));
                 break;
             default:
                 Assert.Fail("FlagType not yet supported.");
