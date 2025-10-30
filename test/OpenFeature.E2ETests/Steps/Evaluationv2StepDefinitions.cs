@@ -19,27 +19,19 @@ public class Evaluationv2StepDefinitions : BaseStepDefinitions
         {
             case FlagType.Integer:
                 var intValue = int.Parse(value);
-                var intResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<int>;
-                Assert.NotNull(intResult);
-                Assert.Equal(intValue, intResult.Value);
+                AssertOnDetails<int>(r => Assert.Equal(intValue, r.Value));
                 break;
             case FlagType.Float:
                 var floatValue = double.Parse(value);
-                var floatResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<double>;
-                Assert.NotNull(floatResult);
-                Assert.Equal(floatValue, floatResult.Value);
+                AssertOnDetails<double>(r => Assert.Equal(floatValue, r.Value));
                 break;
             case FlagType.String:
                 var stringValue = value;
-                var stringResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<string>;
-                Assert.NotNull(stringResult);
-                Assert.Equal(stringValue, stringResult.Value);
+                AssertOnDetails<string>(r => Assert.Equal(stringValue, r.Value));
                 break;
             case FlagType.Boolean:
                 var booleanValue = bool.Parse(value);
-                var booleanResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<bool>;
-                Assert.NotNull(booleanResult);
-                Assert.Equal(booleanValue, booleanResult.Value);
+                AssertOnDetails<bool>(r => Assert.Equal(booleanValue, r.Value));
                 break;
             case FlagType.Object:
                 Skip.If(true, "Object e2e test not supported");
@@ -56,24 +48,16 @@ public class Evaluationv2StepDefinitions : BaseStepDefinitions
         switch (this.State.Flag!.Type)
         {
             case FlagType.Integer:
-                var intResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<int>;
-                Assert.NotNull(intResult);
-                Assert.Equal(reason, intResult.Reason);
+                AssertOnDetails<int>(r => Assert.Equal(reason, r.Reason));
                 break;
             case FlagType.Float:
-                var floatResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<double>;
-                Assert.NotNull(floatResult);
-                Assert.Equal(reason, floatResult.Reason);
+                AssertOnDetails<double>(r => Assert.Equal(reason, r.Reason));
                 break;
             case FlagType.String:
-                var stringResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<string>;
-                Assert.NotNull(stringResult);
-                Assert.Equal(reason, stringResult.Reason);
+                AssertOnDetails<string>(r => Assert.Equal(reason, r.Reason));
                 break;
             case FlagType.Boolean:
-                var booleanResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<bool>;
-                Assert.NotNull(booleanResult);
-                Assert.Equal(reason, booleanResult.Reason);
+                AssertOnDetails<bool>(r => Assert.Equal(reason, r.Reason));
                 break;
             case FlagType.Object:
                 Skip.If(true, "Object e2e test not supported");
@@ -127,24 +111,16 @@ public class Evaluationv2StepDefinitions : BaseStepDefinitions
         switch (this.State.Flag!.Type)
         {
             case FlagType.Integer:
-                var intResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<int>;
-                Assert.NotNull(intResult);
-                Assert.Equal(errorType, intResult.ErrorType);
+                AssertOnDetails<int>(r => Assert.Equal(errorType, r.ErrorType));
                 break;
             case FlagType.Float:
-                var floatResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<double>;
-                Assert.NotNull(floatResult);
-                Assert.Equal(errorType, floatResult.ErrorType);
+                AssertOnDetails<double>(r => Assert.Equal(errorType, r.ErrorType));
                 break;
             case FlagType.String:
-                var stringResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<string>;
-                Assert.NotNull(stringResult);
-                Assert.Equal(errorType, stringResult.ErrorType);
+                AssertOnDetails<string>(r => Assert.Equal(errorType, r.ErrorType));
                 break;
             case FlagType.Boolean:
-                var booleanResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<bool>;
-                Assert.NotNull(booleanResult);
-                Assert.Equal(errorType, booleanResult.ErrorType);
+                AssertOnDetails<bool>(r => Assert.Equal(errorType, r.ErrorType));
                 break;
             case FlagType.Object:
                 Skip.If(true, "Object e2e test not supported");
@@ -161,24 +137,16 @@ public class Evaluationv2StepDefinitions : BaseStepDefinitions
         switch (this.State.Flag!.Type)
         {
             case FlagType.Integer:
-                var intResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<int>;
-                Assert.NotNull(intResult);
-                Assert.Equal(key, intResult.FlagKey);
+                AssertOnDetails<int>(r => Assert.Equal(key, r.FlagKey));
                 break;
             case FlagType.Float:
-                var floatResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<double>;
-                Assert.NotNull(floatResult);
-                Assert.Equal(key, floatResult.FlagKey);
+                AssertOnDetails<double>(r => Assert.Equal(key, r.FlagKey));
                 break;
             case FlagType.String:
-                var stringResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<string>;
-                Assert.NotNull(stringResult);
-                Assert.Equal(key, stringResult.FlagKey);
+                AssertOnDetails<string>(r => Assert.Equal(key, r.FlagKey));
                 break;
             case FlagType.Boolean:
-                var booleanResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<bool>;
-                Assert.NotNull(booleanResult);
-                Assert.Equal(key, booleanResult.FlagKey);
+                AssertOnDetails<bool>(r => Assert.Equal(key, r.FlagKey));
                 break;
             case FlagType.Object:
                 Skip.If(true, "Object e2e test not supported");
@@ -195,24 +163,16 @@ public class Evaluationv2StepDefinitions : BaseStepDefinitions
         switch (this.State.Flag!.Type)
         {
             case FlagType.Integer:
-                var intResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<int>;
-                Assert.NotNull(intResult);
-                Assert.Equal(variant, intResult.Variant);
+                AssertOnDetails<int>(r => Assert.Equal(variant, r.Variant));
                 break;
             case FlagType.Float:
-                var floatResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<double>;
-                Assert.NotNull(floatResult);
-                Assert.Equal(variant, floatResult.Variant);
+                AssertOnDetails<double>(r => Assert.Equal(variant, r.Variant));
                 break;
             case FlagType.String:
-                var stringResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<string>;
-                Assert.NotNull(stringResult);
-                Assert.Equal(variant, stringResult.Variant);
+                AssertOnDetails<string>(r => Assert.Equal(variant, r.Variant));
                 break;
             case FlagType.Boolean:
-                var booleanResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<bool>;
-                Assert.NotNull(booleanResult);
-                Assert.Equal(variant, booleanResult.Variant);
+                AssertOnDetails<bool>(r => Assert.Equal(variant, r.Variant));
                 break;
             case FlagType.Object:
                 Skip.If(true, "Object e2e test not supported");
@@ -229,28 +189,16 @@ public class Evaluationv2StepDefinitions : BaseStepDefinitions
         switch (this.State.Flag!.Type)
         {
             case FlagType.Integer:
-                var intResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<int>;
-                Assert.NotNull(intResult);
-                Assert.NotNull(intResult.FlagMetadata);
-                AssertMetadataContains(dataTable, intResult);
+                AssertOnDetails<int>(r => AssertMetadataContains(dataTable, r));
                 break;
             case FlagType.Float:
-                var floatResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<double>;
-                Assert.NotNull(floatResult);
-                Assert.NotNull(floatResult.FlagMetadata);
-                AssertMetadataContains(dataTable, floatResult);
+                AssertOnDetails<double>(r => AssertMetadataContains(dataTable, r));
                 break;
             case FlagType.String:
-                var stringResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<string>;
-                Assert.NotNull(stringResult);
-                Assert.NotNull(stringResult.FlagMetadata);
-                AssertMetadataContains(dataTable, stringResult);
+                AssertOnDetails<string>(r => AssertMetadataContains(dataTable, r));
                 break;
             case FlagType.Boolean:
-                var booleanResult = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<bool>;
-                Assert.NotNull(booleanResult);
-                Assert.NotNull(booleanResult.FlagMetadata);
-                AssertMetadataContains(dataTable, booleanResult);
+                AssertOnDetails<bool>(r => AssertMetadataContains(dataTable, r));
                 break;
             case FlagType.Object:
                 Skip.If(true, "Object e2e test not supported");
@@ -328,6 +276,14 @@ public class Evaluationv2StepDefinitions : BaseStepDefinitions
     public void ThenTheEvaluationShouldCompleteWithoutBlocking()
     {
         throw new PendingStepException();
+    }
+
+    private void AssertOnDetails<T>(Action<FlagEvaluationDetails<T>> assertion)
+    {
+        var details = this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<T>;
+
+        Assert.NotNull(details);
+        assertion(details);
     }
 
     private static void AssertMetadataContains<T>(DataTable dataTable, FlagEvaluationDetails<T> details)
