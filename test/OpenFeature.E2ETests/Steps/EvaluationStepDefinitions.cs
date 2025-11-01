@@ -255,18 +255,4 @@ public class EvaluationStepDefinitions : BaseStepDefinitions
         Assert.Equal(Reason.Error, result?.Reason);
         Assert.Equal(errorCode, result?.ErrorType.GetDescription());
     }
-
-    [When(@"a non-existent string flag with key ""(.*)"" is evaluated with details and a fallback value ""(.*)""")]
-    public async Task WhenANon_ExistentStringFlagWithKeyIsEvaluatedWithDetailsAndAFallbackValue(string flagKey, string defaultValue)
-    {
-        this.State.Flag = new FlagState(flagKey, defaultValue.ToString(), FlagType.String);
-        this.State.FlagEvaluationDetailsResult = await this.State.Client!.GetStringDetailsAsync(flagKey, defaultValue).ConfigureAwait(false);
-    }
-
-    [When(@"a string flag with key ""(.*)"" is evaluated as an integer, with details and a fallback value (.*)")]
-    public async Task WhenAStringFlagWithKeyIsEvaluatedAsAnIntegerWithDetailsAndAFallbackValue(string flagKey, int defaultValue)
-    {
-        this.State.Flag = new FlagState(flagKey, defaultValue.ToString(), FlagType.Integer);
-        this.State.FlagEvaluationDetailsResult = await this.State.Client!.GetIntegerDetailsAsync(flagKey, defaultValue).ConfigureAwait(false);
-    }
 }
