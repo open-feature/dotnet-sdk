@@ -8,11 +8,11 @@ using OpenFeature.Providers.Memory;
 namespace OpenFeature.E2ETests.Steps;
 
 [Binding]
-public class ProviderStepDefinition
+public class ProviderStepDefinitions
 {
     private State State { get; }
 
-    public ProviderStepDefinition(State state)
+    public ProviderStepDefinitions(State state)
     {
         this.State = state;
     }
