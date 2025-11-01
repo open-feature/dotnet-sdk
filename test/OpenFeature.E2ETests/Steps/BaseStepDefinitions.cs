@@ -33,53 +33,25 @@ public class BaseStepDefinitions
         this.State.Client = Api.Instance.GetClient("TestClient", "1.0.0");
     }
 
-    [Given(@"a Boolean-flag with key ""(.*)"" and a default value ""(.*)""")]
-    [Given(@"a Boolean-flag with key ""(.*)"" and a fallback value ""(.*)""")]
-    [Given(@"a boolean-flag with key ""(.*)"" and a default value ""(.*)""")]
-    [Given(@"a boolean-flag with key ""(.*)"" and a fallback value ""(.*)""")]
-    public void GivenABoolean_FlagWithKeyAndADefaultValue(string key, string defaultType)
+    [Given(@"a (Boolean|boolean|Float|Integer|String|string|Object)(?:-flag)? with key ""(.*)"" and a default value ""(.*)""")]
+    [Given(@"a (Boolean|boolean|Float|Integer|String|string|Object)(?:-flag)? with key ""(.*)"" and a fallback value ""(.*)""")]
+    public void GivenAFlagType_FlagWithKeyAndADefaultValue(FlagType flagType, string key, string defaultType)
     {
-        var flagState = new FlagState(key, defaultType, FlagType.Boolean);
+        var flagState = new FlagState(key, defaultType, flagType);
         this.State.Flag = flagState;
     }
 
-    [Given(@"a Float-flag with key ""(.*)"" and a default value ""(.*)""")]
-    [Given(@"a Float-flag with key ""(.*)"" and a fallback value ""(.*)""")]
-    [Given(@"a float-flag with key ""(.*)"" and a default value ""(.*)""")]
-    [Given(@"a float-flag with key ""(.*)"" and a fallback value ""(.*)""")]
-    public void GivenAFloat_FlagWithKeyAndADefaultValue(string key, string defaultType)
-    {
-        var flagState = new FlagState(key, defaultType, FlagType.Float);
-        this.State.Flag = flagState;
-    }
-
-    [Given(@"a Integer-flag with key ""(.*)"" and a default value ""(.*)""")]
-    [Given(@"a Integer-flag with key ""(.*)"" and a fallback value ""(.*)""")]
-    [Given(@"a integer-flag with key ""(.*)"" and a default value ""(.*)""")]
-    [Given(@"a integer-flag with key ""(.*)"" and a fallback value ""(.*)""")]
-    public void GivenAnInteger_FlagWithKeyAndADefaultValue(string key, string defaultType)
-    {
-        var flagState = new FlagState(key, defaultType, FlagType.Integer);
-        this.State.Flag = flagState;
-    }
-
-    [Given(@"a String-flag with key ""(.*)"" and a default value ""(.*)""")]
-    [Given(@"a String-flag with key ""(.*)"" and a fallback value ""(.*)""")]
-    [Given(@"a string-flag with key ""(.*)"" and a default value ""(.*)""")]
-    [Given(@"a string-flag with key ""(.*)"" and a fallback value ""(.*)""")]
-    public void GivenAString_FlagWithKeyAndADefaultValue(string key, string defaultType)
-    {
-        var flagState = new FlagState(key, defaultType, FlagType.String);
-        this.State.Flag = flagState;
-    }
-
-    [Given(@"a Object-flag with key ""(.*)"" and a fallback value ""(.*)""")]
-    [Given(@"a object-flag with key ""(.*)"" and a fallback value ""(.*)""")]
-    public void GivenAObject_FlagWithKeyAndADefaultValue(string key, string defaultType)
-    {
-        var flagState = new FlagState(key, defaultType, FlagType.Object);
-        this.State.Flag = flagState;
-    }
+    [StepArgumentTransformation(@"^(Boolean|boolean|Float|Integer|String|string|Object)(?:-flag)?$")]
+    public static FlagType TransformFlagType(string raw)
+        => raw.Replace("-flag", "").ToLowerInvariant() switch
+        {
+            "boolean" => FlagType.Boolean,
+            "float" => FlagType.Float,
+            "integer" => FlagType.Integer,
+            "string" => FlagType.String,
+            "object" => FlagType.Object,
+            _ => throw new Exception($"Unsupported flag type '{raw}'")
+        };
 
     [Given("a stable provider with retrievable context is registered")]
     public async Task GivenAStableProviderWithRetrievableContextIsRegistered()
