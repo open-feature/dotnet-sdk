@@ -4,67 +4,99 @@ using OpenFeature.Model;
 namespace OpenFeature.E2ETests.Steps;
 
 [Binding]
-[Scope(Feature = "Metadata")]
-public class MetadataStepDefinitions : BaseStepDefinitions
+public class MetadataStepDefinitions
 {
-    public MetadataStepDefinitions(State state) : base(state)
+    private readonly State _state;
+
+    public MetadataStepDefinitions(State _state)
     {
+        this._state = _state;
     }
 
     [Then("the resolved metadata should contain")]
-    [Scope(Scenario = "Returns metadata")]
-    public void ThenTheResolvedMetadataShouldContain(DataTable itemsTable)
+    public void ThenTheResolvedMetadataShouldContain(DataTable dataTable)
     {
-        var items = itemsTable.Rows.Select(row => new DataTableRows(row["key"], row["value"], row["metadata_type"])).ToList();
-        var metadata = (this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<bool>)?.FlagMetadata;
-
-        foreach (var item in items)
+        switch (this._state.Flag!.Type)
         {
-            var key = item.Key;
-            var value = item.Value;
-            var metadataType = item.MetadataType;
-
-            string? actual = null!;
-            switch (metadataType)
-            {
-                case FlagType.Boolean:
-                    actual = metadata!.GetBool(key).ToString();
-                    break;
-                case FlagType.Integer:
-                    actual = metadata!.GetInt(key).ToString();
-                    break;
-                case FlagType.Float:
-                    actual = metadata!.GetDouble(key).ToString();
-                    break;
-                case FlagType.String:
-                    actual = metadata!.GetString(key);
-                    break;
-            }
-
-            Assert.Equal(value.ToLowerInvariant(), actual?.ToLowerInvariant());
+            case FlagType.Integer:
+                AssertOnDetails<int>(r => AssertMetadataContains(dataTable, r));
+                break;
+            case FlagType.Float:
+                AssertOnDetails<double>(r => AssertMetadataContains(dataTable, r));
+                break;
+            case FlagType.String:
+                AssertOnDetails<string>(r => AssertMetadataContains(dataTable, r));
+                break;
+            case FlagType.Boolean:
+                AssertOnDetails<bool>(r => AssertMetadataContains(dataTable, r));
+                break;
+            case FlagType.Object:
+                AssertOnDetails<Value>(r => AssertMetadataContains(dataTable, r));
+                break;
+            default:
+                Assert.Fail("FlagType not yet supported.");
+                break;
         }
     }
 
     [Then("the resolved metadata is empty")]
     public void ThenTheResolvedMetadataIsEmpty()
     {
-        var flag = this.State.Flag!;
+        var flag = this._state.Flag!;
         switch (flag.Type)
         {
             case FlagType.Boolean:
-                Assert.Null((this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<bool>)?.FlagMetadata?.Count);
+                AssertOnDetails<bool>(d => Assert.Null(d.FlagMetadata?.Count));
                 break;
             case FlagType.Float:
-                Assert.Null((this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<double>)?.FlagMetadata?.Count);
+                AssertOnDetails<double>(d => Assert.Null(d.FlagMetadata?.Count));
                 break;
             case FlagType.Integer:
-                Assert.Null((this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<int>)?.FlagMetadata?.Count);
+                AssertOnDetails<int>(d => Assert.Null(d.FlagMetadata?.Count));
                 break;
             case FlagType.String:
-                Assert.Null((this.State.FlagEvaluationDetailsResult as FlagEvaluationDetails<string>)?.FlagMetadata?.Count);
+                AssertOnDetails<string>(d => Assert.Null(d.FlagMetadata?.Count));
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
+        }
+    }
+
+    private void AssertOnDetails<T>(Action<FlagEvaluationDetails<T>> assertion)
+    {
+        var details = this._state.FlagEvaluationDetailsResult as FlagEvaluationDetails<T>;
+
+        Assert.NotNull(details);
+        assertion(details);
+    }
+
+    private static void AssertMetadataContains<T>(DataTable dataTable, FlagEvaluationDetails<T> details)
+    {
+        foreach (var row in dataTable.Rows)
+        {
+            var key = row[0];
+            var metadataType = row[1];
+            var expected = row[2];
+
+            object expectedValue = metadataType switch
+            {
+                "String" => expected,
+                "Integer" => int.Parse(expected),
+                "Float" => double.Parse(expected),
+                "Boolean" => bool.Parse(expected),
+                _ => throw new ArgumentException("Unsupported metadata type"),
+            };
+            object? actualValue = metadataType switch
+            {
+                "String" => details.FlagMetadata!.GetString(key),
+                "Integer" => details.FlagMetadata!.GetInt(key),
+                "Float" => details.FlagMetadata!.GetDouble(key),
+                "Boolean" => details.FlagMetadata!.GetBool(key),
+                _ => throw new ArgumentException("Unsupported metadata type")
+            };
+
+            Assert.NotNull(actualValue);
+            Assert.Equal(expectedValue, actualValue);
         }
     }
 }

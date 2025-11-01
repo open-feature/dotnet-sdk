@@ -1,7 +1,9 @@
+using System.Text.Json;
 using NSubstitute;
 using OpenFeature.Constant;
 using OpenFeature.E2ETests.Utils;
 using OpenFeature.Model;
+using OpenFeature.Providers.Memory;
 
 namespace OpenFeature.E2ETests.Steps;
 
@@ -15,23 +17,42 @@ public class ProviderStepDefinition
         this.State = state;
     }
 
+    [Given(@"a stable provider")]
+    public async Task GivenAStableProvider()
+    {
+        var options = new JsonSerializerOptions()
+        {
+            PropertyNameCaseInsensitive = true
+        };
+        options.Converters.Add(new FlagDictionaryJsonConverter());
+
+        var json = File.ReadAllText(Path.Combine("Features", "test-flags.json"));
+        var flags = JsonSerializer.Deserialize<Dictionary<string, Flag>>(json, options)
+            ?? new Dictionary<string, Flag>();
+
+        var memProvider = new InMemoryProvider(flags);
+        await Api.Instance.SetProviderAsync(memProvider).ConfigureAwait(false);
+        this.State.Client = Api.Instance.GetClient("TestClient", "1.0.0");
+    }
+
+    [Given("a stable provider with retrievable context is registered")]
+    public async Task GivenAStableProviderWithRetrievableContextIsRegistered()
+    {
+        this.State.ContextStoringProvider = new ContextStoringProvider();
+
+        await Api.Instance.SetProviderAsync(this.State.ContextStoringProvider).ConfigureAwait(false);
+
+        Api.Instance.SetTransactionContextPropagator(new AsyncLocalTransactionContextPropagator());
+
+        this.State.Client = Api.Instance.GetClient("TestClient", "1.0.0");
+    }
+
     [Given("a error provider")]
     public async Task GivenAErrorProvider()
     {
         var provider = Substitute.For<FeatureProvider>();
         provider.GetMetadata().Returns(new Metadata("NSubstituteProvider"));
         provider.Status.Returns(ProviderStatus.Error);
-
-        await Api.Instance.SetProviderAsync(provider).ConfigureAwait(false);
-        this.State.Client = Api.Instance.GetClient("TestClient", "1.0.0");
-    }
-
-    [Given("a stable provider")]
-    public async Task GivenAStableProvider()
-    {
-        var provider = Substitute.For<FeatureProvider>();
-        provider.GetMetadata().Returns(new Metadata("NSubstituteProvider"));
-        provider.Status.Returns(ProviderStatus.Ready);
 
         await Api.Instance.SetProviderAsync(provider).ConfigureAwait(false);
         this.State.Client = Api.Instance.GetClient("TestClient", "1.0.0");
