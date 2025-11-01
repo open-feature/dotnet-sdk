@@ -1,6 +1,6 @@
 # OpenFeature.DependencyInjection
 
-> **⚠️ DEPRECATED**: This library is now deprecated. The OpenTelemetry Dependency Injection library has been moved to the OpenFeature Hosting integration in version 2.9.0.
+> **⚠️ DEPRECATED**: This library is now deprecated. The OpenFeature Dependency Injection library has been moved to the OpenFeature Hosting integration in version 2.9.0.
 
 OpenFeature is an open standard for feature flag management, created to support a robust feature flag ecosystem using cloud native technologies. OpenFeature will provide a unified API and SDK, and a developer-first, cloud-native implementation, with extensibility for open source and commercial offerings.
 
