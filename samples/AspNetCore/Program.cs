@@ -7,6 +7,7 @@ using OpenFeature.Hosting.Providers.Memory;
 using OpenFeature.Model;
 using OpenFeature.Providers.Memory;
 using OpenFeature.Providers.MultiProvider;
+using OpenFeature.Providers.MultiProvider.DependencyInjection;
 using OpenFeature.Providers.MultiProvider.Models;
 using OpenFeature.Providers.MultiProvider.Strategies;
 using OpenTelemetry.Metrics;
@@ -59,8 +60,32 @@ builder.Services.AddOpenFeature(featureBuilder =>
                     { "disable", new Value(Structure.Builder().Set(nameof(TestConfig.Threshold), 0).Build()) }
                 }, "disable")
             }
-        });
+        })
+        .AddMultiProvider("multi-provider", multiProviderBuilder => CreateMultiProviderBuilder(multiProviderBuilder))
+        .AddPolicyName(policy => policy.DefaultNameSelector = provider => "InMemory");
 });
+
+static void CreateMultiProviderBuilder(MultiProviderBuilder multiProviderBuilder)
+{
+    // Create first in-memory provider with some flags
+    var provider1Flags = new Dictionary<string, Flag>
+    {
+        { "providername", new Flag<string>(new Dictionary<string, string> { { "enabled", "enabled-provider1" }, { "disabled", "disabled-provider1" } }, "enabled") },
+        { "max-items", new Flag<int>(new Dictionary<string, int> { { "low", 10 }, { "high", 100 } }, "high") },
+    };
+    var provider1 = new InMemoryProvider(provider1Flags);
+
+    // Create second in-memory provider with different flags
+    var provider2Flags = new Dictionary<string, Flag>
+    {
+        { "providername", new Flag<string>(new Dictionary<string, string> { { "enabled", "enabled-provider2" }, { "disabled", "disabled-provider2" } }, "enabled") },
+    };
+    var provider2 = new InMemoryProvider(provider2Flags);
+
+    multiProviderBuilder.AddProvider("p1", provider1)
+        .AddProvider("p2", provider2)
+        .UseStrategy<FirstMatchStrategy>();
+}
 
 var app = builder.Build();
 
@@ -130,6 +155,27 @@ app.MapGet("/multi-provider", async () =>
 
         // Test a flag that doesn't exist in any provider
         var unknownFlag = await client.GetBooleanDetailsAsync("unknown-flag", false);
+
+        return Results.Ok();
+    }
+    catch (Exception)
+    {
+        return Results.InternalServerError();
+    }
+});
+
+app.MapGet("/multi-provider-di", async ([FromServices] Api openFeatureApi) =>
+{
+    try
+    {
+        var featureClient = openFeatureApi.GetClient("multi-provider");
+
+        // Test flag evaluation from different providers
+        var maxItemsFlag = await featureClient.GetIntegerDetailsAsync("max-items", 0);
+        var providerNameFlag = await featureClient.GetStringDetailsAsync("providername", "default");
+
+        // Test a flag that doesn't exist in any provider
+        var unknownFlag = await featureClient.GetBooleanDetailsAsync("unknown-flag", false);
 
         return Results.Ok();
     }
