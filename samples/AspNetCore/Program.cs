@@ -61,31 +61,28 @@ builder.Services.AddOpenFeature(featureBuilder =>
                 }, "disable")
             }
         })
-        .AddMultiProvider("multi-provider", multiProviderBuilder => CreateMultiProviderBuilder(multiProviderBuilder))
+        .AddMultiProvider("multi-provider", multiProviderBuilder =>
+        {
+            // Create provider flags
+            var provider1Flags = new Dictionary<string, Flag>
+            {
+                { "providername", new Flag<string>(new Dictionary<string, string> { { "enabled", "enabled-provider1" }, { "disabled", "disabled-provider1" } }, "enabled") },
+                { "max-items", new Flag<int>(new Dictionary<string, int> { { "low", 10 }, { "high", 100 } }, "high") },
+            };
+
+            var provider2Flags = new Dictionary<string, Flag>
+            {
+                { "providername", new Flag<string>(new Dictionary<string, string> { { "enabled", "enabled-provider2" }, { "disabled", "disabled-provider2" } }, "enabled") },
+            };
+
+            // Use the factory pattern to create providers - they will be properly initialized
+            multiProviderBuilder
+                .AddProvider("p1", sp => new InMemoryProvider(provider1Flags))
+                .AddProvider("p2", sp => new InMemoryProvider(provider2Flags))
+                .UseStrategy<FirstMatchStrategy>();
+        })
         .AddPolicyName(policy => policy.DefaultNameSelector = provider => "InMemory");
 });
-
-static void CreateMultiProviderBuilder(MultiProviderBuilder multiProviderBuilder)
-{
-    // Create first in-memory provider with some flags
-    var provider1Flags = new Dictionary<string, Flag>
-    {
-        { "providername", new Flag<string>(new Dictionary<string, string> { { "enabled", "enabled-provider1" }, { "disabled", "disabled-provider1" } }, "enabled") },
-        { "max-items", new Flag<int>(new Dictionary<string, int> { { "low", 10 }, { "high", 100 } }, "high") },
-    };
-    var provider1 = new InMemoryProvider(provider1Flags);
-
-    // Create second in-memory provider with different flags
-    var provider2Flags = new Dictionary<string, Flag>
-    {
-        { "providername", new Flag<string>(new Dictionary<string, string> { { "enabled", "enabled-provider2" }, { "disabled", "disabled-provider2" } }, "enabled") },
-    };
-    var provider2 = new InMemoryProvider(provider2Flags);
-
-    multiProviderBuilder.AddProvider("p1", provider1)
-        .AddProvider("p2", provider2)
-        .UseStrategy<FirstMatchStrategy>();
-}
 
 var app = builder.Build();
 
@@ -179,9 +176,9 @@ app.MapGet("/multi-provider-di", async ([FromServices] Api openFeatureApi) =>
 
         return Results.Ok();
     }
-    catch (Exception)
+    catch (Exception ex)
     {
-        return Results.InternalServerError();
+        return Results.Problem($"Error: {ex.Message}\n\nStack: {ex.StackTrace}");
     }
 });
 

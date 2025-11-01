@@ -31,9 +31,8 @@ public static class FeatureBuilderExtensions
             throw new ArgumentNullException(nameof(configure));
         }
 
-        return builder.AddProvider<MultiProviderOptions>(
-            serviceProvider => CreateMultiProviderFromConfigure(serviceProvider, configure),
-            null);
+        return builder.AddProvider(
+            serviceProvider => CreateMultiProviderFromConfigure(serviceProvider, configure));
     }
 
     /// <summary>
@@ -65,10 +64,9 @@ public static class FeatureBuilderExtensions
             throw new ArgumentNullException(nameof(configure));
         }
 
-        return builder.AddProvider<MultiProviderOptions>(
+        return builder.AddProvider(
             domain,
-            (serviceProvider, _) => CreateMultiProviderFromConfigure(serviceProvider, configure),
-            null);
+            (serviceProvider, _) => CreateMultiProviderFromConfigure(serviceProvider, configure));
     }
 
     private static MultiProvider CreateMultiProviderFromConfigure(IServiceProvider serviceProvider, Action<MultiProviderBuilder> configure)
