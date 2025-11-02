@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
@@ -17,8 +17,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\src\OpenFeature.Hosting\OpenFeature.Hosting.csproj" />
         <ProjectReference Include="..\..\src\OpenFeature\OpenFeature.csproj" />
-        <ProjectReference Include="..\..\src\OpenFeature.DependencyInjection\OpenFeature.DependencyInjection.csproj" />
         <ProjectReference Include="..\..\src\OpenFeature.Providers.MultiProvider\OpenFeature.Providers.MultiProvider.csproj" />
     </ItemGroup>
 
