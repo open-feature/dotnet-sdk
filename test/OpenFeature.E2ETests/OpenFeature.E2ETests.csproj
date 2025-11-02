@@ -23,6 +23,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <!-- Reqnroll 3.2.0 requires System.Threading.Channels >= 9.0.6 -->
+    <PackageVersion Update="System.Threading.Channels" Version="9.0.6" />
   </ItemGroup>
 
   <ItemGroup>
