@@ -28,7 +28,6 @@ internal sealed partial class FeatureLifecycleManager : IFeatureLifecycleManager
         InitializeHandlers();
     }
 
-    /// <inheritdoc />
     private async Task InitializeProvidersAsync(CancellationToken cancellationToken)
     {
         var options = _serviceProvider.GetRequiredService<IOptions<OpenFeatureProviderOptions>>().Value;
