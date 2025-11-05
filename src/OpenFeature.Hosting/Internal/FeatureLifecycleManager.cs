@@ -44,7 +44,6 @@ internal sealed partial class FeatureLifecycleManager : IFeatureLifecycleManager
         }
     }
 
-    /// <inheritdoc />
     private void InitializeHooks()
     {
         var options = _serviceProvider.GetRequiredService<IOptions<OpenFeatureOptions>>().Value;
