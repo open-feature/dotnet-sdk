@@ -1,11 +1,9 @@
-using OpenFeature.DependencyInjection.Abstractions;
-
 namespace OpenFeature.Hosting;
 
 /// <summary>
 ///  Options to configure OpenFeature
 /// </summary>
-public class OpenFeatureOptions : OpenFeatureProviderOptions
+public class OpenFeatureOptions
 {
     private readonly HashSet<string> _hookNames = [];
 

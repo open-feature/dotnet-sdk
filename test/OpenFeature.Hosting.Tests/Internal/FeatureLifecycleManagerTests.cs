@@ -146,7 +146,7 @@ public class FeatureLifecycleManagerTests : IAsyncLifetime
         // Arrange
         var services = new ServiceCollection();
         var provider = new NoOpFeatureProvider();
-        services.AddOptions<OpenFeatureOptions>().Configure(options =>
+        services.AddOptions<OpenFeatureProviderOptions>().Configure(options =>
         {
             options.AddProviderName(null);
         });
