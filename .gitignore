@@ -351,5 +351,7 @@ ASALocalRun/
 # integration tests
 test/OpenFeature.E2ETests/Features/*.feature
 test/OpenFeature.E2ETests/Features/*.feature.cs
+test/OpenFeature.E2ETests/Features/README.md
+test/OpenFeature.E2ETests/Features/test-flags.json
 cs-report.json
 specification.json
