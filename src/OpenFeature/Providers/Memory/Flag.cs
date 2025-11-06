@@ -36,41 +36,48 @@ public sealed class Flag<T> : Flag
 
     internal ResolutionDetails<T> Evaluate(string flagKey, T _, EvaluationContext? evaluationContext)
     {
-        T? value;
         if (this._contextEvaluator == null)
         {
-            if (this._variants.TryGetValue(this._defaultVariant, out value))
-            {
-                return new ResolutionDetails<T>(
-                    flagKey,
-                    value,
-                    variant: this._defaultVariant,
-                    reason: Reason.Static,
-                    flagMetadata: this._flagMetadata
-                );
-            }
-            else
-            {
-                throw new GeneralException($"variant {this._defaultVariant} not found");
-            }
+            return this.EvaluateDefaultVariant(flagKey);
         }
-        else
+
+        string variant;
+        try
         {
-            var variant = this._contextEvaluator.Invoke(evaluationContext ?? EvaluationContext.Empty);
-            if (!this._variants.TryGetValue(variant, out value))
-            {
-                throw new GeneralException($"variant {variant} not found");
-            }
-            else
-            {
-                return new ResolutionDetails<T>(
-                    flagKey,
-                    value,
-                    variant: variant,
-                    reason: Reason.TargetingMatch,
-                    flagMetadata: this._flagMetadata
-                );
-            }
+            variant = this._contextEvaluator.Invoke(evaluationContext ?? EvaluationContext.Empty);
         }
+        catch (Exception)
+        {
+            return this.EvaluateDefaultVariant(flagKey, Reason.Default);
+        }
+
+        if (!this._variants.TryGetValue(variant, out var value))
+        {
+            return this.EvaluateDefaultVariant(flagKey, Reason.Default);
+        }
+
+        return new ResolutionDetails<T>(
+            flagKey,
+            value,
+            variant: variant,
+            reason: Reason.TargetingMatch,
+            flagMetadata: this._flagMetadata
+        );
+    }
+
+    private ResolutionDetails<T> EvaluateDefaultVariant(string flagKey, string reason = Reason.Static)
+    {
+        if (this._variants.TryGetValue(this._defaultVariant, out var value))
+        {
+            return new ResolutionDetails<T>(
+                flagKey,
+                value,
+                variant: this._defaultVariant,
+                reason: reason,
+                flagMetadata: this._flagMetadata
+            );
+        }
+
+        throw new GeneralException($"variant {this._defaultVariant} not found");
     }
 }

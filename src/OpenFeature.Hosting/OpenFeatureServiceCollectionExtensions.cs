@@ -31,6 +31,7 @@ public static partial class OpenFeatureServiceCollectionExtensions
         var builder = new OpenFeatureBuilder(services);
         configure(builder);
 
+        builder.Services.Configure<OpenFeatureOptions>(c => { }); // Ensures IOptions<OpenFeatureOptions> is available even when no providers are configured.
         builder.Services.AddHostedService<HostedFeatureLifecycleService>();
 
         // If a default provider is specified without additional providers,
@@ -51,7 +52,7 @@ public static partial class OpenFeatureServiceCollectionExtensions
                 options.DefaultNameSelector = provider =>
                 {
                     var options = provider.GetRequiredService<IOptions<OpenFeatureProviderOptions>>().Value;
-                    return options.ProviderNames.First();
+                    return options.ProviderNames.FirstOrDefault();
                 };
             });
         }

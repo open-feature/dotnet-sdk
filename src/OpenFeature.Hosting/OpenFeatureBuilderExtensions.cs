@@ -53,6 +53,50 @@ public static partial class OpenFeatureBuilderExtensions
     }
 
     /// <summary>
+    /// Adds a feature client to the service collection, configuring it to work with a specific context if provided.
+    /// </summary>
+    /// <param name="builder">The <see cref="OpenFeatureBuilder"/> instance.</param>
+    /// <param name="name">Optional: The name for the feature client instance.</param>
+    /// <returns>The <see cref="OpenFeatureBuilder"/> instance.</returns>
+    internal static OpenFeatureBuilder AddClient(this OpenFeatureBuilder builder, string? name = null)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            builder.Services.TryAddScoped<IFeatureClient>(static provider =>
+            {
+                var api = provider.GetRequiredService<Api>();
+                var client = api.GetClient();
+
+                var context = provider.GetService<EvaluationContext>();
+                if (context is not null)
+                {
+                    client.SetContext(context);
+                }
+
+                return client;
+            });
+        }
+        else
+        {
+            builder.Services.TryAddKeyedScoped<IFeatureClient>(name, static (provider, key) =>
+            {
+                var api = provider.GetRequiredService<Api>();
+                var client = api.GetClient(key!.ToString());
+
+                var context = provider.GetService<EvaluationContext>();
+                if (context is not null)
+                {
+                    client.SetContext(context);
+                }
+
+                return client;
+            });
+        }
+
+        return builder;
+    }
+
+    /// <summary>
     /// Adds a default <see cref="IFeatureClient"/> to the <see cref="OpenFeatureBuilder"/> based on the policy name options.
     /// This method configures the dependency injection container to resolve the appropriate <see cref="IFeatureClient"/>
     /// depending on the policy name selected.
@@ -66,14 +110,23 @@ public static partial class OpenFeatureBuilderExtensions
         {
             var policy = provider.GetRequiredService<IOptions<PolicyNameOptions>>().Value;
             var name = policy.DefaultNameSelector(provider);
-            if (name == null)
-            {
-                return provider.GetRequiredService<IFeatureClient>();
-            }
-            return provider.GetRequiredKeyedService<IFeatureClient>(name);
+            return ResolveFeatureClient(provider, name);
         });
 
         return builder;
+    }
+
+    private static IFeatureClient ResolveFeatureClient(IServiceProvider provider, string? name = null)
+    {
+        var api = provider.GetRequiredService<Api>();
+        var client = api.GetClient(name);
+        var context = provider.GetService<EvaluationContext>();
+        if (context != null)
+        {
+            client.SetContext(context);
+        }
+
+        return client;
     }
 
     /// <summary>

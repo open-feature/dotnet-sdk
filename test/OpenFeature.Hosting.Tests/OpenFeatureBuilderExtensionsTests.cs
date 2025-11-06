@@ -523,6 +523,31 @@ public partial class OpenFeatureBuilderExtensionsTests
     }
 
     [Fact]
+    public void AddClient_WithContextAfterAddProvider_AddsFeatureClient()
+    {
+        // Arrange
+        _services.AddSingleton(sp => Api.Instance);
+
+        _systemUnderTest
+            .AddProvider("client-name", (_systemUnderTest, name) => new NoOpFeatureProvider());
+
+        // Act
+        _systemUnderTest
+            .AddClient("client-name")
+            .AddContext((a) => a.Set("region", "euw"));
+
+        // Act
+        using var serviceProvider = _services.BuildServiceProvider();
+        var client = serviceProvider.GetKeyedService<IFeatureClient>("client-name");
+
+        Assert.NotNull(client);
+
+        var context = client.GetContext();
+        var region = context.GetValue("region");
+        Assert.Equal("euw", region.AsString);
+    }
+
+    [Fact]
     public void AddPolicyBasedClient_AddsScopedFeatureClient()
     {
         // Arrange
@@ -543,7 +568,7 @@ public partial class OpenFeatureBuilderExtensionsTests
         Assert.NotNull(client);
     }
 
-    [Fact(Skip = "Bug due to https://github.com/open-feature/dotnet-sdk/issues/543")]
+    [Fact]
     public void AddPolicyBasedClient_WithNoDefaultName_AddsScopedFeatureClient()
     {
         // Arrange
@@ -562,5 +587,35 @@ public partial class OpenFeatureBuilderExtensionsTests
         using var scope = serviceProvider.CreateScope();
         var client = scope.ServiceProvider.GetService<IFeatureClient>();
         Assert.NotNull(client);
+    }
+
+    [Fact]
+    public void AddPolicyBasedClient_WithEvaluationContext()
+    {
+        // Arrange
+        _services.AddSingleton(sp => Api.Instance);
+
+        var context = EvaluationContext.Builder()
+            .Set("userId", "user-123")
+            .Build();
+
+        _services.AddTransient(_ => context);
+
+        _services.AddOptions<PolicyNameOptions>()
+            .Configure(options => options.DefaultNameSelector = _ => "default-name");
+
+        _systemUnderTest.AddProvider("default-name", (_, key) => new NoOpFeatureProvider());
+
+        // Act
+        _systemUnderTest.AddPolicyBasedClient();
+
+        // Assert
+        using var serviceProvider = _services.BuildServiceProvider();
+        using var scope = serviceProvider.CreateScope();
+        var client = scope.ServiceProvider.GetService<IFeatureClient>();
+        Assert.NotNull(client);
+
+        var actualContext = client.GetContext();
+        Assert.Equal(context, actualContext);
     }
 }
