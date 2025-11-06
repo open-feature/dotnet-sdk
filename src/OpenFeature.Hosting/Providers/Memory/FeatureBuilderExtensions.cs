@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using OpenFeature.DependencyInjection.Abstractions;
+using OpenFeature.Providers.DependencyInjection;
 using OpenFeature.Providers.Memory;
 
 namespace OpenFeature.Hosting.Providers.Memory;
@@ -9,7 +9,7 @@ namespace OpenFeature.Hosting.Providers.Memory;
 /// Extension methods for configuring feature providers with <see cref="OpenFeatureProviderBuilder"/>.
 /// </summary>
 #if NET8_0_OR_GREATER
-[System.Diagnostics.CodeAnalysis.Experimental(DependencyInjection.Abstractions.Diagnostics.FeatureCodes.NewDi)]
+[System.Diagnostics.CodeAnalysis.Experimental(OpenFeature.Providers.DependencyInjection.Diagnostics.FeatureCodes.NewDi)]
 #endif
 public static partial class FeatureBuilderExtensions
 {

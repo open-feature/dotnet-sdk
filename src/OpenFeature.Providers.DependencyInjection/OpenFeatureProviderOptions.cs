@@ -1,6 +1,6 @@
 using System.Collections.ObjectModel;
 
-namespace OpenFeature.DependencyInjection.Abstractions;
+namespace OpenFeature.Providers.DependencyInjection;
 
 /// <summary>
 /// Provider-focused options for configuring OpenFeature integrations.

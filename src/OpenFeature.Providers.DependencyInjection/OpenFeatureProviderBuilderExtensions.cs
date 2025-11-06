@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using OpenFeature.DependencyInjection.Abstractions;
+using OpenFeature.Providers.DependencyInjection;
 
 namespace OpenFeature;
 
@@ -8,7 +8,7 @@ namespace OpenFeature;
 /// Contains extension methods for the <see cref="OpenFeatureProviderBuilder"/> class.
 /// </summary>
 #if NET8_0_OR_GREATER
-[System.Diagnostics.CodeAnalysis.Experimental(DependencyInjection.Abstractions.Diagnostics.FeatureCodes.NewDi)]
+[System.Diagnostics.CodeAnalysis.Experimental(Providers.DependencyInjection.Diagnostics.FeatureCodes.NewDi)]
 #endif
 public static partial class OpenFeatureProviderBuilderExtensions
 {

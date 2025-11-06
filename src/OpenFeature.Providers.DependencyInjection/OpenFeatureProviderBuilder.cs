@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace OpenFeature.DependencyInjection.Abstractions;
+namespace OpenFeature.Providers.DependencyInjection;
 
 /// <summary>
 /// Describes a <see cref="OpenFeatureProviderBuilder"/> backed by an <see cref="IServiceCollection"/>.

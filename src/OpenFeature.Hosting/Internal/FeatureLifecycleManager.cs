@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using OpenFeature.DependencyInjection.Abstractions;
+using OpenFeature.Providers.DependencyInjection;
 
 namespace OpenFeature.Hosting.Internal;
 

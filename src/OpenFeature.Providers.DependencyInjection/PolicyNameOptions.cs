@@ -1,4 +1,4 @@
-namespace OpenFeature.DependencyInjection.Abstractions;
+namespace OpenFeature.Providers.DependencyInjection;
 
 /// <summary>
 /// Options to configure the default feature client name.

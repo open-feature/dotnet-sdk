@@ -1,4 +1,4 @@
-using OpenFeature.DependencyInjection.Abstractions;
+using OpenFeature.Providers.DependencyInjection;
 using OpenFeature.Providers.Memory;
 
 namespace OpenFeature.Hosting.Providers.Memory;

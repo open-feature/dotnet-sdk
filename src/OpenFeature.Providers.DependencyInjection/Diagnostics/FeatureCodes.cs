@@ -1,4 +1,4 @@
-namespace OpenFeature.DependencyInjection.Abstractions.Diagnostics;
+namespace OpenFeature.Providers.DependencyInjection.Diagnostics;
 
 /// <summary>
 /// Contains identifiers for experimental features and diagnostics in the OpenFeature framework.
