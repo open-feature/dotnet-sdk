@@ -18,7 +18,6 @@ internal sealed partial class FeatureLifecycleManager : IFeatureLifecycleManager
         _logger = logger;
     }
 
-    /// <inheritdoc />
     public async ValueTask EnsureInitializedAsync(CancellationToken cancellationToken = default)
     {
         this.LogStartingInitializationOfFeatureProvider();
@@ -66,7 +65,6 @@ internal sealed partial class FeatureLifecycleManager : IFeatureLifecycleManager
         }
     }
 
-    /// <inheritdoc />
     public async ValueTask ShutdownAsync(CancellationToken cancellationToken = default)
     {
         this.LogShuttingDownFeatureProvider();
