@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using OpenFeature.Providers.DependencyInjection;
 using OpenFeature.Hosting.Internal;
 using OpenFeature.Model;
+using OpenFeature.Providers.DependencyInjection;
 
 namespace OpenFeature.Hosting.Tests;
 
