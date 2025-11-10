@@ -62,8 +62,6 @@ public sealed class FlagDictionaryJsonConverter : JsonConverter<Dictionary<strin
 
         var disabled = flagElement.TryGetProperty("disabled", out var disabledElem) && disabledElem.ValueKind == JsonValueKind.True;
 
-        // NOTE: The current Flag<T> type does not model 'disabled'
-
         return inferredKind switch
         {
             VariantKind.Boolean => BuildFlag(variantsElement, defaultVariant, contextEvaluator, metadata, disabled, static e => e.GetBoolean()),

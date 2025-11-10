@@ -45,7 +45,7 @@ public sealed class Flag<T> : Flag
     /// <summary>
     /// Indicates if the flag is disabled. When disabled, the flag will resolve to the default value.
     /// </summary>
-    public bool Disabled { get; set; }
+    public bool Disabled { get; }
 
     internal ResolutionDetails<T> Evaluate(string flagKey, T defaultValue, EvaluationContext? evaluationContext)
     {

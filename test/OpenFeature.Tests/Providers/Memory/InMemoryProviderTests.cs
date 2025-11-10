@@ -201,6 +201,7 @@ public class InMemoryProviderTests
         // Assert
         Assert.False(details.Value);
         Assert.Equal(Reason.Disabled, details.Reason);
+        Assert.Null(details.Variant);
     }
 
     [Fact]
@@ -233,6 +234,7 @@ public class InMemoryProviderTests
         // Assert
         Assert.Equal("nope", details.Value);
         Assert.Equal(Reason.Disabled, details.Reason);
+        Assert.Null(details.Variant);
     }
 
     [Fact]
@@ -265,6 +267,7 @@ public class InMemoryProviderTests
         // Assert
         Assert.Equal(13, details.Value);
         Assert.Equal(Reason.Disabled, details.Reason);
+        Assert.Null(details.Variant);
     }
 
     [Fact]
@@ -291,12 +294,13 @@ public class InMemoryProviderTests
     [Fact]
     public async Task GetDouble_WhenDisabled_ShouldEvaluateWithDefaultReason()
     {
-        // Arrange
+        // Act
         ResolutionDetails<double> details = await this.commonProvider.ResolveDoubleValueAsync("float-disabled-flag", 1.3);
 
         // Assert
         Assert.Equal(1.3, details.Value);
         Assert.Equal(Reason.Disabled, details.Reason);
+        Assert.Null(details.Variant);
     }
 
     [Fact]
@@ -340,6 +344,7 @@ public class InMemoryProviderTests
         // Assert
         Assert.Equal(true, details.Value.AsStructure?["default"].AsBoolean);
         Assert.Equal(Reason.Disabled, details.Reason);
+        Assert.Null(details.Variant);
     }
 
     [Fact]
