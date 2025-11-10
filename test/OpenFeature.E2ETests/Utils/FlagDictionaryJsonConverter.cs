@@ -50,7 +50,7 @@ public sealed class FlagDictionaryJsonConverter : JsonConverter<Dictionary<strin
         if (inferredKind == null)
             throw new JsonException($"Flag '{flagKey}' has no variants");
 
-        var defaultVariant = InferDefaultVariant(flagElement, variantsElement);
+        var defaultVariant = InferDefaultVariant(flagElement);
 
         var contextEvaluator = flagElement.TryGetProperty("contextEvaluator", out var ctxElem) && ctxElem.ValueKind == JsonValueKind.String
             ? ContextEvaluatorUtility.BuildContextEvaluator(ctxElem.GetString()!)
@@ -60,15 +60,17 @@ public sealed class FlagDictionaryJsonConverter : JsonConverter<Dictionary<strin
             ? BuildMetadata(metaElem)
             : null;
 
+        var disabled = flagElement.TryGetProperty("disabled", out var disabledElem) && disabledElem.ValueKind == JsonValueKind.True;
+
         // NOTE: The current Flag<T> type does not model 'disabled'
 
         return inferredKind switch
         {
-            VariantKind.Boolean => BuildFlag(variantsElement, defaultVariant, contextEvaluator, metadata, static e => e.GetBoolean()),
-            VariantKind.Integer => BuildFlag(variantsElement, defaultVariant, contextEvaluator, metadata, static e => e.GetInt32()),
-            VariantKind.Double => BuildFlag(variantsElement, defaultVariant, contextEvaluator, metadata, static e => e.GetDouble()),
-            VariantKind.String => BuildFlag(variantsElement, defaultVariant, contextEvaluator, metadata, static e => e.GetString()!),
-            VariantKind.Object => BuildFlag(variantsElement, defaultVariant, contextEvaluator, metadata, ExtractObjectVariant),
+            VariantKind.Boolean => BuildFlag(variantsElement, defaultVariant, contextEvaluator, metadata, disabled, static e => e.GetBoolean()),
+            VariantKind.Integer => BuildFlag(variantsElement, defaultVariant, contextEvaluator, metadata, disabled, static e => e.GetInt32()),
+            VariantKind.Double => BuildFlag(variantsElement, defaultVariant, contextEvaluator, metadata, disabled, static e => e.GetDouble()),
+            VariantKind.String => BuildFlag(variantsElement, defaultVariant, contextEvaluator, metadata, disabled, static e => e.GetString()!),
+            VariantKind.Object => BuildFlag(variantsElement, defaultVariant, contextEvaluator, metadata, disabled, ExtractObjectVariant),
             _ => throw new JsonException($"Unsupported variant kind for flag '{flagKey}'")
         };
     }
@@ -81,6 +83,7 @@ public sealed class FlagDictionaryJsonConverter : JsonConverter<Dictionary<strin
         string? defaultVariant,
         Func<EvaluationContext, string>? contextEvaluator,
         ImmutableMetadata? metadata,
+        bool? disabled,
         Func<JsonElement, T> projector)
     {
         var dict = new Dictionary<string, T>(StringComparer.Ordinal);
@@ -88,10 +91,10 @@ public sealed class FlagDictionaryJsonConverter : JsonConverter<Dictionary<strin
         {
             dict[v.Name] = projector(v.Value);
         }
-        return new Flag<T>(dict, defaultVariant!, contextEvaluator, metadata);
+        return new Flag<T>(dict, defaultVariant!, contextEvaluator, metadata, disabled ?? false);
     }
 
-    private static string? InferDefaultVariant(JsonElement flagElement, JsonElement variantsElement)
+    private static string? InferDefaultVariant(JsonElement flagElement)
     {
         if (flagElement.TryGetProperty("defaultVariant", out var dv))
         {
