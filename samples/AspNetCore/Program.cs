@@ -161,12 +161,10 @@ app.MapGet("/multi-provider", async () =>
     }
 });
 
-app.MapGet("/multi-provider-di", async ([FromServices] Api openFeatureApi) =>
+app.MapGet("/multi-provider-di", async ([FromKeyedServices("multi-provider")] IFeatureClient featureClient) =>
 {
     try
     {
-        var featureClient = openFeatureApi.GetClient("multi-provider");
-
         // Test flag evaluation from different providers
         var maxItemsFlag = await featureClient.GetIntegerDetailsAsync("max-items", 0);
         var providerNameFlag = await featureClient.GetStringDetailsAsync("providername", "default");
