@@ -30,8 +30,7 @@ public class MultiProviderBuilder
             throw new ArgumentNullException(nameof(factory));
         }
 
-        this._providerFactories.Add(sp => new ProviderEntry(factory(sp), name));
-        return this;
+        return AddProvider<FeatureProvider>(name, sp => factory(sp));
     }
 
     /// <summary>
@@ -78,8 +77,7 @@ public class MultiProviderBuilder
             throw new ArgumentNullException(nameof(provider));
         }
 
-        this._providerFactories.Add(_ => new ProviderEntry(provider, name));
-        return this;
+        return AddProvider<FeatureProvider>(name, _ => provider);
     }
 
     /// <summary>
@@ -90,8 +88,7 @@ public class MultiProviderBuilder
     public MultiProviderBuilder UseStrategy<TStrategy>()
         where TStrategy : BaseEvaluationStrategy, new()
     {
-        this._strategyFactory = _ => new TStrategy();
-        return this;
+        return UseStrategy(static _ => new TStrategy());
     }
 
     /// <summary>
@@ -117,8 +114,7 @@ public class MultiProviderBuilder
             throw new ArgumentNullException(nameof(strategy));
         }
 
-        this._strategyFactory = _ => strategy;
-        return this;
+        return UseStrategy(_ => strategy);
     }
 
     /// <summary>
