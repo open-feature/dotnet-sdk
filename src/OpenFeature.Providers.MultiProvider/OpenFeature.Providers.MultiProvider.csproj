@@ -1,17 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <RootNamespace>OpenFeature.Providers.MultiProvider</RootNamespace>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-    </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>OpenFeature.Providers.MultiProvider</RootNamespace>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
-        <InternalsVisibleTo Include="OpenFeature.Providers.MultiProvider.Tests" />
-        <None Include="README.md" Pack="true" PackagePath="/" />
-    </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+    <InternalsVisibleTo Include="OpenFeature.Providers.MultiProvider.Tests" />
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\OpenFeature\OpenFeature.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OpenFeature\OpenFeature.csproj" />
+    <ProjectReference Include="..\OpenFeature.Hosting\OpenFeature.Hosting.csproj" />
+  </ItemGroup>
 </Project>

@@ -18,7 +18,90 @@ dotnet add package OpenFeature.Providers.MultiProvider
 
 ## Usage
 
+### Dependency Injection Setup (Recommended)
+
+The MultiProvider integrates seamlessly with the OpenFeature dependency injection system, allowing you to configure multiple providers using the `AddMultiProvider` extension method:
+
+```csharp
+using OpenFeature.Providers.MultiProvider.DependencyInjection;
+
+builder.Services.AddOpenFeature(featureBuilder =>
+{
+    featureBuilder
+        .AddMultiProvider("multi-provider", multiProviderBuilder =>
+        {
+            // Add providers using factory methods for proper DI integration
+            multiProviderBuilder
+                .AddProvider("primary", sp => new YourPrimaryProvider())
+                .AddProvider("fallback", sp => new YourFallbackProvider())
+                .UseStrategy<FirstMatchStrategy>();
+        });
+});
+
+// Retrieve and use the client
+var featureClient = openFeatureApi.GetClient("multi-provider");
+var result = await featureClient.GetBooleanValueAsync("my-flag", false);
+```
+
+#### Adding Providers with DI
+
+The `MultiProviderBuilder` provides several methods to add providers:
+
+**Using Factory Methods:**
+```csharp
+multiProviderBuilder
+    .AddProvider("provider-name", sp => new InMemoryProvider(flags))
+    .AddProvider("another-provider", sp => sp.GetRequiredService<SomeProvider>());
+```
+
+**Using Provider Instances:**
+```csharp
+var provider = new InMemoryProvider(flags);
+multiProviderBuilder.AddProvider("provider-name", provider);
+```
+
+**Using Generic Type Resolution:**
+```csharp
+// Provider will be resolved from DI container
+multiProviderBuilder.AddProvider<YourProvider>("provider-name");
+
+// Or with custom factory
+multiProviderBuilder.AddProvider<YourProvider>("provider-name", sp => new YourProvider(config));
+```
+
+#### Configuring Evaluation Strategy
+
+Specify an evaluation strategy using any of these methods:
+
+```csharp
+// Using generic type
+multiProviderBuilder.UseStrategy<FirstMatchStrategy>();
+
+// Using factory method with DI
+multiProviderBuilder.UseStrategy(sp => new FirstMatchStrategy());
+
+// Using strategy instance
+multiProviderBuilder.UseStrategy(new ComparisonStrategy());
+```
+
+#### Using with Named Domains
+
+Configure the MultiProvider for a specific domain:
+
+```csharp
+featureBuilder
+    .AddMultiProvider("production-domain", multiProviderBuilder =>
+    {
+        multiProviderBuilder
+            .AddProvider("remote", sp => new RemoteProvider())
+            .AddProvider("cache", sp => new CacheProvider())
+            .UseStrategy<FirstSuccessfulStrategy>();
+    });
+```
+
 ### Basic Setup
+
+For scenarios where dependency injection is not available, you can use the traditional setup:
 
 ```csharp
 using OpenFeature;
