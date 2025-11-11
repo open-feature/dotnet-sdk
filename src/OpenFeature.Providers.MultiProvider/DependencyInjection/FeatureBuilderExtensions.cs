@@ -61,7 +61,7 @@ public static class FeatureBuilderExtensions
 
         if (configure == null)
         {
-            throw new ArgumentNullException(nameof(configure));
+            throw new ArgumentNullException(nameof(configure), "Configure action cannot be null. Please provide a valid configuration for the multi-provider.");
         }
 
         return builder.AddProvider(

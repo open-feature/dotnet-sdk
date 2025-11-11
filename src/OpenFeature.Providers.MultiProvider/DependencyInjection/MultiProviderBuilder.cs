@@ -27,7 +27,7 @@ public class MultiProviderBuilder
 
         if (factory == null)
         {
-            throw new ArgumentNullException(nameof(factory));
+            throw new ArgumentNullException(nameof(factory), "Provider configuration cannot be null.");
         }
 
         return AddProvider<FeatureProvider>(name, sp => factory(sp));
@@ -74,7 +74,7 @@ public class MultiProviderBuilder
 
         if (provider == null)
         {
-            throw new ArgumentNullException(nameof(provider));
+            throw new ArgumentNullException(nameof(provider), "Provider configuration cannot be null.");
         }
 
         return AddProvider<FeatureProvider>(name, _ => provider);
@@ -98,7 +98,7 @@ public class MultiProviderBuilder
     /// <returns>The <see cref="MultiProviderBuilder"/> instance for chaining.</returns>
     public MultiProviderBuilder UseStrategy(Func<IServiceProvider, BaseEvaluationStrategy> factory)
     {
-        this._strategyFactory = factory ?? throw new ArgumentNullException(nameof(factory));
+        this._strategyFactory = factory ?? throw new ArgumentNullException(nameof(factory), "Strategy for multi-provider cannot be null.");
         return this;
     }
 
