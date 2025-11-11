@@ -17,8 +17,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\OpenFeature.Hosting\OpenFeature.Hosting.csproj" />
         <ProjectReference Include="..\..\src\OpenFeature\OpenFeature.csproj" />
+        <ProjectReference Include="..\..\src\OpenFeature.Hosting\OpenFeature.Hosting.csproj" />
         <ProjectReference Include="..\..\src\OpenFeature.Providers.MultiProvider\OpenFeature.Providers.MultiProvider.csproj" />
     </ItemGroup>
 
