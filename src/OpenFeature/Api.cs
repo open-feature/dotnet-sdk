@@ -38,6 +38,7 @@ public sealed class Api : IEventBus
     /// Sets the default feature provider. In order to wait for the provider to be set, and initialization to complete,
     /// await the returned task.
     /// </summary>
+    /// <remarks>The provider cannot be set to null. Attempting to set the provider to null has no effect. May throw an exception if <paramref name="featureProvider"/> cannot be initialized.</remarks>
     /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
     /// <param name="cancellationToken">Propagates notification that the provider initialization should be canceled.</param>
     /// <returns>A <see cref="Task"/> that completes once Provider initialization is complete.</returns>

@@ -54,6 +54,23 @@ public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
     }
 
     [Fact]
+    public async Task OpenFeature_Should_Handle_Cancellation_During_Initialization()
+    {
+        using var cancellationTokenSource = new CancellationTokenSource();
+        cancellationTokenSource.Cancel();
+        var cancellationToken = cancellationTokenSource.Token;
+
+        var providerMockDefault = Substitute.For<FeatureProvider>();
+        providerMockDefault.InitializeAsync(Arg.Any<EvaluationContext>(), cancellationToken)
+            .Returns(ci => Task.FromCanceled(cancellationToken));
+
+        await Api.Instance.SetProviderAsync(providerMockDefault, cancellationToken);
+
+        await providerMockDefault.Received(1).InitializeAsync(Api.Instance.GetContext(), cancellationToken);
+        Assert.Equal(ProviderStatus.Error, providerMockDefault.Status);
+    }
+
+    [Fact]
     [Specification("1.1.2.3",
         "The provider mutator function MUST invoke the shutdown function on the previously registered provider once it's no longer being used to resolve flag values.")]
     public async Task OpenFeature_Should_Shutdown_Unused_Provider()
