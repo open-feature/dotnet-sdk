@@ -34,7 +34,7 @@ jobs:
             arch: arm64
             runtime: win-arm64
           # macOS x64
-          - os: macos-13
+          - os: macos-15-intel
             arch: x64
             runtime: osx-x64
           # macOS ARM64 (Apple Silicon)
