@@ -38,13 +38,13 @@ public sealed class Api : IEventBus
     /// Sets the default feature provider. In order to wait for the provider to be set, and initialization to complete,
     /// await the returned task.
     /// </summary>
-    /// <remarks>The provider cannot be set to null. Attempting to set the provider to null has no effect. May throw an exception if <paramref name="featureProvider"/> cannot be initialized.</remarks>
     /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
-    public async Task SetProviderAsync(FeatureProvider featureProvider)
+    /// <param name="cancellationToken">Propagates notification that the provider initialization should be canceled.</param>
+    /// <returns>A <see cref="Task"/> that completes once Provider initialization is complete.</returns>
+    public async Task SetProviderAsync(FeatureProvider featureProvider, CancellationToken cancellationToken = default)
     {
         this._eventExecutor.RegisterDefaultFeatureProvider(featureProvider);
-        await this._repository.SetProviderAsync(featureProvider, this.GetContext(), this.AfterInitialization, this.AfterError).ConfigureAwait(false);
-
+        await this._repository.SetProviderAsync(featureProvider, this.GetContext(), this.AfterInitialization, this.AfterError, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -54,15 +54,17 @@ public sealed class Api : IEventBus
     /// <remarks>The provider cannot be set to null. Attempting to set the provider to null has no effect. May throw an exception if <paramref name="featureProvider"/> cannot be initialized.</remarks>
     /// <param name="domain">An identifier which logically binds clients with providers</param>
     /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
+    /// <param name="cancellationToken">Propagates notification that the provider initialization should be canceled.</param>
     /// <exception cref="ArgumentNullException">domain cannot be null or empty</exception>
-    public async Task SetProviderAsync(string domain, FeatureProvider featureProvider)
+    /// <returns>A <see cref="Task"/> that completes once Provider initialization is complete.</returns>
+    public async Task SetProviderAsync(string domain, FeatureProvider featureProvider, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(domain))
         {
             throw new ArgumentNullException(nameof(domain));
         }
         this._eventExecutor.RegisterClientFeatureProvider(domain, featureProvider);
-        await this._repository.SetProviderAsync(domain, featureProvider, this.GetContext(), this.AfterInitialization, this.AfterError).ConfigureAwait(false);
+        await this._repository.SetProviderAsync(domain, featureProvider, this.GetContext(), this.AfterInitialization, this.AfterError, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
