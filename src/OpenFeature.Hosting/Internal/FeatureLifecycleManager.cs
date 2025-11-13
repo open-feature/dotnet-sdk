@@ -29,7 +29,13 @@ internal sealed partial class FeatureLifecycleManager : IFeatureLifecycleManager
 
     private async Task InitializeProvidersAsync(CancellationToken cancellationToken)
     {
-        var options = _serviceProvider.GetRequiredService<IOptions<OpenFeatureProviderOptions>>().Value;
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var options = _serviceProvider
+            .GetRequiredService<IOptions<OpenFeatureProviderOptions>>()
+            .Value
+            ?? throw new InvalidOperationException($"{nameof(OpenFeatureProviderOptions)} are not configured.");
+
         if (options.HasDefaultProvider)
         {
             var featureProvider = _serviceProvider.GetRequiredService<FeatureProvider>();
@@ -38,6 +44,8 @@ internal sealed partial class FeatureLifecycleManager : IFeatureLifecycleManager
 
         foreach (var name in options.ProviderNames)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var featureProvider = _serviceProvider.GetRequiredKeyedService<FeatureProvider>(name);
             await _featureApi.SetProviderAsync(name, featureProvider).ConfigureAwait(false);
         }
