@@ -31,7 +31,7 @@ public static class FeatureBuilderExtensions
             throw new ArgumentNullException(nameof(configure));
         }
 
-        return builder.AddProvider(
+        return (OpenFeatureBuilder)builder.AddProvider(
             serviceProvider => CreateMultiProviderFromConfigure(serviceProvider, configure));
     }
 
@@ -64,7 +64,7 @@ public static class FeatureBuilderExtensions
             throw new ArgumentNullException(nameof(configure), "Configure action cannot be null. Please provide a valid configuration for the multi-provider.");
         }
 
-        return builder.AddProvider(
+        return (OpenFeatureBuilder)builder.AddProvider(
             domain,
             (serviceProvider, _) => CreateMultiProviderFromConfigure(serviceProvider, configure));
     }
