@@ -22,7 +22,27 @@ public class InMemoryProviderTests
                 )
             },
             {
+                "boolean-disabled-flag", new Flag<bool>(
+                    disabled: true,
+                    variants: new Dictionary<string, bool>(){
+                        { "on", true },
+                        { "off", false }
+                    },
+                    defaultVariant: "on"
+                )
+            },
+            {
                 "string-flag", new Flag<string>(
+                    variants: new Dictionary<string, string>(){
+                        { "greeting", "hi" },
+                        { "parting", "bye" }
+                    },
+                    defaultVariant: "greeting"
+                )
+            },
+            {
+                "string-disabled-flag", new Flag<string>(
+                    disabled: true,
                     variants: new Dictionary<string, string>(){
                         { "greeting", "hi" },
                         { "parting", "bye" }
@@ -40,7 +60,27 @@ public class InMemoryProviderTests
                 )
             },
             {
+                "integer-disabled-flag", new Flag<int>(
+                    disabled: true,
+                    variants: new Dictionary<string, int>(){
+                        { "one", 1 },
+                        { "ten", 10 }
+                    },
+                    defaultVariant: "ten"
+                )
+            },
+            {
                 "float-flag", new Flag<double>(
+                    variants: new Dictionary<string, double>(){
+                        { "tenth", 0.1 },
+                        { "half", 0.5 }
+                    },
+                    defaultVariant: "half"
+                )
+            },
+            {
+                "float-disabled-flag", new Flag<double>(
+                    disabled: true,
                     variants: new Dictionary<string, double>(){
                         { "tenth", 0.1 },
                         { "half", 0.5 }
@@ -66,6 +106,21 @@ public class InMemoryProviderTests
             },
             {
                 "object-flag", new Flag<Value>(
+                    variants: new Dictionary<string, Value>(){
+                        { "empty", new Value() },
+                        { "template", new Value(Structure.Builder()
+                                .Set("showImages", true)
+                                .Set("title", "Check out these pics!")
+                                .Set("imagesPerPage", 100).Build()
+                            )
+                        }
+                    },
+                    defaultVariant: "template"
+                )
+            },
+            {
+                "object-disabled-flag", new Flag<Value>(
+                    disabled: true,
                     variants: new Dictionary<string, Value>(){
                         { "empty", new Value() },
                         { "template", new Value(Structure.Builder()
@@ -138,6 +193,18 @@ public class InMemoryProviderTests
     }
 
     [Fact]
+    public async Task GetBoolean_WhenDisabled_ShouldEvaluateWithDefaultReason()
+    {
+        // Act
+        ResolutionDetails<bool> details = await this.commonProvider.ResolveBooleanValueAsync("boolean-disabled-flag", false, EvaluationContext.Empty);
+
+        // Assert
+        Assert.False(details.Value);
+        Assert.Equal(Reason.Disabled, details.Reason);
+        Assert.Null(details.Variant);
+    }
+
+    [Fact]
     public async Task GetString_ShouldEvaluateWithReasonAndVariant()
     {
         ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("string-flag", "nope", EvaluationContext.Empty);
@@ -156,6 +223,18 @@ public class InMemoryProviderTests
         Assert.Equal("hi", details.Value);
         Assert.Equal(Reason.Static, details.Reason);
         Assert.Equal("greeting", details.Variant);
+    }
+
+    [Fact]
+    public async Task GetString_WhenDisabled_ShouldEvaluateWithDefaultReason()
+    {
+        // Act
+        ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("string-disabled-flag", "nope");
+
+        // Assert
+        Assert.Equal("nope", details.Value);
+        Assert.Equal(Reason.Disabled, details.Reason);
+        Assert.Null(details.Variant);
     }
 
     [Fact]
@@ -180,6 +259,18 @@ public class InMemoryProviderTests
     }
 
     [Fact]
+    public async Task GetInt_WhenDisabled_ShouldEvaluateWithDefaultReason()
+    {
+        // Act
+        ResolutionDetails<int> details = await this.commonProvider.ResolveIntegerValueAsync("integer-disabled-flag", 13);
+
+        // Assert
+        Assert.Equal(13, details.Value);
+        Assert.Equal(Reason.Disabled, details.Reason);
+        Assert.Null(details.Variant);
+    }
+
+    [Fact]
     public async Task GetDouble_ShouldEvaluateWithReasonAndVariant()
     {
         ResolutionDetails<double> details = await this.commonProvider.ResolveDoubleValueAsync("float-flag", 13, EvaluationContext.Empty);
@@ -198,6 +289,18 @@ public class InMemoryProviderTests
         Assert.Equal(0.5, details.Value);
         Assert.Equal(Reason.Static, details.Reason);
         Assert.Equal("half", details.Variant);
+    }
+
+    [Fact]
+    public async Task GetDouble_WhenDisabled_ShouldEvaluateWithDefaultReason()
+    {
+        // Act
+        ResolutionDetails<double> details = await this.commonProvider.ResolveDoubleValueAsync("float-disabled-flag", 1.3);
+
+        // Assert
+        Assert.Equal(1.3, details.Value);
+        Assert.Equal(Reason.Disabled, details.Reason);
+        Assert.Null(details.Variant);
     }
 
     [Fact]
@@ -223,6 +326,25 @@ public class InMemoryProviderTests
         Assert.Equal(100, details.Value.AsStructure?["imagesPerPage"].AsInteger);
         Assert.Equal(Reason.Static, details.Reason);
         Assert.Equal("template", details.Variant);
+    }
+
+    [Fact]
+    public async Task GetStruct_WhenDisabled_ShouldEvaluateWithDefaultReason()
+    {
+        // Arrange
+        var defaultValue = new Value(
+            Structure.Builder()
+                .Set("default", true)
+                .Build()
+        );
+
+        // Act
+        ResolutionDetails<Value> details = await this.commonProvider.ResolveStructureValueAsync("object-disabled-flag", defaultValue);
+
+        // Assert
+        Assert.Equal(true, details.Value.AsStructure?["default"].AsBoolean);
+        Assert.Equal(Reason.Disabled, details.Reason);
+        Assert.Null(details.Variant);
     }
 
     [Fact]
