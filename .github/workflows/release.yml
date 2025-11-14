@@ -93,14 +93,6 @@ jobs:
           project-name: OpenFeature.Hosting
           release-tag: ${{ needs.release-please.outputs.release_tag_name }}
 
-      # Process OpenFeature.DependencyInjection project
-      - name: Generate and Attest SBOM for OpenFeature.DependencyInjection
-        uses: ./.github/actions/sbom-generator
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          project-name: OpenFeature.DependencyInjection
-          release-tag: ${{ needs.release-please.outputs.release_tag_name }}
-
       # Process OpenFeature.Providers.MultiProvider project
       - name: Generate and Attest SBOM for OpenFeature.Providers.MultiProvider
         uses: ./.github/actions/sbom-generator
