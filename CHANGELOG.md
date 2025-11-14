@@ -1,5 +1,28 @@
 # Changelog
 
+## [2.10.0](https://github.com/open-feature/dotnet-sdk/compare/v2.9.0...v2.10.0) (2025-11-14)
+
+
+### 🐛 Bug Fixes
+
+* Address issue with FeatureClient not being resolved when no Provider added ([#607](https://github.com/open-feature/dotnet-sdk/issues/607)) ([a8d12ef](https://github.com/open-feature/dotnet-sdk/commit/a8d12ef12d75aaa770551b3052cd8725b65b5fd8))
+* Address issues when evaluating the context in the InMemoryProvider ([#615](https://github.com/open-feature/dotnet-sdk/issues/615)) ([94fcdc1](https://github.com/open-feature/dotnet-sdk/commit/94fcdc142c61f41619af222778d6d84264f2831c))
+* Ensure AddPolicyName without adding a Provider does not get stuck in infinite loop ([#606](https://github.com/open-feature/dotnet-sdk/issues/606)) ([4b965dd](https://github.com/open-feature/dotnet-sdk/commit/4b965dddcaeef761e01f8fcbd28941ae3f3074c9))
+* Ensure EvaluationContext is reliably added to the injected FeatureClient ([#605](https://github.com/open-feature/dotnet-sdk/issues/605)) ([c987b58](https://github.com/open-feature/dotnet-sdk/commit/c987b58b66c8186486fd06aebdc4042052f30beb))
+
+
+### ✨ New Features
+
+* Add DI for multi provider ([#621](https://github.com/open-feature/dotnet-sdk/issues/621)) ([ee862f0](https://github.com/open-feature/dotnet-sdk/commit/ee862f09cb2c58f43f84957fa95e8b25e8e36f72))
+* Add SourceLink configuration for .NET SDK 8+ to enhance debugging experience ([1b40391](https://github.com/open-feature/dotnet-sdk/commit/1b40391034b0762aa755a05374a908eb97cdf444))
+* Add SourceLink configuration for .NET to enhance debugging experience ([#614](https://github.com/open-feature/dotnet-sdk/issues/614)) ([1b40391](https://github.com/open-feature/dotnet-sdk/commit/1b40391034b0762aa755a05374a908eb97cdf444))
+* Add tracking to multi-provider ([#612](https://github.com/open-feature/dotnet-sdk/issues/612)) ([186b357](https://github.com/open-feature/dotnet-sdk/commit/186b3574702258fb33716162094888b9f7560c7c))
+
+
+### 🔧 Refactoring
+
+* Clean up project files by removing TargetFrameworks and formatting ([#611](https://github.com/open-feature/dotnet-sdk/issues/611)) ([dfbc3ee](https://github.com/open-feature/dotnet-sdk/commit/dfbc3eef1f7468dc363c71fef1eb1f42e1bb8a88))
+
 ## [2.9.0](https://github.com/open-feature/dotnet-sdk/compare/v2.8.1...v2.9.0) (2025-10-16)
 
 
