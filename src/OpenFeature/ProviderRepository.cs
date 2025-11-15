@@ -55,8 +55,8 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
     internal async Task SetProviderAsync(
         FeatureProvider? featureProvider,
         EvaluationContext context,
-        Func<FeatureProvider, Task>? afterInitSuccess = null,
-        Func<FeatureProvider, Exception, Task>? afterInitError = null,
+        Func<FeatureProvider, CancellationToken, Task>? afterInitSuccess = null,
+        Func<FeatureProvider, Exception, CancellationToken, Task>? afterInitError = null,
         CancellationToken cancellationToken = default)
     {
         // Cannot unset the feature provider.
@@ -93,8 +93,8 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
     private static async Task InitProviderAsync(
         FeatureProvider? newProvider,
         EvaluationContext context,
-        Func<FeatureProvider, Task>? afterInitialization,
-        Func<FeatureProvider, Exception, Task>? afterError,
+        Func<FeatureProvider, CancellationToken, Task>? afterInitialization,
+        Func<FeatureProvider, Exception, CancellationToken, Task>? afterError,
         CancellationToken cancellationToken = default)
     {
         if (newProvider == null)
@@ -108,14 +108,14 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
                 await newProvider.InitializeAsync(context, cancellationToken).ConfigureAwait(false);
                 if (afterInitialization != null)
                 {
-                    await afterInitialization.Invoke(newProvider).ConfigureAwait(false);
+                    await afterInitialization.Invoke(newProvider, cancellationToken).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
             {
                 if (afterError != null)
                 {
-                    await afterError.Invoke(newProvider, ex).ConfigureAwait(false);
+                    await afterError.Invoke(newProvider, ex, cancellationToken).ConfigureAwait(false);
                 }
             }
         }
@@ -138,8 +138,8 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
     internal async Task SetProviderAsync(string domain,
         FeatureProvider? featureProvider,
         EvaluationContext context,
-        Func<FeatureProvider, Task>? afterInitSuccess = null,
-        Func<FeatureProvider, Exception, Task>? afterInitError = null,
+        Func<FeatureProvider, CancellationToken, Task>? afterInitSuccess = null,
+        Func<FeatureProvider, Exception, CancellationToken, Task>? afterInitError = null,
         CancellationToken cancellationToken = default)
     {
         // Cannot set a provider for a null domain.
