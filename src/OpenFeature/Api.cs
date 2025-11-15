@@ -43,7 +43,8 @@ public sealed class Api : IEventBus
     public async Task SetProviderAsync(FeatureProvider featureProvider)
     {
         this._eventExecutor.RegisterDefaultFeatureProvider(featureProvider);
-        await this._repository.SetProviderAsync(featureProvider, this.GetContext(), this.AfterInitialization, this.AfterError).ConfigureAwait(false);
+        await this._repository.SetProviderAsync(featureProvider, this.GetContext(), this.AfterInitializationAsync, this.AfterErrorAsync)
+            .ConfigureAwait(false);
 
     }
 
@@ -62,7 +63,8 @@ public sealed class Api : IEventBus
             throw new ArgumentNullException(nameof(domain));
         }
         this._eventExecutor.RegisterClientFeatureProvider(domain, featureProvider);
-        await this._repository.SetProviderAsync(domain, featureProvider, this.GetContext(), this.AfterInitialization, this.AfterError).ConfigureAwait(false);
+        await this._repository.SetProviderAsync(domain, featureProvider, this.GetContext(), this.AfterInitializationAsync, this.AfterErrorAsync)
+            .ConfigureAwait(false);
     }
 
     /// <summary>
@@ -324,7 +326,7 @@ public sealed class Api : IEventBus
     /// <summary>
     /// Update the provider state to READY and emit a READY event after successful init.
     /// </summary>
-    private async Task AfterInitialization(FeatureProvider provider, CancellationToken cancellationToken = default)
+    private async Task AfterInitializationAsync(FeatureProvider provider, CancellationToken cancellationToken = default)
     {
         provider.Status = ProviderStatus.Ready;
         var eventPayload = new ProviderEventPayload
@@ -341,7 +343,7 @@ public sealed class Api : IEventBus
     /// <summary>
     /// Update the provider state to ERROR and emit an ERROR after failed init.
     /// </summary>
-    private async Task AfterError(FeatureProvider provider, Exception? ex, CancellationToken cancellationToken = default)
+    private async Task AfterErrorAsync(FeatureProvider provider, Exception? ex, CancellationToken cancellationToken = default)
     {
         provider.Status = typeof(ProviderFatalException) == ex?.GetType() ? ProviderStatus.Fatal : ProviderStatus.Error;
         var eventPayload = new ProviderEventPayload
