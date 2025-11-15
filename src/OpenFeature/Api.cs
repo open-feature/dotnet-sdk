@@ -324,7 +324,7 @@ public sealed class Api : IEventBus
     /// <summary>
     /// Update the provider state to READY and emit a READY event after successful init.
     /// </summary>
-    private async Task AfterInitialization(FeatureProvider provider)
+    private async Task AfterInitialization(FeatureProvider provider, CancellationToken cancellationToken = default)
     {
         provider.Status = ProviderStatus.Ready;
         var eventPayload = new ProviderEventPayload
@@ -334,13 +334,14 @@ public sealed class Api : IEventBus
             ProviderName = provider.GetMetadata()?.Name,
         };
 
-        await this._eventExecutor.EventChannel.Writer.WriteAsync(new Event { Provider = provider, EventPayload = eventPayload }).ConfigureAwait(false);
+        await this._eventExecutor.EventChannel.Writer.WriteAsync(new Event { Provider = provider, EventPayload = eventPayload }, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <summary>
     /// Update the provider state to ERROR and emit an ERROR after failed init.
     /// </summary>
-    private async Task AfterError(FeatureProvider provider, Exception? ex)
+    private async Task AfterError(FeatureProvider provider, Exception? ex, CancellationToken cancellationToken = default)
     {
         provider.Status = typeof(ProviderFatalException) == ex?.GetType() ? ProviderStatus.Fatal : ProviderStatus.Error;
         var eventPayload = new ProviderEventPayload
@@ -350,7 +351,8 @@ public sealed class Api : IEventBus
             ProviderName = provider.GetMetadata()?.Name,
         };
 
-        await this._eventExecutor.EventChannel.Writer.WriteAsync(new Event { Provider = provider, EventPayload = eventPayload }).ConfigureAwait(false);
+        await this._eventExecutor.EventChannel.Writer.WriteAsync(new Event { Provider = provider, EventPayload = eventPayload }, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <summary>
