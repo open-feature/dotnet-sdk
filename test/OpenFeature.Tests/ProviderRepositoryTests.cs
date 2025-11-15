@@ -211,6 +211,30 @@ public class ProviderRepositoryTests
     }
 
     [Fact]
+    public async Task AfterInitialization_WithNamedProvider_Is_Invoked_With_CancellationToken()
+    {
+        var repository = new ProviderRepository();
+        var providerMock = Substitute.For<FeatureProvider>();
+        providerMock.Status.Returns(ProviderStatus.NotReady);
+
+        var context = new EvaluationContextBuilder().Build();
+        using var cancellationTokenSource = new CancellationTokenSource();
+        var cancellationToken = cancellationTokenSource.Token;
+
+        var initCancellationToken = CancellationToken.None;
+        await repository.SetProviderAsync("the-name", providerMock, context, afterInitSuccess: (theProvider, ct) =>
+        {
+            Assert.Equal(providerMock, theProvider);
+
+            initCancellationToken = ct;
+
+            return Task.CompletedTask;
+        }, cancellationToken: cancellationToken);
+
+        Assert.Equal(cancellationToken, initCancellationToken);
+    }
+
+    [Fact]
     public async Task AfterError_Is_Invoked_If_Initialization_Errors_Named_Provider()
     {
         var repository = new ProviderRepository();
