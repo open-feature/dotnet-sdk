@@ -256,7 +256,7 @@ public class ProviderRepositoryTests
     }
 
     [Fact]
-    public async Task AfterError_WithNamedProvided_Is_Invoked_With_CancellationToken()
+    public async Task AfterError_WithNamedProvider_Is_Invoked_With_CancellationToken()
     {
         var repository = new ProviderRepository();
         var providerMock = Substitute.For<FeatureProvider>();
