@@ -64,7 +64,8 @@ public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
         providerMockDefault.InitializeAsync(Arg.Any<EvaluationContext>(), cancellationToken)
             .Returns(ci => Task.FromCanceled(cancellationToken));
 
-        await Api.Instance.SetProviderAsync(providerMockDefault, cancellationToken);
+        await Assert.ThrowsAsync<TaskCanceledException>(() =>
+            Api.Instance.SetProviderAsync(providerMockDefault, cancellationToken));
 
         await providerMockDefault.Received(1).InitializeAsync(Api.Instance.GetContext(), cancellationToken);
         Assert.Equal(ProviderStatus.Error, providerMockDefault.Status);
