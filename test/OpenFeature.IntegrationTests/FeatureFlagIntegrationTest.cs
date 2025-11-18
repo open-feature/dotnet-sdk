@@ -224,8 +224,8 @@ public class FeatureFlagIntegrationTest
             {
                 if (serviceLifetime == ServiceLifetime.Scoped)
                 {
-                    using var scoped = provider.CreateScope();
-                    var flagService = scoped.ServiceProvider.GetRequiredService<IFeatureFlagConfigurationService>();
+                    using var scope = provider.CreateScope();
+                    var flagService = scope.ServiceProvider.GetRequiredService<IFeatureFlagConfigurationService>();
                     return flagService.GetFlags();
                 }
                 else
