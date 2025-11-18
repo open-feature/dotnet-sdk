@@ -53,6 +53,11 @@ builder.Services.AddOpenFeature(featureBuilder =>
                     new Dictionary<string, bool> { { "show", true }, { "hide", false } }, "show")
             },
             {
+                "disabled-flag", new Flag<string>(
+                    new Dictionary<string, string> { { "on", "This flag is on" }, { "off", "This flag is off" } }, "off",
+                        disabled: true)
+            },
+            {
                 "test-config", new Flag<Value>(new Dictionary<string, Value>()
                 {
                     { "enable", new Value(Structure.Builder().Set(nameof(TestConfig.Threshold), 100).Build()) },
