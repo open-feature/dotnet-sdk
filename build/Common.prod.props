@@ -33,4 +33,16 @@
     <None Include="$(MSBuildThisFileDirectory)openfeature-icon.png" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
+  <!-- SourceLink configuration for .NET SDK 8+ -->
+  <!-- https://learn.microsoft.com/dotnet/core/compatibility/sdk/8.0/source-link -->
+  <PropertyGroup Label="SourceLink">
+    <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <!-- Embed source files that are not tracked by the source control manager in the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <!-- Include symbols in a separate .snupkg file -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
 </Project>

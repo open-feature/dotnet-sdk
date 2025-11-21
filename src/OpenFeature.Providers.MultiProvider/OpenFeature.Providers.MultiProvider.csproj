@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net9.0;netstandard2.0;net462</TargetFrameworks>
     <RootNamespace>OpenFeature.Providers.MultiProvider</RootNamespace>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
@@ -14,5 +13,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OpenFeature\OpenFeature.csproj" />
+    <ProjectReference Include="..\OpenFeature.Hosting\OpenFeature.Hosting.csproj" />
   </ItemGroup>
 </Project>

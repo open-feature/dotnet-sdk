@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
@@ -18,11 +18,14 @@
     </PackageReference>
     <PackageReference Include="Reqnroll.xUnit" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NSubstitute" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <!-- Reqnroll 3.2.0 requires System.Threading.Channels >= 9.0.6 -->
+    <PackageVersion Update="System.Threading.Channels" Version="9.0.6" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,7 +36,15 @@
     <ItemGroup>
       <GherkinFiles Include="..\..\spec\specification\assets\gherkin\*" />
     </ItemGroup>
-    <Copy SourceFiles="@(GherkinFiles)" DestinationFolder="Features/"/>
+    <Copy SourceFiles="@(GherkinFiles)" DestinationFolder="Features/" />
   </Target>
+
+  <!-- Only link test-flags.json if the submodule is cloned -->
+  <!-- If no submodule is cloned, Reqnroll wont generate the e2e tests -->
+  <ItemGroup Condition="Exists('..\..\spec\specification\assets\gherkin\test-flags.json')">
+    <None Include="..\..\spec\specification\assets\gherkin\test-flags.json" Link="Features\test-flags.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>

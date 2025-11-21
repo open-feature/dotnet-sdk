@@ -22,7 +22,27 @@ public class InMemoryProviderTests
                 )
             },
             {
+                "boolean-disabled-flag", new Flag<bool>(
+                    disabled: true,
+                    variants: new Dictionary<string, bool>(){
+                        { "on", true },
+                        { "off", false }
+                    },
+                    defaultVariant: "on"
+                )
+            },
+            {
                 "string-flag", new Flag<string>(
+                    variants: new Dictionary<string, string>(){
+                        { "greeting", "hi" },
+                        { "parting", "bye" }
+                    },
+                    defaultVariant: "greeting"
+                )
+            },
+            {
+                "string-disabled-flag", new Flag<string>(
+                    disabled: true,
                     variants: new Dictionary<string, string>(){
                         { "greeting", "hi" },
                         { "parting", "bye" }
@@ -40,7 +60,27 @@ public class InMemoryProviderTests
                 )
             },
             {
+                "integer-disabled-flag", new Flag<int>(
+                    disabled: true,
+                    variants: new Dictionary<string, int>(){
+                        { "one", 1 },
+                        { "ten", 10 }
+                    },
+                    defaultVariant: "ten"
+                )
+            },
+            {
                 "float-flag", new Flag<double>(
+                    variants: new Dictionary<string, double>(){
+                        { "tenth", 0.1 },
+                        { "half", 0.5 }
+                    },
+                    defaultVariant: "half"
+                )
+            },
+            {
+                "float-disabled-flag", new Flag<double>(
+                    disabled: true,
                     variants: new Dictionary<string, double>(){
                         { "tenth", 0.1 },
                         { "half", 0.5 }
@@ -79,6 +119,21 @@ public class InMemoryProviderTests
                 )
             },
             {
+                "object-disabled-flag", new Flag<Value>(
+                    disabled: true,
+                    variants: new Dictionary<string, Value>(){
+                        { "empty", new Value() },
+                        { "template", new Value(Structure.Builder()
+                                .Set("showImages", true)
+                                .Set("title", "Check out these pics!")
+                                .Set("imagesPerPage", 100).Build()
+                            )
+                        }
+                    },
+                    defaultVariant: "template"
+                )
+            },
+            {
                 "invalid-flag", new Flag<bool>(
                     variants: new Dictionary<string, bool>(){
                         { "on", true },
@@ -98,6 +153,18 @@ public class InMemoryProviderTests
                         return "missing";
                     }
                 )
+            },
+            {
+                "evaluator-throws-flag", new Flag<bool>(
+                    variants: new Dictionary<string, bool>(){
+                        { "on", true },
+                        { "off", false }
+                    },
+                    defaultVariant: "on",
+                    (context) => {
+                        throw new Exception("Cannot evaluate flag at the moment.");
+                    }
+                )
             }
         });
 
@@ -114,12 +181,60 @@ public class InMemoryProviderTests
     }
 
     [Fact]
+    public async Task GetBoolean_WithNoEvaluationContext_ShouldEvaluateWithReasonAndVariant()
+    {
+        // Act
+        ResolutionDetails<bool> details = await this.commonProvider.ResolveBooleanValueAsync("boolean-flag", false);
+
+        // Assert
+        Assert.True(details.Value);
+        Assert.Equal(Reason.Static, details.Reason);
+        Assert.Equal("on", details.Variant);
+    }
+
+    [Fact]
+    public async Task GetBoolean_WhenDisabled_ShouldEvaluateWithDefaultReason()
+    {
+        // Act
+        ResolutionDetails<bool> details = await this.commonProvider.ResolveBooleanValueAsync("boolean-disabled-flag", false, EvaluationContext.Empty);
+
+        // Assert
+        Assert.False(details.Value);
+        Assert.Equal(Reason.Disabled, details.Reason);
+        Assert.Null(details.Variant);
+    }
+
+    [Fact]
     public async Task GetString_ShouldEvaluateWithReasonAndVariant()
     {
         ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("string-flag", "nope", EvaluationContext.Empty);
         Assert.Equal("hi", details.Value);
         Assert.Equal(Reason.Static, details.Reason);
         Assert.Equal("greeting", details.Variant);
+    }
+
+    [Fact]
+    public async Task GetString_WithNoEvaluationContext_ShouldEvaluateWithReasonAndVariant()
+    {
+        // Act
+        ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("string-flag", "nope");
+
+        // Assert
+        Assert.Equal("hi", details.Value);
+        Assert.Equal(Reason.Static, details.Reason);
+        Assert.Equal("greeting", details.Variant);
+    }
+
+    [Fact]
+    public async Task GetString_WhenDisabled_ShouldEvaluateWithDefaultReason()
+    {
+        // Act
+        ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("string-disabled-flag", "nope");
+
+        // Assert
+        Assert.Equal("nope", details.Value);
+        Assert.Equal(Reason.Disabled, details.Reason);
+        Assert.Null(details.Variant);
     }
 
     [Fact]
@@ -132,12 +247,60 @@ public class InMemoryProviderTests
     }
 
     [Fact]
+    public async Task GetInt_WithNoEvaluationContext_ShouldEvaluateWithReasonAndVariant()
+    {
+        // Act
+        ResolutionDetails<int> details = await this.commonProvider.ResolveIntegerValueAsync("integer-flag", 13);
+
+        // Assert
+        Assert.Equal(10, details.Value);
+        Assert.Equal(Reason.Static, details.Reason);
+        Assert.Equal("ten", details.Variant);
+    }
+
+    [Fact]
+    public async Task GetInt_WhenDisabled_ShouldEvaluateWithDefaultReason()
+    {
+        // Act
+        ResolutionDetails<int> details = await this.commonProvider.ResolveIntegerValueAsync("integer-disabled-flag", 13);
+
+        // Assert
+        Assert.Equal(13, details.Value);
+        Assert.Equal(Reason.Disabled, details.Reason);
+        Assert.Null(details.Variant);
+    }
+
+    [Fact]
     public async Task GetDouble_ShouldEvaluateWithReasonAndVariant()
     {
         ResolutionDetails<double> details = await this.commonProvider.ResolveDoubleValueAsync("float-flag", 13, EvaluationContext.Empty);
         Assert.Equal(0.5, details.Value);
         Assert.Equal(Reason.Static, details.Reason);
         Assert.Equal("half", details.Variant);
+    }
+
+    [Fact]
+    public async Task GetDouble_WithNoEvaluationContext_ShouldEvaluateWithReasonAndVariant()
+    {
+        // Arrange
+        ResolutionDetails<double> details = await this.commonProvider.ResolveDoubleValueAsync("float-flag", 13);
+
+        // Assert
+        Assert.Equal(0.5, details.Value);
+        Assert.Equal(Reason.Static, details.Reason);
+        Assert.Equal("half", details.Variant);
+    }
+
+    [Fact]
+    public async Task GetDouble_WhenDisabled_ShouldEvaluateWithDefaultReason()
+    {
+        // Act
+        ResolutionDetails<double> details = await this.commonProvider.ResolveDoubleValueAsync("float-disabled-flag", 1.3);
+
+        // Assert
+        Assert.Equal(1.3, details.Value);
+        Assert.Equal(Reason.Disabled, details.Reason);
+        Assert.Null(details.Variant);
     }
 
     [Fact]
@@ -152,6 +315,39 @@ public class InMemoryProviderTests
     }
 
     [Fact]
+    public async Task GetStruct_WithNoEvaluationContext_ShouldEvaluateWithReasonAndVariant()
+    {
+        // Act
+        ResolutionDetails<Value> details = await this.commonProvider.ResolveStructureValueAsync("object-flag", new Value());
+
+        // Assert
+        Assert.Equal(true, details.Value.AsStructure?["showImages"].AsBoolean);
+        Assert.Equal("Check out these pics!", details.Value.AsStructure?["title"].AsString);
+        Assert.Equal(100, details.Value.AsStructure?["imagesPerPage"].AsInteger);
+        Assert.Equal(Reason.Static, details.Reason);
+        Assert.Equal("template", details.Variant);
+    }
+
+    [Fact]
+    public async Task GetStruct_WhenDisabled_ShouldEvaluateWithDefaultReason()
+    {
+        // Arrange
+        var defaultValue = new Value(
+            Structure.Builder()
+                .Set("default", true)
+                .Build()
+        );
+
+        // Act
+        ResolutionDetails<Value> details = await this.commonProvider.ResolveStructureValueAsync("object-disabled-flag", defaultValue);
+
+        // Assert
+        Assert.Equal(true, details.Value.AsStructure?["default"].AsBoolean);
+        Assert.Equal(Reason.Disabled, details.Reason);
+        Assert.Null(details.Variant);
+    }
+
+    [Fact]
     public async Task GetString_ContextSensitive_ShouldEvaluateWithReasonAndVariant()
     {
         EvaluationContext context = EvaluationContext.Builder().Set("email", "me@faas.com").Build();
@@ -159,6 +355,18 @@ public class InMemoryProviderTests
         Assert.Equal("INTERNAL", details.Value);
         Assert.Equal(Reason.TargetingMatch, details.Reason);
         Assert.Equal("internal", details.Variant);
+    }
+
+    [Fact]
+    public async Task GetString_ContextSensitive_WithNoEvaluationContext_ShouldEvaluateWithReasonAndVariant()
+    {
+        // Act
+        ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("context-aware", "nope");
+
+        // Assert
+        Assert.Equal("EXTERNAL", details.Value);
+        Assert.Equal(Reason.Default, details.Reason);
+        Assert.Equal("external", details.Variant);
     }
 
     [Fact]
@@ -198,9 +406,27 @@ public class InMemoryProviderTests
     }
 
     [Fact]
-    public async Task MissingEvaluatedVariant_ShouldThrow()
+    public async Task MissingEvaluatedVariant_ReturnsDefaultVariant()
     {
-        await Assert.ThrowsAsync<GeneralException>(() => this.commonProvider.ResolveBooleanValueAsync("invalid-evaluator-flag", false, EvaluationContext.Empty));
+        // Act
+        var result = await this.commonProvider.ResolveBooleanValueAsync("invalid-evaluator-flag", false, EvaluationContext.Empty);
+
+        // Assert
+        Assert.True(result.Value);
+        Assert.Equal(Reason.Default, result.Reason);
+        Assert.Equal("on", result.Variant);
+    }
+
+    [Fact]
+    public async Task ContextEvaluatorThrows_ReturnsDefaultVariant()
+    {
+        // Act
+        var result = await this.commonProvider.ResolveBooleanValueAsync("evaluator-throws-flag", false, EvaluationContext.Empty);
+
+        // Assert
+        Assert.True(result.Value);
+        Assert.Equal(Reason.Default, result.Reason);
+        Assert.Equal("on", result.Variant);
     }
 
     [Fact]

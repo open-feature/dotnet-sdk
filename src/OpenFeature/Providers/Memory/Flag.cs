@@ -7,7 +7,13 @@ namespace OpenFeature.Providers.Memory;
 /// <summary>
 /// Flag representation for the in-memory provider.
 /// </summary>
-public interface Flag;
+public interface Flag
+{
+    /// <summary>
+    /// Indicates if the flag is disabled. When disabled, the flag will resolve to the default value.
+    /// </summary>
+    bool Disabled { get; }
+}
 
 /// <summary>
 /// Flag representation for the in-memory provider.
@@ -26,51 +32,75 @@ public sealed class Flag<T> : Flag
     /// <param name="defaultVariant">default variant (should match 1 key in variants dictionary)</param>
     /// <param name="contextEvaluator">optional context-sensitive evaluation function</param>
     /// <param name="flagMetadata">optional metadata for the flag</param>
-    public Flag(Dictionary<string, T> variants, string defaultVariant, Func<EvaluationContext, string>? contextEvaluator = null, ImmutableMetadata? flagMetadata = null)
+    /// <param name="disabled">indicates if the flag is disabled</param>
+    public Flag(Dictionary<string, T> variants, string defaultVariant, Func<EvaluationContext, string>? contextEvaluator = null, ImmutableMetadata? flagMetadata = null, bool disabled = false)
     {
         this._variants = variants;
         this._defaultVariant = defaultVariant;
         this._contextEvaluator = contextEvaluator;
         this._flagMetadata = flagMetadata;
+        this.Disabled = disabled;
     }
 
-    internal ResolutionDetails<T> Evaluate(string flagKey, T _, EvaluationContext? evaluationContext)
+    /// <summary>
+    /// Indicates if the flag is disabled. When disabled, the flag will resolve to the default value.
+    /// </summary>
+    public bool Disabled { get; }
+
+    internal ResolutionDetails<T> Evaluate(string flagKey, T defaultValue, EvaluationContext? evaluationContext)
     {
-        T? value;
+        if (this.Disabled)
+        {
+            return new ResolutionDetails<T>(
+                flagKey,
+                defaultValue,
+                reason: Reason.Disabled,
+                flagMetadata: this._flagMetadata
+            );
+        }
+
         if (this._contextEvaluator == null)
         {
-            if (this._variants.TryGetValue(this._defaultVariant, out value))
-            {
-                return new ResolutionDetails<T>(
-                    flagKey,
-                    value,
-                    variant: this._defaultVariant,
-                    reason: Reason.Static,
-                    flagMetadata: this._flagMetadata
-                );
-            }
-            else
-            {
-                throw new GeneralException($"variant {this._defaultVariant} not found");
-            }
+            return this.EvaluateDefaultVariant(flagKey);
         }
-        else
+
+        string variant;
+        try
         {
-            var variant = this._contextEvaluator.Invoke(evaluationContext ?? EvaluationContext.Empty);
-            if (!this._variants.TryGetValue(variant, out value))
-            {
-                throw new GeneralException($"variant {variant} not found");
-            }
-            else
-            {
-                return new ResolutionDetails<T>(
-                    flagKey,
-                    value,
-                    variant: variant,
-                    reason: Reason.TargetingMatch,
-                    flagMetadata: this._flagMetadata
-                );
-            }
+            variant = this._contextEvaluator.Invoke(evaluationContext ?? EvaluationContext.Empty);
         }
+        catch (Exception)
+        {
+            return this.EvaluateDefaultVariant(flagKey, Reason.Default);
+        }
+
+        if (!this._variants.TryGetValue(variant, out var value))
+        {
+            return this.EvaluateDefaultVariant(flagKey, Reason.Default);
+        }
+
+        return new ResolutionDetails<T>(
+            flagKey,
+            value,
+            variant: variant,
+            reason: Reason.TargetingMatch,
+            flagMetadata: this._flagMetadata
+        );
+    }
+
+    private ResolutionDetails<T> EvaluateDefaultVariant(string flagKey, string reason = Reason.Static)
+    {
+        if (this._variants.TryGetValue(this._defaultVariant, out var value))
+        {
+            return new ResolutionDetails<T>(
+                flagKey,
+                value,
+                variant: this._defaultVariant,
+                reason: reason,
+                flagMetadata: this._flagMetadata
+            );
+        }
+
+        throw new GeneralException($"variant {this._defaultVariant} not found");
     }
 }

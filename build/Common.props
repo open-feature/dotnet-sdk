@@ -28,4 +28,11 @@
   <ItemGroup Condition="'$(OS)' == 'Unix'">
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="all" />
   </ItemGroup>
+
+  <!-- This is a workaround for targeting .NET Framework 4.6.2 (it fails to build with certain
+  warnings) -->
+  <PropertyGroup
+    Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net462'))">
+    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
+  </PropertyGroup>
 </Project>
