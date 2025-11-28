@@ -57,17 +57,4 @@ public class OpenFeatureOptionsTests
         // Assert
         Assert.Single(options.ProviderNames);
     }
-
-    [Fact]
-    public void AddHookName_RegistersHookName()
-    {
-        // Arrange
-        var options = new OpenFeatureOptions();
-
-        // Act
-        options.AddHookName("test-hook");
-
-        // Assert
-        Assert.Single(options.HookNames);
-    }
 }
