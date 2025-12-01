@@ -81,6 +81,7 @@ jobs:
         shell: pwsh
         run: |
           dotnet publish test/OpenFeature.AotCompatibility/OpenFeature.AotCompatibility.csproj `
+            -f net10.0 `
             -r ${{ matrix.runtime }} `
             -o ./aot-output
 
