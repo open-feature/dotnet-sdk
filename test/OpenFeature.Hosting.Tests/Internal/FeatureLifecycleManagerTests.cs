@@ -70,10 +70,9 @@ public class FeatureLifecycleManagerTests : IAsyncLifetime
         services.AddOptions<OpenFeatureOptions>().Configure(options =>
         {
             options.AddProviderName(null);
-            options.AddHookName("TestHook");
         });
         services.AddSingleton<FeatureProvider>(provider);
-        services.AddKeyedSingleton<Hook>("TestHook", hook);
+        services.AddSingleton<Hook>(hook);
 
         var api = Api.Instance;
 
