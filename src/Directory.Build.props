@@ -2,7 +2,7 @@
   <Import
     Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'OpenFeature.slnx'))\build\Common.prod.props" />
   <PropertyGroup>
-    <TargetFrameworks>net462;netstandard2.0;net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>net462;netstandard2.0;net8.0;net9.0;net10.0</TargetFrameworks>
     <!-- Enable native AOT related analyzers
     https://learn.microsoft.com/dotnet/core/deploying/native-aot/#aot-compatibility-analyzers -->
     <IsAotCompatible>$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))</IsAotCompatible>

@@ -26,7 +26,7 @@ To enable NativeAOT in your project, add these properties to your `.csproj` file
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework> <!-- or net9.0 -->
+    <TargetFramework>net8.0</TargetFramework> <!-- or net9.0, net10.0 -->
     <OutputType>Exe</OutputType>
 
     <!-- Enable NativeAOT -->
