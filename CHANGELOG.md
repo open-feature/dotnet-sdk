@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.11.0](https://github.com/open-feature/dotnet-sdk/compare/v2.10.0...v2.11.0) (2025-12-18)
+
+
+### ✨ New Features
+
+* Upgrade to dotnet version 10 ([#658](https://github.com/open-feature/dotnet-sdk/issues/658)) ([c7be7e0](https://github.com/open-feature/dotnet-sdk/commit/c7be7e0fbff694ec9ef794548f6e7a478412b68b))
+
 ## [2.10.0](https://github.com/open-feature/dotnet-sdk/compare/v2.9.0...v2.10.0) (2025-12-01)
 
 
