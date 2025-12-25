@@ -339,4 +339,71 @@ public class MetricsHookTest
         Assert.Equal("my-provider", measurements.Tags["feature_flag.provider.name"]);
         Assert.Equal("custom_dimension_value", measurements.Tags["custom_dimension_key"]);
     }
+
+    [Fact]
+    public async Task ActiveCounter_Before_And_Finally_Have_Same_Tags_Test()
+    {
+        // Arrange
+        var metricsHookOptions = MetricsHookOptions.CreateBuilder()
+            .WithCustomDimension("custom_dimension_key", "custom_dimension_value")
+            .WithFlagEvaluationMetadata("boolean", m => m.GetBool("boolean"))
+            .Build();
+
+        var metricsHook = new MetricsHook(metricsHookOptions);
+
+        using var collector = new MetricCollector<long>(metricsHook._evaluationActiveUpDownCounter);
+
+        var flagMetadata = new ImmutableMetadata(new Dictionary<string, object> { { "boolean", true } });
+
+        var evaluationContext = EvaluationContext.Empty;
+        var ctx = new HookContext<string>("my-flag", "foo", Constant.FlagValueType.String,
+            new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
+        var evaluationDetails = new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default", flagMetadata: flagMetadata);
+
+        // Act
+        await metricsHook.BeforeAsync(ctx, new Dictionary<string, object>()).ConfigureAwait(true);
+        await metricsHook.FinallyAsync(ctx, evaluationDetails, new Dictionary<string, object>()).ConfigureAwait(true);
+
+        var measurements = collector.GetMeasurementSnapshot();
+
+        // Assert
+        Assert.NotNull(measurements);
+        Assert.Equal(2, measurements.Count);
+        Assert.Equal(0, measurements.Sum(m => m.Value));
+
+        var beforeTagKeys = measurements[0].Tags.Keys.OrderBy(k => k).ToList();
+        var finallyTagKeys = measurements[1].Tags.Keys.OrderBy(k => k).ToList();
+
+        Assert.Equal(beforeTagKeys, finallyTagKeys);
+    }
+
+    [Fact]
+    public async Task ActiveCounter_With_FlagMetadata_Before_Has_Null_Metadata_Test()
+    {
+        // Arrange
+        var metricsHookOptions = MetricsHookOptions.CreateBuilder()
+            .WithFlagEvaluationMetadata("boolean", m => m.GetBool("boolean"))
+            .Build();
+
+        var metricsHook = new MetricsHook(metricsHookOptions);
+
+        using var collector = new MetricCollector<long>(metricsHook._evaluationActiveUpDownCounter);
+
+        var evaluationContext = EvaluationContext.Empty;
+        var ctx = new HookContext<string>("my-flag", "foo", Constant.FlagValueType.String,
+            new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
+
+        // Act - call BeforeAsync (no flag metadata available yet)
+        await metricsHook.BeforeAsync(ctx, new Dictionary<string, object>()).ConfigureAwait(true);
+
+        var measurements = collector.LastMeasurement;
+
+        // Assert - should handle null metadata gracefully
+        Assert.NotNull(measurements);
+        Assert.Equal(1, measurements.Value);
+        Assert.Equal("my-flag", measurements.Tags["feature_flag.key"]);
+        Assert.Equal("my-provider", measurements.Tags["feature_flag.provider.name"]);
+        Assert.Contains(measurements.Tags, t => t.Key == "boolean");
+        Assert.Null(measurements.Tags["boolean"]);
+    }
 }
