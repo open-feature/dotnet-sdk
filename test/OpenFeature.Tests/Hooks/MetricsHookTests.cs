@@ -403,7 +403,7 @@ public class MetricsHookTest
         Assert.Equal(1, measurements.Value);
         Assert.Equal("my-flag", measurements.Tags["feature_flag.key"]);
         Assert.Equal("my-provider", measurements.Tags["feature_flag.provider.name"]);
-        Assert.Contains(measurements.Tags, t => t.Key == "boolean");
+        Assert.Contains("boolean", measurements.Tags.Keys);
         Assert.Null(measurements.Tags["boolean"]);
     }
 }
