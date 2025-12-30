@@ -46,6 +46,26 @@ builder.Services.AddOpenFeature(featureBuilder =>
         .AddHook(sp => new LoggingHook(sp.GetRequiredService<ILogger<LoggingHook>>()))
         .AddHook(_ => new MetricsHook(metricsHookOptions))
         .AddHook<TraceEnricherHook>()
+        .AddInMemoryProvider("InMemory", _ => new Dictionary<string, Flag>()
+        {
+            {
+                "welcome-message", new Flag<bool>(
+                    new Dictionary<string, bool> { { "show", true }, { "hide", false } }, "show")
+            },
+            {
+                "disabled-flag", new Flag<string>(
+                    new Dictionary<string, string> { { "on", "This flag is on" }, { "off", "This flag is off" } }, "off",
+                        disabled: true)
+            },
+            {
+                "test-config", new Flag<Value>(new Dictionary<string, Value>()
+                {
+                    { "enable", new Value(Structure.Builder().Set(nameof(TestConfig.Threshold), 100).Build()) },
+                    { "half", new Value(Structure.Builder().Set(nameof(TestConfig.Threshold), 50).Build()) },
+                    { "disable", new Value(Structure.Builder().Set(nameof(TestConfig.Threshold), 0).Build()) }
+                }, "disable")
+            }
+        })
         .AddMultiProvider("multi-provider", multiProviderBuilder =>
         {
             // Create provider flags

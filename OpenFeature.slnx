@@ -48,9 +48,6 @@
     <Project Path="samples/AspNetCore/Samples.AspNetCore.csproj" />
   </Folder>
   <Folder Name="/src/">
-    <File Path="src/Directory.Build.props" />
-    <File Path="src/Directory.Build.targets" />
-    <Project Path="src/OpenFeature.DependencyInjection/OpenFeature.DependencyInjection.csproj" />
     <Project Path="src/OpenFeature.Hosting/OpenFeature.Hosting.csproj" />
     <Project Path="src/OpenFeature.Providers.DependencyInjection/OpenFeature.Providers.DependencyInjection.csproj" />
     <Project Path="src/OpenFeature.Providers.MultiProvider/OpenFeature.Providers.MultiProvider.csproj" />
@@ -60,7 +57,6 @@
     <File Path="test/Directory.Build.props" />
     <Project Path="test/OpenFeature.AotCompatibility/OpenFeature.AotCompatibility.csproj" />
     <Project Path="test/OpenFeature.Benchmarks/OpenFeature.Benchmarks.csproj" />
-    <Project Path="test/OpenFeature.DependencyInjection.Tests/OpenFeature.DependencyInjection.Tests.csproj" />
     <Project Path="test/OpenFeature.E2ETests/OpenFeature.E2ETests.csproj" />
     <Project Path="test/OpenFeature.Hosting.Tests/OpenFeature.Hosting.Tests.csproj" />
     <Project Path="test/OpenFeature.IntegrationTests/OpenFeature.IntegrationTests.csproj" />

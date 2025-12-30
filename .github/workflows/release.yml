@@ -39,17 +39,17 @@ jobs:
     if: ${{ fromJSON(needs.release-please.outputs.release_created || false) }}
 
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
           fetch-depth: 0
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
+        uses: actions/setup-dotnet@2016bd2012dba4e32de620c46fe006a3ac9f0602 # v5
         with:
           global-json-file: global.json
 
       - name: Cache NuGet packages
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', 'Directory.Packages.props', 'global.json') }}
@@ -73,7 +73,7 @@ jobs:
         run: dotnet nuget push "src/**/*.nupkg" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json
 
       - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
+        uses: actions/attest-build-provenance@00014ed6ed5efc5b1ab7f7f34a39eb55d41aa4f8 # v3.1.0
         with:
           subject-path: "src/**/*.nupkg"
 
@@ -91,14 +91,6 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           project-name: OpenFeature.Hosting
-          release-tag: ${{ needs.release-please.outputs.release_tag_name }}
-
-      # Process OpenFeature.DependencyInjection project
-      - name: Generate and Attest SBOM for OpenFeature.DependencyInjection
-        uses: ./.github/actions/sbom-generator
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          project-name: OpenFeature.DependencyInjection
           release-tag: ${{ needs.release-please.outputs.release_tag_name }}
 
       # Process OpenFeature.Providers.MultiProvider project

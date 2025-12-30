@@ -49,6 +49,7 @@ public class MetricsHook : Hook
         };
 
         this.AddCustomDimensions(ref tagList);
+        this.AddFlagMetadataDimensions(null, ref tagList);
 
         this._evaluationActiveUpDownCounter.Add(1, tagList);
         this._evaluationRequestCounter.Add(1, tagList);

@@ -7,7 +7,13 @@ namespace OpenFeature.Providers.Memory;
 /// <summary>
 /// Flag representation for the in-memory provider.
 /// </summary>
-public interface Flag;
+public interface Flag
+{
+    /// <summary>
+    /// Indicates if the flag is disabled. When disabled, the flag will resolve to the default value.
+    /// </summary>
+    bool Disabled { get; }
+}
 
 /// <summary>
 /// Flag representation for the in-memory provider.
@@ -26,16 +32,33 @@ public sealed class Flag<T> : Flag
     /// <param name="defaultVariant">default variant (should match 1 key in variants dictionary)</param>
     /// <param name="contextEvaluator">optional context-sensitive evaluation function</param>
     /// <param name="flagMetadata">optional metadata for the flag</param>
-    public Flag(Dictionary<string, T> variants, string defaultVariant, Func<EvaluationContext, string>? contextEvaluator = null, ImmutableMetadata? flagMetadata = null)
+    /// <param name="disabled">indicates if the flag is disabled</param>
+    public Flag(Dictionary<string, T> variants, string defaultVariant, Func<EvaluationContext, string>? contextEvaluator = null, ImmutableMetadata? flagMetadata = null, bool disabled = false)
     {
         this._variants = variants;
         this._defaultVariant = defaultVariant;
         this._contextEvaluator = contextEvaluator;
         this._flagMetadata = flagMetadata;
+        this.Disabled = disabled;
     }
 
-    internal ResolutionDetails<T> Evaluate(string flagKey, T _, EvaluationContext? evaluationContext)
+    /// <summary>
+    /// Indicates if the flag is disabled. When disabled, the flag will resolve to the default value.
+    /// </summary>
+    public bool Disabled { get; }
+
+    internal ResolutionDetails<T> Evaluate(string flagKey, T defaultValue, EvaluationContext? evaluationContext)
     {
+        if (this.Disabled)
+        {
+            return new ResolutionDetails<T>(
+                flagKey,
+                defaultValue,
+                reason: Reason.Disabled,
+                flagMetadata: this._flagMetadata
+            );
+        }
+
         if (this._contextEvaluator == null)
         {
             return this.EvaluateDefaultVariant(flagKey);

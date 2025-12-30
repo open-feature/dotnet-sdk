@@ -40,11 +40,25 @@ public sealed class Api : IEventBus
     /// </summary>
     /// <remarks>The provider cannot be set to null. Attempting to set the provider to null has no effect. May throw an exception if <paramref name="featureProvider"/> cannot be initialized.</remarks>
     /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
-    public async Task SetProviderAsync(FeatureProvider featureProvider)
+    /// <returns>A <see cref="Task"/> that completes once Provider initialization is complete.</returns>
+    public Task SetProviderAsync(FeatureProvider featureProvider)
+    {
+        return this.SetProviderAsync(featureProvider, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Sets the default feature provider. In order to wait for the provider to be set, and initialization to complete,
+    /// await the returned task.
+    /// </summary>
+    /// <remarks>The provider cannot be set to null. Attempting to set the provider to null has no effect. May throw an exception if <paramref name="featureProvider"/> cannot be initialized.</remarks>
+    /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
+    /// <param name="cancellationToken">Propagates notification that the provider initialization should be canceled.</param>
+    /// <returns>A <see cref="Task"/> that completes once Provider initialization is complete.</returns>
+    public async Task SetProviderAsync(FeatureProvider featureProvider, CancellationToken cancellationToken)
     {
         this._eventExecutor.RegisterDefaultFeatureProvider(featureProvider);
-        await this._repository.SetProviderAsync(featureProvider, this.GetContext(), this.AfterInitialization, this.AfterError).ConfigureAwait(false);
-
+        await this._repository.SetProviderAsync(featureProvider, this.GetContext(), this.AfterInitializationAsync, this.AfterErrorAsync, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <summary>
@@ -55,14 +69,31 @@ public sealed class Api : IEventBus
     /// <param name="domain">An identifier which logically binds clients with providers</param>
     /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
     /// <exception cref="ArgumentNullException">domain cannot be null or empty</exception>
-    public async Task SetProviderAsync(string domain, FeatureProvider featureProvider)
+    /// <returns>A <see cref="Task"/> that completes once Provider initialization is complete.</returns>
+    public Task SetProviderAsync(string domain, FeatureProvider featureProvider)
+    {
+        return this.SetProviderAsync(domain, featureProvider, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Binds the feature provider to the given domain. In order to wait for the provider to be set, and
+    /// initialization to complete, await the returned task.
+    /// </summary>
+    /// <remarks>The provider cannot be set to null. Attempting to set the provider to null has no effect. May throw an exception if <paramref name="featureProvider"/> cannot be initialized.</remarks>
+    /// <param name="domain">An identifier which logically binds clients with providers</param>
+    /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
+    /// <param name="cancellationToken">Propagates notification that the provider initialization should be canceled.</param>
+    /// <exception cref="ArgumentNullException">domain cannot be null or empty</exception>
+    /// <returns>A <see cref="Task"/> that completes once Provider initialization is complete.</returns>
+    public async Task SetProviderAsync(string domain, FeatureProvider featureProvider, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(domain))
         {
             throw new ArgumentNullException(nameof(domain));
         }
         this._eventExecutor.RegisterClientFeatureProvider(domain, featureProvider);
-        await this._repository.SetProviderAsync(domain, featureProvider, this.GetContext(), this.AfterInitialization, this.AfterError).ConfigureAwait(false);
+        await this._repository.SetProviderAsync(domain, featureProvider, this.GetContext(), this.AfterInitializationAsync, this.AfterErrorAsync, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <summary>
@@ -324,7 +355,7 @@ public sealed class Api : IEventBus
     /// <summary>
     /// Update the provider state to READY and emit a READY event after successful init.
     /// </summary>
-    private async Task AfterInitialization(FeatureProvider provider)
+    private async Task AfterInitializationAsync(FeatureProvider provider, CancellationToken cancellationToken = default)
     {
         provider.Status = ProviderStatus.Ready;
         var eventPayload = new ProviderEventPayload
@@ -334,13 +365,14 @@ public sealed class Api : IEventBus
             ProviderName = provider.GetMetadata()?.Name,
         };
 
-        await this._eventExecutor.EventChannel.Writer.WriteAsync(new Event { Provider = provider, EventPayload = eventPayload }).ConfigureAwait(false);
+        await this._eventExecutor.EventChannel.Writer.WriteAsync(new Event { Provider = provider, EventPayload = eventPayload }, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <summary>
     /// Update the provider state to ERROR and emit an ERROR after failed init.
     /// </summary>
-    private async Task AfterError(FeatureProvider provider, Exception? ex)
+    private async Task AfterErrorAsync(FeatureProvider provider, Exception? ex, CancellationToken cancellationToken = default)
     {
         provider.Status = typeof(ProviderFatalException) == ex?.GetType() ? ProviderStatus.Fatal : ProviderStatus.Error;
         var eventPayload = new ProviderEventPayload
@@ -350,7 +382,8 @@ public sealed class Api : IEventBus
             ProviderName = provider.GetMetadata()?.Name,
         };
 
-        await this._eventExecutor.EventChannel.Writer.WriteAsync(new Event { Provider = provider, EventPayload = eventPayload }).ConfigureAwait(false);
+        await this._eventExecutor.EventChannel.Writer.WriteAsync(new Event { Provider = provider, EventPayload = eventPayload }, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <summary>
