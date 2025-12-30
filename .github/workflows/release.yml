@@ -100,3 +100,11 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           project-name: OpenFeature.Providers.MultiProvider
           release-tag: ${{ needs.release-please.outputs.release_tag_name }}
+
+      # Process OpenFeature.Providers.DependencyInjection project
+      - name: Generate and Attest SBOM for OpenFeature.Providers.DependencyInjection
+        uses: ./.github/actions/sbom-generator
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          project-name: OpenFeature.Providers.DependencyInjection
+          release-tag: ${{ needs.release-please.outputs.release_tag_name }}
