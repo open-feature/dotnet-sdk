@@ -119,7 +119,7 @@ public class MultiProviderClassTests
             .Returns(finalResult);
 
         // Act
-        var result = await multiProvider.ResolveBooleanValueAsync(TestFlagKey, defaultValue, this._evaluationContext);
+        var result = await multiProvider.ResolveBooleanValueAsync(TestFlagKey, defaultValue, this._evaluationContext, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(expectedDetails, result);
@@ -142,7 +142,7 @@ public class MultiProviderClassTests
             .Returns(finalResult);
 
         // Act
-        var result = await multiProvider.ResolveStringValueAsync(TestFlagKey, defaultValue, this._evaluationContext);
+        var result = await multiProvider.ResolveStringValueAsync(TestFlagKey, defaultValue, this._evaluationContext, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(expectedDetails, result);
@@ -163,7 +163,7 @@ public class MultiProviderClassTests
         this._mockProvider2.InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
 
         // Act
-        await multiProvider.InitializeAsync(this._evaluationContext);
+        await multiProvider.InitializeAsync(this._evaluationContext, TestContext.Current.CancellationToken);
 
         // Assert
         await this._mockProvider1.Received(1).InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>());
@@ -186,7 +186,7 @@ public class MultiProviderClassTests
         this._mockProvider2.InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>()).ThrowsAsync(expectedException);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<AggregateException>(() => multiProvider.InitializeAsync(this._evaluationContext));
+        var exception = await Assert.ThrowsAsync<AggregateException>(() => multiProvider.InitializeAsync(this._evaluationContext, TestContext.Current.CancellationToken));
         Assert.Contains("Failed to initialize providers", exception.Message);
         Assert.Contains(Provider2Name, exception.Message);
         Assert.Contains(expectedException, exception.InnerExceptions);
@@ -208,7 +208,7 @@ public class MultiProviderClassTests
         this._mockProvider2.ShutdownAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
 
         // Act
-        await multiProvider.ShutdownAsync();
+        await multiProvider.ShutdownAsync(TestContext.Current.CancellationToken);
 
         // Assert
         await this._mockProvider1.Received(1).ShutdownAsync(Arg.Any<CancellationToken>());
@@ -231,7 +231,7 @@ public class MultiProviderClassTests
         this._mockProvider2.ShutdownAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
 
         // Act
-        await multiProvider.ShutdownAsync();
+        await multiProvider.ShutdownAsync(TestContext.Current.CancellationToken);
 
         // Assert
         await this._mockProvider1.Received(1).ShutdownAsync(Arg.Any<CancellationToken>());
@@ -255,7 +255,7 @@ public class MultiProviderClassTests
         this._mockProvider2.ShutdownAsync(Arg.Any<CancellationToken>()).ThrowsAsync(expectedException);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<AggregateException>(() => multiProvider.ShutdownAsync());
+        var exception = await Assert.ThrowsAsync<AggregateException>(() => multiProvider.ShutdownAsync(TestContext.Current.CancellationToken));
         Assert.Contains("Failed to shutdown providers", exception.Message);
         Assert.Contains(Provider2Name, exception.Message);
         Assert.Contains(expectedException, exception.InnerExceptions);
@@ -292,7 +292,7 @@ public class MultiProviderClassTests
             .Returns(finalResult);
 
         // Act
-        var result = await multiProvider.ResolveDoubleValueAsync(TestFlagKey, defaultValue, this._evaluationContext);
+        var result = await multiProvider.ResolveDoubleValueAsync(TestFlagKey, defaultValue, this._evaluationContext, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(expectedDetails, result);
@@ -315,7 +315,7 @@ public class MultiProviderClassTests
             .Returns(finalResult);
 
         // Act
-        var result = await multiProvider.ResolveIntegerValueAsync(TestFlagKey, defaultValue, this._evaluationContext);
+        var result = await multiProvider.ResolveIntegerValueAsync(TestFlagKey, defaultValue, this._evaluationContext, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(expectedDetails, result);
@@ -337,7 +337,7 @@ public class MultiProviderClassTests
             .Returns(finalResult);
 
         // Act
-        var result = await multiProvider.ResolveStructureValueAsync(TestFlagKey, defaultValue, this._evaluationContext);
+        var result = await multiProvider.ResolveStructureValueAsync(TestFlagKey, defaultValue, this._evaluationContext, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(expectedDetails, result);
@@ -369,7 +369,7 @@ public class MultiProviderClassTests
             .Returns(expectedDetails);
 
         // Act
-        var result = await multiProvider.ResolveBooleanValueAsync(TestFlagKey, defaultValue, this._evaluationContext);
+        var result = await multiProvider.ResolveBooleanValueAsync(TestFlagKey, defaultValue, this._evaluationContext, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(expectedDetails, result);
@@ -404,7 +404,7 @@ public class MultiProviderClassTests
             .Returns(expectedDetails);
 
         // Act
-        var result = await multiProvider.ResolveBooleanValueAsync(TestFlagKey, defaultValue, this._evaluationContext);
+        var result = await multiProvider.ResolveBooleanValueAsync(TestFlagKey, defaultValue, this._evaluationContext, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(expectedDetails, result);
@@ -423,7 +423,7 @@ public class MultiProviderClassTests
         this._mockStrategy.RunMode.Returns((RunMode)999); // Invalid enum value
 
         // Act & Assert
-        var details = await multiProvider.ResolveBooleanValueAsync(TestFlagKey, defaultValue, this._evaluationContext);
+        var details = await multiProvider.ResolveBooleanValueAsync(TestFlagKey, defaultValue, this._evaluationContext, TestContext.Current.CancellationToken);
         Assert.Equal(ErrorType.ProviderFatal, details.ErrorType);
         Assert.Equal(Reason.Error, details.Reason);
         Assert.Contains("Unsupported run mode", details.ErrorMessage);
@@ -459,7 +459,7 @@ public class MultiProviderClassTests
             .Returns(expectedDetails);
 
         // Act
-        var result = await multiProvider.ResolveBooleanValueAsync(TestFlagKey, defaultValue, this._evaluationContext);
+        var result = await multiProvider.ResolveBooleanValueAsync(TestFlagKey, defaultValue, this._evaluationContext, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(expectedDetails, result);
@@ -613,7 +613,7 @@ public class MultiProviderClassTests
         this._mockProvider3.InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
 
         // Act & Assert
-        await multiProvider.InitializeAsync(this._evaluationContext);
+        await multiProvider.InitializeAsync(this._evaluationContext, TestContext.Current.CancellationToken);
 
         // Verify all providers were called
         await this._mockProvider1.Received(1).InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>());
@@ -639,7 +639,7 @@ public class MultiProviderClassTests
         this._mockProvider3.ShutdownAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
 
         // Act & Assert
-        await multiProvider.ShutdownAsync();
+        await multiProvider.ShutdownAsync(TestContext.Current.CancellationToken);
 
         // Verify all providers were called
         await this._mockProvider1.Received(1).ShutdownAsync(Arg.Any<CancellationToken>());
@@ -757,7 +757,7 @@ public class MultiProviderClassTests
 
         // Assert
         var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
-            multiProvider.InitializeAsync(this._evaluationContext));
+            multiProvider.InitializeAsync(this._evaluationContext, TestContext.Current.CancellationToken));
         Assert.Equal(nameof(MultiProvider), exception.ObjectName);
     }
 
@@ -773,7 +773,7 @@ public class MultiProviderClassTests
 
         // Assert
         var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
-            multiProvider.ShutdownAsync());
+            multiProvider.ShutdownAsync(TestContext.Current.CancellationToken));
         Assert.Equal(nameof(MultiProvider), exception.ObjectName);
     }
 
@@ -789,7 +789,7 @@ public class MultiProviderClassTests
 
         // Act & Assert
         await Assert.ThrowsAsync<ObjectDisposedException>(() =>
-            multiProvider.InitializeAsync(this._evaluationContext));
+            multiProvider.InitializeAsync(this._evaluationContext, TestContext.Current.CancellationToken));
 
         // Verify that the underlying provider was never called since the object was disposed
         await this._mockProvider1.DidNotReceive().InitializeAsync(Arg.Any<EvaluationContext>(), Arg.Any<CancellationToken>());
@@ -807,7 +807,7 @@ public class MultiProviderClassTests
 
         // Act & Assert
         await Assert.ThrowsAsync<ObjectDisposedException>(() =>
-            multiProvider.ShutdownAsync());
+            multiProvider.ShutdownAsync(TestContext.Current.CancellationToken));
 
         // Verify that the underlying provider was never called since the object was disposed
         await this._mockProvider1.DidNotReceive().ShutdownAsync(Arg.Any<CancellationToken>());
@@ -825,23 +825,23 @@ public class MultiProviderClassTests
 
         // Assert - All evaluate methods should throw ObjectDisposedException
         var boolException = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
-            multiProvider.ResolveBooleanValueAsync(TestFlagKey, false));
+            multiProvider.ResolveBooleanValueAsync(TestFlagKey, false, cancellationToken: TestContext.Current.CancellationToken));
         Assert.Equal(nameof(MultiProvider), boolException.ObjectName);
 
         var stringException = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
-            multiProvider.ResolveStringValueAsync(TestFlagKey, "default"));
+            multiProvider.ResolveStringValueAsync(TestFlagKey, "default", cancellationToken: TestContext.Current.CancellationToken));
         Assert.Equal(nameof(MultiProvider), stringException.ObjectName);
 
         var intException = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
-            multiProvider.ResolveIntegerValueAsync(TestFlagKey, 0));
+            multiProvider.ResolveIntegerValueAsync(TestFlagKey, 0, cancellationToken: TestContext.Current.CancellationToken));
         Assert.Equal(nameof(MultiProvider), intException.ObjectName);
 
         var doubleException = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
-            multiProvider.ResolveDoubleValueAsync(TestFlagKey, 0.0));
+            multiProvider.ResolveDoubleValueAsync(TestFlagKey, 0.0, cancellationToken: TestContext.Current.CancellationToken));
         Assert.Equal(nameof(MultiProvider), doubleException.ObjectName);
 
         var structureException = await Assert.ThrowsAsync<ObjectDisposedException>(() =>
-            multiProvider.ResolveStructureValueAsync(TestFlagKey, new Value()));
+            multiProvider.ResolveStructureValueAsync(TestFlagKey, new Value(), cancellationToken: TestContext.Current.CancellationToken));
         Assert.Equal(nameof(MultiProvider), structureException.ObjectName);
     }
 
@@ -952,7 +952,7 @@ public class MultiProviderClassTests
         var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         // Act
-        var result = await multiProvider.ResolveBooleanValueAsync(TestFlagKey, false, this._evaluationContext);
+        var result = await multiProvider.ResolveBooleanValueAsync(TestFlagKey, false, this._evaluationContext, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(expectedValue, result.Value);
@@ -1022,7 +1022,7 @@ public class MultiProviderClassTests
         var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         // Act
-        await multiProvider.ResolveBooleanValueAsync(TestFlagKey, false, this._evaluationContext);
+        await multiProvider.ResolveBooleanValueAsync(TestFlagKey, false, this._evaluationContext, TestContext.Current.CancellationToken);
 
         // Assert - Verify context isolation
         Assert.NotNull(capturedContext1);
@@ -1079,7 +1079,7 @@ public class MultiProviderClassTests
         var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
         // Act
-        var result = await multiProvider.ResolveBooleanValueAsync(TestFlagKey, false, this._evaluationContext);
+        var result = await multiProvider.ResolveBooleanValueAsync(TestFlagKey, false, this._evaluationContext, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(expectedValue, result.Value);

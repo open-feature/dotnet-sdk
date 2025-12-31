@@ -48,7 +48,7 @@ public class FeatureBuilderExtensionsTests
         Assert.NotNull(featureProvider);
         Assert.IsType<InMemoryProvider>(featureProvider);
 
-        var result = await featureProvider.ResolveBooleanValueAsync("feature1", false);
+        var result = await featureProvider.ResolveBooleanValueAsync("feature1", false, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(result.Value);
     }
 
@@ -130,7 +130,7 @@ public class FeatureBuilderExtensionsTests
         Assert.IsType<InMemoryProvider>(featureProvider);
 
         var context = EvaluationContext.Builder().Set("group", "alpha").Build();
-        var result = await featureProvider.ResolveBooleanValueAsync("feature2", false, context);
+        var result = await featureProvider.ResolveBooleanValueAsync("feature2", false, context, TestContext.Current.CancellationToken);
         Assert.True(result.Value);
     }
 
@@ -178,7 +178,7 @@ public class FeatureBuilderExtensionsTests
         Assert.NotNull(featureProvider);
         Assert.IsType<InMemoryProvider>(featureProvider);
 
-        var result = await featureProvider.ResolveBooleanValueAsync("new-feature", true);
+        var result = await featureProvider.ResolveBooleanValueAsync("new-feature", true, cancellationToken: TestContext.Current.CancellationToken);
         Assert.False(result.Value);
     }
 
@@ -208,7 +208,7 @@ public class FeatureBuilderExtensionsTests
         Assert.NotNull(featureProvider);
         Assert.IsType<InMemoryProvider>(featureProvider);
 
-        var result = await featureProvider.ResolveBooleanValueAsync("new-feature", true);
+        var result = await featureProvider.ResolveBooleanValueAsync("new-feature", true, cancellationToken: TestContext.Current.CancellationToken);
         Assert.False(result.Value);
     }
 

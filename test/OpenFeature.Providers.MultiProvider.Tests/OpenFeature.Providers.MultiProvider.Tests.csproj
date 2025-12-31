@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <RootNamespace>OpenFeature.Providers.MultiProvider.Tests</RootNamespace>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,7 +20,7 @@
     <PackageReference Include="NSubstitute" />
     <PackageReference Include="OpenTelemetry" />
     <PackageReference Include="OpenTelemetry.Exporter.InMemory" />
-    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.v3.mtp-v2" />
     <PackageReference Include="xunit.runner.visualstudio">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
