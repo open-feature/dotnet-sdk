@@ -28,57 +28,56 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
         var providerHook = Substitute.For<Hook>();
 
         // Sequence
-        apiHook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(EvaluationContext.Empty);
-        clientHook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(EvaluationContext.Empty);
-        invocationHook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(EvaluationContext.Empty);
-        providerHook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(EvaluationContext.Empty);
-        providerHook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(new ValueTask());
-        invocationHook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(new ValueTask());
-        clientHook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(new ValueTask());
-        apiHook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(new ValueTask());
-        providerHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(new ValueTask());
-        invocationHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(new ValueTask());
-        clientHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(new ValueTask());
-        apiHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>()).Returns(new ValueTask());
+        apiHook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(EvaluationContext.Empty);
+        clientHook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(EvaluationContext.Empty);
+        invocationHook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(EvaluationContext.Empty);
+        providerHook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(EvaluationContext.Empty);
+        providerHook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(new ValueTask());
+        invocationHook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(new ValueTask());
+        clientHook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(new ValueTask());
+        apiHook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(new ValueTask());
+        providerHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(new ValueTask());
+        invocationHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(new ValueTask());
+        clientHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(new ValueTask());
+        apiHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(new ValueTask());
 
         var testProvider = new TestProvider();
         testProvider.AddHook(providerHook);
         Api.Instance.AddHooks(apiHook);
-        await Api.Instance.SetProviderAsync(testProvider);
+        await Api.Instance.SetProviderAsync(testProvider, TestContext.Current.CancellationToken);
         var client = Api.Instance.GetClient(domain, clientVersion);
         client.AddHooks(clientHook);
 
-        await client.GetBooleanValueAsync(flagName, defaultValue, EvaluationContext.Empty,
-            new FlagEvaluationOptions(invocationHook, ImmutableDictionary<string, object>.Empty));
+        await client.GetBooleanValueAsync(flagName, defaultValue, EvaluationContext.Empty, new FlagEvaluationOptions(invocationHook, ImmutableDictionary<string, object>.Empty), TestContext.Current.CancellationToken);
 
         Received.InOrder(() =>
         {
-            apiHook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-            clientHook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-            invocationHook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-            providerHook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-            providerHook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-            invocationHook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-            clientHook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-            apiHook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-            providerHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-            invocationHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-            clientHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-            apiHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+            apiHook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
+            clientHook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
+            invocationHook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
+            providerHook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
+            providerHook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
+            invocationHook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
+            clientHook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
+            apiHook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
+            providerHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
+            invocationHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
+            clientHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
+            apiHook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
         });
 
-        _ = apiHook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-        _ = clientHook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-        _ = invocationHook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-        _ = providerHook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-        _ = providerHook.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-        _ = invocationHook.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-        _ = clientHook.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-        _ = apiHook.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-        _ = providerHook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-        _ = invocationHook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-        _ = clientHook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
-        _ = apiHook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>());
+        _ = apiHook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
+        _ = clientHook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
+        _ = invocationHook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
+        _ = providerHook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
+        _ = providerHook.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
+        _ = invocationHook.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
+        _ = clientHook.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
+        _ = apiHook.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
+        _ = providerHook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
+        _ = invocationHook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
+        _ = clientHook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
+        _ = apiHook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<IReadOnlyDictionary<string, object>>(), TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -145,15 +144,14 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
             FlagValueType.Boolean, new ClientMetadata("test", "1.0.0"), new Metadata(NoOpProvider.NoOpProviderName),
             evaluationContext);
 
-        hook1.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>()).Returns(evaluationContext);
-        hook2.BeforeAsync(hookContext, Arg.Any<ImmutableDictionary<string, object>>()).Returns(evaluationContext);
+        hook1.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(evaluationContext);
+        hook2.BeforeAsync(hookContext, Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(evaluationContext);
 
         var client = Api.Instance.GetClient("test", "1.0.0");
-        await client.GetBooleanValueAsync("test", false, EvaluationContext.Empty,
-            new FlagEvaluationOptions(ImmutableList.Create(hook1, hook2), ImmutableDictionary<string, object>.Empty));
+        await client.GetBooleanValueAsync("test", false, EvaluationContext.Empty, new FlagEvaluationOptions(ImmutableList.Create(hook1, hook2), ImmutableDictionary<string, object>.Empty), TestContext.Current.CancellationToken);
 
-        _ = hook1.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
-        _ = hook2.Received(1).BeforeAsync(Arg.Is<HookContext<bool>>(a => a.EvaluationContext.GetValue("test").AsString == "test"), Arg.Any<ImmutableDictionary<string, object>>());
+        _ = hook1.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
+        _ = hook2.Received(1).BeforeAsync(Arg.Is<HookContext<bool>>(a => a.EvaluationContext.GetValue("test").AsString == "test"), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -162,29 +160,26 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
     {
         var hook = Substitute.For<Hook>();
 
-        hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
-            .Returns(EvaluationContext.Empty).AndDoes(info =>
+        hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(EvaluationContext.Empty).AndDoes(info =>
             {
                 info.Arg<HookContext<bool>>().Data.Set("test-a", true);
             });
-        hook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(),
-            Arg.Any<ImmutableDictionary<string, object>>()).Returns(new ValueTask()).AndDoes(info =>
+        hook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(new ValueTask()).AndDoes(info =>
         {
             info.Arg<HookContext<bool>>().Data.Set("test-b", "test-value");
         });
 
-        await Api.Instance.SetProviderAsync(new NoOpFeatureProvider());
+        await Api.Instance.SetProviderAsync(new NoOpFeatureProvider(), TestContext.Current.CancellationToken);
         var client = Api.Instance.GetClient("test", "1.0.0");
 
-        await client.GetBooleanValueAsync("test", false, EvaluationContext.Empty,
-            new FlagEvaluationOptions(ImmutableList.Create(hook), ImmutableDictionary<string, object>.Empty));
+        await client.GetBooleanValueAsync("test", false, EvaluationContext.Empty, new FlagEvaluationOptions(ImmutableList.Create(hook), ImmutableDictionary<string, object>.Empty), TestContext.Current.CancellationToken);
 
         _ = hook.Received(1).AfterAsync(Arg.Is<HookContext<bool>>(hookContext =>
             (bool)hookContext.Data.Get("test-a") == true
-        ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
+        ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
         _ = hook.Received(1).FinallyAsync(Arg.Is<HookContext<bool>>(hookContext =>
             (bool)hookContext.Data.Get("test-a") == true && (string)hookContext.Data.Get("test-b") == "test-value"
-        ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
+        ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -195,54 +190,49 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
         var hook1 = Substitute.For<Hook>();
         var hook2 = Substitute.For<Hook>();
 
-        hook1.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
-            .Returns(EvaluationContext.Empty).AndDoes(info =>
+        hook1.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(EvaluationContext.Empty).AndDoes(info =>
             {
                 info.Arg<HookContext<bool>>().Data.Set("hook-1-value-a", true);
                 info.Arg<HookContext<bool>>().Data.Set("same", true);
             });
-        hook1.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(),
-            Arg.Any<ImmutableDictionary<string, object>>()).Returns(new ValueTask()).AndDoes(info =>
+        hook1.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(new ValueTask()).AndDoes(info =>
         {
             info.Arg<HookContext<bool>>().Data.Set("hook-1-value-b", "test-value-hook-1");
         });
 
-        hook2.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
-            .Returns(EvaluationContext.Empty).AndDoes(info =>
+        hook2.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(EvaluationContext.Empty).AndDoes(info =>
             {
                 info.Arg<HookContext<bool>>().Data.Set("hook-2-value-a", false);
                 info.Arg<HookContext<bool>>().Data.Set("same", false);
             });
-        hook2.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(),
-            Arg.Any<ImmutableDictionary<string, object>>()).Returns(new ValueTask()).AndDoes(info =>
+        hook2.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(new ValueTask()).AndDoes(info =>
         {
             info.Arg<HookContext<bool>>().Data.Set("hook-2-value-b", "test-value-hook-2");
         });
 
-        await Api.Instance.SetProviderAsync(new NoOpFeatureProvider());
+        await Api.Instance.SetProviderAsync(new NoOpFeatureProvider(), TestContext.Current.CancellationToken);
         var client = Api.Instance.GetClient("test", "1.0.0");
 
-        await client.GetBooleanValueAsync("test", false, EvaluationContext.Empty,
-            new FlagEvaluationOptions(ImmutableList.Create(hook1, hook2),
-                ImmutableDictionary<string, object>.Empty));
+        await client.GetBooleanValueAsync("test", false, EvaluationContext.Empty, new FlagEvaluationOptions(ImmutableList.Create(hook1, hook2),
+                ImmutableDictionary<string, object>.Empty), TestContext.Current.CancellationToken);
 
         _ = hook1.Received(1).AfterAsync(Arg.Is<HookContext<bool>>(hookContext =>
             (bool)hookContext.Data.Get("hook-1-value-a") == true && (bool)hookContext.Data.Get("same") == true
-        ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
+        ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
         _ = hook1.Received(1).FinallyAsync(Arg.Is<HookContext<bool>>(hookContext =>
             (bool)hookContext.Data.Get("hook-1-value-a") == true &&
             (bool)hookContext.Data.Get("same") == true &&
             (string)hookContext.Data.Get("hook-1-value-b") == "test-value-hook-1" && hookContext.Data.Count == 3
-        ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
+        ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
 
         _ = hook2.Received(1).AfterAsync(Arg.Is<HookContext<bool>>(hookContext =>
             (bool)hookContext.Data.Get("hook-2-value-a") == false && (bool)hookContext.Data.Get("same") == false
-        ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
+        ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
         _ = hook2.Received(1).FinallyAsync(Arg.Is<HookContext<bool>>(hookContext =>
             (bool)hookContext.Data.Get("hook-2-value-a") == false &&
             (bool)hookContext.Data.Get("same") == false &&
             (string)hookContext.Data.Get("hook-2-value-b") == "test-value-hook-2" && hookContext.Data.Count == 3
-        ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
+        ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -305,16 +295,16 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
 
         provider.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
-        provider.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>()).Returns(new ResolutionDetails<bool>("test", true));
+        provider.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>(), TestContext.Current.CancellationToken).Returns(new ResolutionDetails<bool>("test", true));
 
-        await Api.Instance.SetProviderAsync(provider);
+        await Api.Instance.SetProviderAsync(provider, TestContext.Current.CancellationToken);
 
         var hook = Substitute.For<Hook>();
-        hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>()).Returns(hookContext);
+        hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(hookContext);
 
 
         var client = Api.Instance.GetClient("test", "1.0.0", null, clientContext);
-        await client.GetBooleanValueAsync("test", false, invocationContext, new FlagEvaluationOptions(ImmutableList.Create(hook), ImmutableDictionary<string, object>.Empty));
+        await client.GetBooleanValueAsync("test", false, invocationContext, new FlagEvaluationOptions(ImmutableList.Create(hook), ImmutableDictionary<string, object>.Empty), TestContext.Current.CancellationToken);
 
         // after proper merging, all properties should equal true
         _ = provider.Received(1).ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Is<EvaluationContext>(y =>
@@ -327,7 +317,7 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
             && (y.GetValue(propClientToOverwrite).AsBoolean ?? false)
             && (y.GetValue(propHook).AsBoolean ?? false)
             && (y.GetValue(propInvocationToOverwrite).AsBoolean ?? false)
-        ));
+        ), TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -352,10 +342,10 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
         var evaluationDetails =
             new FlagEvaluationDetails<bool>("test", false, ErrorType.None, "testing", "testing");
 
-        await hook.BeforeAsync(hookContext, hookHints);
-        await hook.AfterAsync(hookContext, evaluationDetails, hookHints);
-        await hook.FinallyAsync(hookContext, evaluationDetails, hookHints);
-        await hook.ErrorAsync(hookContext, new Exception(), hookHints);
+        await hook.BeforeAsync(hookContext, hookHints, TestContext.Current.CancellationToken);
+        await hook.AfterAsync(hookContext, evaluationDetails, hookHints, TestContext.Current.CancellationToken);
+        await hook.FinallyAsync(hookContext, evaluationDetails, hookHints, TestContext.Current.CancellationToken);
+        await hook.ErrorAsync(hookContext, new Exception(), hookHints, TestContext.Current.CancellationToken);
 
         Assert.Null(hookContext.ClientMetadata.Name);
         Assert.Null(hookContext.ClientMetadata.Version);
@@ -378,29 +368,29 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
         featureProvider.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
         // Sequence
-        hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>()).Returns(EvaluationContext.Empty);
-        featureProvider.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>()).Returns(new ResolutionDetails<bool>("test", false));
-        _ = hook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>());
-        _ = hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>());
+        hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(EvaluationContext.Empty);
+        featureProvider.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>(), TestContext.Current.CancellationToken).Returns(new ResolutionDetails<bool>("test", false));
+        _ = hook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>(), TestContext.Current.CancellationToken);
+        _ = hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>(), TestContext.Current.CancellationToken);
 
-        await Api.Instance.SetProviderAsync(featureProvider);
+        await Api.Instance.SetProviderAsync(featureProvider, TestContext.Current.CancellationToken);
         var client = Api.Instance.GetClient();
         client.AddHooks(hook);
 
-        await client.GetBooleanValueAsync("test", false);
+        await client.GetBooleanValueAsync("test", false, cancellationToken: TestContext.Current.CancellationToken);
 
         Received.InOrder(() =>
         {
-            hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>());
-            featureProvider.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>());
-            hook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>());
-            hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>());
+            hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>(), TestContext.Current.CancellationToken);
+            featureProvider.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>(), TestContext.Current.CancellationToken);
+            hook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>(), TestContext.Current.CancellationToken);
+            hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>(), TestContext.Current.CancellationToken);
         });
 
-        _ = hook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>());
-        _ = hook.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>());
-        _ = hook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>());
-        _ = featureProvider.Received(1).ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>());
+        _ = hook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>(), TestContext.Current.CancellationToken);
+        _ = hook.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>(), TestContext.Current.CancellationToken);
+        _ = hook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>(), TestContext.Current.CancellationToken);
+        _ = featureProvider.Received(1).ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>(), TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -415,11 +405,10 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
         var testProvider = new TestProvider();
         testProvider.AddHook(hook4);
         Api.Instance.AddHooks(hook1);
-        await Api.Instance.SetProviderAsync(testProvider);
+        await Api.Instance.SetProviderAsync(testProvider, TestContext.Current.CancellationToken);
         var client = Api.Instance.GetClient();
         client.AddHooks(hook2);
-        await client.GetBooleanValueAsync("test", false, null,
-            new FlagEvaluationOptions(hook3, ImmutableDictionary<string, object>.Empty));
+        await client.GetBooleanValueAsync("test", false, null, new FlagEvaluationOptions(hook3, ImmutableDictionary<string, object>.Empty), TestContext.Current.CancellationToken);
 
         Assert.Single(Api.Instance.GetHooks());
         Assert.Single(client.GetHooks());
@@ -438,39 +427,39 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
         featureProvider.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
         // Sequence
-        hook1.BeforeAsync(Arg.Any<HookContext<bool>>(), null).Returns(EvaluationContext.Empty);
-        hook2.BeforeAsync(Arg.Any<HookContext<bool>>(), null).Returns(EvaluationContext.Empty);
-        featureProvider.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>()).Returns(new ResolutionDetails<bool>("test", false));
-        hook2.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null).Returns(new ValueTask());
-        hook1.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null).Returns(new ValueTask());
-        hook2.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null).Returns(new ValueTask());
-        hook1.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null).Throws(new Exception());
+        hook1.BeforeAsync(Arg.Any<HookContext<bool>>(), null, TestContext.Current.CancellationToken).Returns(EvaluationContext.Empty);
+        hook2.BeforeAsync(Arg.Any<HookContext<bool>>(), null, TestContext.Current.CancellationToken).Returns(EvaluationContext.Empty);
+        featureProvider.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>(), TestContext.Current.CancellationToken).Returns(new ResolutionDetails<bool>("test", false));
+        hook2.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null, TestContext.Current.CancellationToken).Returns(new ValueTask());
+        hook1.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null, TestContext.Current.CancellationToken).Returns(new ValueTask());
+        hook2.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null, TestContext.Current.CancellationToken).Returns(new ValueTask());
+        hook1.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null, TestContext.Current.CancellationToken).Throws(new Exception());
 
-        await Api.Instance.SetProviderAsync(featureProvider);
+        await Api.Instance.SetProviderAsync(featureProvider, TestContext.Current.CancellationToken);
         var client = Api.Instance.GetClient();
         client.AddHooks(new[] { hook1, hook2 });
         Assert.Equal(2, client.GetHooks().Count());
 
-        await client.GetBooleanValueAsync("test", false);
+        await client.GetBooleanValueAsync("test", false, cancellationToken: TestContext.Current.CancellationToken);
 
         Received.InOrder(() =>
         {
-            hook1.BeforeAsync(Arg.Any<HookContext<bool>>(), null);
-            hook2.BeforeAsync(Arg.Any<HookContext<bool>>(), null);
-            featureProvider.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>());
-            hook2.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null);
-            hook1.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null);
-            hook2.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null);
-            hook1.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null);
+            hook1.BeforeAsync(Arg.Any<HookContext<bool>>(), null, TestContext.Current.CancellationToken);
+            hook2.BeforeAsync(Arg.Any<HookContext<bool>>(), null, TestContext.Current.CancellationToken);
+            featureProvider.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>(), TestContext.Current.CancellationToken);
+            hook2.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null, TestContext.Current.CancellationToken);
+            hook1.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null, TestContext.Current.CancellationToken);
+            hook2.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null, TestContext.Current.CancellationToken);
+            hook1.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null, TestContext.Current.CancellationToken);
         });
 
-        _ = hook1.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), null);
-        _ = hook2.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), null);
-        _ = featureProvider.Received(1).ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>());
-        _ = hook2.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null);
-        _ = hook1.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null);
-        _ = hook2.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null);
-        _ = hook1.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null);
+        _ = hook1.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), null, TestContext.Current.CancellationToken);
+        _ = hook2.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), null, TestContext.Current.CancellationToken);
+        _ = featureProvider.Received(1).ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>(), TestContext.Current.CancellationToken);
+        _ = hook2.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null, TestContext.Current.CancellationToken);
+        _ = hook1.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null, TestContext.Current.CancellationToken);
+        _ = hook2.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null, TestContext.Current.CancellationToken);
+        _ = hook1.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null, TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -485,31 +474,31 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
         featureProvider1.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
         // Sequence
-        hook1.BeforeAsync(Arg.Any<HookContext<bool>>(), null).Returns(EvaluationContext.Empty);
-        hook2.BeforeAsync(Arg.Any<HookContext<bool>>(), null).Returns(EvaluationContext.Empty);
-        featureProvider1.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>()).Throws(new Exception());
-        hook2.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null).Throws(new Exception());
-        hook1.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null).Returns(new ValueTask());
+        hook1.BeforeAsync(Arg.Any<HookContext<bool>>(), null, TestContext.Current.CancellationToken).Returns(EvaluationContext.Empty);
+        hook2.BeforeAsync(Arg.Any<HookContext<bool>>(), null, TestContext.Current.CancellationToken).Returns(EvaluationContext.Empty);
+        featureProvider1.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>(), TestContext.Current.CancellationToken).Throws(new Exception());
+        hook2.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null, TestContext.Current.CancellationToken).Throws(new Exception());
+        hook1.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null, TestContext.Current.CancellationToken).Returns(new ValueTask());
 
-        await Api.Instance.SetProviderAsync(featureProvider1);
+        await Api.Instance.SetProviderAsync(featureProvider1, TestContext.Current.CancellationToken);
         var client = Api.Instance.GetClient();
         client.AddHooks(new[] { hook1, hook2 });
 
-        await client.GetBooleanValueAsync("test", false);
+        await client.GetBooleanValueAsync("test", false, cancellationToken: TestContext.Current.CancellationToken);
 
         Received.InOrder(() =>
         {
-            hook1.BeforeAsync(Arg.Any<HookContext<bool>>(), null);
-            hook2.BeforeAsync(Arg.Any<HookContext<bool>>(), null);
-            featureProvider1.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>());
-            hook2.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
-            hook1.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
+            hook1.BeforeAsync(Arg.Any<HookContext<bool>>(), null, TestContext.Current.CancellationToken);
+            hook2.BeforeAsync(Arg.Any<HookContext<bool>>(), null, TestContext.Current.CancellationToken);
+            featureProvider1.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>(), TestContext.Current.CancellationToken);
+            hook2.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null, TestContext.Current.CancellationToken);
+            hook1.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null, TestContext.Current.CancellationToken);
         });
 
-        _ = hook1.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), null);
-        _ = hook2.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), null);
-        _ = hook1.Received(1).ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
-        _ = hook2.Received(1).ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
+        _ = hook1.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), null, TestContext.Current.CancellationToken);
+        _ = hook2.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), null, TestContext.Current.CancellationToken);
+        _ = hook1.Received(1).ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null, TestContext.Current.CancellationToken);
+        _ = hook2.Received(1).ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null, TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -524,27 +513,27 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
         featureProvider.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
         // Sequence
-        hook1.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>()).Throws(new Exception());
-        _ = hook1.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
-        _ = hook2.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
+        hook1.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>(), TestContext.Current.CancellationToken).Throws(new Exception());
+        _ = hook1.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null, TestContext.Current.CancellationToken);
+        _ = hook2.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null, TestContext.Current.CancellationToken);
 
-        await Api.Instance.SetProviderAsync(featureProvider);
+        await Api.Instance.SetProviderAsync(featureProvider, TestContext.Current.CancellationToken);
         var client = Api.Instance.GetClient();
         client.AddHooks(new[] { hook1, hook2 });
 
-        await client.GetBooleanValueAsync("test", false);
+        await client.GetBooleanValueAsync("test", false, cancellationToken: TestContext.Current.CancellationToken);
 
         Received.InOrder(() =>
         {
-            hook1.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>());
-            hook2.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
-            hook1.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
+            hook1.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>(), TestContext.Current.CancellationToken);
+            hook2.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null, TestContext.Current.CancellationToken);
+            hook1.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null, TestContext.Current.CancellationToken);
         });
 
-        _ = hook1.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>());
-        _ = hook2.DidNotReceive().BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>());
-        _ = hook1.Received(1).ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
-        _ = hook2.Received(1).ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
+        _ = hook1.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>(), TestContext.Current.CancellationToken);
+        _ = hook2.DidNotReceive().BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>(), TestContext.Current.CancellationToken);
+        _ = hook1.Received(1).ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null, TestContext.Current.CancellationToken);
+        _ = hook2.Received(1).ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null, TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -561,29 +550,25 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
         featureProvider.GetProviderHooks()
             .Returns(ImmutableList<Hook>.Empty);
 
-        hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
-            .Returns(EvaluationContext.Empty);
+        hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(EvaluationContext.Empty);
 
-        featureProvider.ResolveBooleanValueAsync("test", false, Arg.Any<EvaluationContext>())
-            .Returns(new ResolutionDetails<bool>("test", false));
+        featureProvider.ResolveBooleanValueAsync("test", false, Arg.Any<EvaluationContext>(), TestContext.Current.CancellationToken).Returns(new ResolutionDetails<bool>("test", false));
 
-        hook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
-            .Returns(new ValueTask());
+        hook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(new ValueTask());
 
-        hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
-            .Returns(new ValueTask());
+        hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(new ValueTask());
 
-        await Api.Instance.SetProviderAsync(featureProvider);
+        await Api.Instance.SetProviderAsync(featureProvider, TestContext.Current.CancellationToken);
         var client = Api.Instance.GetClient();
 
-        await client.GetBooleanValueAsync("test", false, EvaluationContext.Empty, flagOptions);
+        await client.GetBooleanValueAsync("test", false, EvaluationContext.Empty, flagOptions, TestContext.Current.CancellationToken);
 
         Received.InOrder(() =>
         {
-            hook.Received().BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
-            featureProvider.Received().ResolveBooleanValueAsync("test", false, Arg.Any<EvaluationContext>());
-            hook.Received().AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
-            hook.Received().FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
+            hook.Received().BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
+            featureProvider.Received().ResolveBooleanValueAsync("test", false, Arg.Any<EvaluationContext>(), TestContext.Current.CancellationToken);
+            hook.Received().AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
+            hook.Received().FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
         });
     }
 
@@ -599,26 +584,26 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
         featureProvider.GetMetadata().Returns(new Metadata(null));
 
         // Sequence
-        hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>()).Throws(exceptionToThrow);
-        hook.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null).Returns(new ValueTask());
-        hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null).Returns(new ValueTask());
+        hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>(), TestContext.Current.CancellationToken).Throws(exceptionToThrow);
+        hook.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null, TestContext.Current.CancellationToken).Returns(new ValueTask());
+        hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null, TestContext.Current.CancellationToken).Returns(new ValueTask());
 
         var client = Api.Instance.GetClient();
         client.AddHooks(hook);
 
-        var resolvedFlag = await client.GetBooleanValueAsync("test", true);
+        var resolvedFlag = await client.GetBooleanValueAsync("test", true, cancellationToken: TestContext.Current.CancellationToken);
 
         Received.InOrder(() =>
         {
-            hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>());
-            hook.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null);
-            hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null);
+            hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Dictionary<string, object>>(), TestContext.Current.CancellationToken);
+            hook.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), null, TestContext.Current.CancellationToken);
+            hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null, TestContext.Current.CancellationToken);
         });
 
         Assert.True(resolvedFlag);
-        _ = hook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), null);
-        _ = hook.Received(1).ErrorAsync(Arg.Any<HookContext<bool>>(), exceptionToThrow, null);
-        _ = hook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null);
+        _ = hook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), null, TestContext.Current.CancellationToken);
+        _ = hook.Received(1).ErrorAsync(Arg.Any<HookContext<bool>>(), exceptionToThrow, null, TestContext.Current.CancellationToken);
+        _ = hook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), null, TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -636,36 +621,31 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
         featureProvider.GetProviderHooks()
             .Returns(ImmutableList<Hook>.Empty);
 
-        hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
-            .Returns(EvaluationContext.Empty);
+        hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(EvaluationContext.Empty);
 
-        featureProvider.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>())
-            .Returns(new ResolutionDetails<bool>("test", false));
+        featureProvider.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>(), TestContext.Current.CancellationToken).Returns(new ResolutionDetails<bool>("test", false));
 
-        hook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
-            .Throws(exceptionToThrow);
+        hook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Throws(exceptionToThrow);
 
-        hook.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), Arg.Any<ImmutableDictionary<string, object>>())
-            .Returns(new ValueTask());
+        hook.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(new ValueTask());
 
-        hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
-            .Returns(new ValueTask());
+        hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(new ValueTask());
 
-        await Api.Instance.SetProviderAsync(featureProvider);
+        await Api.Instance.SetProviderAsync(featureProvider, TestContext.Current.CancellationToken);
         var client = Api.Instance.GetClient();
 
-        var resolvedFlag = await client.GetBooleanValueAsync("test", true, config: flagOptions);
+        var resolvedFlag = await client.GetBooleanValueAsync("test", true, config: flagOptions, cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.True(resolvedFlag);
 
         Received.InOrder(() =>
         {
-            hook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
-            hook.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
-            hook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>());
+            hook.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
+            hook.Received(1).AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
+            hook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
         });
 
-        await featureProvider.DidNotReceive().ResolveBooleanValueAsync("test", false, Arg.Any<EvaluationContext>());
+        await featureProvider.DidNotReceive().ResolveBooleanValueAsync("test", false, Arg.Any<EvaluationContext>(), TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -683,7 +663,7 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
         _ = hook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>(), cts.Token);
         _ = hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<Dictionary<string, object>>(), cts.Token);
 
-        await Api.Instance.SetProviderAsync(featureProvider);
+        await Api.Instance.SetProviderAsync(featureProvider, TestContext.Current.CancellationToken);
         var client = Api.Instance.GetClient();
         client.AddHooks(hook);
 
@@ -709,19 +689,15 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
         featureProvider.GetProviderHooks()
             .Returns(ImmutableList<Hook>.Empty);
 
-        hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
-            .Returns(EvaluationContext.Empty);
+        hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(EvaluationContext.Empty);
 
-        featureProvider.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>())
-            .Throws(exceptionToThrow);
+        featureProvider.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>(), TestContext.Current.CancellationToken).Throws(exceptionToThrow);
 
-        hook.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), Arg.Any<ImmutableDictionary<string, object>>())
-            .Returns(new ValueTask());
+        hook.ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(new ValueTask());
 
-        hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>())
-            .Returns(new ValueTask());
+        hook.FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(new ValueTask());
 
-        await Api.Instance.SetProviderAsync(featureProvider);
+        await Api.Instance.SetProviderAsync(featureProvider, TestContext.Current.CancellationToken);
         var client = Api.Instance.GetClient();
 
         await client.GetBooleanValueAsync("test", true, EvaluationContext.Empty, flagOptions, cts.Token);
@@ -730,7 +706,7 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
         _ = hook.Received(1).ErrorAsync(Arg.Any<HookContext<bool>>(), Arg.Any<Exception>(), Arg.Any<ImmutableDictionary<string, object>>(), cts.Token);
         _ = hook.Received(1).FinallyAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), cts.Token);
 
-        await featureProvider.DidNotReceive().ResolveBooleanValueAsync("test", false, Arg.Any<EvaluationContext>());
+        await featureProvider.DidNotReceive().ResolveBooleanValueAsync("test", false, Arg.Any<EvaluationContext>(), TestContext.Current.CancellationToken);
     }
 
     [Fact]
