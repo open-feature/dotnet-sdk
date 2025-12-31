@@ -47,9 +47,7 @@ public class TraceEnricherHookTests : IDisposable
 
         // Act
         var span = this._tracer.StartActiveSpan("my-span");
-        await traceEnricherHook.FinallyAsync(ctx,
-            new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default"),
-            new Dictionary<string, object>()).ConfigureAwait(true);
+        await traceEnricherHook.FinallyAsync(ctx, new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default"), new Dictionary<string, object>(), TestContext.Current.CancellationToken).ConfigureAwait(true);
         span.End();
 
         this._tracerProvider.ForceFlush();
@@ -83,9 +81,7 @@ public class TraceEnricherHookTests : IDisposable
 
         // Act
         var span = this._tracer.StartActiveSpan("my-span");
-        await traceEnricherHook.FinallyAsync(ctx,
-            new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default"),
-            new Dictionary<string, object>()).ConfigureAwait(true);
+        await traceEnricherHook.FinallyAsync(ctx, new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default"), new Dictionary<string, object>(), TestContext.Current.CancellationToken).ConfigureAwait(true);
         span.End();
 
         this._tracerProvider.ForceFlush();
@@ -126,9 +122,7 @@ public class TraceEnricherHookTests : IDisposable
 
         // Act
         var span = this._tracer.StartActiveSpan("my-span");
-        await traceEnricherHook.FinallyAsync(ctx,
-            new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default", flagMetadata: flagMetadata),
-            new Dictionary<string, object>()).ConfigureAwait(true);
+        await traceEnricherHook.FinallyAsync(ctx, new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default", flagMetadata: flagMetadata), new Dictionary<string, object>(), TestContext.Current.CancellationToken).ConfigureAwait(true);
         span.End();
 
         this._tracerProvider.ForceFlush();
@@ -157,9 +151,7 @@ public class TraceEnricherHookTests : IDisposable
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
 
         // Act
-        await traceEnricherHook.FinallyAsync(ctx,
-            new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default"),
-            new Dictionary<string, object>()).ConfigureAwait(true);
+        await traceEnricherHook.FinallyAsync(ctx, new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default"), new Dictionary<string, object>(), TestContext.Current.CancellationToken).ConfigureAwait(true);
 
         this._tracerProvider.ForceFlush();
 

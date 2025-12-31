@@ -2,15 +2,15 @@ namespace OpenFeature.Tests;
 
 public class ClearOpenFeatureInstanceFixture : IAsyncLifetime
 {
-    public Task InitializeAsync()
+    public ValueTask InitializeAsync()
     {
         Api.ResetApi();
 
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     // Make sure the singleton is cleared between tests
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         await Api.Instance.ShutdownAsync().ConfigureAwait(false);
     }

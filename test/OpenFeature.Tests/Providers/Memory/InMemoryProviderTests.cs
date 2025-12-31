@@ -174,7 +174,7 @@ public class InMemoryProviderTests
     [Fact]
     public async Task GetBoolean_ShouldEvaluateWithReasonAndVariant()
     {
-        ResolutionDetails<bool> details = await this.commonProvider.ResolveBooleanValueAsync("boolean-flag", false, EvaluationContext.Empty);
+        ResolutionDetails<bool> details = await this.commonProvider.ResolveBooleanValueAsync("boolean-flag", false, EvaluationContext.Empty, TestContext.Current.CancellationToken);
         Assert.True(details.Value);
         Assert.Equal(Reason.Static, details.Reason);
         Assert.Equal("on", details.Variant);
@@ -184,7 +184,7 @@ public class InMemoryProviderTests
     public async Task GetBoolean_WithNoEvaluationContext_ShouldEvaluateWithReasonAndVariant()
     {
         // Act
-        ResolutionDetails<bool> details = await this.commonProvider.ResolveBooleanValueAsync("boolean-flag", false);
+        ResolutionDetails<bool> details = await this.commonProvider.ResolveBooleanValueAsync("boolean-flag", false, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(details.Value);
@@ -196,7 +196,7 @@ public class InMemoryProviderTests
     public async Task GetBoolean_WhenDisabled_ShouldEvaluateWithDefaultReason()
     {
         // Act
-        ResolutionDetails<bool> details = await this.commonProvider.ResolveBooleanValueAsync("boolean-disabled-flag", false, EvaluationContext.Empty);
+        ResolutionDetails<bool> details = await this.commonProvider.ResolveBooleanValueAsync("boolean-disabled-flag", false, EvaluationContext.Empty, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.False(details.Value);
@@ -207,7 +207,7 @@ public class InMemoryProviderTests
     [Fact]
     public async Task GetString_ShouldEvaluateWithReasonAndVariant()
     {
-        ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("string-flag", "nope", EvaluationContext.Empty);
+        ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("string-flag", "nope", EvaluationContext.Empty, TestContext.Current.CancellationToken);
         Assert.Equal("hi", details.Value);
         Assert.Equal(Reason.Static, details.Reason);
         Assert.Equal("greeting", details.Variant);
@@ -217,7 +217,7 @@ public class InMemoryProviderTests
     public async Task GetString_WithNoEvaluationContext_ShouldEvaluateWithReasonAndVariant()
     {
         // Act
-        ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("string-flag", "nope");
+        ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("string-flag", "nope", cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal("hi", details.Value);
@@ -229,7 +229,7 @@ public class InMemoryProviderTests
     public async Task GetString_WhenDisabled_ShouldEvaluateWithDefaultReason()
     {
         // Act
-        ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("string-disabled-flag", "nope");
+        ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("string-disabled-flag", "nope", cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal("nope", details.Value);
@@ -240,7 +240,7 @@ public class InMemoryProviderTests
     [Fact]
     public async Task GetInt_ShouldEvaluateWithReasonAndVariant()
     {
-        ResolutionDetails<int> details = await this.commonProvider.ResolveIntegerValueAsync("integer-flag", 13, EvaluationContext.Empty);
+        ResolutionDetails<int> details = await this.commonProvider.ResolveIntegerValueAsync("integer-flag", 13, EvaluationContext.Empty, TestContext.Current.CancellationToken);
         Assert.Equal(10, details.Value);
         Assert.Equal(Reason.Static, details.Reason);
         Assert.Equal("ten", details.Variant);
@@ -250,7 +250,7 @@ public class InMemoryProviderTests
     public async Task GetInt_WithNoEvaluationContext_ShouldEvaluateWithReasonAndVariant()
     {
         // Act
-        ResolutionDetails<int> details = await this.commonProvider.ResolveIntegerValueAsync("integer-flag", 13);
+        ResolutionDetails<int> details = await this.commonProvider.ResolveIntegerValueAsync("integer-flag", 13, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(10, details.Value);
@@ -262,7 +262,7 @@ public class InMemoryProviderTests
     public async Task GetInt_WhenDisabled_ShouldEvaluateWithDefaultReason()
     {
         // Act
-        ResolutionDetails<int> details = await this.commonProvider.ResolveIntegerValueAsync("integer-disabled-flag", 13);
+        ResolutionDetails<int> details = await this.commonProvider.ResolveIntegerValueAsync("integer-disabled-flag", 13, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(13, details.Value);
@@ -273,7 +273,7 @@ public class InMemoryProviderTests
     [Fact]
     public async Task GetDouble_ShouldEvaluateWithReasonAndVariant()
     {
-        ResolutionDetails<double> details = await this.commonProvider.ResolveDoubleValueAsync("float-flag", 13, EvaluationContext.Empty);
+        ResolutionDetails<double> details = await this.commonProvider.ResolveDoubleValueAsync("float-flag", 13, EvaluationContext.Empty, TestContext.Current.CancellationToken);
         Assert.Equal(0.5, details.Value);
         Assert.Equal(Reason.Static, details.Reason);
         Assert.Equal("half", details.Variant);
@@ -283,7 +283,7 @@ public class InMemoryProviderTests
     public async Task GetDouble_WithNoEvaluationContext_ShouldEvaluateWithReasonAndVariant()
     {
         // Arrange
-        ResolutionDetails<double> details = await this.commonProvider.ResolveDoubleValueAsync("float-flag", 13);
+        ResolutionDetails<double> details = await this.commonProvider.ResolveDoubleValueAsync("float-flag", 13, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(0.5, details.Value);
@@ -295,7 +295,7 @@ public class InMemoryProviderTests
     public async Task GetDouble_WhenDisabled_ShouldEvaluateWithDefaultReason()
     {
         // Act
-        ResolutionDetails<double> details = await this.commonProvider.ResolveDoubleValueAsync("float-disabled-flag", 1.3);
+        ResolutionDetails<double> details = await this.commonProvider.ResolveDoubleValueAsync("float-disabled-flag", 1.3, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(1.3, details.Value);
@@ -306,7 +306,7 @@ public class InMemoryProviderTests
     [Fact]
     public async Task GetStruct_ShouldEvaluateWithReasonAndVariant()
     {
-        ResolutionDetails<Value> details = await this.commonProvider.ResolveStructureValueAsync("object-flag", new Value(), EvaluationContext.Empty);
+        ResolutionDetails<Value> details = await this.commonProvider.ResolveStructureValueAsync("object-flag", new Value(), EvaluationContext.Empty, TestContext.Current.CancellationToken);
         Assert.Equal(true, details.Value.AsStructure?["showImages"].AsBoolean);
         Assert.Equal("Check out these pics!", details.Value.AsStructure?["title"].AsString);
         Assert.Equal(100, details.Value.AsStructure?["imagesPerPage"].AsInteger);
@@ -318,7 +318,7 @@ public class InMemoryProviderTests
     public async Task GetStruct_WithNoEvaluationContext_ShouldEvaluateWithReasonAndVariant()
     {
         // Act
-        ResolutionDetails<Value> details = await this.commonProvider.ResolveStructureValueAsync("object-flag", new Value());
+        ResolutionDetails<Value> details = await this.commonProvider.ResolveStructureValueAsync("object-flag", new Value(), cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(true, details.Value.AsStructure?["showImages"].AsBoolean);
@@ -339,7 +339,7 @@ public class InMemoryProviderTests
         );
 
         // Act
-        ResolutionDetails<Value> details = await this.commonProvider.ResolveStructureValueAsync("object-disabled-flag", defaultValue);
+        ResolutionDetails<Value> details = await this.commonProvider.ResolveStructureValueAsync("object-disabled-flag", defaultValue, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(true, details.Value.AsStructure?["default"].AsBoolean);
@@ -351,7 +351,7 @@ public class InMemoryProviderTests
     public async Task GetString_ContextSensitive_ShouldEvaluateWithReasonAndVariant()
     {
         EvaluationContext context = EvaluationContext.Builder().Set("email", "me@faas.com").Build();
-        ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("context-aware", "nope", context);
+        ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("context-aware", "nope", context, TestContext.Current.CancellationToken);
         Assert.Equal("INTERNAL", details.Value);
         Assert.Equal(Reason.TargetingMatch, details.Reason);
         Assert.Equal("internal", details.Variant);
@@ -361,7 +361,7 @@ public class InMemoryProviderTests
     public async Task GetString_ContextSensitive_WithNoEvaluationContext_ShouldEvaluateWithReasonAndVariant()
     {
         // Act
-        ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("context-aware", "nope");
+        ResolutionDetails<string> details = await this.commonProvider.ResolveStringValueAsync("context-aware", "nope", cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal("EXTERNAL", details.Value);
@@ -381,7 +381,7 @@ public class InMemoryProviderTests
     public async Task MissingFlag_ShouldReturnFlagNotFoundEvaluationFlag()
     {
         // Act
-        var result = await this.commonProvider.ResolveBooleanValueAsync("missing-flag", false, EvaluationContext.Empty);
+        var result = await this.commonProvider.ResolveBooleanValueAsync("missing-flag", false, EvaluationContext.Empty, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(Reason.Error, result.Reason);
@@ -392,7 +392,7 @@ public class InMemoryProviderTests
     public async Task MismatchedFlag_ShouldReturnTypeMismatchError()
     {
         // Act
-        var result = await this.commonProvider.ResolveStringValueAsync("boolean-flag", "nope", EvaluationContext.Empty);
+        var result = await this.commonProvider.ResolveStringValueAsync("boolean-flag", "nope", EvaluationContext.Empty, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(Reason.Error, result.Reason);
@@ -402,14 +402,14 @@ public class InMemoryProviderTests
     [Fact]
     public async Task MissingDefaultVariant_ShouldThrow()
     {
-        await Assert.ThrowsAsync<GeneralException>(() => this.commonProvider.ResolveBooleanValueAsync("invalid-flag", false, EvaluationContext.Empty));
+        await Assert.ThrowsAsync<GeneralException>(() => this.commonProvider.ResolveBooleanValueAsync("invalid-flag", false, EvaluationContext.Empty, TestContext.Current.CancellationToken));
     }
 
     [Fact]
     public async Task MissingEvaluatedVariant_ReturnsDefaultVariant()
     {
         // Act
-        var result = await this.commonProvider.ResolveBooleanValueAsync("invalid-evaluator-flag", false, EvaluationContext.Empty);
+        var result = await this.commonProvider.ResolveBooleanValueAsync("invalid-evaluator-flag", false, EvaluationContext.Empty, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result.Value);
@@ -421,7 +421,7 @@ public class InMemoryProviderTests
     public async Task ContextEvaluatorThrows_ReturnsDefaultVariant()
     {
         // Act
-        var result = await this.commonProvider.ResolveBooleanValueAsync("evaluator-throws-flag", false, EvaluationContext.Empty);
+        var result = await this.commonProvider.ResolveBooleanValueAsync("evaluator-throws-flag", false, EvaluationContext.Empty, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result.Value);
@@ -443,7 +443,7 @@ public class InMemoryProviderTests
             )
         }});
 
-        ResolutionDetails<bool> details = await provider.ResolveBooleanValueAsync("old-flag", false, EvaluationContext.Empty);
+        ResolutionDetails<bool> details = await provider.ResolveBooleanValueAsync("old-flag", false, EvaluationContext.Empty, TestContext.Current.CancellationToken);
         Assert.True(details.Value);
 
         // update flags
@@ -458,17 +458,17 @@ public class InMemoryProviderTests
             )
         }});
 
-        var res = await provider.GetEventChannel().Reader.ReadAsync() as ProviderEventPayload;
+        var res = await provider.GetEventChannel().Reader.ReadAsync(TestContext.Current.CancellationToken) as ProviderEventPayload;
         Assert.Equal(ProviderEventTypes.ProviderConfigurationChanged, res?.Type);
 
         // old flag should be gone
-        var oldFlag = await provider.ResolveBooleanValueAsync("old-flag", false, EvaluationContext.Empty);
+        var oldFlag = await provider.ResolveBooleanValueAsync("old-flag", false, EvaluationContext.Empty, TestContext.Current.CancellationToken);
 
         Assert.Equal(Reason.Error, oldFlag.Reason);
         Assert.Equal(ErrorType.FlagNotFound, oldFlag.ErrorType);
 
         // new flag should be present, old gone (defaults), handler run.
-        ResolutionDetails<string> detailsAfter = await provider.ResolveStringValueAsync("new-flag", "nope", EvaluationContext.Empty);
+        ResolutionDetails<string> detailsAfter = await provider.ResolveStringValueAsync("new-flag", "nope", EvaluationContext.Empty, TestContext.Current.CancellationToken);
         Assert.True(details.Value);
         Assert.Equal("hi", detailsAfter.Value);
     }

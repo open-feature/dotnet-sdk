@@ -54,8 +54,8 @@ public class FeatureFlagIntegrationTest
         var requestUri = $"/features/{userId}/flags/{FeatureA}";
 
         // Act
-        var response = await client.GetAsync(requestUri).ConfigureAwait(true);
-        var responseContent = await response.Content.ReadFromJsonAsync<FeatureFlagResponse<bool>>().ConfigureAwait(true);
+        var response = await client.GetAsync(requestUri, TestContext.Current.CancellationToken).ConfigureAwait(true);
+        var responseContent = await response.Content.ReadFromJsonAsync<FeatureFlagResponse<bool>>(cancellationToken: TestContext.Current.CancellationToken).ConfigureAwait(true);
 
         // Assert
         Assert.True(response.IsSuccessStatusCode, "Expected HTTP status code 200 OK.");
@@ -85,7 +85,7 @@ public class FeatureFlagIntegrationTest
         var requestUri = $"/features/{TestUserId}/flags/{FeatureA}";
 
         // Act
-        var response = await client.GetAsync(requestUri).ConfigureAwait(true);
+        var response = await client.GetAsync(requestUri, TestContext.Current.CancellationToken).ConfigureAwait(true);
         var logs = logger.Collector.GetSnapshot();
 
         // Assert
@@ -120,7 +120,7 @@ public class FeatureFlagIntegrationTest
         var requestUri = $"/features/{TestUserId}/flags/{FeatureA}";
 
         // Act
-        var response = await client.GetAsync(requestUri).ConfigureAwait(true);
+        var response = await client.GetAsync(requestUri, TestContext.Current.CancellationToken).ConfigureAwait(true);
 
         // Assert
         Assert.True(response.IsSuccessStatusCode, "Expected HTTP status code 200 OK.");
@@ -152,7 +152,7 @@ public class FeatureFlagIntegrationTest
         var requestUri = $"/features/{TestUserId}/flags/{FeatureA}";
 
         // Act
-        var response = await client.GetAsync(requestUri).ConfigureAwait(true);
+        var response = await client.GetAsync(requestUri, TestContext.Current.CancellationToken).ConfigureAwait(true);
 
         // Assert
         Assert.True(response.IsSuccessStatusCode, "Expected HTTP status code 200 OK.");
@@ -191,7 +191,7 @@ public class FeatureFlagIntegrationTest
         var requestUri = $"/features/{TestUserId}/flags/{FeatureA}";
 
         // Act
-        var response = await client.GetAsync(requestUri).ConfigureAwait(true);
+        var response = await client.GetAsync(requestUri, TestContext.Current.CancellationToken).ConfigureAwait(true);
 
         // Assert
         Assert.True(response.IsSuccessStatusCode, "Expected HTTP status code 200 OK.");

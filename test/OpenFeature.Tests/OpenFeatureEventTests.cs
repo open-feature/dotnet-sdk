@@ -69,11 +69,11 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         Api.Instance.AddHandler(ProviderEventTypes.ProviderStale, eventHandler);
 
         var testProvider = new TestProvider();
-        await Api.Instance.SetProviderAsync(testProvider);
+        await Api.Instance.SetProviderAsync(testProvider, TestContext.Current.CancellationToken);
 
-        await testProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged);
-        await testProvider.SendEventAsync(ProviderEventTypes.ProviderError);
-        await testProvider.SendEventAsync(ProviderEventTypes.ProviderStale);
+        await testProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, TestContext.Current.CancellationToken);
+        await testProvider.SendEventAsync(ProviderEventTypes.ProviderError, TestContext.Current.CancellationToken);
+        await testProvider.SendEventAsync(ProviderEventTypes.ProviderStale, TestContext.Current.CancellationToken);
 
         await Utils.AssertUntilAsync(_ => eventHandler
             .Received()
@@ -116,7 +116,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         var eventHandler = Substitute.For<EventHandlerDelegate>();
 
         var testProvider = new TestProvider();
-        await Api.Instance.SetProviderAsync(testProvider);
+        await Api.Instance.SetProviderAsync(testProvider, TestContext.Current.CancellationToken);
 
         Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
@@ -140,7 +140,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         var eventHandler = Substitute.For<EventHandlerDelegate>();
 
         var testProvider = new TestProvider();
-        await Api.Instance.SetProviderAsync(testProvider);
+        await Api.Instance.SetProviderAsync(testProvider, TestContext.Current.CancellationToken);
 
         Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
@@ -164,7 +164,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         var eventHandler = Substitute.For<EventHandlerDelegate>();
 
         var testProvider = new TestProvider();
-        await Api.Instance.SetProviderAsync(testProvider);
+        await Api.Instance.SetProviderAsync(testProvider, TestContext.Current.CancellationToken);
 
         testProvider.Status = ProviderStatus.Error;
 
@@ -189,7 +189,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         var eventHandler = Substitute.For<EventHandlerDelegate>();
 
         var testProvider = new TestProvider();
-        await Api.Instance.SetProviderAsync(testProvider);
+        await Api.Instance.SetProviderAsync(testProvider, TestContext.Current.CancellationToken);
 
         testProvider.Status = ProviderStatus.Stale;
 
@@ -217,14 +217,14 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         Api.Instance.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, eventHandler);
 
         var testProvider = new TestProvider();
-        await Api.Instance.SetProviderAsync(testProvider);
+        await Api.Instance.SetProviderAsync(testProvider, TestContext.Current.CancellationToken);
 
-        await testProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged);
+        await testProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, TestContext.Current.CancellationToken);
 
         var newTestProvider = new TestProvider();
-        await Api.Instance.SetProviderAsync(newTestProvider);
+        await Api.Instance.SetProviderAsync(newTestProvider, TestContext.Current.CancellationToken);
 
-        await newTestProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged);
+        await newTestProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, TestContext.Current.CancellationToken);
 
         await Utils.AssertUntilAsync(
             _ => eventHandler.Received(2).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderReady))
@@ -246,13 +246,13 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
         var testProvider = new TestProvider();
-        await Api.Instance.SetProviderAsync(testProvider);
+        await Api.Instance.SetProviderAsync(testProvider, TestContext.Current.CancellationToken);
 
         Thread.Sleep(1000);
         Api.Instance.RemoveHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
         var newTestProvider = new TestProvider();
-        await Api.Instance.SetProviderAsync(newTestProvider);
+        await Api.Instance.SetProviderAsync(newTestProvider, TestContext.Current.CancellationToken);
 
         eventHandler.Received(1).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
     }
@@ -277,7 +277,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
         var testProvider = new TestProvider(fixture.Create<string>());
-        await Api.Instance.SetProviderAsync(testProvider);
+        await Api.Instance.SetProviderAsync(testProvider, TestContext.Current.CancellationToken);
 
         await Utils.AssertUntilAsync(
             _ => failingEventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name))
@@ -302,7 +302,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         var myClient = Api.Instance.GetClient(domain, clientVersion);
 
         var testProvider = new TestProvider();
-        await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name!, testProvider);
+        await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name!, testProvider, TestContext.Current.CancellationToken);
 
         myClient.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
@@ -333,7 +333,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         myClient.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
         var testProvider = new TestProvider();
-        await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name!, testProvider);
+        await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name!, testProvider, TestContext.Current.CancellationToken);
 
         await Utils.AssertUntilAsync(
             _ => failingEventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name))
@@ -362,9 +362,9 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         var clientProvider = new TestProvider(fixture.Create<string>());
 
         // set the default provider on API level, but not specifically to the client
-        await Api.Instance.SetProviderAsync(apiProvider);
+        await Api.Instance.SetProviderAsync(apiProvider, TestContext.Current.CancellationToken);
         // set the other provider specifically for the client
-        await Api.Instance.SetProviderAsync(myClientWithBoundProvider.GetMetadata().Name!, clientProvider);
+        await Api.Instance.SetProviderAsync(myClientWithBoundProvider.GetMetadata().Name!, clientProvider, TestContext.Current.CancellationToken);
 
         myClientWithNoBoundProvider.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
         myClientWithBoundProvider.AddHandler(ProviderEventTypes.ProviderReady, clientEventHandler);
@@ -394,11 +394,11 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         var clientProvider = new TestProvider(fixture.Create<string>());
 
         // set the default provider
-        await Api.Instance.SetProviderAsync(defaultProvider);
+        await Api.Instance.SetProviderAsync(defaultProvider, TestContext.Current.CancellationToken);
 
         client.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, clientEventHandler);
 
-        await defaultProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged);
+        await defaultProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, TestContext.Current.CancellationToken);
 
         // verify that the client received the event from the default provider as there is no named provider registered yet
         await Utils.AssertUntilAsync(
@@ -407,11 +407,11 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         );
 
         // set the other provider specifically for the client
-        await Api.Instance.SetProviderAsync(client.GetMetadata().Name!, clientProvider);
+        await Api.Instance.SetProviderAsync(client.GetMetadata().Name!, clientProvider, TestContext.Current.CancellationToken);
 
         // now, send another event for the default handler
-        await defaultProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged);
-        await clientProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged);
+        await defaultProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, TestContext.Current.CancellationToken);
+        await clientProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, TestContext.Current.CancellationToken);
 
         // now the client should have received only the event from the named provider
         await Utils.AssertUntilAsync(
@@ -439,7 +439,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         var myClient = Api.Instance.GetClient(fixture.Create<string>(), fixture.Create<string>());
 
         var testProvider = new TestProvider();
-        await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name!, testProvider);
+        await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name!, testProvider, TestContext.Current.CancellationToken);
 
         // add the event handler after the provider has already transitioned into the ready state
         myClient.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
@@ -464,7 +464,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         myClient.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
         var testProvider = new TestProvider();
-        await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name!, testProvider);
+        await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name!, testProvider, TestContext.Current.CancellationToken);
 
         // wait for the first event to be received
         await Utils.AssertUntilAsync(
@@ -474,7 +474,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         myClient.RemoveHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
         // send another event from the provider - this one should not be received
-        await testProvider.SendEventAsync(ProviderEventTypes.ProviderReady);
+        await testProvider.SendEventAsync(ProviderEventTypes.ProviderReady, TestContext.Current.CancellationToken);
 
         // wait a bit and make sure we only have received the first event, but nothing after removing the event handler
         await Utils.AssertUntilAsync(
@@ -505,8 +505,8 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
     public async Task Provider_Events_Should_Update_ProviderStatus(ProviderEventTypes type, ProviderStatus status)
     {
         var provider = new TestProvider();
-        await Api.Instance.SetProviderAsync("5.3.5", provider);
-        _ = provider.SendEventAsync(type);
+        await Api.Instance.SetProviderAsync("5.3.5", provider, TestContext.Current.CancellationToken);
+        _ = provider.SendEventAsync(type, TestContext.Current.CancellationToken);
         await Utils.AssertUntilAsync(_ => Assert.True(provider.Status == status));
     }
 }

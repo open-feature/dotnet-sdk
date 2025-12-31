@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <RootNamespace>OpenFeature.E2ETests</RootNamespace>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,10 +15,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Reqnroll.xUnit" />
+    <PackageReference Include="Reqnroll.xUnit.v3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="NSubstitute" />
-    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.v3.mtp-v2" />
     <PackageReference Include="xunit.runner.visualstudio">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

@@ -32,7 +32,7 @@ public class MultiProviderTrackingTests
         };
 
         var multiProvider = new MultiProvider(providerEntries, new FirstMatchStrategy());
-        await multiProvider.InitializeAsync(this._evaluationContext);
+        await multiProvider.InitializeAsync(this._evaluationContext, TestContext.Current.CancellationToken);
 
         var trackingDetails = TrackingEventDetails.Builder().SetValue(99.99).Build();
 
@@ -68,7 +68,7 @@ public class MultiProviderTrackingTests
         };
 
         var multiProvider = new MultiProvider(providerEntries, new FirstMatchStrategy());
-        await multiProvider.InitializeAsync(this._evaluationContext);
+        await multiProvider.InitializeAsync(this._evaluationContext, TestContext.Current.CancellationToken);
 
         // Act
         multiProvider.Track(TestTrackingEventName);
@@ -95,7 +95,7 @@ public class MultiProviderTrackingTests
         };
 
         var multiProvider = new MultiProvider(providerEntries, new FirstMatchStrategy());
-        await multiProvider.InitializeAsync(this._evaluationContext);
+        await multiProvider.InitializeAsync(this._evaluationContext, TestContext.Current.CancellationToken);
 
         // Act
         multiProvider.Track(TestTrackingEventName, this._evaluationContext);
@@ -131,7 +131,7 @@ public class MultiProviderTrackingTests
         };
 
         var multiProvider = new MultiProvider(providerEntries, new FirstMatchStrategy());
-        await multiProvider.InitializeAsync(this._evaluationContext);
+        await multiProvider.InitializeAsync(this._evaluationContext, TestContext.Current.CancellationToken);
 
         // Manually set all providers to Ready status
         throwingProvider.Status.Returns(ProviderStatus.Ready);
@@ -161,7 +161,7 @@ public class MultiProviderTrackingTests
         };
 
         var multiProvider = new MultiProvider(providerEntries, new FirstMatchStrategy());
-        await multiProvider.InitializeAsync(this._evaluationContext);
+        await multiProvider.InitializeAsync(this._evaluationContext, TestContext.Current.CancellationToken);
         await multiProvider.DisposeAsync();
 
         // Act & Assert
@@ -198,7 +198,7 @@ public class MultiProviderTrackingTests
         };
 
         var multiProvider = new MultiProvider(providerEntries, customStrategy);
-        await multiProvider.InitializeAsync(this._evaluationContext);
+        await multiProvider.InitializeAsync(this._evaluationContext, TestContext.Current.CancellationToken);
 
         var trackingDetails = TrackingEventDetails.Builder().SetValue(99.99).Build();
 
@@ -233,7 +233,7 @@ public class MultiProviderTrackingTests
         };
 
         var multiProvider = new MultiProvider(providerEntries, new FirstMatchStrategy());
-        await multiProvider.InitializeAsync(this._evaluationContext);
+        await multiProvider.InitializeAsync(this._evaluationContext, TestContext.Current.CancellationToken);
 
         var trackingDetails = TrackingEventDetails.Builder()
             .SetValue(199.99)
@@ -285,7 +285,7 @@ public class MultiProviderTrackingTests
         };
 
         var multiProvider = new MultiProvider(providerEntries, new FirstMatchStrategy());
-        await multiProvider.InitializeAsync(this._evaluationContext);
+        await multiProvider.InitializeAsync(this._evaluationContext, TestContext.Current.CancellationToken);
 
         // Act & Assert
         multiProvider.Track(trackingEventName!, this._evaluationContext, TrackingEventDetails.Empty);
