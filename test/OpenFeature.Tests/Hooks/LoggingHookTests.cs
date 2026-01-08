@@ -22,7 +22,7 @@ public class LoggingHookTests
         var hook = new LoggingHook(logger, includeContext: false);
 
         // Act
-        await hook.BeforeAsync(context);
+        await hook.BeforeAsync(context, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(1, logger.Collector.Count);
@@ -57,7 +57,7 @@ public class LoggingHookTests
         var hook = new LoggingHook(logger, includeContext: false);
 
         // Act
-        await hook.BeforeAsync(context);
+        await hook.BeforeAsync(context, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         var record = logger.LatestRecord;
@@ -98,7 +98,7 @@ public class LoggingHookTests
         var hook = new LoggingHook(logger, includeContext: true);
 
         // Act
-        await hook.BeforeAsync(context);
+        await hook.BeforeAsync(context, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(1, logger.Collector.Count);
@@ -130,7 +130,7 @@ public class LoggingHookTests
         // Act
         var hook = new LoggingHook(logger, includeContext: true);
 
-        await hook.BeforeAsync(context);
+        await hook.BeforeAsync(context, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(1, logger.Collector.Count);
@@ -168,7 +168,7 @@ public class LoggingHookTests
         var exception = new Exception("Error within hook!");
 
         // Act
-        await hook.ErrorAsync(context, exception);
+        await hook.ErrorAsync(context, exception, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(1, logger.Collector.Count);
@@ -194,7 +194,7 @@ public class LoggingHookTests
         var exception = new Exception("Error within hook!");
 
         // Act
-        await hook.ErrorAsync(context, exception);
+        await hook.ErrorAsync(context, exception, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         var record = logger.LatestRecord;
@@ -238,7 +238,7 @@ public class LoggingHookTests
         var exception = new Exception("Error within hook!");
 
         // Act
-        await hook.ErrorAsync(context, exception);
+        await hook.ErrorAsync(context, exception, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(1, logger.Collector.Count);
@@ -271,7 +271,7 @@ public class LoggingHookTests
         var exception = new Exception("Error within hook!");
 
         // Act
-        await hook.ErrorAsync(context, exception);
+        await hook.ErrorAsync(context, exception, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(1, logger.Collector.Count);
@@ -309,7 +309,7 @@ public class LoggingHookTests
         var hook = new LoggingHook(logger, includeContext: false);
 
         // Act
-        await hook.AfterAsync(context, details);
+        await hook.AfterAsync(context, details, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(1, logger.Collector.Count);
@@ -334,7 +334,7 @@ public class LoggingHookTests
         var hook = new LoggingHook(logger, includeContext: false);
 
         // Act
-        await hook.AfterAsync(context, details);
+        await hook.AfterAsync(context, details, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         var record = logger.LatestRecord;
@@ -376,7 +376,7 @@ public class LoggingHookTests
         var hook = new LoggingHook(logger, includeContext: true);
 
         // Act
-        await hook.AfterAsync(context, details);
+        await hook.AfterAsync(context, details, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(1, logger.Collector.Count);
@@ -416,7 +416,7 @@ public class LoggingHookTests
         var hook = new LoggingHook(logger, includeContext: true);
 
         // Act
-        await hook.AfterAsync(context, details);
+        await hook.AfterAsync(context, details, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(1, logger.Collector.Count);
@@ -464,7 +464,7 @@ public class LoggingHookTests
         var hook = new LoggingHook(logger, includeContext: true);
 
         // Act
-        await hook.AfterAsync(context, details);
+        await hook.AfterAsync(context, details, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         var record = logger.LatestRecord;
@@ -507,7 +507,7 @@ public class LoggingHookTests
         var hook = new LoggingHook(logger, includeContext: true);
 
         // Act
-        await hook.AfterAsync(context, details);
+        await hook.AfterAsync(context, details, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         var record = logger.LatestRecord;
@@ -548,7 +548,7 @@ public class LoggingHookTests
         var hook = new LoggingHook(logger, includeContext: true);
 
         // Act
-        await hook.AfterAsync(context, details);
+        await hook.AfterAsync(context, details, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         var record = logger.LatestRecord;
@@ -589,7 +589,7 @@ public class LoggingHookTests
         var hook = new LoggingHook(logger, includeContext: true);
 
         // Act
-        await hook.AfterAsync(context, details);
+        await hook.AfterAsync(context, details, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         var record = logger.LatestRecord;
@@ -630,7 +630,7 @@ public class LoggingHookTests
         var hook = new LoggingHook(logger, includeContext: true);
 
         // Act
-        await hook.AfterAsync(context, details);
+        await hook.AfterAsync(context, details, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         var record = logger.LatestRecord;

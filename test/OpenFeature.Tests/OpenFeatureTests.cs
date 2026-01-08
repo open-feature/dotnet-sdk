@@ -24,14 +24,14 @@ public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
         var providerMockDefault = Substitute.For<FeatureProvider>();
         providerMockDefault.Status.Returns(ProviderStatus.NotReady);
 
-        await Api.Instance.SetProviderAsync(providerMockDefault);
-        await providerMockDefault.Received(1).InitializeAsync(Api.Instance.GetContext());
+        await Api.Instance.SetProviderAsync(providerMockDefault, TestContext.Current.CancellationToken);
+        await providerMockDefault.Received(1).InitializeAsync(Api.Instance.GetContext(), TestContext.Current.CancellationToken);
 
         var providerMockNamed = Substitute.For<FeatureProvider>();
         providerMockNamed.Status.Returns(ProviderStatus.NotReady);
 
-        await Api.Instance.SetProviderAsync("the-name", providerMockNamed);
-        await providerMockNamed.Received(1).InitializeAsync(Api.Instance.GetContext());
+        await Api.Instance.SetProviderAsync("the-name", providerMockNamed, TestContext.Current.CancellationToken);
+        await providerMockNamed.Received(1).InitializeAsync(Api.Instance.GetContext(), TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -79,28 +79,28 @@ public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
         var providerA = Substitute.For<FeatureProvider>();
         providerA.Status.Returns(ProviderStatus.NotReady);
 
-        await Api.Instance.SetProviderAsync(providerA);
-        await providerA.Received(1).InitializeAsync(Api.Instance.GetContext());
+        await Api.Instance.SetProviderAsync(providerA, TestContext.Current.CancellationToken);
+        await providerA.Received(1).InitializeAsync(Api.Instance.GetContext(), TestContext.Current.CancellationToken);
 
         var providerB = Substitute.For<FeatureProvider>();
         providerB.Status.Returns(ProviderStatus.NotReady);
 
-        await Api.Instance.SetProviderAsync(providerB);
-        await providerB.Received(1).InitializeAsync(Api.Instance.GetContext());
-        await providerA.Received(1).ShutdownAsync();
+        await Api.Instance.SetProviderAsync(providerB, TestContext.Current.CancellationToken);
+        await providerB.Received(1).InitializeAsync(Api.Instance.GetContext(), TestContext.Current.CancellationToken);
+        await providerA.Received(1).ShutdownAsync(TestContext.Current.CancellationToken);
 
         var providerC = Substitute.For<FeatureProvider>();
         providerC.Status.Returns(ProviderStatus.NotReady);
 
-        await Api.Instance.SetProviderAsync("named", providerC);
-        await providerC.Received(1).InitializeAsync(Api.Instance.GetContext());
+        await Api.Instance.SetProviderAsync("named", providerC, TestContext.Current.CancellationToken);
+        await providerC.Received(1).InitializeAsync(Api.Instance.GetContext(), TestContext.Current.CancellationToken);
 
         var providerD = Substitute.For<FeatureProvider>();
         providerD.Status.Returns(ProviderStatus.NotReady);
 
-        await Api.Instance.SetProviderAsync("named", providerD);
-        await providerD.Received(1).InitializeAsync(Api.Instance.GetContext());
-        await providerC.Received(1).ShutdownAsync();
+        await Api.Instance.SetProviderAsync("named", providerD, TestContext.Current.CancellationToken);
+        await providerD.Received(1).InitializeAsync(Api.Instance.GetContext(), TestContext.Current.CancellationToken);
+        await providerC.Received(1).ShutdownAsync(TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -113,13 +113,15 @@ public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
         var providerB = Substitute.For<FeatureProvider>();
         providerB.Status.Returns(ProviderStatus.NotReady);
 
-        await Api.Instance.SetProviderAsync(providerA);
-        await Api.Instance.SetProviderAsync("named", providerB);
+        await Api.Instance.SetProviderAsync(providerA, TestContext.Current.CancellationToken);
+        await Api.Instance.SetProviderAsync("named", providerB, TestContext.Current.CancellationToken);
 
         await Api.Instance.ShutdownAsync();
 
+#pragma warning disable xUnit1051 // Possible a oversight but Api.Instance.ShutdownAsync does not accept CancellationToken parameter
         await providerA.Received(1).ShutdownAsync();
         await providerB.Received(1).ShutdownAsync();
+#pragma warning restore xUnit1051
     }
 
     [Fact]
@@ -128,8 +130,8 @@ public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
     {
         var openFeature = Api.Instance;
 
-        await openFeature.SetProviderAsync(new NoOpFeatureProvider());
-        await openFeature.SetProviderAsync(TestProvider.DefaultName, new TestProvider());
+        await openFeature.SetProviderAsync(new NoOpFeatureProvider(), TestContext.Current.CancellationToken);
+        await openFeature.SetProviderAsync(TestProvider.DefaultName, new TestProvider(), TestContext.Current.CancellationToken);
 
         var defaultClient = openFeature.GetProviderMetadata();
         var domainScopedClient = openFeature.GetProviderMetadata(TestProvider.DefaultName);
@@ -144,7 +146,7 @@ public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
     {
         var openFeature = Api.Instance;
 
-        await openFeature.SetProviderAsync(new TestProvider());
+        await openFeature.SetProviderAsync(new TestProvider(), TestContext.Current.CancellationToken);
 
         var defaultClient = openFeature.GetProviderMetadata();
 
@@ -158,8 +160,8 @@ public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
         const string name = "new-client";
         var openFeature = Api.Instance;
 
-        await openFeature.SetProviderAsync(name, new TestProvider());
-        await openFeature.SetProviderAsync(name, new NoOpFeatureProvider());
+        await openFeature.SetProviderAsync(name, new TestProvider(), TestContext.Current.CancellationToken);
+        await openFeature.SetProviderAsync(name, new NoOpFeatureProvider(), TestContext.Current.CancellationToken);
 
         Assert.Equal(NoOpProvider.NoOpProviderName, openFeature.GetProviderMetadata(name)?.Name);
     }
@@ -171,8 +173,8 @@ public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
         var openFeature = Api.Instance;
         var provider = new TestProvider();
 
-        await openFeature.SetProviderAsync("a", provider);
-        await openFeature.SetProviderAsync("b", provider);
+        await openFeature.SetProviderAsync("a", provider, TestContext.Current.CancellationToken);
+        await openFeature.SetProviderAsync("b", provider, TestContext.Current.CancellationToken);
 
         var clientA = openFeature.GetProvider("a");
         var clientB = openFeature.GetProvider("b");
@@ -213,7 +215,7 @@ public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
     [Specification("1.1.5", "The API MUST provide a function for retrieving the metadata field of the configured `provider`.")]
     public async Task OpenFeature_Should_Get_Metadata()
     {
-        await Api.Instance.SetProviderAsync(new NoOpFeatureProvider());
+        await Api.Instance.SetProviderAsync(new NoOpFeatureProvider(), TestContext.Current.CancellationToken);
         var openFeature = Api.Instance;
         var metadata = openFeature.GetProviderMetadata();
 
@@ -263,8 +265,8 @@ public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
     {
         var openFeature = Api.Instance;
 
-        await openFeature.SetProviderAsync("client1", new TestProvider());
-        await openFeature.SetProviderAsync("client2", new NoOpFeatureProvider());
+        await openFeature.SetProviderAsync("client1", new TestProvider(), TestContext.Current.CancellationToken);
+        await openFeature.SetProviderAsync("client2", new NoOpFeatureProvider(), TestContext.Current.CancellationToken);
 
         var client1 = openFeature.GetClient("client1");
         var client2 = openFeature.GetClient("client2");
@@ -272,8 +274,8 @@ public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
         Assert.Equal("client1", client1.GetMetadata().Name);
         Assert.Equal("client2", client2.GetMetadata().Name);
 
-        Assert.True(await client1.GetBooleanValueAsync("test", false));
-        Assert.False(await client2.GetBooleanValueAsync("test", false));
+        Assert.True(await client1.GetBooleanValueAsync("test", false, cancellationToken: TestContext.Current.CancellationToken));
+        Assert.False(await client2.GetBooleanValueAsync("test", false, cancellationToken: TestContext.Current.CancellationToken));
     }
 
     [Fact]

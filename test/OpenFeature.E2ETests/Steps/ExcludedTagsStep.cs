@@ -11,6 +11,6 @@ public class ExcludedTagsStep
     [BeforeScenario]
     public static void BeforeScenario()
     {
-        Skip.If(true, "Tag is not supported");
+        Assert.SkipWhen(true, "Tag is not supported");
     }
 }
