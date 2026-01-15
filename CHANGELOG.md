@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.11.1](https://github.com/open-feature/dotnet-sdk/compare/v2.11.0...v2.11.1) (2025-12-30)
+
+
+### 🐛 Bug Fixes
+
+* Fix dimension mismatch in active evaluation metric ([#679](https://github.com/open-feature/dotnet-sdk/issues/679)) ([0624332](https://github.com/open-feature/dotnet-sdk/commit/06243323e960464305e540b04bec069730f3cb79))
+
 ## [2.11.0](https://github.com/open-feature/dotnet-sdk/compare/v2.10.0...v2.11.0) (2025-12-18)
 
 
