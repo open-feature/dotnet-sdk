@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OpenFeature.Providers.DependencyInjection;
 
 namespace OpenFeature.Hosting.Internal;
 
@@ -17,12 +18,24 @@ internal sealed partial class FeatureLifecycleManager : IFeatureLifecycleManager
         _logger = logger;
     }
 
-    /// <inheritdoc />
     public async ValueTask EnsureInitializedAsync(CancellationToken cancellationToken = default)
     {
         this.LogStartingInitializationOfFeatureProvider();
 
-        var options = _serviceProvider.GetRequiredService<IOptions<OpenFeatureOptions>>().Value;
+        await InitializeProvidersAsync(cancellationToken).ConfigureAwait(false);
+        InitializeHooks();
+        InitializeHandlers();
+    }
+
+    private async Task InitializeProvidersAsync(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var options = _serviceProvider
+            .GetRequiredService<IOptions<OpenFeatureProviderOptions>>()
+            .Value
+            ?? throw new InvalidOperationException($"{nameof(OpenFeatureProviderOptions)} are not configured.");
+
         if (options.HasDefaultProvider)
         {
             var featureProvider = _serviceProvider.GetRequiredService<FeatureProvider>();
@@ -31,10 +44,16 @@ internal sealed partial class FeatureLifecycleManager : IFeatureLifecycleManager
 
         foreach (var name in options.ProviderNames)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var featureProvider = _serviceProvider.GetRequiredKeyedService<FeatureProvider>(name);
             await _featureApi.SetProviderAsync(name, featureProvider).ConfigureAwait(false);
         }
+    }
 
+    private void InitializeHooks()
+    {
+        var options = _serviceProvider.GetRequiredService<IOptions<OpenFeatureOptions>>().Value;
         var hooks = new List<Hook>();
         foreach (var hookName in options.HookNames)
         {
@@ -43,7 +62,10 @@ internal sealed partial class FeatureLifecycleManager : IFeatureLifecycleManager
         }
 
         _featureApi.AddHooks(hooks);
+    }
 
+    private void InitializeHandlers()
+    {
         var handlers = _serviceProvider.GetServices<EventHandlerDelegateWrapper>();
         foreach (var handler in handlers)
         {
@@ -51,7 +73,6 @@ internal sealed partial class FeatureLifecycleManager : IFeatureLifecycleManager
         }
     }
 
-    /// <inheritdoc />
     public async ValueTask ShutdownAsync(CancellationToken cancellationToken = default)
     {
         this.LogShuttingDownFeatureProvider();
