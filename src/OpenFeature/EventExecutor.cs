@@ -15,7 +15,7 @@ internal sealed partial class EventExecutor : IAsyncDisposable
     private readonly List<FeatureProvider> _activeSubscriptions = [];
 
     /// placeholder for anonymous clients
-    private static Guid _defaultClientName = Guid.NewGuid();
+    private static readonly Guid _defaultClientName = Guid.NewGuid();
 
     private readonly Dictionary<ProviderEventTypes, List<EventHandlerDelegate>> _apiHandlers = [];
     private readonly Dictionary<string, Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>> _clientHandlers = [];
