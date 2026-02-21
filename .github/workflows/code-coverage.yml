@@ -42,10 +42,39 @@ jobs:
       - name: Run Test
         run: dotnet test --verbosity normal --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      # Keep globbing on non-Windows runners (works today)
+      - name: Upload coverage to Codecov (non-Windows)
+        if: runner.os != 'Windows'
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: Code Coverage for ${{ matrix.os }}
           files: "**/TestResults/**/coverage.opencover.xml"
+          disable_search: true
+          fail_ci_if_error: true
+          verbose: true
+          token: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
+
+      # On Windows, avoid passing a glob that expands into multiple args
+      - name: Find coverage reports (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $files = Get-ChildItem -Path "$PWD" -Recurse -Filter "coverage.opencover.xml" | ForEach-Object { $_.FullName }
+          if (-not $files -or $files.Count -eq 0) {
+            throw "No coverage.opencover.xml files were found under the repository."
+          }
+
+          # Codecov accepts comma-separated file paths
+          $csv = ($files -join ",")
+          "CODECOV_FILES=$csv" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Upload coverage to Codecov (Windows)
+        if: runner.os == 'Windows'
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: Code Coverage for ${{ matrix.os }}
+          files: ${{ env.CODECOV_FILES }}
+          disable_search: true
           fail_ci_if_error: true
           verbose: true
           token: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
