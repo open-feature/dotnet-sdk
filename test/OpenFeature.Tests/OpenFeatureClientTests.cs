@@ -470,7 +470,7 @@ public class OpenFeatureClientTests : ClearOpenFeatureInstanceFixture
         var defaultString = fixture.Create<string>();
         var cancelledReason = "cancelled";
 
-        var cts = new CancellationTokenSource();
+        using var cts = new CancellationTokenSource();
 
 
         var featureProviderMock = Substitute.For<FeatureProvider>();

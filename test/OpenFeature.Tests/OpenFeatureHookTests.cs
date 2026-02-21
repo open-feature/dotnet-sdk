@@ -673,7 +673,7 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
     {
         var featureProvider = Substitute.For<FeatureProvider>();
         var hook = Substitute.For<Hook>();
-        var cts = new CancellationTokenSource();
+        using var cts = new CancellationTokenSource();
 
         featureProvider.GetMetadata().Returns(new Metadata(null));
         featureProvider.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
@@ -701,7 +701,7 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
         var hook = Substitute.For<Hook>();
         var flagOptions = new FlagEvaluationOptions(hook);
         var exceptionToThrow = new GeneralException("Fake Exception");
-        var cts = new CancellationTokenSource();
+        using var cts = new CancellationTokenSource();
 
         featureProvider.GetMetadata()
             .Returns(new Metadata(null));

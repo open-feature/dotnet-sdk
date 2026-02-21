@@ -220,7 +220,8 @@ public class ProviderExtensionsTests
         const string resolvedValue = "resolved";
         var expectedDetails = new ResolutionDetails<string>(TestFlagKey, resolvedValue, ErrorType.None, Reason.Static, TestVariant);
         var providerContext = new StrategyPerProviderContext<string>(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey);
-        var customCancellationToken = new CancellationTokenSource().Token;
+        using var cts = new CancellationTokenSource();
+        var customCancellationToken = cts.Token;
 
         this._mockProvider.ResolveStringValueAsync(TestFlagKey, defaultValue, this._evaluationContext, customCancellationToken)
             .Returns(expectedDetails);
@@ -283,7 +284,7 @@ public class ProviderExtensionsTests
     {
         // Arrange
         const bool defaultValue = false;
-        var cancellationTokenSource = new CancellationTokenSource();
+        using var cancellationTokenSource = new CancellationTokenSource();
         var providerContext = new StrategyPerProviderContext<bool>(this._mockProvider, TestProviderName, ProviderStatus.Ready, TestFlagKey);
 
         this._mockProvider.ResolveBooleanValueAsync(TestFlagKey, defaultValue, this._evaluationContext, cancellationTokenSource.Token)
