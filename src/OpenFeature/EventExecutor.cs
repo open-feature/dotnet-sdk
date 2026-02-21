@@ -93,12 +93,10 @@ internal sealed partial class EventExecutor : IAsyncDisposable
 
         lock (this._lockObj)
         {
-            if (this._clientHandlers.TryGetValue(clientName, out var clientEventHandlers))
+            if (this._clientHandlers.TryGetValue(clientName, out var clientEventHandlers)
+                    && clientEventHandlers.TryGetValue(type, out var eventHandlers))
             {
-                if (clientEventHandlers.TryGetValue(type, out var eventHandlers))
-                {
-                    eventHandlers.Remove(handler);
-                }
+                eventHandlers.Remove(handler);
             }
         }
     }

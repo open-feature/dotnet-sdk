@@ -153,11 +153,11 @@ public sealed partial class LoggingHook : Hook
             if (value.IsBoolean)
                 return value.AsBoolean.ToString();
 
-            if (value.IsNumber)
+            if (value.IsNumber && value.AsDouble != null)
             {
                 // Value.AsDouble will attempt to cast other numbers to double
                 // There is an implicit conversation for int/long to double
-                if (value.AsDouble != null) return value.AsDouble.ToString();
+                return value.AsDouble.ToString();
             }
 
             if (value.IsDateTime)
