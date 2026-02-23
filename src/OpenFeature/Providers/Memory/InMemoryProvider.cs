@@ -26,14 +26,7 @@ public class InMemoryProvider : FeatureProvider
     /// <param name="flags">dictionary of Flags</param>
     public InMemoryProvider(IDictionary<string, Flag>? flags = null)
     {
-        if (flags == null)
-        {
-            this._flags = new Dictionary<string, Flag>();
-        }
-        else
-        {
-            this._flags = new Dictionary<string, Flag>(flags); // shallow copy
-        }
+        this._flags = flags == null ? [] : new Dictionary<string, Flag>(flags); // shallow copy
     }
 
     /// <summary>
@@ -43,14 +36,8 @@ public class InMemoryProvider : FeatureProvider
     public async Task UpdateFlagsAsync(IDictionary<string, Flag>? flags = null)
     {
         var changed = this._flags.Keys.ToList();
-        if (flags == null)
-        {
-            this._flags = new Dictionary<string, Flag>();
-        }
-        else
-        {
-            this._flags = new Dictionary<string, Flag>(flags); // shallow copy
-        }
+        this._flags = flags == null ? [] : new Dictionary<string, Flag>(flags); // shallow copy
+
         changed.AddRange(this._flags.Keys.ToList());
         var @event = new ProviderEventPayload
         {

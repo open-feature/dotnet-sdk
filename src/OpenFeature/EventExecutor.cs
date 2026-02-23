@@ -15,7 +15,7 @@ internal sealed partial class EventExecutor : IAsyncDisposable
     private readonly List<FeatureProvider> _activeSubscriptions = [];
 
     /// placeholder for anonymous clients
-    private static Guid _defaultClientName = Guid.NewGuid();
+    private static readonly Guid _defaultClientName = Guid.NewGuid();
 
     private readonly Dictionary<ProviderEventTypes, List<EventHandlerDelegate>> _apiHandlers = [];
     private readonly Dictionary<string, Dictionary<ProviderEventTypes, List<EventHandlerDelegate>>> _clientHandlers = [];
@@ -93,12 +93,10 @@ internal sealed partial class EventExecutor : IAsyncDisposable
 
         lock (this._lockObj)
         {
-            if (this._clientHandlers.TryGetValue(clientName, out var clientEventHandlers))
+            if (this._clientHandlers.TryGetValue(clientName, out var clientEventHandlers)
+                    && clientEventHandlers.TryGetValue(type, out var eventHandlers))
             {
-                if (clientEventHandlers.TryGetValue(type, out var eventHandlers))
-                {
-                    eventHandlers.Remove(handler);
-                }
+                eventHandlers.Remove(handler);
             }
         }
     }

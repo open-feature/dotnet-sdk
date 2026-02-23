@@ -319,7 +319,7 @@ public class MultiProviderEventTests
     private static async Task<List<ProviderEventPayload>> ReadEvents(Channel<object> channel, int expectedCount = 1, int timeoutMs = 1000)
     {
         var events = new List<ProviderEventPayload>();
-        var cts = new CancellationTokenSource(timeoutMs);
+        using var cts = new CancellationTokenSource(timeoutMs);
 
         try
         {
