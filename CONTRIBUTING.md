@@ -81,6 +81,12 @@ To run unit tests execute:
 dotnet test test/OpenFeature.Tests/
 ```
 
+To run unit tests with code coverage execute:
+
+```bash
+dotnet test test/OpenFeature.Tests/ --collect:"XPlat Code Coverage"
+```
+
 #### E2E tests
 
 To be able to run the e2e tests, first we need to initialize the submodule.
