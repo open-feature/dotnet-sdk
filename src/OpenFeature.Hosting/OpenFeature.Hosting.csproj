@@ -10,6 +10,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\OpenFeature.Providers.DependencyInjection\OpenFeature.Providers.DependencyInjection.csproj" />
         <ProjectReference Include="..\OpenFeature\OpenFeature.csproj" />
     </ItemGroup>
 

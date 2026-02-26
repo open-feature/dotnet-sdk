@@ -86,6 +86,21 @@ builder.Services.AddOpenFeature(featureBuilder =>
                 .AddProvider("p2", sp => new InMemoryProvider(provider2Flags))
                 .UseStrategy<FirstMatchStrategy>();
         })
+        .AddInMemoryProvider("InMemory", _ => new Dictionary<string, Flag>()
+        {
+            {
+                "welcome-message", new Flag<bool>(
+                    new Dictionary<string, bool> { { "show", true }, { "hide", false } }, "show")
+            },
+            {
+                "test-config", new Flag<Value>(new Dictionary<string, Value>()
+                {
+                    { "enable", new Value(Structure.Builder().Set(nameof(TestConfig.Threshold), 100).Build()) },
+                    { "half", new Value(Structure.Builder().Set(nameof(TestConfig.Threshold), 50).Build()) },
+                    { "disable", new Value(Structure.Builder().Set(nameof(TestConfig.Threshold), 0).Build()) }
+                }, "disable")
+            }
+        })
         .AddPolicyName(policy => policy.DefaultNameSelector = provider => "InMemory");
 });
 

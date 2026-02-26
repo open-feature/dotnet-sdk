@@ -1,3 +1,4 @@
+using OpenFeature.Providers.DependencyInjection;
 using OpenFeature.Providers.Memory;
 
 namespace OpenFeature.Hosting.Providers.Memory;
@@ -5,7 +6,7 @@ namespace OpenFeature.Hosting.Providers.Memory;
 /// <summary>
 /// Options for configuring the in-memory feature flag provider.
 /// </summary>
-public class InMemoryProviderOptions : OpenFeatureOptions
+public class InMemoryProviderOptions : OpenFeatureProviderOptions
 {
     /// <summary>
     /// Gets or sets the feature flags to be used by the in-memory provider.

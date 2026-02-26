@@ -1,12 +1,14 @@
+using OpenFeature.Providers.DependencyInjection;
+
 namespace OpenFeature.Hosting.Tests;
 
-public class OpenFeatureOptionsTests
+public class OpenFeatureProviderOptionsTests
 {
     [Fact]
     public void AddProviderName_DoesNotSetHasDefaultProvider()
     {
         // Arrange
-        var options = new OpenFeatureOptions();
+        var options = new OpenFeatureProviderOptions();
 
         // Act
         options.AddProviderName("TestProvider");
@@ -19,7 +21,7 @@ public class OpenFeatureOptionsTests
     public void AddProviderName_WithNullName_SetsHasDefaultProvider()
     {
         // Arrange
-        var options = new OpenFeatureOptions();
+        var options = new OpenFeatureProviderOptions();
 
         // Act
         options.AddProviderName(null);
@@ -34,7 +36,7 @@ public class OpenFeatureOptionsTests
     public void AddProviderName_WithEmptyName_SetsHasDefaultProvider(string name)
     {
         // Arrange
-        var options = new OpenFeatureOptions();
+        var options = new OpenFeatureProviderOptions();
 
         // Act
         options.AddProviderName(name);
@@ -47,7 +49,7 @@ public class OpenFeatureOptionsTests
     public void AddProviderName_WithSameName_OnlyRegistersNameOnce()
     {
         // Arrange
-        var options = new OpenFeatureOptions();
+        var options = new OpenFeatureProviderOptions();
 
         // Act
         options.AddProviderName("test-provider");
