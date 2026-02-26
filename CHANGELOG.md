@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.11.2](https://github.com/open-feature/dotnet-sdk/compare/v2.11.1...v2.11.2) (2026-02-26)
+
+
+### 🔧 Refactoring
+
+* improve code quality ([#706](https://github.com/open-feature/dotnet-sdk/issues/706)) ([29fd9c1](https://github.com/open-feature/dotnet-sdk/commit/29fd9c167a41cee1099aff9618d40b24ef9bdce6))
+
 ## [2.11.1](https://github.com/open-feature/dotnet-sdk/compare/v2.11.0...v2.11.1) (2025-12-30)
 
 
