@@ -34,7 +34,7 @@ jobs:
     permissions:
       id-token: write # enable GitHub OIDC token issuance for this job (NuGet login)
       contents: write # for SBOM release
-      attestations: write # for actions/attest-sbom to create attestation
+      attestations: write # for actions/attest to create attestation
       packages: read # for internal nuget reading
     if: ${{ fromJSON(needs.release-please.outputs.release_created || false) }}
 
