@@ -37,5 +37,5 @@ runs:
     - name: Attest package
       uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
       with:
-        subject-path: src/**/${{ inputs.project-name }}.*.nupkg
+        subject-path: src/${{ inputs.project-name }}/**/${{ inputs.project-name }}.*.nupkg
         sbom-path: ./artifacts/sboms/${{ inputs.project-name }}.bom.json
