@@ -320,8 +320,7 @@ public class ImmutableMetadataTest
     public void IsEmpty_ShouldReturnTrue()
     {
         // Arrange
-        var metadata = new Dictionary<string, object>();
-        var flagMetadata = new ImmutableMetadata(metadata);
+        var flagMetadata = new ImmutableMetadata();
 
         // Act
         var result = flagMetadata.IsEmpty;
