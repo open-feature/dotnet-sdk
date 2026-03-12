@@ -12,6 +12,17 @@ public sealed class ImmutableMetadata
     private readonly ImmutableDictionary<string, object> _metadata;
 
     /// <summary>
+    /// Gets a value indicating whether this instance is empty.
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if this instance is empty; otherwise, <c>false</c>.
+    /// </value>
+    public bool IsEmpty
+    {
+        get { return this._metadata.Count == 0; }
+    }
+
+    /// <summary>
     /// Constructor for the <see cref="ImmutableMetadata"/> class.
     /// </summary>
     public ImmutableMetadata()
