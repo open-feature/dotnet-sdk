@@ -315,4 +315,48 @@ public class ImmutableMetadataTest
         // Assert
         Assert.Equal(metadata.Count, result);
     }
+
+    [Fact]
+    public void IsEmpty_ShouldReturnTrue()
+    {
+        // Arrange
+        var flagMetadata = new ImmutableMetadata();
+
+        // Act
+        var result = flagMetadata.IsEmpty;
+
+        // Assert
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void IsEmpty_ShouldReturnFalse()
+    {
+        // Arrange
+        var metadata = new Dictionary<string, object>
+           {
+            {
+                "wrongKey", new object()
+            },
+            {
+                "stringKey", "11"
+            },
+            {
+                "doubleKey", 1.2
+            },
+            {
+                "intKey", 1
+            },
+            {
+                "boolKey", true
+            }
+        };
+        var flagMetadata = new ImmutableMetadata(metadata);
+
+        // Act
+        var result = flagMetadata.IsEmpty;
+
+        // Assert
+        Assert.False(result);
+    }
 }
