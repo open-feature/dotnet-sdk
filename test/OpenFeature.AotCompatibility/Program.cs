@@ -213,7 +213,10 @@ internal class Program
         var builder = Host.CreateApplicationBuilder();
 
         // Add OpenFeature with DI
-        builder.Services.AddOpenFeature(of => of.AddProvider(_ => new TestProvider()).AddHook(_ => new TestHook()));
+        builder.Services.AddOpenFeature(of => of
+            .AddHook(_ => new TestHook())
+            .AddProvider(_ => new TestProvider())
+        );
 
         builder.Services.AddLogging(logging => logging.AddConsole());
 
