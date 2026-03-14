@@ -334,7 +334,7 @@ public class ImmutableMetadataTest
     {
         // Arrange
         var metadata = new Dictionary<string, object>
-           {
+        {
             {
                 "wrongKey", new object()
             },
@@ -358,5 +358,25 @@ public class ImmutableMetadataTest
 
         // Assert
         Assert.False(result);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(1000)]
+    public void Count_ShouldReturnCorrectNumber(int numberOfItems)
+    {
+        var metadata = new Dictionary<string, object>();
+        for (int i = 0; i < numberOfItems; i++)
+        {
+            metadata.Add($"key{i}", $"value{i}");
+        }
+        var flagMetadata = new ImmutableMetadata(metadata);
+
+        // Act
+        var count = flagMetadata.Count;
+
+        // Assert
+        Assert.Equal(numberOfItems, count);
     }
 }
