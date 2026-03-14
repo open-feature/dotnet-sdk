@@ -366,11 +366,8 @@ public class ImmutableMetadataTest
     [InlineData(1000)]
     public void Count_ShouldReturnCorrectNumber(int numberOfItems)
     {
-        var metadata = new Dictionary<string, object>();
-        for (int i = 0; i < numberOfItems; i++)
-        {
-            metadata.Add($"key{i}", $"value{i}");
-        }
+        var metadata = Enumerable.Range(0, numberOfItems)
+            .ToDictionary(i => $"key{i}", i => (object)$"value{i}");
         var flagMetadata = new ImmutableMetadata(metadata);
 
         // Act
