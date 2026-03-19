@@ -20,6 +20,11 @@ public sealed class ImmutableMetadata
     public bool IsEmpty => this._metadata.Count == 0;
 
     /// <summary>
+    /// Gets the number of elements in this collection.
+    /// </summary>
+    public int Count => this._metadata.Count;
+
+    /// <summary>
     /// Constructor for the <see cref="ImmutableMetadata"/> class.
     /// </summary>
     public ImmutableMetadata()
@@ -104,6 +109,4 @@ public sealed class ImmutableMetadata
 
         return value is T tValue ? tValue : null;
     }
-
-    internal int Count => this._metadata.Count;
 }
