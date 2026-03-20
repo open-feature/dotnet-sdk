@@ -4,7 +4,7 @@ using OpenFeature.Providers.Memory;
 
 var flags = new Dictionary<string, Flag>
 {
-    { "bool-flag-flag", new Flag<bool>(new Dictionary<string, bool> { { "on", true }, { "off", false } }, defaultVariant: "on") },
+    { "bool-flag", new Flag<bool>(new Dictionary<string, bool> { { "on", true }, { "off", false } }, defaultVariant: "on") },
     { "numeric-flag", new Flag<int>(new Dictionary<string, int> { { "one", 1 }, { "two", 2 } }, defaultVariant: "one")  },
     { "string-flag", new Flag<string>(new Dictionary<string, string> { { "greeting", "Hello, World!" }, { "farewell", "Goodbye, World!" } }, defaultVariant: "greeting") },
     { "float-flag", new Flag<double>(new Dictionary<string, double> { { "pi", 3.14159 }, { "euler", 0.577215 } }, defaultVariant: "pi") },
@@ -13,7 +13,7 @@ var flags = new Dictionary<string, Flag>
 
 await Api.Instance.SetProviderAsync(new InMemoryProvider(flags));
 
-IFeatureClient client =  Api.Instance.GetClient();
+IFeatureClient client = Api.Instance.GetClient();
 
 // Evaluate the `bool-flag` flag and print the result to the console
 var helloWorldResult = await client.GetBooleanValueAsync("bool-flag", false);
