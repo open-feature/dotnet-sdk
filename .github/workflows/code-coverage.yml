@@ -45,7 +45,7 @@ jobs:
       # Keep globbing on non-Windows runners (works today)
       - name: Upload coverage to Codecov (non-Windows)
         if: runner.os != 'Windows'
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        uses: codecov/codecov-action@1af58845a975a7985b0beb0cbe6fbbb71a41dbad # v5.5.3
         with:
           name: Code Coverage for ${{ matrix.os }}
           files: "**/TestResults/**/coverage.opencover.xml"
@@ -70,7 +70,7 @@ jobs:
 
       - name: Upload coverage to Codecov (Windows)
         if: runner.os == 'Windows'
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        uses: codecov/codecov-action@1af58845a975a7985b0beb0cbe6fbbb71a41dbad # v5.5.3
         with:
           name: Code Coverage for ${{ matrix.os }}
           files: ${{ env.CODECOV_FILES }}
