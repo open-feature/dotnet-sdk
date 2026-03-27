@@ -88,7 +88,7 @@ The [`samples/`](./samples) folder contains example applications demonstrating h
 | Sample Name                                           | Description                               |
 | ----------------------------------------------------- | ----------------------------------------- |
 | [AspNetCore](/samples/AspNetCore/README.md)           | Feature flags in an ASP.NET Core Web API. |
-| [Console](/samples/Console/Samples.Console/README.md) | Feature flags in a .NET console app.      |
+| [Console](/samples/Console/README.md)                 | Feature flags in a .NET console app.      |
 
 **Getting Started with a Sample:**
 

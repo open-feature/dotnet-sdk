@@ -48,7 +48,7 @@
     <Project Path="samples/AspNetCore/Samples.AspNetCore.csproj" />
   </Folder>
   <Folder Name="/samples/console/">
-    <Project Path="samples/Console/Samples.Console/Samples.Console.csproj" />
+    <File Path="samples/Console/app.cs" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/OpenFeature.Hosting/OpenFeature.Hosting.csproj" />

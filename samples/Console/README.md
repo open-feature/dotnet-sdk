@@ -19,13 +19,13 @@ The sample can easily be extended with alternative providers, which you can find
 1. Navigate to the Console sample project directory:
 
    ```shell
-   cd openfeature-dotnet-sdk/samples/Console/Samples.Console
+   cd openfeature-dotnet-sdk/samples/Console
    ```
 
 1. Run the following command to start the application:
 
    ```shell
-   dotnet run
+   dotnet run app.cs
    ```
 
 ## Feature Flags

@@ -1,3 +1,6 @@
+#:project ../../src/OpenFeature/OpenFeature.csproj
+#:property PublishAot=true
+
 using OpenFeature;
 using OpenFeature.Model;
 using OpenFeature.Providers.Memory;
