@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.12.0](https://github.com/open-feature/dotnet-sdk/compare/v2.11.1...v2.12.0) (2026-03-27)
+
+
+### ✨ New Features
+
+* Add IsEmpty property on ImmutableMetadata class ([#714](https://github.com/open-feature/dotnet-sdk/issues/714)) ([c07b173](https://github.com/open-feature/dotnet-sdk/commit/c07b17347a7dce9e305c7e5195613d112d45b80a))
+* Add public Count property on ImmutableMetadata ([#715](https://github.com/open-feature/dotnet-sdk/issues/715)) ([a1a11dc](https://github.com/open-feature/dotnet-sdk/commit/a1a11dc4070cc3e26b2ea4279f76c8b7a17e831e))
+
+
+### 🔧 Refactoring
+
+* improve code quality ([#706](https://github.com/open-feature/dotnet-sdk/issues/706)) ([29fd9c1](https://github.com/open-feature/dotnet-sdk/commit/29fd9c167a41cee1099aff9618d40b24ef9bdce6))
+
 ## [2.11.1](https://github.com/open-feature/dotnet-sdk/compare/v2.11.0...v2.11.1) (2025-12-30)
 
 
