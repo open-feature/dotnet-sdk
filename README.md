@@ -85,9 +85,10 @@ public async Task Example()
 
 The [`samples/`](./samples) folder contains example applications demonstrating how to use OpenFeature in different .NET scenarios.
 
-| Sample Name                                 | Description                               |
-| ------------------------------------------- | ----------------------------------------- |
-| [AspNetCore](/samples/AspNetCore/README.md) | Feature flags in an ASP.NET Core Web API. |
+| Sample Name                                           | Description                               |
+| ----------------------------------------------------- | ----------------------------------------- |
+| [AspNetCore](/samples/AspNetCore/README.md)           | Feature flags in an ASP.NET Core Web API. |
+| [Console](/samples/Console/README.md)                 | Feature flags in a .NET console app.      |
 
 **Getting Started with a Sample:**
 
