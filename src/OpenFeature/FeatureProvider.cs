@@ -101,7 +101,7 @@ public abstract class FeatureProvider
     /// <summary>
     /// Tracks which Api instance this provider is currently bound to.
     /// A provider should not be registered with more than one API instance simultaneously (spec 1.8.4).
-    /// Use <see cref="System.Threading.Interlocked.CompareExchange{T}"/> for thread-safe check-and-set.
+    /// Use <see cref="Interlocked.CompareExchange{T}"/> for thread-safe check-and-set.
     /// </summary>
     internal Api? _boundApiInstance;
 
