@@ -27,6 +27,9 @@ internal class Program
             // Test basic API functionality
             await TestBasicApiAsync();
 
+            // Test isolated API instances
+            await TestIsolatedApiAsync();
+
             // Test MultiProvider AOT compatibility
             await TestMultiProviderAotCompatibilityAsync();
 
@@ -47,6 +50,41 @@ internal class Program
             Console.WriteLine(ex.StackTrace);
             Environment.Exit(1);
         }
+    }
+
+    private static async Task TestIsolatedApiAsync()
+    {
+        Console.WriteLine("\nTesting isolated API instances...");
+
+        // Create an isolated instance
+        var isolated = Api.CreateIsolated();
+        Console.WriteLine($"✓- Isolated API instance created: {isolated.GetType().Name}");
+
+        // Verify it is distinct from the singleton
+        if (ReferenceEquals(isolated, Api.Instance))
+        {
+            throw new InvalidOperationException("Isolated instance should not be the same as the singleton.");
+        }
+        Console.WriteLine("✓- Isolated instance is distinct from singleton");
+
+        // Set a provider on the isolated instance
+        var provider = new TestProvider();
+        await isolated.SetProviderAsync(provider);
+        Console.WriteLine($"✓- Provider set on isolated instance: {isolated.GetProviderMetadata()?.Name}");
+
+        // Create a client and evaluate a flag
+        var client = isolated.GetClient("isolated-client");
+        var result = await client.GetBooleanValueAsync("test-flag", false);
+        Console.WriteLine($"✓- Isolated client flag evaluation: {result}");
+
+        // Set context on isolated instance and verify independence
+        var context = EvaluationContext.Builder().Set("scope", "isolated").Build();
+        isolated.SetContext(context);
+        Console.WriteLine($"✓- Isolated context set with {context.Count} attributes");
+
+        // Shutdown the isolated instance
+        await isolated.ShutdownAsync();
+        Console.WriteLine("✓- Isolated instance shut down successfully");
     }
 
     private static async Task TestBasicApiAsync()
