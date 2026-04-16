@@ -9,7 +9,7 @@ namespace OpenFeature.Constant;
 public enum ErrorType
 {
     /// <summary>
-    /// Default value, no error occured
+    /// Default value, no error occurred
     /// </summary>
     None,
 
