@@ -193,6 +193,13 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
             return;
         }
 
+        // Clear ownership while still under the write lock — the provider is confirmed unused.
+        // This prevents a race where async shutdown clears ownership after a re-registration.
+        if (targetProvider != null)
+        {
+            targetProvider._boundApiInstance = null;
+        }
+
         await this.SafeShutdownProviderAsync(targetProvider, cancellationToken).ConfigureAwait(false);
     }
 
@@ -270,6 +277,12 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
             // Set a default provider so the Api is ready to be used again.
             this._defaultProvider = new NoOpFeatureProvider();
             this._featureProviders.Clear();
+
+            // Clear ownership under the write lock for all providers being shut down.
+            foreach (var provider in providers)
+            {
+                provider._boundApiInstance = null;
+            }
         }
         finally
         {

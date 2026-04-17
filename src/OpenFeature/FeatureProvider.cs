@@ -99,6 +99,13 @@ public abstract class FeatureProvider
     internal virtual ProviderStatus Status { get; set; } = ProviderStatus.NotReady;
 
     /// <summary>
+    /// Tracks which Api instance this provider is currently bound to.
+    /// A provider should not be registered with more than one API instance simultaneously (spec 1.8.4).
+    /// Use <see cref="Interlocked.CompareExchange{T}"/> for thread-safe check-and-set.
+    /// </summary>
+    internal Api? _boundApiInstance;
+
+    /// <summary>
     /// <para>
     /// This method is called before a provider is used to evaluate flags. Providers can overwrite this method,
     /// if they have special initialization needed prior being called for flag evaluation.
