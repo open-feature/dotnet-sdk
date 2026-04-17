@@ -215,7 +215,7 @@ public class IsolatedApiTests
             var results = await Task.WhenAll(tasks.Select(async t =>
             {
                 try { await t; return (Exception?)null; }
-                catch (Exception ex) { return ex; }
+                catch (InvalidOperationException ex) { return ex; }
             }));
 
             var successes = results.Count(r => r is null);
