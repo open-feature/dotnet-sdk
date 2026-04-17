@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.12.1](https://github.com/open-feature/dotnet-sdk/compare/v2.12.0...v2.12.1) (2026-04-17)
+
+
+### 🐛 Bug Fixes
+
+* add missing variant dimension in MetricsHook metrics ([#742](https://github.com/open-feature/dotnet-sdk/issues/742)) ([dad175d](https://github.com/open-feature/dotnet-sdk/commit/dad175dd353e2a733a0473b644633ce571ccb21a))
+* fix 'occured' -&gt; 'occurred' in XML doc comment ([#743](https://github.com/open-feature/dotnet-sdk/issues/743)) ([178f836](https://github.com/open-feature/dotnet-sdk/commit/178f8369c224038d329b775d6edc22a3fce97240))
+
 ## [2.12.0](https://github.com/open-feature/dotnet-sdk/compare/v2.11.1...v2.12.0) (2026-04-06)
 
 
