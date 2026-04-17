@@ -165,8 +165,11 @@ public class IsolatedApiTests
             var provider = new TestProvider("shared-provider");
             await isolated1.SetProviderAsync(provider);
 
-            await Assert.ThrowsAsync<InvalidOperationException>(
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(
                 () => isolated2.SetProviderAsync(provider));
+
+            Assert.Equal("This provider instance is already bound to a different API instance. " +
+                "A provider should not be registered with more than one API instance simultaneously.", exception.Message);
         }
         finally
         {
@@ -186,8 +189,11 @@ public class IsolatedApiTests
             var provider = new TestProvider("shared-provider");
             await isolated1.SetProviderAsync("domain-1", provider);
 
-            await Assert.ThrowsAsync<InvalidOperationException>(
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(
                 () => isolated2.SetProviderAsync("domain-2", provider));
+
+            Assert.Equal("This provider instance is already bound to a different API instance. " +
+                "A provider should not be registered with more than one API instance simultaneously.", exception.Message);
         }
         finally
         {
