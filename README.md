@@ -663,6 +663,7 @@ Below are the tags added to the trace event:
 The following example demonstrates the use of the `TraceEnricherHook` with the `OpenFeature dotnet-sdk`. The traces are sent to a `jaeger` OTLP collector running at `localhost:4317`.
 
 ```csharp
+using System.Threading.Tasks;
 using OpenFeature.Contrib.Providers.Flagd;
 using OpenFeature.Hooks;
 using OpenTelemetry.Exporter;
@@ -673,7 +674,7 @@ using OpenTelemetry.Trace;
 namespace OpenFeatureTestApp
 {
     class Hello {
-        static void Main(string[] args) {
+        static async Task Main(string[] args) {
 
             // set up the OpenTelemetry OTLP exporter
             var tracerProvider = Sdk.CreateTracerProviderBuilder()
@@ -691,11 +692,11 @@ namespace OpenFeatureTestApp
             var flagdProvider = new FlagdProvider(new Uri("http://localhost:8013"));
 
             // Set the flagdProvider as the provider for the OpenFeature SDK
-            OpenFeature.Api.Instance.SetProviderAsync(flagdProvider).GetAwaiter().GetResult();
+            await OpenFeature.Api.Instance.SetProviderAsync(flagdProvider);
 
             var client = OpenFeature.Api.Instance.GetClient("my-app");
 
-            var val = client.GetBooleanValueAsync("myBoolFlag", false).GetAwaiter().GetResult();
+            var val = await client.GetBooleanValueAsync("myBoolFlag", false);
 
             // Print the value of the 'myBoolFlag' feature flag
             System.Console.WriteLine(val);
@@ -745,6 +746,7 @@ Consider the following code example for usage.
 The following example demonstrates the use of the `MetricsHook` with the `OpenFeature dotnet-sdk`. The metrics are sent to the `console`.
 
 ```csharp
+using System.Threading.Tasks;
 using OpenFeature.Contrib.Providers.Flagd;
 using OpenFeature;
 using OpenFeature.Hooks;
@@ -754,7 +756,7 @@ using OpenTelemetry.Metrics;
 namespace OpenFeatureTestApp
 {
     class Hello {
-        static void Main(string[] args) {
+        static async Task Main(string[] args) {
 
             // set up the OpenTelemetry OTLP exporter
             var meterProvider = Sdk.CreateMeterProviderBuilder()
@@ -769,11 +771,11 @@ namespace OpenFeatureTestApp
             var flagdProvider = new FlagdProvider(new Uri("http://localhost:8013"));
 
             // Set the flagdProvider as the provider for the OpenFeature SDK
-            OpenFeature.Api.Instance.SetProviderAsync(flagdProvider).GetAwaiter().GetResult();
+            await OpenFeature.Api.Instance.SetProviderAsync(flagdProvider);
 
             var client = OpenFeature.Api.Instance.GetClient("my-app");
 
-            var val = client.GetBooleanValueAsync("myBoolFlag", false).GetAwaiter().GetResult();
+            var val = await client.GetBooleanValueAsync("myBoolFlag", false);
 
             // Print the value of the 'myBoolFlag' feature flag
             System.Console.WriteLine(val);
