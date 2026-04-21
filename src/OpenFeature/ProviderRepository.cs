@@ -197,7 +197,7 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
         // This prevents a race where async shutdown clears ownership after a re-registration.
         if (targetProvider != null)
         {
-            targetProvider._boundApiInstance = null;
+            targetProvider.UnbindApiInstance();
         }
 
         await this.SafeShutdownProviderAsync(targetProvider, cancellationToken).ConfigureAwait(false);
@@ -281,7 +281,7 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
             // Clear ownership under the write lock for all providers being shut down.
             foreach (var provider in providers)
             {
-                provider._boundApiInstance = null;
+                provider.UnbindApiInstance();
             }
         }
         finally

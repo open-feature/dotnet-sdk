@@ -101,9 +101,29 @@ public abstract class FeatureProvider
     /// <summary>
     /// Tracks which Api instance this provider is currently bound to.
     /// A provider should not be registered with more than one API instance simultaneously (spec 1.8.4).
-    /// Use <see cref="Interlocked.CompareExchange{T}"/> for thread-safe check-and-set.
     /// </summary>
-    internal Api? _boundApiInstance;
+    private Api? _boundApiInstance;
+
+    /// <summary>
+    /// Attempts to bind this provider to the given API instance.
+    /// Uses <see cref="Interlocked.CompareExchange{T}"/> for thread-safe check-and-set.
+    /// </summary>
+    /// <param name="api">The API instance to bind to.</param>
+    /// <returns><c>true</c> if the provider was successfully bound (or was already bound to the same instance);
+    /// <c>false</c> if the provider is already bound to a different API instance.</returns>
+    internal bool TryBindApiInstance(Api api)
+    {
+        var previous = Interlocked.CompareExchange(ref this._boundApiInstance, api, null);
+        return previous is null || ReferenceEquals(previous, api);
+    }
+
+    /// <summary>
+    /// Clears the API instance binding, allowing this provider to be registered with another API instance.
+    /// </summary>
+    internal void UnbindApiInstance()
+    {
+        this._boundApiInstance = null;
+    }
 
     /// <summary>
     /// <para>

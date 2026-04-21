@@ -424,14 +424,12 @@ public sealed class Api : IEventBus
 
     /// <summary>
     /// Validates that the given provider is not already bound to a different API instance.
-    /// Uses <see cref="Interlocked.CompareExchange{T}"/> for thread-safe check-and-set.
     /// </summary>
     /// <param name="featureProvider">The provider to validate ownership for.</param>
     /// <exception cref="InvalidOperationException">Thrown if the provider is already bound to a different API instance.</exception>
     private void ValidateProviderOwnership(FeatureProvider featureProvider)
     {
-        var previous = Interlocked.CompareExchange(ref featureProvider._boundApiInstance, this, null);
-        if (previous is not null && !ReferenceEquals(previous, this))
+        if (!featureProvider.TryBindApiInstance(this))
         {
             throw new InvalidOperationException(
                 "This provider instance is already bound to a different API instance. " +
