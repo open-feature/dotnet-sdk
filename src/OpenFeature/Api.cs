@@ -35,6 +35,24 @@ public sealed class Api : IEventBus
     internal Api() { }
 
     /// <summary>
+    /// Creates a new, independent instance of the OpenFeature API with fully isolated state.
+    /// <para>
+    /// Each isolated instance maintains its own providers, evaluation context, hooks, event handlers,
+    /// and transaction context propagators. It does not share state with the global <see cref="Instance"/>
+    /// singleton or with any other isolated instance.
+    /// </para>
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A single provider instance should not be bound to more than one API instance at a time.
+    /// Attempting to do so will result in an <see cref="InvalidOperationException"/>.
+    /// </para>
+    /// </remarks>
+    /// <returns>A new, independent <see cref="Api"/> instance.</returns>
+    /// <seealso href="https://openfeature.dev/specification/sections/flag-evaluation#18-isolated-api-instances">Specification 1.8 - Isolated API Instances</seealso>
+    public static Api CreateIsolated() => new Api();
+
+    /// <summary>
     /// Sets the default feature provider. In order to wait for the provider to be set, and initialization to complete,
     /// await the returned task.
     /// </summary>
@@ -56,6 +74,7 @@ public sealed class Api : IEventBus
     /// <returns>A <see cref="Task"/> that completes once Provider initialization is complete.</returns>
     public async Task SetProviderAsync(FeatureProvider featureProvider, CancellationToken cancellationToken)
     {
+        this.ValidateProviderOwnership(featureProvider);
         this._eventExecutor.RegisterDefaultFeatureProvider(featureProvider);
         await this._repository.SetProviderAsync(featureProvider, this.GetContext(), this.AfterInitializationAsync, this.AfterErrorAsync, cancellationToken)
             .ConfigureAwait(false);
@@ -91,6 +110,7 @@ public sealed class Api : IEventBus
         {
             throw new ArgumentNullException(nameof(domain));
         }
+        this.ValidateProviderOwnership(featureProvider);
         this._eventExecutor.RegisterClientFeatureProvider(domain, featureProvider);
         await this._repository.SetProviderAsync(domain, featureProvider, this.GetContext(), this.AfterInitializationAsync, this.AfterErrorAsync, cancellationToken)
             .ConfigureAwait(false);
@@ -400,5 +420,20 @@ public sealed class Api : IEventBus
     internal static void SetInstance(Api api)
     {
         Instance = api;
+    }
+
+    /// <summary>
+    /// Validates that the given provider is not already bound to a different API instance.
+    /// </summary>
+    /// <param name="featureProvider">The provider to validate ownership for.</param>
+    /// <exception cref="InvalidOperationException">Thrown if the provider is already bound to a different API instance.</exception>
+    private void ValidateProviderOwnership(FeatureProvider featureProvider)
+    {
+        if (!featureProvider.TryBindApiInstance(this))
+        {
+            throw new InvalidOperationException(
+                "This provider instance is already bound to a different API instance. " +
+                "A provider should not be registered with more than one API instance simultaneously.");
+        }
     }
 }

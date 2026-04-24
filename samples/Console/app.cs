@@ -44,3 +44,32 @@ Console.WriteLine("The `float-flag` flag returned {0}", floatResult);
 // Evaluate the `object-flag` flag and print the result to the console
 var objectResult = await client.GetObjectValueAsync("object-flag", new Value("Ben"));
 Console.WriteLine("The `object-flag` flag returned {0}", objectResult.AsString);
+
+// --- Isolated API Instance ---
+// Create an independent API instance with its own provider and state.
+// This is useful for testing, multi-tenant apps, and DI scenarios.
+
+var isolatedFlags = new Dictionary<string, Flag>
+{
+    { "bool-flag", new Flag<bool>(new Dictionary<string, bool> { { "on", true }, { "off", false } }, defaultVariant: "off") },
+    { "string-flag", new Flag<string>(new Dictionary<string, string> { { "greeting", "Howdy, Isolated World!" }, { "farewell", "See ya!" } }, defaultVariant: "greeting") },
+};
+
+var isolated = Api.CreateIsolated();
+await isolated.SetProviderAsync(new InMemoryProvider(isolatedFlags));
+
+var isolatedClient = isolated.GetClient();
+
+Console.WriteLine();
+Console.WriteLine("--- Isolated API Instance ---");
+
+// The isolated instance has its own flag values
+var isolatedBool = await isolatedClient.GetBooleanValueAsync("bool-flag", true);
+Console.WriteLine("Isolated `bool-flag`: {0} (singleton was: {1})", isolatedBool, helloWorldResult);
+
+var isolatedString = await isolatedClient.GetStringValueAsync("string-flag", "default");
+Console.WriteLine("Isolated `string-flag`: {0} (singleton was: {1})", isolatedString, stringResult);
+
+// Shut down the isolated instance — does not affect the global singleton
+await isolated.ShutdownAsync();
+Console.WriteLine("Isolated instance shut down. Singleton is unaffected.");
