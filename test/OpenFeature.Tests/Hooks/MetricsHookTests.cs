@@ -32,6 +32,35 @@ public class MetricsHookTest
         Assert.Equal("my-flag", measurements.Tags["feature_flag.key"]);
         Assert.Equal("my-provider", measurements.Tags["feature_flag.provider.name"]);
         Assert.Equal("STATIC", measurements.Tags["feature_flag.result.reason"]);
+        Assert.Equal("default", measurements.Tags["feature_flag.result.variant"]);
+    }
+
+    [Fact]
+    public async Task Without_Variant_After_Test_Does_Not_Include_Variant()
+    {
+        // Arrange
+        var metricsHook = new MetricsHook();
+
+        using var collector = new MetricCollector<long>(metricsHook._evaluationSuccessCounter);
+
+        var evaluationContext = EvaluationContext.Empty;
+        var ctx = new HookContext<string>("my-flag", "foo", Constant.FlagValueType.String,
+            new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
+
+        // Act
+        await metricsHook.AfterAsync(ctx,
+            new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", variant: null),
+            new Dictionary<string, object>()).ConfigureAwait(true);
+
+        var measurements = collector.LastMeasurement;
+
+        // Assert
+        Assert.NotNull(measurements);
+
+        Assert.Equal("my-flag", measurements.Tags["feature_flag.key"]);
+        Assert.Equal("my-provider", measurements.Tags["feature_flag.provider.name"]);
+        Assert.Equal("STATIC", measurements.Tags["feature_flag.result.reason"]);
+        Assert.DoesNotContain("feature_flag.result.variant", measurements.Tags.Keys);
     }
 
     [Fact]

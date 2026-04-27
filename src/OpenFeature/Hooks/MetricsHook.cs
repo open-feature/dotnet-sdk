@@ -68,6 +68,11 @@ public class MetricsHook : Hook
             { TelemetryConstants.Reason, details.Reason ?? Reason.Unknown.ToString() }
         };
 
+        if (details.Variant != null)
+        {
+            tagList.Add(TelemetryConstants.Variant, details.Variant);
+        }
+
         this.AddCustomDimensions(ref tagList);
         this.AddFlagMetadataDimensions(details.FlagMetadata, ref tagList);
 

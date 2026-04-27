@@ -175,7 +175,7 @@ builder = EvaluationContext.Builder();
 builder.Set("region", "us-east-1");
 EvaluationContext reqCtx = builder.Build();
 
-bool flagValue = await client.GetBooleanValuAsync("some-flag", false, reqCtx);
+bool flagValue = await client.GetBooleanValueAsync("some-flag", false, reqCtx);
 
 ```
 
@@ -300,7 +300,7 @@ For example, a flag enhancing the appearance of a UI component might drive user 
 
 ```csharp
 var client = Api.Instance.GetClient();
-client.Track("visited-promo-page", trackingEventDetails: new TrackingEventDetailsBuilder().SetValue(99.77).Set("currency", "USD").Build());
+client.Track("visited-promo-page", trackingEventDetails: TrackingEventDetails.Builder().SetValue(99.77).Set("currency", "USD").Build());
 ```
 
 Note that some providers may not support tracking; check the documentation for your provider for more information.
@@ -364,7 +364,7 @@ public class MyProvider : FeatureProvider
         // resolve a string flag value
     }
 
-    public override Task<ResolutionDetails<int>> ResolveIntegerValueAsync(string flagKey, int defaultValue, EvaluationContext context = null)
+    public override Task<ResolutionDetails<int>> ResolveIntegerValueAsync(string flagKey, int defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
     {
         // resolve an int flag value
     }
@@ -391,25 +391,30 @@ To satisfy the interface, all methods (`Before`/`After`/`Finally`/`Error`) need 
 ```csharp
 public class MyHook : Hook
 {
-  public ValueTask<EvaluationContext> BeforeAsync<T>(HookContext<T> context,
-      IReadOnlyDictionary<string, object> hints = null)
+  public override ValueTask<EvaluationContext> BeforeAsync<T>(HookContext<T> context,
+      IReadOnlyDictionary<string, object>? hints = null,
+      CancellationToken cancellationToken = default)
   {
     // code to run before flag evaluation
   }
 
-  public ValueTask AfterAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
-      IReadOnlyDictionary<string, object>? hints = null)
+  public override ValueTask AfterAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
+      IReadOnlyDictionary<string, object>? hints = null,
+      CancellationToken cancellationToken = default)
   {
     // code to run after successful flag evaluation
   }
 
-  public ValueTask ErrorAsync<T>(HookContext<T> context, Exception error,
-      IReadOnlyDictionary<string, object>? hints = null)
+  public override ValueTask ErrorAsync<T>(HookContext<T> context, Exception error,
+      IReadOnlyDictionary<string, object>? hints = null,
+      CancellationToken cancellationToken = default)
   {
     // code to run if there's an error during before hooks or during flag evaluation
   }
 
-  public ValueTask FinallyAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> evaluationDetails, IReadOnlyDictionary<string, object> hints = null)
+  public override ValueTask FinallyAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> evaluationDetails,
+      IReadOnlyDictionary<string, object>? hints = null,
+      CancellationToken cancellationToken = default)
   {
     // code to run after all other stages, regardless of success/failure
   }
@@ -421,15 +426,17 @@ Hooks support passing per-evaluation data between that stages using `hook data`.
 ```csharp
     class TimingHook : Hook
     {
-        public ValueTask<EvaluationContext> BeforeAsync<T>(HookContext<T> context,
-            IReadOnlyDictionary<string, object>? hints = null)
+        public override ValueTask<EvaluationContext> BeforeAsync<T>(HookContext<T> context,
+            IReadOnlyDictionary<string, object>? hints = null,
+            CancellationToken cancellationToken = default)
         {
             context.Data.Set("beforeTime", DateTime.Now);
             return ValueTask.FromResult(context.EvaluationContext);
         }
 
-        public ValueTask AfterAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
-            IReadOnlyDictionary<string, object>? hints = null)
+        public override ValueTask AfterAsync<T>(HookContext<T> context, FlagEvaluationDetails<T> details,
+            IReadOnlyDictionary<string, object>? hints = null,
+            CancellationToken cancellationToken = default)
         {
             var beforeTime = context.Data.Get("beforeTime") as DateTime?;
             var duration = DateTime.Now - beforeTime;
@@ -656,6 +663,7 @@ Below are the tags added to the trace event:
 The following example demonstrates the use of the `TraceEnricherHook` with the `OpenFeature dotnet-sdk`. The traces are sent to a `jaeger` OTLP collector running at `localhost:4317`.
 
 ```csharp
+using System.Threading.Tasks;
 using OpenFeature.Contrib.Providers.Flagd;
 using OpenFeature.Hooks;
 using OpenTelemetry.Exporter;
@@ -666,7 +674,7 @@ using OpenTelemetry.Trace;
 namespace OpenFeatureTestApp
 {
     class Hello {
-        static void Main(string[] args) {
+        static async Task Main(string[] args) {
 
             // set up the OpenTelemetry OTLP exporter
             var tracerProvider = Sdk.CreateTracerProviderBuilder()
@@ -684,14 +692,14 @@ namespace OpenFeatureTestApp
             var flagdProvider = new FlagdProvider(new Uri("http://localhost:8013"));
 
             // Set the flagdProvider as the provider for the OpenFeature SDK
-            OpenFeature.Api.Instance.SetProvider(flagdProvider);
+            await OpenFeature.Api.Instance.SetProviderAsync(flagdProvider);
 
             var client = OpenFeature.Api.Instance.GetClient("my-app");
 
-            var val = client.GetBooleanValueAsync("myBoolFlag", false, null);
+            var val = await client.GetBooleanValueAsync("myBoolFlag", false);
 
             // Print the value of the 'myBoolFlag' feature flag
-            System.Console.WriteLine(val.Result.ToString());
+            System.Console.WriteLine(val);
         }
     }
 }
@@ -738,6 +746,7 @@ Consider the following code example for usage.
 The following example demonstrates the use of the `MetricsHook` with the `OpenFeature dotnet-sdk`. The metrics are sent to the `console`.
 
 ```csharp
+using System.Threading.Tasks;
 using OpenFeature.Contrib.Providers.Flagd;
 using OpenFeature;
 using OpenFeature.Hooks;
@@ -747,7 +756,7 @@ using OpenTelemetry.Metrics;
 namespace OpenFeatureTestApp
 {
     class Hello {
-        static void Main(string[] args) {
+        static async Task Main(string[] args) {
 
             // set up the OpenTelemetry OTLP exporter
             var meterProvider = Sdk.CreateMeterProviderBuilder()
@@ -762,14 +771,14 @@ namespace OpenFeatureTestApp
             var flagdProvider = new FlagdProvider(new Uri("http://localhost:8013"));
 
             // Set the flagdProvider as the provider for the OpenFeature SDK
-            OpenFeature.Api.Instance.SetProvider(flagdProvider);
+            await OpenFeature.Api.Instance.SetProviderAsync(flagdProvider);
 
             var client = OpenFeature.Api.Instance.GetClient("my-app");
 
-            var val = client.GetBooleanValueAsync("myBoolFlag", false, null);
+            var val = await client.GetBooleanValueAsync("myBoolFlag", false);
 
             // Print the value of the 'myBoolFlag' feature flag
-            System.Console.WriteLine(val.Result.ToString());
+            System.Console.WriteLine(val);
         }
     }
 }
