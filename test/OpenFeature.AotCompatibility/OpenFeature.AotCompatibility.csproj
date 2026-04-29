@@ -14,6 +14,7 @@
         <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
         <WarningsNotAsErrors>NU1903</WarningsNotAsErrors>
         <RootNamespace>OpenFeature.AotCompatibility</RootNamespace>
+        <NoWarn>$(NoWarn);OFISO001</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
@@ -25,10 +26,6 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
         <PackageReference Include="Microsoft.Extensions.Hosting" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="System.Text.Json" />
     </ItemGroup>
 
 </Project>

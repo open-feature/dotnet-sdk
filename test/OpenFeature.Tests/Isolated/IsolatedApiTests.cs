@@ -11,6 +11,9 @@ namespace OpenFeature.Tests.Isolated;
 /// Each test creates its own isolated instances and cleans them up,
 /// so no shared state fixture is needed.
 /// </summary>
+#if NET8_0_OR_GREATER
+[System.Diagnostics.CodeAnalysis.Experimental(FeatureDiagnosticCodes.IsolatedApi)]
+#endif
 public class IsolatedApiTests
 {
     [Fact]

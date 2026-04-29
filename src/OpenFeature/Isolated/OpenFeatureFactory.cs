@@ -1,3 +1,7 @@
+#if NET8_0_OR_GREATER
+using System.Diagnostics.CodeAnalysis;
+#endif
+
 namespace OpenFeature.Isolated;
 
 /// <summary>
@@ -25,5 +29,8 @@ public static class OpenFeatureFactory
     /// </remarks>
     /// <returns>A new, independent <see cref="Api"/> instance.</returns>
     /// <seealso href="https://openfeature.dev/specification/sections/flag-evaluation#18-isolated-api-instances">Specification 1.8 - Isolated API Instances</seealso>
+#if NET8_0_OR_GREATER
+    [Experimental(Constant.FeatureDiagnosticCodes.IsolatedApi)]
+#endif
     public static Api CreateIsolated() => new Api();
 }
