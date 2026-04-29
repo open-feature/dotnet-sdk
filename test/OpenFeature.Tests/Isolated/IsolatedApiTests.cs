@@ -2,8 +2,9 @@ using NSubstitute;
 using OpenFeature.Constant;
 using OpenFeature.Model;
 using OpenFeature.Tests.Internal;
+using OpenFeature.Isolated;
 
-namespace OpenFeature.Tests;
+namespace OpenFeature.Tests.Isolated;
 
 /// <summary>
 /// Tests for isolated API instances (spec section 1.8).
@@ -16,7 +17,7 @@ public class IsolatedApiTests
     [Specification("1.8.1", "The API MUST expose a factory function which creates and returns a new, independent instance of the API.")]
     public void CreateIsolated_Should_Return_New_Instance()
     {
-        var isolated = Api.CreateIsolated();
+        var isolated = OpenFeatureFactory.CreateIsolated();
 
         Assert.NotNull(isolated);
         Assert.NotSame(Api.Instance, isolated);
@@ -26,8 +27,8 @@ public class IsolatedApiTests
     [Specification("1.8.1", "The API MUST expose a factory function which creates and returns a new, independent instance of the API.")]
     public void CreateIsolated_Should_Return_Distinct_Instances()
     {
-        var isolated1 = Api.CreateIsolated();
-        var isolated2 = Api.CreateIsolated();
+        var isolated1 = OpenFeatureFactory.CreateIsolated();
+        var isolated2 = OpenFeatureFactory.CreateIsolated();
 
         Assert.NotSame(isolated1, isolated2);
     }
@@ -36,7 +37,7 @@ public class IsolatedApiTests
     [Specification("1.8.2", "Instances returned by the factory function MUST conform to the same API contract as the global singleton.")]
     public async Task Isolated_Instance_Should_Support_Full_Api_Contract()
     {
-        var isolated = Api.CreateIsolated();
+        var isolated = OpenFeatureFactory.CreateIsolated();
         try
         {
             // Provider management
@@ -78,7 +79,7 @@ public class IsolatedApiTests
     public async Task Isolated_Provider_Should_Not_Affect_Singleton()
     {
         Api.ResetApi();
-        var isolated = Api.CreateIsolated();
+        var isolated = OpenFeatureFactory.CreateIsolated();
         try
         {
             var provider = new TestProvider("isolated-provider");
@@ -98,8 +99,8 @@ public class IsolatedApiTests
     [Specification("1.8.1", "The API MUST expose a factory function which creates and returns a new, independent instance of the API.")]
     public async Task Isolated_Provider_Should_Not_Affect_Other_Isolated_Instance()
     {
-        var isolated1 = Api.CreateIsolated();
-        var isolated2 = Api.CreateIsolated();
+        var isolated1 = OpenFeatureFactory.CreateIsolated();
+        var isolated2 = OpenFeatureFactory.CreateIsolated();
         try
         {
             var provider1 = new TestProvider("provider-1");
@@ -121,8 +122,8 @@ public class IsolatedApiTests
     [Specification("1.8.1", "The API MUST expose a factory function which creates and returns a new, independent instance of the API.")]
     public void Isolated_Hooks_Should_Not_Affect_Other_Instances()
     {
-        var isolated1 = Api.CreateIsolated();
-        var isolated2 = Api.CreateIsolated();
+        var isolated1 = OpenFeatureFactory.CreateIsolated();
+        var isolated2 = OpenFeatureFactory.CreateIsolated();
 
         var hook1 = Substitute.For<Hook>();
         var hook2 = Substitute.For<Hook>();
@@ -141,8 +142,8 @@ public class IsolatedApiTests
     [Specification("1.8.1", "The API MUST expose a factory function which creates and returns a new, independent instance of the API.")]
     public void Isolated_Context_Should_Not_Affect_Other_Instances()
     {
-        var isolated1 = Api.CreateIsolated();
-        var isolated2 = Api.CreateIsolated();
+        var isolated1 = OpenFeatureFactory.CreateIsolated();
+        var isolated2 = OpenFeatureFactory.CreateIsolated();
 
         var context1 = EvaluationContext.Builder().Set("instance", "one").Build();
         var context2 = EvaluationContext.Builder().Set("instance", "two").Build();
@@ -158,8 +159,8 @@ public class IsolatedApiTests
     [Specification("1.8.4", "A provider instance SHOULD NOT be registered with more than one API instance simultaneously.")]
     public async Task Same_Provider_Should_Throw_When_Bound_To_Multiple_Api_Instances()
     {
-        var isolated1 = Api.CreateIsolated();
-        var isolated2 = Api.CreateIsolated();
+        var isolated1 = OpenFeatureFactory.CreateIsolated();
+        var isolated2 = OpenFeatureFactory.CreateIsolated();
         try
         {
             var provider = new TestProvider("shared-provider");
@@ -182,8 +183,8 @@ public class IsolatedApiTests
     [Specification("1.8.4", "A provider instance SHOULD NOT be registered with more than one API instance simultaneously.")]
     public async Task Same_Provider_Should_Throw_When_Bound_To_Multiple_Api_Instances_Domain()
     {
-        var isolated1 = Api.CreateIsolated();
-        var isolated2 = Api.CreateIsolated();
+        var isolated1 = OpenFeatureFactory.CreateIsolated();
+        var isolated2 = OpenFeatureFactory.CreateIsolated();
         try
         {
             var provider = new TestProvider("shared-provider");
@@ -208,7 +209,7 @@ public class IsolatedApiTests
     {
         const int instanceCount = 10;
         var provider = new TestProvider("contested-provider");
-        var instances = Enumerable.Range(0, instanceCount).Select(_ => Api.CreateIsolated()).ToList();
+        var instances = Enumerable.Range(0, instanceCount).Select(_ => OpenFeatureFactory.CreateIsolated()).ToList();
         try
         {
             var tasks = instances.Select(api => api.SetProviderAsync(provider)).ToList();
@@ -237,8 +238,8 @@ public class IsolatedApiTests
     [Specification("1.8.4", "A provider instance SHOULD NOT be registered with more than one API instance simultaneously.")]
     public async Task Provider_Can_Be_Rebound_After_Shutdown()
     {
-        var isolated1 = Api.CreateIsolated();
-        var isolated2 = Api.CreateIsolated();
+        var isolated1 = OpenFeatureFactory.CreateIsolated();
+        var isolated2 = OpenFeatureFactory.CreateIsolated();
         try
         {
             var provider = new TestProvider("rebindable-provider");
@@ -261,7 +262,7 @@ public class IsolatedApiTests
     [Specification("1.8.4", "A provider instance SHOULD NOT be registered with more than one API instance simultaneously.")]
     public async Task Same_Provider_Can_Be_Bound_To_Multiple_Domains_Within_Same_Api()
     {
-        var isolated = Api.CreateIsolated();
+        var isolated = OpenFeatureFactory.CreateIsolated();
         try
         {
             var provider = new TestProvider("multi-domain-provider");
@@ -284,7 +285,7 @@ public class IsolatedApiTests
         var singletonProvider = new TestProvider("singleton-provider");
         await Api.Instance.SetProviderAsync(singletonProvider);
 
-        var isolated = Api.CreateIsolated();
+        var isolated = OpenFeatureFactory.CreateIsolated();
         var isolatedProvider = new TestProvider("isolated-provider");
         await isolated.SetProviderAsync(isolatedProvider);
 
@@ -301,8 +302,8 @@ public class IsolatedApiTests
     [Fact]
     public async Task Shutdown_Isolated_Should_Not_Affect_Other_Isolated()
     {
-        var isolated1 = Api.CreateIsolated();
-        var isolated2 = Api.CreateIsolated();
+        var isolated1 = OpenFeatureFactory.CreateIsolated();
+        var isolated2 = OpenFeatureFactory.CreateIsolated();
         try
         {
             var provider1 = new TestProvider("provider-1");
@@ -324,8 +325,8 @@ public class IsolatedApiTests
     [Fact]
     public async Task Provider_Can_Be_Rebound_After_Replacement()
     {
-        var isolated1 = Api.CreateIsolated();
-        var isolated2 = Api.CreateIsolated();
+        var isolated1 = OpenFeatureFactory.CreateIsolated();
+        var isolated2 = OpenFeatureFactory.CreateIsolated();
         try
         {
             var providerA = new TestProvider("provider-a");
@@ -354,7 +355,7 @@ public class IsolatedApiTests
     [Specification("1.8.2", "Instances returned by the factory function MUST conform to the same API contract as the global singleton.")]
     public async Task Isolated_Client_Should_Evaluate_Flags()
     {
-        var isolated = Api.CreateIsolated();
+        var isolated = OpenFeatureFactory.CreateIsolated();
         try
         {
             var provider = new TestProvider("eval-provider");

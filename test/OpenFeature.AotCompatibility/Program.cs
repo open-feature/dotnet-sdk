@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OpenFeature.Constant;
+using OpenFeature.Isolated;
 using OpenFeature.Model;
 using OpenFeature.Providers.MultiProvider;
 using OpenFeature.Providers.MultiProvider.Models;
@@ -57,7 +58,7 @@ internal class Program
         Console.WriteLine("\nTesting isolated API instances...");
 
         // Create an isolated instance
-        var isolated = Api.CreateIsolated();
+        var isolated = OpenFeatureFactory.CreateIsolated();
         Console.WriteLine($"✓- Isolated API instance created: {isolated.GetType().Name}");
 
         // Verify it is distinct from the singleton
