@@ -56,6 +56,7 @@ public sealed class Api : IEventBus
     /// <returns>A <see cref="Task"/> that completes once Provider initialization is complete.</returns>
     public async Task SetProviderAsync(FeatureProvider featureProvider, CancellationToken cancellationToken)
     {
+        this.ValidateProviderOwnership(featureProvider);
         this._eventExecutor.RegisterDefaultFeatureProvider(featureProvider);
         await this._repository.SetProviderAsync(featureProvider, this.GetContext(), this.AfterInitializationAsync, this.AfterErrorAsync, cancellationToken)
             .ConfigureAwait(false);
@@ -91,6 +92,7 @@ public sealed class Api : IEventBus
         {
             throw new ArgumentNullException(nameof(domain));
         }
+        this.ValidateProviderOwnership(featureProvider);
         this._eventExecutor.RegisterClientFeatureProvider(domain, featureProvider);
         await this._repository.SetProviderAsync(domain, featureProvider, this.GetContext(), this.AfterInitializationAsync, this.AfterErrorAsync, cancellationToken)
             .ConfigureAwait(false);
@@ -400,5 +402,20 @@ public sealed class Api : IEventBus
     internal static void SetInstance(Api api)
     {
         Instance = api;
+    }
+
+    /// <summary>
+    /// Validates that the given provider is not already bound to a different API instance.
+    /// </summary>
+    /// <param name="featureProvider">The provider to validate ownership for.</param>
+    /// <exception cref="InvalidOperationException">Thrown if the provider is already bound to a different API instance.</exception>
+    private void ValidateProviderOwnership(FeatureProvider featureProvider)
+    {
+        if (!featureProvider.TryBindApiInstance(this))
+        {
+            throw new InvalidOperationException(
+                "This provider instance is already bound to a different API instance. " +
+                "A provider should not be registered with more than one API instance simultaneously.");
+        }
     }
 }
