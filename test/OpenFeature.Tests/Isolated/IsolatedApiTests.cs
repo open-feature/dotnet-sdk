@@ -1,8 +1,8 @@
 using NSubstitute;
 using OpenFeature.Constant;
+using OpenFeature.Isolated;
 using OpenFeature.Model;
 using OpenFeature.Tests.Internal;
-using OpenFeature.Isolated;
 
 namespace OpenFeature.Tests.Isolated;
 
