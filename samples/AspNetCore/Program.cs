@@ -25,10 +25,23 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 builder.Services.AddProblemDetails();
 
 // Configure OpenTelemetry
+builder.Logging.AddOpenTelemetry(options =>
+{
+    options
+        .SetResourceBuilder(
+            ResourceBuilder.CreateDefault()
+                .AddService("openfeature-aspnetcore-sample"))
+        .AddOtlpExporter();
+
+    options.IncludeScopes = true;
+    options.IncludeFormattedMessage = true;
+});
+
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(resource => resource.AddService("openfeature-aspnetcore-sample"))
     .WithTracing(tracing => tracing
         .AddAspNetCoreInstrumentation()
+        .SetSampler(new AlwaysOnSampler())
         .AddOtlpExporter())
     .WithMetrics(metrics => metrics
         .AddAspNetCoreInstrumentation()
