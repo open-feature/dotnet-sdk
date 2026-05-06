@@ -211,6 +211,15 @@ public sealed partial class FeatureClient : IFeatureClient
         var resolveValueDelegate = providerInfo.Item1;
         var provider = providerInfo.Item2;
 
+        var activity = OpenFeatureActivitySource.StartActivity("feature_flag.evaluation");
+        activity?.SetTag("feature_flag.key", flagKey);
+
+        var providerMetadata = provider.GetMetadata();
+        if (providerMetadata != null)
+        {
+            activity?.SetTag("feature_flag.provider.name", providerMetadata.Name);
+        }
+
         // New up an evaluation context if one was not provided.
         context ??= EvaluationContext.Empty;
 
@@ -261,8 +270,13 @@ public sealed partial class FeatureClient : IFeatureClient
                     .ConfigureAwait(false))
                 .ToFlagEvaluationDetails();
 
+            activity?.SetTag("feature_flag.result.reason", OpenFeatureActivitySource.GetFlagEvaluationReasonDescription(evaluation.Reason));
+
             if (evaluation.ErrorType == ErrorType.None)
             {
+                activity?.SetTag("feature_flag.result.value", evaluation.Value);
+                activity?.SetTag("feature_flag.result.variant", evaluation.Variant);
+
                 await hookRunner.TriggerAfterHooksAsync(
                     evaluation,
                     options?.HookHints,
@@ -271,6 +285,9 @@ public sealed partial class FeatureClient : IFeatureClient
             }
             else
             {
+                activity?.AddTag("error.type", OpenFeatureActivitySource.GetFlagEvaluationErrorDescription(evaluation.ErrorType));
+                activity?.SetTag("feature_flag.error.message", evaluation.ErrorMessage);
+
                 var exception = new FeatureProviderException(evaluation.ErrorType, evaluation.ErrorMessage);
                 this.FlagEvaluationErrorWithDescription(flagKey, evaluation.ErrorType.GetDescription(), exception);
                 await hookRunner.TriggerErrorHooksAsync(exception, options?.HookHints, cancellationToken)
@@ -301,6 +318,8 @@ public sealed partial class FeatureClient : IFeatureClient
             await hookRunner.TriggerFinallyHooksAsync(evaluation, options?.HookHints, cancellationToken)
                 .ConfigureAwait(false);
         }
+
+        activity?.Dispose();
 
         return evaluation;
     }
