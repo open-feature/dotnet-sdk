@@ -299,6 +299,10 @@ public sealed partial class FeatureClient : IFeatureClient
             this.FlagEvaluationErrorWithDescription(flagKey, ex.ErrorType.GetDescription(), ex);
             evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, ex.ErrorType, Reason.Error,
                 string.Empty, ex.Message);
+
+            activity?.AddTag("error.type", OpenFeatureActivitySource.GetFlagEvaluationErrorDescription(evaluation.ErrorType));
+            activity?.SetTag("feature_flag.error.message", evaluation.ErrorMessage);
+
             await hookRunner.TriggerErrorHooksAsync(ex, options?.HookHints, cancellationToken)
                 .ConfigureAwait(false);
         }
@@ -307,6 +311,10 @@ public sealed partial class FeatureClient : IFeatureClient
             var errorCode = ex is InvalidCastException ? ErrorType.TypeMismatch : ErrorType.General;
             evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, errorCode, Reason.Error, string.Empty,
                 ex.Message);
+
+            activity?.AddTag("error.type", OpenFeatureActivitySource.GetFlagEvaluationErrorDescription(evaluation.ErrorType));
+            activity?.SetTag("feature_flag.error.message", evaluation.ErrorMessage);
+
             await hookRunner.TriggerErrorHooksAsync(ex, options?.HookHints, cancellationToken)
                 .ConfigureAwait(false);
         }
