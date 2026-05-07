@@ -10,6 +10,7 @@ using OpenFeature.Providers.MultiProvider;
 using OpenFeature.Providers.MultiProvider.DependencyInjection;
 using OpenFeature.Providers.MultiProvider.Models;
 using OpenFeature.Providers.MultiProvider.Strategies;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
