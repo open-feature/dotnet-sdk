@@ -128,6 +128,8 @@ public class OpenFeatureClientTracingTests : IAsyncLifetime
         Assert.Single(this._exportedActivities);
 
         var trace = this._exportedActivities[0];
+        Assert.Equal(ActivityStatusCode.Error, trace.Status);
+
         var tags = trace.TagObjects.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         Assert.Contains("error.type", tags);
         Assert.Equal("provider_fatal", tags["error.type"]);
@@ -165,6 +167,8 @@ public class OpenFeatureClientTracingTests : IAsyncLifetime
         Assert.Single(this._exportedActivities);
 
         var trace = this._exportedActivities[0];
+        Assert.Equal(ActivityStatusCode.Error, trace.Status);
+
         var tags = trace.TagObjects.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         Assert.Contains("error.type", tags);
         Assert.Equal("targeting_key_missing", tags["error.type"]);
@@ -202,6 +206,8 @@ public class OpenFeatureClientTracingTests : IAsyncLifetime
         Assert.Single(this._exportedActivities);
 
         var trace = this._exportedActivities[0];
+        Assert.Equal(ActivityStatusCode.Error, trace.Status);
+
         var tags = trace.TagObjects.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         Assert.Contains("error.type", tags);
         Assert.Equal("general", tags["error.type"]);

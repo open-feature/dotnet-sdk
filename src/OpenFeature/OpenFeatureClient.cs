@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using OpenFeature.Constant;
@@ -285,6 +286,7 @@ public sealed partial class FeatureClient : IFeatureClient
             }
             else
             {
+                activity?.SetStatus(ActivityStatusCode.Error);
                 activity?.AddTag("error.type", OpenFeatureActivitySource.GetFlagEvaluationErrorDescription(evaluation.ErrorType));
                 activity?.SetTag("feature_flag.error.message", evaluation.ErrorMessage);
 
@@ -300,6 +302,7 @@ public sealed partial class FeatureClient : IFeatureClient
             evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, ex.ErrorType, Reason.Error,
                 string.Empty, ex.Message);
 
+            activity?.SetStatus(ActivityStatusCode.Error);
             activity?.AddTag("error.type", OpenFeatureActivitySource.GetFlagEvaluationErrorDescription(evaluation.ErrorType));
             activity?.SetTag("feature_flag.error.message", evaluation.ErrorMessage);
 
@@ -312,6 +315,7 @@ public sealed partial class FeatureClient : IFeatureClient
             evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, errorCode, Reason.Error, string.Empty,
                 ex.Message);
 
+            activity?.SetStatus(ActivityStatusCode.Error);
             activity?.AddTag("error.type", OpenFeatureActivitySource.GetFlagEvaluationErrorDescription(evaluation.ErrorType));
             activity?.SetTag("feature_flag.error.message", evaluation.ErrorMessage);
 
