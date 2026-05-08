@@ -9,7 +9,7 @@ static class OpenFeatureActivitySource
     static readonly ActivitySource Source = new("OpenFeature", GetLibraryVersion());
 
     internal static Activity? StartActivity(string name)
-        => Source.StartActivity(name, ActivityKind.Client);
+        => Source.StartActivity(name, ActivityKind.Internal);
 
     // Mapped to standard `error.types` https://opentelemetry.io/docs/specs/semconv/feature-flags/feature-flags-events/#evaluation-event
     internal static string GetFlagEvaluationErrorDescription(this ErrorType errorType) =>

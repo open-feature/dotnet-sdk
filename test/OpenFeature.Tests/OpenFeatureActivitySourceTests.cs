@@ -23,6 +23,7 @@ public class OpenFeatureActivitySourceTests
         Assert.Equal("OpenFeature", activity.Source.Name);
         Assert.NotNull(activity.Source.Version);
         Assert.NotEmpty(activity.Source.Version);
+        Assert.Equal(ActivityKind.Internal, activity.Kind);
     }
 
     [Theory]
