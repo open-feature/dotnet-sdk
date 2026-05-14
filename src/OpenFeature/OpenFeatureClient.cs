@@ -212,7 +212,7 @@ public sealed partial class FeatureClient : IFeatureClient
         var resolveValueDelegate = providerInfo.Item1;
         var provider = providerInfo.Item2;
 
-        var activity = OpenFeatureActivitySource.StartActivity("feature_flag.evaluation");
+        using var activity = OpenFeatureActivitySource.StartActivity("feature_flag.evaluation");
         activity?.SetTag("feature_flag.key", flagKey);
 
         var providerMetadata = provider.GetMetadata();

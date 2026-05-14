@@ -42,7 +42,7 @@ builder.Services.AddOpenTelemetry()
     .ConfigureResource(resource => resource.AddService("openfeature-aspnetcore-sample"))
     .WithTracing(tracing => tracing
         .AddAspNetCoreInstrumentation()
-        .SetSampler(new AlwaysOnSampler())
+        .AddSource("OpenFeature")
         .AddOtlpExporter())
     .WithMetrics(metrics => metrics
         .AddAspNetCoreInstrumentation()

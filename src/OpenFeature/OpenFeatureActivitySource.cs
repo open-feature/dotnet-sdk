@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Reflection;
 using OpenFeature.Constant;
 
 namespace OpenFeature;
@@ -42,7 +41,12 @@ static class OpenFeatureActivitySource
         };
 
     static string GetLibraryVersion()
-        => typeof(OpenFeatureActivitySource).Assembly
-            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
-            .InformationalVersion ?? "UNKNOWN";
+    {
+        var version = typeof(OpenFeatureActivitySource).Assembly
+            .GetName()
+            .Version;
+
+        // "3" = major.minor.patch only
+        return version?.ToString(3) ?? "UNKNOWN";
+    }
 }
