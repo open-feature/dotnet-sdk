@@ -353,8 +353,6 @@ public sealed partial class FeatureClient : IFeatureClient
                 .ConfigureAwait(false);
         }
 
-        activity?.Dispose();
-
         return evaluation;
     }
 
