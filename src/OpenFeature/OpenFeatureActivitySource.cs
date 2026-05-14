@@ -10,6 +10,14 @@ static class OpenFeatureActivitySource
     internal static Activity? StartActivity(string name)
         => Source.StartActivity(name, ActivityKind.Internal);
 
+    internal const string EvaluationActivityName = "feature_flag.evaluation";
+    internal const string FeatureFlagKeyName = "feature_flag.key";
+    internal const string FeatureFlagProviderName = "feature_flag.provider.name";
+    internal const string FeatureFlagReasonName = "feature_flag.result.reason";
+    internal const string FeatureFlagValueName = "feature_flag.result.value";
+    internal const string FeatureFlagVariantName = "feature_flag.result.variant";
+    internal const string FeatureFlagErrorMessageName = "feature_flag.error.message";
+
     // Mapped to standard `error.types` https://opentelemetry.io/docs/specs/semconv/feature-flags/feature-flags-events/#evaluation-event
     internal static string GetFlagEvaluationErrorDescription(this ErrorType errorType) =>
         errorType switch
