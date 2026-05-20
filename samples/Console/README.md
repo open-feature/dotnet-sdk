@@ -43,3 +43,14 @@ The sample defines the following flags using the `InMemoryProvider`:
 ## NativeAOT
 
 This sample is published with [NativeAOT](https://learn.microsoft.com/dotnet/core/deploying/native-aot/) enabled (`PublishAot=true`), demonstrating that the OpenFeature .NET SDK is fully compatible with NativeAOT compilation. See the [AOT Compatibility Guide](../../../docs/AOT_COMPATIBILITY.md) for more details.
+
+## Isolated API Instance
+
+The sample also demonstrates how to create an **isolated API instance** using `Api.CreateIsolated()`. The isolated instance has its own provider with different flag values, proving that it operates independently from the global singleton.
+
+| Flag Key       | Type     | Variants                                                                           | Default Variant |
+| -------------- | -------- | ---------------------------------------------------------------------------------- | --------------- |
+| `bool-flag`    | `bool`   | `on` → `true`, `off` → `false`                                                     | `off`           |
+| `string-flag`  | `string` | `greeting` → `"Howdy, Isolated World!"`, `farewell` → `"See ya!"`                  | `greeting`      |
+
+The isolated instance evaluates flags from its own provider, then shuts down without affecting the global singleton. This is useful for testing, multi-tenant applications, and dependency injection scenarios. See the [specification](https://openfeature.dev/specification/sections/flag-evaluation#18-isolated-api-instances) for more details.
