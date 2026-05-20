@@ -59,4 +59,60 @@ public class OpenFeatureActivitySourceTests
 
         Assert.Equal(expectedDescription, actual);
     }
+
+    [Fact]
+    public void SetTagIfRequested_AddsTag()
+    {
+        var exportedActivities = new List<Activity>();
+        using var activityListener = new ActivityListener()
+        {
+            ShouldListenTo = source => source.Name == "OpenFeature",
+            Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded,
+            ActivityStopped = activity => exportedActivities.Add(activity)
+        };
+
+        ActivitySource.AddActivityListener(activityListener);
+
+        using (var activity = OpenFeatureActivitySource.StartActivity("set_tag_if_requested"))
+        {
+            activity?.AddTagIfRequested("custom_tag_name", true);
+        }
+
+        Assert.Single(exportedActivities);
+
+        var actualActivity = exportedActivities.First();
+        Assert.Equal("custom_tag_name", actualActivity.TagObjects.First().Key);
+        Assert.Equal(true, actualActivity.TagObjects.First().Value);
+    }
+
+    [Fact]
+    public void SetTagIfRequested_WhenDataNotRequested_DoesNotAddTag()
+    {
+        var exportedActivities = new List<Activity>();
+        using var activityListener = new ActivityListener()
+        {
+            ShouldListenTo = source => source.Name == "OpenFeature",
+            Sample = (ref _) => ActivitySamplingResult.PropagationData,
+            ActivityStopped = activity => exportedActivities.Add(activity)
+        };
+
+        ActivitySource.AddActivityListener(activityListener);
+
+        using (var activity = OpenFeatureActivitySource.StartActivity("set_tag_if_requested"))
+        {
+            activity?.AddTagIfRequested("custom_tag_name", true);
+        }
+
+        Assert.Single(exportedActivities);
+
+        var actualActivity = exportedActivities.First();
+        Assert.Empty(actualActivity.TagObjects);
+    }
+
+    [Fact]
+    public void SetTagIfRequested_WhenActivityIsNull_DoesNothing()
+    {
+        var ex = Record.Exception(() => OpenFeatureActivitySource.AddTagIfRequested(null!, "custom_tag_name", true));
+        Assert.Null(ex);
+    }
 }

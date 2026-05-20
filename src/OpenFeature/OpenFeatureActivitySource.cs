@@ -57,4 +57,15 @@ static class OpenFeatureActivitySource
         // "3" = major.minor.patch only
         return version?.ToString(3) ?? "UNKNOWN";
     }
+
+    internal static void AddTagIfRequested(this Activity activity, string tagName, object? value)
+    {
+        if (activity == null)
+            return;
+
+        if (!activity.IsAllDataRequested)
+            return;
+
+        activity.AddTag(tagName, value);
+    }
 }
