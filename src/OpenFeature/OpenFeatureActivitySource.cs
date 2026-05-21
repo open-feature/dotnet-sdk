@@ -18,6 +18,8 @@ static class OpenFeatureActivitySource
     internal const string FeatureFlagVariantName = "feature_flag.result.variant";
     internal const string FeatureFlagErrorMessageName = "feature_flag.error.message";
 
+    internal const string ErrorTypeName = "error.type";
+
     // Mapped to standard `error.types` https://opentelemetry.io/docs/specs/semconv/feature-flags/feature-flags-events/#evaluation-event
     internal static string GetFlagEvaluationErrorDescription(this ErrorType errorType) =>
         errorType switch
@@ -60,9 +62,6 @@ static class OpenFeatureActivitySource
 
     internal static void AddTagIfRequested(this Activity activity, string tagName, object? value)
     {
-        if (activity == null)
-            return;
-
         if (!activity.IsAllDataRequested)
             return;
 

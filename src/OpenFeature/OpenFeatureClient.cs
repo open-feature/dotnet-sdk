@@ -288,7 +288,7 @@ public sealed partial class FeatureClient : IFeatureClient
             else
             {
                 activity?.SetStatus(ActivityStatusCode.Error);
-                activity?.AddTagIfRequested("error.type", OpenFeatureActivitySource.GetFlagEvaluationErrorDescription(evaluation.ErrorType));
+                activity?.AddTagIfRequested(OpenFeatureActivitySource.ErrorTypeName, OpenFeatureActivitySource.GetFlagEvaluationErrorDescription(evaluation.ErrorType));
                 activity?.AddTagIfRequested(OpenFeatureActivitySource.FeatureFlagErrorMessageName, evaluation.ErrorMessage);
 
                 var exception = new FeatureProviderException(evaluation.ErrorType, evaluation.ErrorMessage);
@@ -304,7 +304,7 @@ public sealed partial class FeatureClient : IFeatureClient
                 string.Empty, ex.Message);
 
             activity?.SetStatus(ActivityStatusCode.Error);
-            activity?.AddTagIfRequested("error.type", OpenFeatureActivitySource.GetFlagEvaluationErrorDescription(evaluation.ErrorType));
+            activity?.AddTagIfRequested(OpenFeatureActivitySource.ErrorTypeName, OpenFeatureActivitySource.GetFlagEvaluationErrorDescription(evaluation.ErrorType));
             activity?.AddTagIfRequested(OpenFeatureActivitySource.FeatureFlagErrorMessageName, evaluation.ErrorMessage);
 
             await hookRunner.TriggerErrorHooksAsync(ex, options?.HookHints, cancellationToken)
@@ -317,7 +317,7 @@ public sealed partial class FeatureClient : IFeatureClient
                 ex.Message);
 
             activity?.SetStatus(ActivityStatusCode.Error);
-            activity?.AddTagIfRequested("error.type", OpenFeatureActivitySource.GetFlagEvaluationErrorDescription(evaluation.ErrorType));
+            activity?.AddTagIfRequested(OpenFeatureActivitySource.ErrorTypeName, OpenFeatureActivitySource.GetFlagEvaluationErrorDescription(evaluation.ErrorType));
             activity?.AddTagIfRequested(OpenFeatureActivitySource.FeatureFlagErrorMessageName, evaluation.ErrorMessage);
 
             await hookRunner.TriggerErrorHooksAsync(ex, options?.HookHints, cancellationToken)

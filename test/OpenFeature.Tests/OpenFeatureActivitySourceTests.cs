@@ -108,11 +108,4 @@ public class OpenFeatureActivitySourceTests
         var actualActivity = exportedActivities.First();
         Assert.Empty(actualActivity.TagObjects);
     }
-
-    [Fact]
-    public void SetTagIfRequested_WhenActivityIsNull_DoesNothing()
-    {
-        var ex = Record.Exception(() => OpenFeatureActivitySource.AddTagIfRequested(null!, "custom_tag_name", true));
-        Assert.Null(ex);
-    }
 }
