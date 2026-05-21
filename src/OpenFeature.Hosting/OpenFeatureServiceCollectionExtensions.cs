@@ -26,7 +26,7 @@ public static partial class OpenFeatureServiceCollectionExtensions
 
         // Register core OpenFeature services as singletons.
 #pragma warning disable OFISO001 // Registering the isolated API instance as a singleton is intentional to ensure that all components within the application use the same isolated instance of the OpenFeature API. This design choice allows for the container to manage the lifecycle of the isolated API instance effectively.
-        services.TryAddSingleton(OpenFeatureFactory.CreateIsolated());
+        services.TryAddSingleton(_ => OpenFeatureFactory.CreateIsolated());
 #pragma warning restore OFISO001
         services.TryAddSingleton<IFeatureLifecycleManager, FeatureLifecycleManager>();
 
