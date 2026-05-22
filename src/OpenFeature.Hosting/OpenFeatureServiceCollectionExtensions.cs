@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using OpenFeature.Hosting;
 using OpenFeature.Hosting.Internal;
+using OpenFeature.Isolated;
 
 namespace OpenFeature;
 
@@ -24,7 +25,9 @@ public static partial class OpenFeatureServiceCollectionExtensions
         Guard.ThrowIfNull(configure);
 
         // Register core OpenFeature services as singletons.
-        services.TryAddSingleton(Api.Instance);
+#pragma warning disable OFISO001 // Registering the isolated API instance as a singleton is intentional to ensure that all components within the application use the same isolated instance of the OpenFeature API. This design choice allows for the container to manage the lifecycle of the isolated API instance effectively.
+        services.TryAddSingleton(_ => OpenFeatureFactory.CreateIsolated());
+#pragma warning restore OFISO001
         services.TryAddSingleton<IFeatureLifecycleManager, FeatureLifecycleManager>();
 
         var builder = new OpenFeatureBuilder(services);
