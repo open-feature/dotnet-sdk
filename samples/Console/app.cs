@@ -2,6 +2,7 @@
 #:property PublishAot=true
 
 using OpenFeature;
+using OpenFeature.Isolated;
 using OpenFeature.Model;
 using OpenFeature.Providers.Memory;
 
@@ -55,7 +56,9 @@ var isolatedFlags = new Dictionary<string, Flag>
     { "string-flag", new Flag<string>(new Dictionary<string, string> { { "greeting", "Howdy, Isolated World!" }, { "farewell", "See ya!" } }, defaultVariant: "greeting") },
 };
 
-var isolated = Api.CreateIsolated();
+#pragma warning disable OFISO001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+var isolated = OpenFeatureFactory.CreateIsolated();
+#pragma warning restore OFISO001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 await isolated.SetProviderAsync(new InMemoryProvider(isolatedFlags));
 
 var isolatedClient = isolated.GetClient();
