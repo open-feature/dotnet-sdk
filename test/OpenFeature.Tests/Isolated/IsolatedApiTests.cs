@@ -45,7 +45,7 @@ public class IsolatedApiTests
         {
             // Provider management
             var provider = new TestProvider();
-            await isolated.SetProviderAsync(provider);
+            await isolated.SetProviderAsync(provider, TestContext.Current.CancellationToken);
             Assert.Equal(provider, isolated.GetProvider());
             Assert.Equal(provider.GetMetadata()?.Name, isolated.GetProviderMetadata()?.Name);
 
@@ -86,7 +86,7 @@ public class IsolatedApiTests
         try
         {
             var provider = new TestProvider("isolated-provider");
-            await isolated.SetProviderAsync(provider);
+            await isolated.SetProviderAsync(provider, TestContext.Current.CancellationToken);
 
             // The singleton should still have the default NoOp provider
             Assert.Equal(NoOpProvider.NoOpProviderName, Api.Instance.GetProviderMetadata()?.Name);
@@ -108,8 +108,8 @@ public class IsolatedApiTests
         {
             var provider1 = new TestProvider("provider-1");
             var provider2 = new TestProvider("provider-2");
-            await isolated1.SetProviderAsync(provider1);
-            await isolated2.SetProviderAsync(provider2);
+            await isolated1.SetProviderAsync(provider1, TestContext.Current.CancellationToken);
+            await isolated2.SetProviderAsync(provider2, TestContext.Current.CancellationToken);
 
             Assert.Equal("provider-1", isolated1.GetProviderMetadata()?.Name);
             Assert.Equal("provider-2", isolated2.GetProviderMetadata()?.Name);
@@ -167,10 +167,10 @@ public class IsolatedApiTests
         try
         {
             var provider = new TestProvider("shared-provider");
-            await isolated1.SetProviderAsync(provider);
+            await isolated1.SetProviderAsync(provider, TestContext.Current.CancellationToken);
 
             var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-                () => isolated2.SetProviderAsync(provider));
+                () => isolated2.SetProviderAsync(provider, TestContext.Current.CancellationToken));
 
             Assert.Equal("This provider instance is already bound to a different API instance. " +
                 "A provider should not be registered with more than one API instance simultaneously.", exception.Message);
@@ -191,10 +191,10 @@ public class IsolatedApiTests
         try
         {
             var provider = new TestProvider("shared-provider");
-            await isolated1.SetProviderAsync("domain-1", provider);
+            await isolated1.SetProviderAsync("domain-1", provider, TestContext.Current.CancellationToken);
 
             var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-                () => isolated2.SetProviderAsync("domain-2", provider));
+                () => isolated2.SetProviderAsync("domain-2", provider, TestContext.Current.CancellationToken));
 
             Assert.Equal("This provider instance is already bound to a different API instance. " +
                 "A provider should not be registered with more than one API instance simultaneously.", exception.Message);
@@ -246,13 +246,13 @@ public class IsolatedApiTests
         try
         {
             var provider = new TestProvider("rebindable-provider");
-            await isolated1.SetProviderAsync(provider);
+            await isolated1.SetProviderAsync(provider, TestContext.Current.CancellationToken);
 
             // Shut down first instance — this frees the provider
             await isolated1.ShutdownAsync();
 
             // Now the provider should be bindable to another instance
-            await isolated2.SetProviderAsync(provider);
+            await isolated2.SetProviderAsync(provider, TestContext.Current.CancellationToken);
             Assert.Equal("rebindable-provider", isolated2.GetProviderMetadata()?.Name);
         }
         finally
@@ -269,8 +269,8 @@ public class IsolatedApiTests
         try
         {
             var provider = new TestProvider("multi-domain-provider");
-            await isolated.SetProviderAsync("domain-a", provider);
-            await isolated.SetProviderAsync("domain-b", provider);
+            await isolated.SetProviderAsync("domain-a", provider, TestContext.Current.CancellationToken);
+            await isolated.SetProviderAsync("domain-b", provider, TestContext.Current.CancellationToken);
 
             Assert.Equal(provider, isolated.GetProvider("domain-a"));
             Assert.Equal(provider, isolated.GetProvider("domain-b"));
@@ -286,11 +286,11 @@ public class IsolatedApiTests
     {
         Api.ResetApi();
         var singletonProvider = new TestProvider("singleton-provider");
-        await Api.Instance.SetProviderAsync(singletonProvider);
+        await Api.Instance.SetProviderAsync(singletonProvider, TestContext.Current.CancellationToken);
 
         var isolated = OpenFeatureFactory.CreateIsolated();
         var isolatedProvider = new TestProvider("isolated-provider");
-        await isolated.SetProviderAsync(isolatedProvider);
+        await isolated.SetProviderAsync(isolatedProvider, TestContext.Current.CancellationToken);
 
         // Shutting down isolated instance
         await isolated.ShutdownAsync();
@@ -311,8 +311,8 @@ public class IsolatedApiTests
         {
             var provider1 = new TestProvider("provider-1");
             var provider2 = new TestProvider("provider-2");
-            await isolated1.SetProviderAsync(provider1);
-            await isolated2.SetProviderAsync(provider2);
+            await isolated1.SetProviderAsync(provider1, TestContext.Current.CancellationToken);
+            await isolated2.SetProviderAsync(provider2, TestContext.Current.CancellationToken);
 
             await isolated1.ShutdownAsync();
 
@@ -335,16 +335,16 @@ public class IsolatedApiTests
             var providerA = new TestProvider("provider-a");
             var providerB = new TestProvider("provider-b");
 
-            await isolated1.SetProviderAsync(providerA);
+            await isolated1.SetProviderAsync(providerA, TestContext.Current.CancellationToken);
 
             // Replace providerA with providerB in isolated1 — providerA should be unbound
-            await isolated1.SetProviderAsync(providerB);
+            await isolated1.SetProviderAsync(providerB, TestContext.Current.CancellationToken);
 
             // Allow some time for the async shutdown to complete
-            await Task.Delay(100);
+            await Task.Delay(100, TestContext.Current.CancellationToken);
 
             // providerA should now be free to bind to isolated2
-            await isolated2.SetProviderAsync(providerA);
+            await isolated2.SetProviderAsync(providerA, TestContext.Current.CancellationToken);
             Assert.Equal("provider-a", isolated2.GetProviderMetadata()?.Name);
         }
         finally
@@ -362,12 +362,12 @@ public class IsolatedApiTests
         try
         {
             var provider = new TestProvider("eval-provider");
-            await isolated.SetProviderAsync(provider);
+            await isolated.SetProviderAsync(provider, TestContext.Current.CancellationToken);
 
             var client = isolated.GetClient();
 
             // TestProvider inverts boolean defaults
-            var result = await client.GetBooleanValueAsync("test-flag", false);
+            var result = await client.GetBooleanValueAsync("test-flag", false, cancellationToken: TestContext.Current.CancellationToken);
             Assert.True(result);
         }
         finally

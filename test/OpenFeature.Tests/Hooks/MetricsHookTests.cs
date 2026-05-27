@@ -20,9 +20,7 @@ public class MetricsHookTest
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
 
         // Act
-        await metricsHook.AfterAsync(ctx,
-            new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default"),
-            new Dictionary<string, object>()).ConfigureAwait(true);
+        await metricsHook.AfterAsync(ctx, new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default"), new Dictionary<string, object>(), TestContext.Current.CancellationToken).ConfigureAwait(true);
 
         var measurements = collector.LastMeasurement;
 
@@ -50,7 +48,7 @@ public class MetricsHookTest
         // Act
         await metricsHook.AfterAsync(ctx,
             new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", variant: null),
-            new Dictionary<string, object>()).ConfigureAwait(true);
+            new Dictionary<string, object>(), TestContext.Current.CancellationToken).ConfigureAwait(true);
 
         var measurements = collector.LastMeasurement;
 
@@ -76,9 +74,7 @@ public class MetricsHookTest
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
 
         // Act
-        await metricsHook.AfterAsync(ctx,
-            new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, reason: null, "default"),
-            new Dictionary<string, object>()).ConfigureAwait(true);
+        await metricsHook.AfterAsync(ctx, new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, reason: null, "default"), new Dictionary<string, object>(), TestContext.Current.CancellationToken).ConfigureAwait(true);
 
         var measurements = collector.LastMeasurement;
 
@@ -107,9 +103,7 @@ public class MetricsHookTest
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
 
         // Act
-        await metricsHook.AfterAsync(ctx,
-            new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default"),
-            new Dictionary<string, object>()).ConfigureAwait(true);
+        await metricsHook.AfterAsync(ctx, new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default"), new Dictionary<string, object>(), TestContext.Current.CancellationToken).ConfigureAwait(true);
 
         var measurements = collector.LastMeasurement;
 
@@ -145,9 +139,7 @@ public class MetricsHookTest
         });
 
         // Act
-        await metricsHook.AfterAsync(ctx,
-            new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default", errorMessage: null, flagMetadata),
-            new Dictionary<string, object>()).ConfigureAwait(true);
+        await metricsHook.AfterAsync(ctx, new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default", errorMessage: null, flagMetadata), new Dictionary<string, object>(), TestContext.Current.CancellationToken).ConfigureAwait(true);
 
         var measurements = collector.LastMeasurement;
 
@@ -175,7 +167,7 @@ public class MetricsHookTest
         var errorMessage = "An error occurred during evaluation";
 
         // Act
-        await metricsHook.ErrorAsync(ctx, new Exception(errorMessage), new Dictionary<string, object>()).ConfigureAwait(true);
+        await metricsHook.ErrorAsync(ctx, new Exception(errorMessage), new Dictionary<string, object>(), TestContext.Current.CancellationToken).ConfigureAwait(true);
 
         var measurements = collector.LastMeasurement;
 
@@ -206,7 +198,7 @@ public class MetricsHookTest
         var errorMessage = "An error occurred during evaluation";
 
         // Act
-        await metricsHook.ErrorAsync(ctx, new Exception(errorMessage), new Dictionary<string, object>()).ConfigureAwait(true);
+        await metricsHook.ErrorAsync(ctx, new Exception(errorMessage), new Dictionary<string, object>(), TestContext.Current.CancellationToken).ConfigureAwait(true);
 
         var measurements = collector.LastMeasurement;
 
@@ -233,7 +225,7 @@ public class MetricsHookTest
         var evaluationDetails = new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default");
 
         // Act
-        await metricsHook.FinallyAsync(ctx, evaluationDetails, new Dictionary<string, object>()).ConfigureAwait(true);
+        await metricsHook.FinallyAsync(ctx, evaluationDetails, new Dictionary<string, object>(), TestContext.Current.CancellationToken).ConfigureAwait(true);
 
         var measurements = collector.LastMeasurement;
 
@@ -263,7 +255,7 @@ public class MetricsHookTest
         var evaluationDetails = new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default");
 
         // Act
-        await metricsHook.FinallyAsync(ctx, evaluationDetails, new Dictionary<string, object>()).ConfigureAwait(true);
+        await metricsHook.FinallyAsync(ctx, evaluationDetails, new Dictionary<string, object>(), TestContext.Current.CancellationToken).ConfigureAwait(true);
 
         var measurements = collector.LastMeasurement;
 
@@ -299,7 +291,7 @@ public class MetricsHookTest
         var evaluationDetails = new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default", flagMetadata: flagMetadata);
 
         // Act
-        await metricsHook.FinallyAsync(ctx, evaluationDetails, new Dictionary<string, object>()).ConfigureAwait(true);
+        await metricsHook.FinallyAsync(ctx, evaluationDetails, new Dictionary<string, object>(), TestContext.Current.CancellationToken).ConfigureAwait(true);
 
         var measurements = collector.LastMeasurement;
 
@@ -326,7 +318,7 @@ public class MetricsHookTest
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
 
         // Act
-        await metricsHook.BeforeAsync(ctx, new Dictionary<string, object>()).ConfigureAwait(true);
+        await metricsHook.BeforeAsync(ctx, new Dictionary<string, object>(), TestContext.Current.CancellationToken).ConfigureAwait(true);
 
         var measurements = collector1.LastMeasurement;
 
@@ -356,7 +348,7 @@ public class MetricsHookTest
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
 
         // Act
-        await metricsHook.BeforeAsync(ctx, new Dictionary<string, object>()).ConfigureAwait(true);
+        await metricsHook.BeforeAsync(ctx, new Dictionary<string, object>(), TestContext.Current.CancellationToken).ConfigureAwait(true);
 
         var measurements = collector1.LastMeasurement;
 
@@ -390,8 +382,8 @@ public class MetricsHookTest
         var evaluationDetails = new FlagEvaluationDetails<string>("my-flag", "foo", Constant.ErrorType.None, "STATIC", "default", flagMetadata: flagMetadata);
 
         // Act
-        await metricsHook.BeforeAsync(ctx, new Dictionary<string, object>()).ConfigureAwait(true);
-        await metricsHook.FinallyAsync(ctx, evaluationDetails, new Dictionary<string, object>()).ConfigureAwait(true);
+        await metricsHook.BeforeAsync(ctx, new Dictionary<string, object>(), TestContext.Current.CancellationToken).ConfigureAwait(true);
+        await metricsHook.FinallyAsync(ctx, evaluationDetails, new Dictionary<string, object>(), TestContext.Current.CancellationToken).ConfigureAwait(true);
 
         var measurements = collector.GetMeasurementSnapshot();
 
@@ -423,7 +415,7 @@ public class MetricsHookTest
             new ClientMetadata("my-client", "1.0"), new Metadata("my-provider"), evaluationContext);
 
         // Act - call BeforeAsync (no flag metadata available yet)
-        await metricsHook.BeforeAsync(ctx, new Dictionary<string, object>()).ConfigureAwait(true);
+        await metricsHook.BeforeAsync(ctx, new Dictionary<string, object>(), TestContext.Current.CancellationToken).ConfigureAwait(true);
 
         var measurements = collector.LastMeasurement;
 

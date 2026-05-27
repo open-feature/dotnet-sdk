@@ -48,7 +48,7 @@ jobs:
         run: dotnet build -c Release --no-restore
 
       - name: Test
-        run: dotnet test -c Release --no-build --logger GitHubActions
+        run: dotnet test -c Release --no-build --report-github --ignore-exit-code 8
 
       - name: aot-publish test
         run: |

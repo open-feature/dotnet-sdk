@@ -84,7 +84,7 @@ dotnet test test/OpenFeature.Tests/
 To run unit tests with code coverage execute:
 
 ```bash
-dotnet test test/OpenFeature.Tests/ --collect:"XPlat Code Coverage"
+dotnet test test/OpenFeature.Tests/ --coverlet --coverlet-output-format opencover
 ```
 
 #### E2E tests

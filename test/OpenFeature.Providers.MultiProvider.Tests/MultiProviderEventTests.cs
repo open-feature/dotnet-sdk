@@ -38,7 +38,7 @@ public class MultiProviderEventTests
         var multiProvider = CreateMultiProvider(_provider1, _provider2);
 
         // Act
-        await multiProvider.InitializeAsync(_context);
+        await multiProvider.InitializeAsync(_context, TestContext.Current.CancellationToken);
 
         // Assert
         var events = await ReadEvents(multiProvider.GetEventChannel());
@@ -54,7 +54,7 @@ public class MultiProviderEventTests
         var multiProvider = CreateMultiProvider(failedProvider, _provider2);
 
         // Act & Assert
-        await Assert.ThrowsAsync<AggregateException>(() => multiProvider.InitializeAsync(_context));
+        await Assert.ThrowsAsync<AggregateException>(() => multiProvider.InitializeAsync(_context, TestContext.Current.CancellationToken));
 
         // Verify the error event was emitted
         var events = await ReadEvents(multiProvider.GetEventChannel());
@@ -70,7 +70,7 @@ public class MultiProviderEventTests
         _strategy.RunMode.Returns((RunMode)999); // Invalid run mode
 
         // Act
-        var result = await multiProvider.ResolveBooleanValueAsync(TestFlagKey, false, _context);
+        var result = await multiProvider.ResolveBooleanValueAsync(TestFlagKey, false, _context, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(ErrorType.ProviderFatal, result.ErrorType);
@@ -92,7 +92,7 @@ public class MultiProviderEventTests
             .Throws(new InvalidOperationException("Evaluation failed"));
 
         // Act
-        var result = await multiProvider.ResolveBooleanValueAsync(TestFlagKey, false, _context);
+        var result = await multiProvider.ResolveBooleanValueAsync(TestFlagKey, false, _context, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(ErrorType.General, result.ErrorType);
@@ -119,7 +119,7 @@ public class MultiProviderEventTests
 
         // Act - Simulate child provider emitting configuration changed event
         await EmitEventToProvider(_provider1, configEvent);
-        await Task.Delay(50);
+        await Task.Delay(50, TestContext.Current.CancellationToken);
 
         // Assert
         var events = await ReadEvents(multiProvider.GetEventChannel());
@@ -138,7 +138,7 @@ public class MultiProviderEventTests
         // Act - Simulate both child providers becoming ready
         await EmitEventToProvider(_provider1, CreateEvent(ProviderEventTypes.ProviderReady));
         await EmitEventToProvider(_provider2, CreateEvent(ProviderEventTypes.ProviderReady));
-        await Task.Delay(50);
+        await Task.Delay(50, TestContext.Current.CancellationToken);
 
         // Assert - Should emit MultiProvider ready event when all providers are ready
         var events = await ReadEvents(multiProvider.GetEventChannel(), expectedCount: 2);
@@ -156,7 +156,7 @@ public class MultiProviderEventTests
 
         // Act - Simulate child provider emitting error event
         await EmitEventToProvider(_provider1, CreateEvent(ProviderEventTypes.ProviderError, ErrorType.ProviderFatal));
-        await Task.Delay(50);
+        await Task.Delay(50, TestContext.Current.CancellationToken);
 
         // Assert
         var events = await ReadEvents(multiProvider.GetEventChannel());
@@ -173,7 +173,7 @@ public class MultiProviderEventTests
 
         // Act - Simulate child provider emitting stale event
         await EmitEventToProvider(_provider1, CreateEvent(ProviderEventTypes.ProviderStale));
-        await Task.Delay(50);
+        await Task.Delay(50, TestContext.Current.CancellationToken);
 
         // Assert
         var events = await ReadEvents(multiProvider.GetEventChannel());
@@ -190,7 +190,7 @@ public class MultiProviderEventTests
 
         // Act - Simulate child provider emitting ready event when MultiProvider is already ready
         await EmitEventToProvider(_provider1, CreateEvent(ProviderEventTypes.ProviderReady));
-        await Task.Delay(50);
+        await Task.Delay(50, TestContext.Current.CancellationToken);
 
         // Assert - Should not emit any events since status didn't change
         var events = await ReadEvents(multiProvider.GetEventChannel(), expectedCount: 0, timeoutMs: 300);
@@ -202,15 +202,15 @@ public class MultiProviderEventTests
     {
         // Arrange
         var multiProvider = CreateMultiProvider(_provider1, _provider2);
-        await multiProvider.InitializeAsync(_context);
-        await Task.Delay(50);
+        await multiProvider.InitializeAsync(_context, TestContext.Current.CancellationToken);
+        await Task.Delay(50, TestContext.Current.CancellationToken);
 
         // Act - Simulate one provider going to error state
         await EmitEventToProvider(_provider1, CreateEvent(ProviderEventTypes.ProviderError, ErrorType.General));
-        await Task.Delay(50);
+        await Task.Delay(50, TestContext.Current.CancellationToken);
         // Simulate the error provider recovering
         await EmitEventToProvider(_provider1, CreateEvent(ProviderEventTypes.ProviderReady));
-        await Task.Delay(50);
+        await Task.Delay(50, TestContext.Current.CancellationToken);
 
         // Assert - Should see: Init Ready -> Error -> Ready
         var events = await ReadEvents(multiProvider.GetEventChannel(), expectedCount: 3);
@@ -233,7 +233,7 @@ public class MultiProviderEventTests
 
         // Act
         await EmitEventToProvider(_provider1, eventPayload);
-        await Task.Delay(50);
+        await Task.Delay(50, TestContext.Current.CancellationToken);
 
         // Assert
         var events = await ReadEvents(multiProvider.GetEventChannel());
@@ -247,14 +247,14 @@ public class MultiProviderEventTests
     {
         // Arrange
         var multiProvider = CreateMultiProvider(_provider1);
-        await multiProvider.InitializeAsync(_context);
+        await multiProvider.InitializeAsync(_context, TestContext.Current.CancellationToken);
 
         // Act
-        await multiProvider.ShutdownAsync();
+        await multiProvider.ShutdownAsync(TestContext.Current.CancellationToken);
 
         // Try to emit an event after shutdown - it should not be processed
         await EmitEventToProvider(_provider1, CreateEvent(ProviderEventTypes.ProviderReady));
-        await Task.Delay(50);
+        await Task.Delay(50, TestContext.Current.CancellationToken);
 
         // Assert - Should not process any events after shutdown
         var events = await ReadEvents(multiProvider.GetEventChannel(), expectedCount: 0, timeoutMs: 300);
@@ -267,10 +267,10 @@ public class MultiProviderEventTests
         // Arrange
         var failingProvider = new TestProvider("failing", shutdownException: new InvalidOperationException("Shutdown failed"));
         var multiProvider = CreateMultiProvider(failingProvider, _provider2);
-        await multiProvider.InitializeAsync(_context);
+        await multiProvider.InitializeAsync(_context, TestContext.Current.CancellationToken);
 
         // Act & Assert - Should throw AggregateException due to provider shutdown failure
-        var exception = await Assert.ThrowsAsync<AggregateException>(() => multiProvider.ShutdownAsync());
+        var exception = await Assert.ThrowsAsync<AggregateException>(() => multiProvider.ShutdownAsync(TestContext.Current.CancellationToken));
         Assert.Contains("Failed to shutdown providers", exception.Message);
     }
 
@@ -279,17 +279,17 @@ public class MultiProviderEventTests
     {
         // Arrange
         var multiProvider = CreateMultiProvider(_provider1);
-        await multiProvider.InitializeAsync(_context);
+        await multiProvider.InitializeAsync(_context, TestContext.Current.CancellationToken);
 
         // Act
         await multiProvider.DisposeAsync();
 
         // Assert - Should not throw and should handle disposal gracefully
-        await Task.Delay(100); // Give time for any potential processing
+        await Task.Delay(100, TestContext.Current.CancellationToken); // Give time for any potential processing
 
         // Verify that subsequent operations on disposed provider throw
         await Assert.ThrowsAsync<ObjectDisposedException>(() =>
-            multiProvider.ResolveBooleanValueAsync(TestFlagKey, false));
+            multiProvider.ResolveBooleanValueAsync(TestFlagKey, false, cancellationToken: TestContext.Current.CancellationToken));
     }
 
     // Helper methods
