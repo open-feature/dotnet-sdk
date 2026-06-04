@@ -10,6 +10,7 @@ using OpenFeature.Providers.MultiProvider;
 using OpenFeature.Providers.MultiProvider.DependencyInjection;
 using OpenFeature.Providers.MultiProvider.Models;
 using OpenFeature.Providers.MultiProvider.Strategies;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -25,10 +26,23 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 builder.Services.AddProblemDetails();
 
 // Configure OpenTelemetry
+builder.Logging.AddOpenTelemetry(options =>
+{
+    options
+        .SetResourceBuilder(
+            ResourceBuilder.CreateDefault()
+                .AddService("openfeature-aspnetcore-sample"))
+        .AddOtlpExporter();
+
+    options.IncludeScopes = true;
+    options.IncludeFormattedMessage = true;
+});
+
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(resource => resource.AddService("openfeature-aspnetcore-sample"))
     .WithTracing(tracing => tracing
         .AddAspNetCoreInstrumentation()
+        .AddSource("OpenFeature")
         .AddOtlpExporter())
     .WithMetrics(metrics => metrics
         .AddAspNetCoreInstrumentation()
