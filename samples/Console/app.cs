@@ -1,5 +1,5 @@
+#!/usr/bin/env dotnet
 #:project ../../src/OpenFeature/OpenFeature.csproj
-#:property PublishAot=true
 
 using OpenFeature;
 using OpenFeature.Isolated;

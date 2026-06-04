@@ -25,7 +25,7 @@ The sample can easily be extended with alternative providers, which you can find
 1. Run the following command to start the application:
 
    ```shell
-   dotnet run app.cs
+   dotnet app.cs
    ```
 
 ## Feature Flags
