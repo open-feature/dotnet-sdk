@@ -107,15 +107,15 @@ public class OpenFeatureClientTracingTests : IAsyncLifetime
         var mockProvider = Substitute.For<FeatureProvider>();
         mockProvider.GetMetadata().Returns(new Metadata("TestProvider"));
         mockProvider.ResolveBooleanValueAsync("bool-flag", Arg.Any<bool>(), Arg.Any<EvaluationContext>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(new ResolutionDetails<bool>("bool-flag", true, ErrorType.ProviderFatal, errorMessage: "Error!")));
+            .Returns(Task.FromResult(new ResolutionDetails<bool>("bool-flag", true, ErrorType.ProviderFatal, reason: "ERROR", errorMessage: "Error!")));
         mockProvider.ResolveStringValueAsync("string-flag", Arg.Any<string>(), Arg.Any<EvaluationContext>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(new ResolutionDetails<string>("string-flag", "world", ErrorType.ProviderFatal, errorMessage: "Error!")));
+            .Returns(Task.FromResult(new ResolutionDetails<string>("string-flag", "world", ErrorType.ProviderFatal, reason: "ERROR", errorMessage: "Error!")));
         mockProvider.ResolveIntegerValueAsync("int-flag", Arg.Any<int>(), Arg.Any<EvaluationContext>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(new ResolutionDetails<int>("int-flag", 42, ErrorType.ProviderFatal, errorMessage: "Error!")));
+            .Returns(Task.FromResult(new ResolutionDetails<int>("int-flag", 42, ErrorType.ProviderFatal, reason: "ERROR", errorMessage: "Error!")));
         mockProvider.ResolveDoubleValueAsync("double-flag", Arg.Any<double>(), Arg.Any<EvaluationContext>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(new ResolutionDetails<double>("double-flag", 1.0f, ErrorType.ProviderFatal, errorMessage: "Error!")));
+            .Returns(Task.FromResult(new ResolutionDetails<double>("double-flag", 1.0f, ErrorType.ProviderFatal, reason: "ERROR", errorMessage: "Error!")));
         mockProvider.ResolveStructureValueAsync("object-flag", Arg.Any<Value>(), Arg.Any<EvaluationContext>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(new ResolutionDetails<Value>("object-flag", new Value(Structure.Builder().Build()), ErrorType.ProviderFatal, errorMessage: "Error!")));
+            .Returns(Task.FromResult(new ResolutionDetails<Value>("object-flag", new Value(Structure.Builder().Build()), ErrorType.ProviderFatal, reason: "ERROR", errorMessage: "Error!")));
 
         await this._api.SetProviderAsync("domain", mockProvider, TestContext.Current.CancellationToken);
 
@@ -131,6 +131,9 @@ public class OpenFeatureClientTracingTests : IAsyncLifetime
         Assert.Equal(ActivityStatusCode.Error, trace.Status);
 
         var tags = trace.TagObjects.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        Assert.Contains("feature_flag.result.reason", tags);
+        Assert.Equal("error", tags["feature_flag.result.reason"]);
+
         Assert.Contains("error.type", tags);
         Assert.Equal("provider_fatal", tags["error.type"]);
 

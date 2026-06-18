@@ -16,7 +16,7 @@ public class OpenFeatureActivitySourceTests
 
         ActivitySource.AddActivityListener(activityListener);
 
-        var activity = OpenFeatureActivitySource.StartActivity("test_activity");
+        using var activity = OpenFeatureActivitySource.StartActivity("test_activity");
 
         Assert.NotNull(activity);
         Assert.Equal("test_activity", activity.OperationName);
