@@ -304,6 +304,7 @@ public sealed partial class FeatureClient : IFeatureClient
                 string.Empty, ex.Message);
 
             activity?.SetStatus(ActivityStatusCode.Error);
+            activity?.AddTagIfRequested(OpenFeatureActivitySource.FeatureFlagReasonName, OpenFeatureActivitySource.GetFlagEvaluationReasonDescription(evaluation.Reason));
             activity?.AddTagIfRequested(OpenFeatureActivitySource.ErrorTypeName, OpenFeatureActivitySource.GetFlagEvaluationErrorDescription(evaluation.ErrorType));
             activity?.AddTagIfRequested(OpenFeatureActivitySource.FeatureFlagErrorMessageName, evaluation.ErrorMessage);
 
@@ -317,6 +318,7 @@ public sealed partial class FeatureClient : IFeatureClient
                 ex.Message);
 
             activity?.SetStatus(ActivityStatusCode.Error);
+            activity?.AddTagIfRequested(OpenFeatureActivitySource.FeatureFlagReasonName, OpenFeatureActivitySource.GetFlagEvaluationReasonDescription(evaluation.Reason));
             activity?.AddTagIfRequested(OpenFeatureActivitySource.ErrorTypeName, OpenFeatureActivitySource.GetFlagEvaluationErrorDescription(evaluation.ErrorType));
             activity?.AddTagIfRequested(OpenFeatureActivitySource.FeatureFlagErrorMessageName, evaluation.ErrorMessage);
 
