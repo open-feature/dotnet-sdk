@@ -26,7 +26,7 @@ public class FeatureLifecycleManagerTests : IAsyncLifetime
         // Act
         using var serviceProvider = services.BuildServiceProvider();
         var lifecycleManager = new FeatureLifecycleManager(api, serviceProvider, NullLogger<FeatureLifecycleManager>.Instance);
-        await lifecycleManager.EnsureInitializedAsync();
+        await lifecycleManager.EnsureInitializedAsync(TestContext.Current.CancellationToken);
 
         // Assert
         var actualProvider = api.GetProvider();
@@ -53,7 +53,7 @@ public class FeatureLifecycleManagerTests : IAsyncLifetime
         // Act
         using var serviceProvider = services.BuildServiceProvider();
         var lifecycleManager = new FeatureLifecycleManager(api, serviceProvider, NullLogger<FeatureLifecycleManager>.Instance);
-        await lifecycleManager.EnsureInitializedAsync();
+        await lifecycleManager.EnsureInitializedAsync(TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(provider1, api.GetProvider("provider1"));
@@ -80,7 +80,7 @@ public class FeatureLifecycleManagerTests : IAsyncLifetime
         // Act
         using var serviceProvider = services.BuildServiceProvider();
         var lifecycleManager = new FeatureLifecycleManager(api, serviceProvider, NullLogger<FeatureLifecycleManager>.Instance);
-        await lifecycleManager.EnsureInitializedAsync();
+        await lifecycleManager.EnsureInitializedAsync(TestContext.Current.CancellationToken);
 
         // Assert
         var actualHooks = api.GetHooks();
@@ -108,7 +108,7 @@ public class FeatureLifecycleManagerTests : IAsyncLifetime
         // Act
         using var serviceProvider = services.BuildServiceProvider();
         var lifecycleManager = new FeatureLifecycleManager(api, serviceProvider, NullLogger<FeatureLifecycleManager>.Instance);
-        await lifecycleManager.EnsureInitializedAsync();
+        await lifecycleManager.EnsureInitializedAsync(TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(hookExecuted);
@@ -122,13 +122,13 @@ public class FeatureLifecycleManagerTests : IAsyncLifetime
         var provider = new NoOpFeatureProvider();
 
         var api = Api.Instance;
-        await api.SetProviderAsync(provider);
+        await api.SetProviderAsync(provider, TestContext.Current.CancellationToken);
         api.AddHooks(new NoOpHook());
 
         // Act
         using var serviceProvider = services.BuildServiceProvider();
         var lifecycleManager = new FeatureLifecycleManager(api, serviceProvider, NullLogger<FeatureLifecycleManager>.Instance);
-        await lifecycleManager.ShutdownAsync();
+        await lifecycleManager.ShutdownAsync(TestContext.Current.CancellationToken);
 
         // Assert
         var actualProvider = api.GetProvider();
@@ -154,7 +154,7 @@ public class FeatureLifecycleManagerTests : IAsyncLifetime
         // Act
         using var serviceProvider = services.BuildServiceProvider();
         var lifecycleManager = new FeatureLifecycleManager(api, serviceProvider, logger);
-        await lifecycleManager.EnsureInitializedAsync();
+        await lifecycleManager.EnsureInitializedAsync(TestContext.Current.CancellationToken);
 
         // Assert
         var log = logger.LatestRecord;
@@ -181,7 +181,7 @@ public class FeatureLifecycleManagerTests : IAsyncLifetime
         // Act
         using var serviceProvider = services.BuildServiceProvider();
         var lifecycleManager = new FeatureLifecycleManager(api, serviceProvider, logger);
-        await lifecycleManager.ShutdownAsync();
+        await lifecycleManager.ShutdownAsync(TestContext.Current.CancellationToken);
 
         // Assert
         var log = logger.LatestRecord;
@@ -190,13 +190,13 @@ public class FeatureLifecycleManagerTests : IAsyncLifetime
         Assert.Equal(LogLevel.Information, log.Level);
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await Api.Instance.ShutdownAsync();
     }
 
     // Make sure the singleton is cleared between tests
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         await Api.Instance.ShutdownAsync().ConfigureAwait(false);
     }

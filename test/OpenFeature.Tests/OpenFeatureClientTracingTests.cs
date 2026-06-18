@@ -29,7 +29,7 @@ public class OpenFeatureClientTracingTests : IAsyncLifetime
         ActivitySource.AddActivityListener(this._activityListener);
     }
 
-    public Task InitializeAsync()
+    async ValueTask IAsyncLifetime.InitializeAsync()
     {
         var flags = new Dictionary<string, Flag>
         {
@@ -41,7 +41,7 @@ public class OpenFeatureClientTracingTests : IAsyncLifetime
         };
         var provider = new InMemoryProvider(flags);
 
-        return this._api.SetProviderAsync(provider);
+        await this._api.SetProviderAsync(provider);
     }
 
     public static IEnumerable<object[]> ResolveValue()
@@ -117,7 +117,7 @@ public class OpenFeatureClientTracingTests : IAsyncLifetime
         mockProvider.ResolveStructureValueAsync("object-flag", Arg.Any<Value>(), Arg.Any<EvaluationContext>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(new ResolutionDetails<Value>("object-flag", new Value(Structure.Builder().Build()), ErrorType.ProviderFatal, errorMessage: "Error!")));
 
-        await this._api.SetProviderAsync("domain", mockProvider);
+        await this._api.SetProviderAsync("domain", mockProvider, TestContext.Current.CancellationToken);
 
         var client = this._api.GetClient("domain");
 
@@ -156,7 +156,7 @@ public class OpenFeatureClientTracingTests : IAsyncLifetime
         mockProvider.ResolveStructureValueAsync("object-flag", Arg.Any<Value>(), Arg.Any<EvaluationContext>(), Arg.Any<CancellationToken>())
             .ThrowsAsync(new FeatureProviderException(ErrorType.TargetingKeyMissing, "Error!"));
 
-        await this._api.SetProviderAsync("domain", mockProvider);
+        await this._api.SetProviderAsync("domain", mockProvider, TestContext.Current.CancellationToken);
 
         var client = this._api.GetClient("domain");
 
@@ -195,7 +195,7 @@ public class OpenFeatureClientTracingTests : IAsyncLifetime
         mockProvider.ResolveStructureValueAsync("object-flag", Arg.Any<Value>(), Arg.Any<EvaluationContext>(), Arg.Any<CancellationToken>())
             .ThrowsAsync(new Exception("Error!"));
 
-        await this._api.SetProviderAsync("domain", mockProvider);
+        await this._api.SetProviderAsync("domain", mockProvider, TestContext.Current.CancellationToken);
 
         var client = this._api.GetClient("domain");
 
@@ -216,10 +216,10 @@ public class OpenFeatureClientTracingTests : IAsyncLifetime
         Assert.Equal("Error!", tags["feature_flag.error.message"]);
     }
 
-    public Task DisposeAsync()
+    async ValueTask IAsyncDisposable.DisposeAsync()
     {
         this._activityListener.Dispose();
 
-        return this._api.ShutdownAsync();
+        await this._api.ShutdownAsync();
     }
 }

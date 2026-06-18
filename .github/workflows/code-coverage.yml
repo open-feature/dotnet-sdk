@@ -27,7 +27,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
+        uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5
         with:
           global-json-file: global.json
 
@@ -40,15 +40,15 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: Run Test
-        run: dotnet test --verbosity normal --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+        run: dotnet test --coverlet --coverlet-output-format opencover --coverlet-exclude "[GitHubActionsTestLogger*]*" --ignore-exit-code 8
 
       # Keep globbing on non-Windows runners (works today)
       - name: Upload coverage to Codecov (non-Windows)
         if: runner.os != 'Windows'
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: Code Coverage for ${{ matrix.os }}
-          files: "**/TestResults/**/coverage.opencover.xml"
+          files: "**/TestResults/**/coverage.opencover.*.xml"
           disable_search: true
           fail_ci_if_error: true
           verbose: true
@@ -59,9 +59,9 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $files = Get-ChildItem -Path "$PWD" -Recurse -Filter "coverage.opencover.xml" | ForEach-Object { $_.FullName }
+          $files = Get-ChildItem -Path "$PWD" -Recurse -Filter "coverage.opencover.*.xml" | ForEach-Object { $_.FullName }
           if (-not $files -or $files.Count -eq 0) {
-            throw "No coverage.opencover.xml files were found under the repository."
+            throw "No coverage.opencover.*.xml files were found under the repository."
           }
 
           # Codecov accepts comma-separated file paths
@@ -70,7 +70,7 @@ jobs:
 
       - name: Upload coverage to Codecov (Windows)
         if: runner.os == 'Windows'
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: Code Coverage for ${{ matrix.os }}
           files: ${{ env.CODECOV_FILES }}

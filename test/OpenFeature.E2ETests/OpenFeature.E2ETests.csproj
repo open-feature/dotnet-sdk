@@ -2,24 +2,20 @@
 
   <PropertyGroup>
     <RootNamespace>OpenFeature.E2ETests</RootNamespace>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoFixture" />
-    <PackageReference Include="coverlet.collector">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Reqnroll.xUnit" />
+    <PackageReference Include="coverlet.MTP" />
+    <PackageReference Include="Reqnroll.xUnit.v3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="NSubstitute" />
-    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.v3.mtp-v2" />
     <PackageReference Include="xunit.runner.visualstudio">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <!-- Reqnroll 3.2.0 requires System.Threading.Channels >= 9.0.6 -->
-    <PackageVersion Update="System.Threading.Channels" Version="9.0.6" />
   </ItemGroup>
 
   <ItemGroup>
