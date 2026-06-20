@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using OpenFeature.Constant;
@@ -211,6 +212,16 @@ public sealed partial class FeatureClient : IFeatureClient
         var resolveValueDelegate = providerInfo.Item1;
         var provider = providerInfo.Item2;
 
+        using var activity = OpenFeatureActivitySource.StartActivity(OpenFeatureActivitySource.EvaluationActivityName);
+
+        activity?.AddTagIfRequested(OpenFeatureActivitySource.FeatureFlagKeyName, flagKey);
+
+        var providerMetadata = provider.GetMetadata();
+        if (providerMetadata != null)
+        {
+            activity?.AddTagIfRequested(OpenFeatureActivitySource.FeatureFlagProviderName, providerMetadata.Name);
+        }
+
         // New up an evaluation context if one was not provided.
         context ??= EvaluationContext.Empty;
 
@@ -261,8 +272,13 @@ public sealed partial class FeatureClient : IFeatureClient
                     .ConfigureAwait(false))
                 .ToFlagEvaluationDetails();
 
+            activity?.AddTagIfRequested(OpenFeatureActivitySource.FeatureFlagReasonName, OpenFeatureActivitySource.GetFlagEvaluationReasonDescription(evaluation.Reason));
+
             if (evaluation.ErrorType == ErrorType.None)
             {
+                activity?.AddTagIfRequested(OpenFeatureActivitySource.FeatureFlagValueName, evaluation.Value);
+                activity?.AddTagIfRequested(OpenFeatureActivitySource.FeatureFlagVariantName, evaluation.Variant);
+
                 await hookRunner.TriggerAfterHooksAsync(
                     evaluation,
                     options?.HookHints,
@@ -271,6 +287,10 @@ public sealed partial class FeatureClient : IFeatureClient
             }
             else
             {
+                activity?.SetStatus(ActivityStatusCode.Error);
+                activity?.AddTagIfRequested(OpenFeatureActivitySource.ErrorTypeName, OpenFeatureActivitySource.GetFlagEvaluationErrorDescription(evaluation.ErrorType));
+                activity?.AddTagIfRequested(OpenFeatureActivitySource.FeatureFlagErrorMessageName, evaluation.ErrorMessage);
+
                 var exception = new FeatureProviderException(evaluation.ErrorType, evaluation.ErrorMessage);
                 this.FlagEvaluationErrorWithDescription(flagKey, evaluation.ErrorType.GetDescription(), exception);
                 await hookRunner.TriggerErrorHooksAsync(exception, options?.HookHints, cancellationToken)
@@ -282,6 +302,12 @@ public sealed partial class FeatureClient : IFeatureClient
             this.FlagEvaluationErrorWithDescription(flagKey, ex.ErrorType.GetDescription(), ex);
             evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, ex.ErrorType, Reason.Error,
                 string.Empty, ex.Message);
+
+            activity?.SetStatus(ActivityStatusCode.Error);
+            activity?.AddTagIfRequested(OpenFeatureActivitySource.FeatureFlagReasonName, OpenFeatureActivitySource.GetFlagEvaluationReasonDescription(evaluation.Reason));
+            activity?.AddTagIfRequested(OpenFeatureActivitySource.ErrorTypeName, OpenFeatureActivitySource.GetFlagEvaluationErrorDescription(evaluation.ErrorType));
+            activity?.AddTagIfRequested(OpenFeatureActivitySource.FeatureFlagErrorMessageName, evaluation.ErrorMessage);
+
             await hookRunner.TriggerErrorHooksAsync(ex, options?.HookHints, cancellationToken)
                 .ConfigureAwait(false);
         }
@@ -290,6 +316,12 @@ public sealed partial class FeatureClient : IFeatureClient
             var errorCode = ex is InvalidCastException ? ErrorType.TypeMismatch : ErrorType.General;
             evaluation = new FlagEvaluationDetails<T>(flagKey, defaultValue, errorCode, Reason.Error, string.Empty,
                 ex.Message);
+
+            activity?.SetStatus(ActivityStatusCode.Error);
+            activity?.AddTagIfRequested(OpenFeatureActivitySource.FeatureFlagReasonName, OpenFeatureActivitySource.GetFlagEvaluationReasonDescription(evaluation.Reason));
+            activity?.AddTagIfRequested(OpenFeatureActivitySource.ErrorTypeName, OpenFeatureActivitySource.GetFlagEvaluationErrorDescription(evaluation.ErrorType));
+            activity?.AddTagIfRequested(OpenFeatureActivitySource.FeatureFlagErrorMessageName, evaluation.ErrorMessage);
+
             await hookRunner.TriggerErrorHooksAsync(ex, options?.HookHints, cancellationToken)
                 .ConfigureAwait(false);
         }

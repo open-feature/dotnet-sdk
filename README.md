@@ -639,6 +639,9 @@ services.AddOpenFeature(builder =>
 
 ### Trace Enricher Hook
 
+> [!WARNING]
+> As of v2.14, the OpenFeature SDK emits native OpenTelemetry spans for every flag evaluation without requiring any hooks. Use `TraceEnricherHook` when you want activities/spans **outside** of OpenFeature to be enriched with flag evaluation data. If you are already using `TraceEnricherHook`, you may see **new spans** appear in your observability platform after upgrading to v2.14.
+
 The `TraceEnricherHook` enriches telemetry traces with additional information during the feature flag evaluation lifecycle. This hook adds relevant flag evaluation details as tags and events to the current `Activity` for tracing purposes.
 
 For this hook to function correctly, an active span must be set in the current `Activity`, otherwise the hook will no-op.
@@ -657,6 +660,9 @@ Below are the tags added to the trace event:
 | feature_flag.version        | The version of the ruleset used during the evaluation                        | Flag metadata (if available)  |
 | error.type                  | Describes a class of error the operation ended with                          | Evaluation details (if error) |
 | error.message               | A message explaining the nature of an error occurring during flag evaluation | Evaluation details (if error) |
+
+> [!NOTE]
+> To receive OpenTelemetry traces emitted natively by the OpenFeature SDK, add `.AddSource("OpenFeature")` to your `TracerProviderBuilder`. No hooks are required.
 
 #### Example
 
@@ -678,6 +684,7 @@ namespace OpenFeatureTestApp
 
             // set up the OpenTelemetry OTLP exporter
             var tracerProvider = Sdk.CreateTracerProviderBuilder()
+                    .AddSource("OpenFeature") // receive traces from OpenFeature SDK
                     .AddSource("my-tracer")
                     .ConfigureResource(r => r.AddService("jaeger-test"))
                     .AddOtlpExporter(o =>
