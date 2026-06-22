@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.14.0](https://github.com/open-feature/dotnet-sdk/compare/v2.13.0...v2.14.0) (2026-06-20)
+
+
+### 🐛 Bug Fixes
+
+* Change registration to use the Isolated API instead of global singleton ([#760](https://github.com/open-feature/dotnet-sdk/issues/760)) ([f875bc3](https://github.com/open-feature/dotnet-sdk/commit/f875bc32a2eae926e0c0bbd23173ba1a427eab09))
+
+
+### ✨ New Features
+
+* Add trace when evaluating feature flags ([#755](https://github.com/open-feature/dotnet-sdk/issues/755)) ([b6d7277](https://github.com/open-feature/dotnet-sdk/commit/b6d7277c1821dc72ce6cd37d5a7989f5974d7a35))
+* Upgrade to xUnit v3 and mtp v2 ([de64b79](https://github.com/open-feature/dotnet-sdk/commit/de64b79225830180288940722a0a62fc5e7f15b3))
+
 ## [2.13.0](https://github.com/open-feature/dotnet-sdk/compare/v2.12.0...v2.13.0) (2026-04-30)
 
 
