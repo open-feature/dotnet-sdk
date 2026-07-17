@@ -35,7 +35,7 @@ runs:
         gh release upload ${{ inputs.release-tag }} ./artifacts/sboms/${{ inputs.project-name }}.bom.json
 
     - name: Attest package
-      uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
+      uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4.2.0
       with:
         subject-path: src/${{ inputs.project-name }}/**/${{ inputs.project-name }}.*.nupkg
         sbom-path: ./artifacts/sboms/${{ inputs.project-name }}.bom.json
