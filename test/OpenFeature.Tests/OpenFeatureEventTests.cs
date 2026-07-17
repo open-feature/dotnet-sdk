@@ -51,7 +51,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
 
         eventHandler.DidNotReceive().Invoke(newEventPayload);
 
-        eventHandler.DidNotReceive().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.Type == ProviderEventTypes.ProviderStale));
+        eventHandler.DidNotReceive().Invoke(Arg.Is<ProviderEventPayload>(payload => payload!.Type == ProviderEventTypes.ProviderStale));
     }
 
     [Fact]
@@ -79,28 +79,28 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
             .Received()
             .Invoke(
                 Arg.Is<ProviderEventPayload>(
-                    payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderReady
+                    payload => payload!.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderReady
                 )));
 
         await Utils.AssertUntilAsync(_ => eventHandler
             .Received()
             .Invoke(
                 Arg.Is<ProviderEventPayload>(
-                    payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderConfigurationChanged
+                    payload => payload!.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderConfigurationChanged
                 )));
 
         await Utils.AssertUntilAsync(_ => eventHandler
             .Received()
             .Invoke(
                 Arg.Is<ProviderEventPayload>(
-                    payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderError
+                    payload => payload!.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderError
                 )));
 
         await Utils.AssertUntilAsync(_ => eventHandler
             .Received()
             .Invoke(
                 Arg.Is<ProviderEventPayload>(
-                    payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderStale
+                    payload => payload!.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderStale
                 )));
     }
 
@@ -124,7 +124,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
             .Received()
             .Invoke(
                 Arg.Is<ProviderEventPayload>(
-                    payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderReady
+                    payload => payload!.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderReady
                 )));
     }
 
@@ -148,7 +148,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
             .Received()
             .Invoke(
                 Arg.Is<ProviderEventPayload>(
-                    payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderReady
+                    payload => payload!.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderReady
                 )));
     }
 
@@ -174,7 +174,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
             .Received()
             .Invoke(
                 Arg.Is<ProviderEventPayload>(
-                    payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderError
+                    payload => payload!.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderError
                 )));
     }
 
@@ -199,7 +199,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
             .Received()
             .Invoke(
                 Arg.Is<ProviderEventPayload>(
-                    payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderStale
+                    payload => payload!.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderStale
                 )));
     }
 
@@ -227,10 +227,10 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         await newTestProvider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, TestContext.Current.CancellationToken);
 
         await Utils.AssertUntilAsync(
-            _ => eventHandler.Received(2).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderReady))
+            _ => eventHandler.Received(2).Invoke(Arg.Is<ProviderEventPayload>(payload => payload!.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderReady))
         );
         await Utils.AssertUntilAsync(
-            _ => eventHandler.Received(2).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderConfigurationChanged))
+            _ => eventHandler.Received(2).Invoke(Arg.Is<ProviderEventPayload>(payload => payload!.ProviderName == testProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderConfigurationChanged))
         );
     }
 
@@ -254,7 +254,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         var newTestProvider = new TestProvider();
         await Api.Instance.SetProviderAsync(newTestProvider, TestContext.Current.CancellationToken);
 
-        eventHandler.Received(1).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
+        eventHandler.Received(1).Invoke(Arg.Is<ProviderEventPayload>(payload => payload!.ProviderName == testProvider.GetMetadata().Name));
     }
 
     [Fact]
@@ -280,10 +280,10 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         await Api.Instance.SetProviderAsync(testProvider, TestContext.Current.CancellationToken);
 
         await Utils.AssertUntilAsync(
-            _ => failingEventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name))
+            _ => failingEventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload!.ProviderName == testProvider.GetMetadata().Name))
         );
         await Utils.AssertUntilAsync(
-            _ => eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name))
+            _ => eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload!.ProviderName == testProvider.GetMetadata().Name))
         );
     }
 
@@ -306,7 +306,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
 
         myClient.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
-        eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
+        eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload!.ProviderName == testProvider.GetMetadata().Name));
     }
 
     [Fact]
@@ -336,10 +336,10 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         await Api.Instance.SetProviderAsync(myClient.GetMetadata().Name!, testProvider, TestContext.Current.CancellationToken);
 
         await Utils.AssertUntilAsync(
-            _ => failingEventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name))
+            _ => failingEventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload!.ProviderName == testProvider.GetMetadata().Name))
         );
         await Utils.AssertUntilAsync(
-            _ => eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name))
+            _ => eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload!.ProviderName == testProvider.GetMetadata().Name))
         );
     }
 
@@ -369,11 +369,11 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         myClientWithNoBoundProvider.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
         myClientWithBoundProvider.AddHandler(ProviderEventTypes.ProviderReady, clientEventHandler);
 
-        eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == apiProvider.GetMetadata().Name));
-        eventHandler.DidNotReceive().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == clientProvider.GetMetadata().Name));
+        eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload!.ProviderName == apiProvider.GetMetadata().Name));
+        eventHandler.DidNotReceive().Invoke(Arg.Is<ProviderEventPayload>(payload => payload!.ProviderName == clientProvider.GetMetadata().Name));
 
-        clientEventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == clientProvider.GetMetadata().Name));
-        clientEventHandler.DidNotReceive().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == apiProvider.GetMetadata().Name));
+        clientEventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload!.ProviderName == clientProvider.GetMetadata().Name));
+        clientEventHandler.DidNotReceive().Invoke(Arg.Is<ProviderEventPayload>(payload => payload!.ProviderName == apiProvider.GetMetadata().Name));
     }
 
     [Fact]
@@ -403,7 +403,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         // verify that the client received the event from the default provider as there is no named provider registered yet
         await Utils.AssertUntilAsync(
             _ => clientEventHandler.Received(1)
-                .Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == defaultProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderConfigurationChanged))
+                .Invoke(Arg.Is<ProviderEventPayload>(payload => payload!.ProviderName == defaultProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderConfigurationChanged))
         );
 
         // set the other provider specifically for the client
@@ -415,12 +415,12 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
 
         // now the client should have received only the event from the named provider
         await Utils.AssertUntilAsync(
-            _ => clientEventHandler.Received(1).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == clientProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderConfigurationChanged))
+            _ => clientEventHandler.Received(1).Invoke(Arg.Is<ProviderEventPayload>(payload => payload!.ProviderName == clientProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderConfigurationChanged))
         );
         // for the default provider, the number of received events should stay unchanged
         await Utils.AssertUntilAsync(
             _ => clientEventHandler.Received(1)
-                .Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == defaultProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderConfigurationChanged))
+                .Invoke(Arg.Is<ProviderEventPayload>(payload => payload!.ProviderName == defaultProvider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderConfigurationChanged))
         );
     }
 
@@ -444,7 +444,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         // add the event handler after the provider has already transitioned into the ready state
         myClient.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
 
-        eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name));
+        eventHandler.Received().Invoke(Arg.Is<ProviderEventPayload>(payload => payload!.ProviderName == testProvider.GetMetadata().Name));
     }
 
     [Fact]
@@ -468,7 +468,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
 
         // wait for the first event to be received
         await Utils.AssertUntilAsync(
-            _ => eventHandler.Received(1).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name))
+            _ => eventHandler.Received(1).Invoke(Arg.Is<ProviderEventPayload>(payload => payload!.ProviderName == testProvider.GetMetadata().Name))
         );
 
         myClient.RemoveHandler(ProviderEventTypes.ProviderReady, eventHandler);
@@ -478,7 +478,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
 
         // wait a bit and make sure we only have received the first event, but nothing after removing the event handler
         await Utils.AssertUntilAsync(
-            _ => eventHandler.Received(1).Invoke(Arg.Is<ProviderEventPayload>(payload => payload.ProviderName == testProvider.GetMetadata().Name))
+            _ => eventHandler.Received(1).Invoke(Arg.Is<ProviderEventPayload>(payload => payload!.ProviderName == testProvider.GetMetadata().Name))
         );
     }
 
