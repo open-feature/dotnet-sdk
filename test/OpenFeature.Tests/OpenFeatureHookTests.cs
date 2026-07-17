@@ -175,10 +175,10 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
         await client.GetBooleanValueAsync("test", false, EvaluationContext.Empty, new FlagEvaluationOptions(ImmutableList.Create(hook), ImmutableDictionary<string, object>.Empty), TestContext.Current.CancellationToken);
 
         _ = hook.Received(1).AfterAsync(Arg.Is<HookContext<bool>>(hookContext =>
-            (bool)hookContext!.Data.Get("test-a") == true
+            (bool)hookContext!.Data.Get("test-a")
         ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
         _ = hook.Received(1).FinallyAsync(Arg.Is<HookContext<bool>>(hookContext =>
-            (bool)hookContext!.Data.Get("test-a") == true && (string)hookContext.Data.Get("test-b") == "test-value"
+            (bool)hookContext!.Data.Get("test-a") && (string)hookContext.Data.Get("test-b") == "test-value"
         ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
     }
 
@@ -217,7 +217,7 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
                 ImmutableDictionary<string, object>.Empty), TestContext.Current.CancellationToken);
 
         _ = hook1.Received(1).AfterAsync(Arg.Is<HookContext<bool>>(hookContext =>
-            (bool)hookContext!.Data.Get("hook-1-value-a") == true && (bool)hookContext.Data.Get("same") == true
+            (bool)hookContext!.Data.Get("hook-1-value-a") && (bool)hookContext.Data.Get("same")
         ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
         _ = hook1.Received(1).FinallyAsync(Arg.Is<HookContext<bool>>(hookContext =>
             (bool)hookContext!.Data.Get("hook-1-value-a") == true &&
@@ -226,7 +226,7 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
         ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
 
         _ = hook2.Received(1).AfterAsync(Arg.Is<HookContext<bool>>(hookContext =>
-            (bool)hookContext!.Data.Get("hook-2-value-a") == false && (bool)hookContext.Data.Get("same") == false
+            !(bool)hookContext!.Data.Get("hook-2-value-a") && !(bool)hookContext.Data.Get("same")
         ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
         _ = hook2.Received(1).FinallyAsync(Arg.Is<HookContext<bool>>(hookContext =>
             (bool)hookContext!.Data.Get("hook-2-value-a") == false &&
