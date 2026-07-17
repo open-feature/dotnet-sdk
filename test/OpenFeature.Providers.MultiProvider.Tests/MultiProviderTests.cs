@@ -449,7 +449,7 @@ public class MultiProviderClassTests
         this._mockStrategy.ShouldEvaluateThisProvider(Arg.Any<StrategyPerProviderContext<bool>>(), this._evaluationContext)
             .Returns(callInfo =>
             {
-                var context = callInfo.Arg<StrategyPerProviderContext<bool>>();
+                var context = callInfo.Arg<StrategyPerProviderContext<bool>>()!;
                 return context.ProviderName == Provider1Name; // Only evaluate provider1
             });
         this._mockStrategy.DetermineFinalResult(Arg.Any<StrategyEvaluationContext<bool>>(), TestFlagKey, defaultValue, this._evaluationContext, Arg.Any<List<ProviderResolutionResult<bool>>>())

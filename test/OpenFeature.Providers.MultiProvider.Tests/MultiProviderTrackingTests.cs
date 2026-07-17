@@ -177,14 +177,14 @@ public class MultiProviderTrackingTests
 
         // Only allow tracking with the first provider
         customStrategy.ShouldTrackWithThisProvider(
-            Arg.Is<StrategyPerProviderContext<object>>(ctx => ctx.ProviderName == Provider1Name),
+            Arg.Is<StrategyPerProviderContext<object>>(ctx => ctx!.ProviderName == Provider1Name),
             Arg.Any<EvaluationContext>(),
             Arg.Any<string>(),
             Arg.Any<TrackingEventDetails>()
         ).Returns(true);
 
         customStrategy.ShouldTrackWithThisProvider(
-            Arg.Is<StrategyPerProviderContext<object>>(ctx => ctx.ProviderName != Provider1Name),
+            Arg.Is<StrategyPerProviderContext<object>>(ctx => ctx!.ProviderName != Provider1Name),
             Arg.Any<EvaluationContext>(),
             Arg.Any<string>(),
             Arg.Any<TrackingEventDetails>()

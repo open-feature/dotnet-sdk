@@ -151,7 +151,7 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
         await client.GetBooleanValueAsync("test", false, EvaluationContext.Empty, new FlagEvaluationOptions(ImmutableList.Create(hook1, hook2), ImmutableDictionary<string, object>.Empty), TestContext.Current.CancellationToken);
 
         _ = hook1.Received(1).BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
-        _ = hook2.Received(1).BeforeAsync(Arg.Is<HookContext<bool>>(a => a.EvaluationContext.GetValue("test").AsString == "test"), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
+        _ = hook2.Received(1).BeforeAsync(Arg.Is<HookContext<bool>>(a => a!.EvaluationContext.GetValue("test").AsString == "test"), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -162,11 +162,11 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
 
         hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(EvaluationContext.Empty).AndDoes(info =>
             {
-                info.Arg<HookContext<bool>>().Data.Set("test-a", true);
+                info.Arg<HookContext<bool>>()!.Data.Set("test-a", true);
             });
         hook.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(new ValueTask()).AndDoes(info =>
         {
-            info.Arg<HookContext<bool>>().Data.Set("test-b", "test-value");
+            info.Arg<HookContext<bool>>()!.Data.Set("test-b", "test-value");
         });
 
         await Api.Instance.SetProviderAsync(new NoOpFeatureProvider(), TestContext.Current.CancellationToken);
@@ -175,10 +175,10 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
         await client.GetBooleanValueAsync("test", false, EvaluationContext.Empty, new FlagEvaluationOptions(ImmutableList.Create(hook), ImmutableDictionary<string, object>.Empty), TestContext.Current.CancellationToken);
 
         _ = hook.Received(1).AfterAsync(Arg.Is<HookContext<bool>>(hookContext =>
-            (bool)hookContext.Data.Get("test-a") == true
+            (bool)hookContext!.Data.Get("test-a")
         ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
         _ = hook.Received(1).FinallyAsync(Arg.Is<HookContext<bool>>(hookContext =>
-            (bool)hookContext.Data.Get("test-a") == true && (string)hookContext.Data.Get("test-b") == "test-value"
+            (bool)hookContext!.Data.Get("test-a") && (string)hookContext.Data.Get("test-b") == "test-value"
         ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
     }
 
@@ -192,22 +192,22 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
 
         hook1.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(EvaluationContext.Empty).AndDoes(info =>
             {
-                info.Arg<HookContext<bool>>().Data.Set("hook-1-value-a", true);
-                info.Arg<HookContext<bool>>().Data.Set("same", true);
+                info.Arg<HookContext<bool>>()!.Data.Set("hook-1-value-a", true);
+                info.Arg<HookContext<bool>>()!.Data.Set("same", true);
             });
         hook1.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(new ValueTask()).AndDoes(info =>
         {
-            info.Arg<HookContext<bool>>().Data.Set("hook-1-value-b", "test-value-hook-1");
+            info.Arg<HookContext<bool>>()!.Data.Set("hook-1-value-b", "test-value-hook-1");
         });
 
         hook2.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(EvaluationContext.Empty).AndDoes(info =>
             {
-                info.Arg<HookContext<bool>>().Data.Set("hook-2-value-a", false);
-                info.Arg<HookContext<bool>>().Data.Set("same", false);
+                info.Arg<HookContext<bool>>()!.Data.Set("hook-2-value-a", false);
+                info.Arg<HookContext<bool>>()!.Data.Set("same", false);
             });
         hook2.AfterAsync(Arg.Any<HookContext<bool>>(), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(new ValueTask()).AndDoes(info =>
         {
-            info.Arg<HookContext<bool>>().Data.Set("hook-2-value-b", "test-value-hook-2");
+            info.Arg<HookContext<bool>>()!.Data.Set("hook-2-value-b", "test-value-hook-2");
         });
 
         await Api.Instance.SetProviderAsync(new NoOpFeatureProvider(), TestContext.Current.CancellationToken);
@@ -217,19 +217,19 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
                 ImmutableDictionary<string, object>.Empty), TestContext.Current.CancellationToken);
 
         _ = hook1.Received(1).AfterAsync(Arg.Is<HookContext<bool>>(hookContext =>
-            (bool)hookContext.Data.Get("hook-1-value-a") == true && (bool)hookContext.Data.Get("same") == true
+            (bool)hookContext!.Data.Get("hook-1-value-a") && (bool)hookContext.Data.Get("same")
         ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
         _ = hook1.Received(1).FinallyAsync(Arg.Is<HookContext<bool>>(hookContext =>
-            (bool)hookContext.Data.Get("hook-1-value-a") == true &&
+            (bool)hookContext!.Data.Get("hook-1-value-a") &&
             (bool)hookContext.Data.Get("same") == true &&
             (string)hookContext.Data.Get("hook-1-value-b") == "test-value-hook-1" && hookContext.Data.Count == 3
         ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
 
         _ = hook2.Received(1).AfterAsync(Arg.Is<HookContext<bool>>(hookContext =>
-            (bool)hookContext.Data.Get("hook-2-value-a") == false && (bool)hookContext.Data.Get("same") == false
+            !(bool)hookContext!.Data.Get("hook-2-value-a") && !(bool)hookContext.Data.Get("same")
         ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
         _ = hook2.Received(1).FinallyAsync(Arg.Is<HookContext<bool>>(hookContext =>
-            (bool)hookContext.Data.Get("hook-2-value-a") == false &&
+            !(bool)hookContext!.Data.Get("hook-2-value-a") &&
             (bool)hookContext.Data.Get("same") == false &&
             (string)hookContext.Data.Get("hook-2-value-b") == "test-value-hook-2" && hookContext.Data.Count == 3
         ), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken);
@@ -308,7 +308,7 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
 
         // after proper merging, all properties should equal true
         _ = provider.Received(1).ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Is<EvaluationContext>(y =>
-            (y.GetValue(propGlobal).AsBoolean ?? false)
+                    (y!.GetValue(propGlobal).AsBoolean ?? false)
             && (y.GetValue(propClient).AsBoolean ?? false)
             && (y.GetValue(propTransaction).AsBoolean ?? false)
             && (y.GetValue(propGlobalToOverwrite).AsBoolean ?? false)
