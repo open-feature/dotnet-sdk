@@ -443,7 +443,7 @@ public class ProviderExtensionsTests
         this._mockLogger.Received(1).Log(
             LogLevel.Warning,
             Arg.Any<EventId>(),
-            Arg.Is<object>(v => v.ToString()!.Contains("Provider after/finally hook execution failed")),
+            Arg.Is<object>(v => v!.ToString()!.Contains("Provider after/finally hook execution failed")),
             Arg.Is<Exception>(ex => ex == hookException),
             Arg.Any<Func<object, Exception?, string>>());
     }
