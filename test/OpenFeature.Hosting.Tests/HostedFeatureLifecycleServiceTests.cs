@@ -127,4 +127,42 @@ public class HostedFeatureLifecycleServiceTests
         await sut.StartedAsync(CancellationToken.None);
         await _featureLifecycleManager.Received(1).EnsureInitializedAsync(Arg.Any<CancellationToken>());
     }
+
+    [Theory]
+    [InlineData(FeatureStopState.Stopping)]
+    [InlineData(FeatureStopState.Stop)]
+    [InlineData(FeatureStopState.Stopped)]
+    public async Task GenericHostLifecycle_ShouldShutdownOnlyInConfiguredCallback(FeatureStopState stopState)
+    {
+        // Arrange
+        var sut = CreateSystemUnderTest(new FeatureLifecycleStateOptions { StopState = stopState });
+        await sut.StartingAsync(CancellationToken.None);
+        await sut.StartAsync(CancellationToken.None);
+        await sut.StartedAsync(CancellationToken.None);
+
+        // Act & Assert - shutdown only happens once the configured callback is reached.
+        await sut.StoppingAsync(CancellationToken.None);
+        await _featureLifecycleManager.Received(stopState == FeatureStopState.Stopping ? 1 : 0)
+            .ShutdownAsync(Arg.Any<CancellationToken>());
+
+        await sut.StopAsync(CancellationToken.None);
+        await _featureLifecycleManager.Received(stopState == FeatureStopState.Stopped ? 0 : 1)
+            .ShutdownAsync(Arg.Any<CancellationToken>());
+
+        await sut.StoppedAsync(CancellationToken.None);
+        await _featureLifecycleManager.Received(1).ShutdownAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task WebHostLifecycle_ShouldShutdownExactlyOnce_WhenStartWasNeverInvoked()
+    {
+        // Arrange
+        var sut = CreateSystemUnderTest();
+
+        // Act - hosts may stop services even if startup failed before StartAsync was invoked.
+        await sut.StopAsync(CancellationToken.None);
+
+        // Assert
+        await _featureLifecycleManager.Received(1).ShutdownAsync(Arg.Any<CancellationToken>());
+    }
 }

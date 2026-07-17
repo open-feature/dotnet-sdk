@@ -134,7 +134,7 @@ app.Run();
 
 `AddOpenFeature` registers a hosted service that initializes the configured providers on application startup and shuts them down on application exit. By default it hooks into the `IHostedLifecycleService` callbacks (`StartingAsync`/`StoppedAsync`), which are supported by the .NET generic host (`WebApplication.CreateBuilder`, `Host.CreateDefaultBuilder`).
 
-Hosts that only support `IHostedService` — such as the legacy ASP.NET Core `WebHost`/`WebHostBuilder` — never invoke those callbacks. In that case the hosted service automatically falls back to `StartAsync`/`StopAsync`, so providers are still initialized and shut down without any extra configuration.
+Hosts that only support `IHostedService` — such as the legacy ASP.NET Core `WebHost`/`WebHostBuilder` — never invoke those callbacks. In that case the hosted service automatically falls back to `StartAsync`/`StopAsync`, so providers are still initialized and shut down without any extra configuration. Note that on such hosts the fallback preserves lifecycle execution, not the exact timing of the configured `Starting`/`Started`/`Stopping`/`Stopped` callbacks: initialization and shutdown always run within `StartAsync` and `StopAsync`.
 
 You can also control which lifecycle callbacks are used explicitly:
 
