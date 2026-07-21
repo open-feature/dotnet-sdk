@@ -15,6 +15,11 @@ public sealed partial class HostedFeatureLifecycleService : IHostedLifecycleServ
     private readonly IFeatureLifecycleManager _featureLifecycleManager;
     private readonly IOptions<FeatureLifecycleStateOptions> _featureLifecycleStateOptions;
 
+    // Hosts that support IHostedLifecycleService (e.g. the .NET 8+ generic host) always invoke
+    // StartingAsync before StartAsync. If StartingAsync was never invoked, the host only supports
+    // IHostedService (e.g. the legacy ASP.NET Core WebHost), and we fall back to StartAsync/StopAsync.
+    private bool _lifecycleCallbacksSupported;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="HostedFeatureLifecycleService"/> class.
     /// </summary>
@@ -35,13 +40,25 @@ public sealed partial class HostedFeatureLifecycleService : IHostedLifecycleServ
     /// Ensures that the feature is properly initialized when the service starts.
     /// </summary>
     public async Task StartingAsync(CancellationToken cancellationToken)
-        => await InitializeIfStateMatchesAsync(FeatureStartState.Starting, cancellationToken).ConfigureAwait(false);
+    {
+        _lifecycleCallbacksSupported = true;
+        await InitializeIfStateMatchesAsync(FeatureStartState.Starting, cancellationToken).ConfigureAwait(false);
+    }
 
     /// <summary>
     /// Ensures that the feature is in the "Start" state.
     /// </summary>
     public async Task StartAsync(CancellationToken cancellationToken)
-        => await InitializeIfStateMatchesAsync(FeatureStartState.Start, cancellationToken).ConfigureAwait(false);
+    {
+        if (!_lifecycleCallbacksSupported && _featureLifecycleStateOptions.Value.StartState != FeatureStartState.Start)
+        {
+            this.LogLifecycleCallbacksNotSupportedFallback(nameof(StartAsync));
+            await InitializeIfStateMatchesAsync(_featureLifecycleStateOptions.Value.StartState, cancellationToken).ConfigureAwait(false);
+            return;
+        }
+
+        await InitializeIfStateMatchesAsync(FeatureStartState.Start, cancellationToken).ConfigureAwait(false);
+    }
 
     /// <summary>
     /// Ensures that the feature is fully started and operational.
@@ -59,7 +76,16 @@ public sealed partial class HostedFeatureLifecycleService : IHostedLifecycleServ
     /// Ensures that the feature is in the "Stop" state.
     /// </summary>
     public async Task StopAsync(CancellationToken cancellationToken)
-        => await ShutdownIfStateMatchesAsync(FeatureStopState.Stop, cancellationToken).ConfigureAwait(false);
+    {
+        if (!_lifecycleCallbacksSupported && _featureLifecycleStateOptions.Value.StopState != FeatureStopState.Stop)
+        {
+            this.LogLifecycleCallbacksNotSupportedFallback(nameof(StopAsync));
+            await ShutdownIfStateMatchesAsync(_featureLifecycleStateOptions.Value.StopState, cancellationToken).ConfigureAwait(false);
+            return;
+        }
+
+        await ShutdownIfStateMatchesAsync(FeatureStopState.Stop, cancellationToken).ConfigureAwait(false);
+    }
 
     /// <summary>
     /// Ensures that the feature is fully stopped and no longer operational.
@@ -96,4 +122,7 @@ public sealed partial class HostedFeatureLifecycleService : IHostedLifecycleServ
 
     [LoggerMessage(200, LogLevel.Information, "Shutting down the Feature Lifecycle Manager for state {State}")]
     partial void LogShuttingDownFeatureLifecycleManager(FeatureStopState state);
+
+    [LoggerMessage(201, LogLevel.Information, "The host does not support IHostedLifecycleService callbacks. Falling back to {Method} to manage the feature lifecycle.")]
+    partial void LogLifecycleCallbacksNotSupportedFallback(string method);
 }
