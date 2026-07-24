@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.14.1](https://github.com/open-feature/dotnet-sdk/compare/v2.14.0...v2.14.1) (2026-07-24)
+
+
+### 🐛 Bug Fixes
+
+* initialize lifecycle on hosts without IHostedLifecycleService support ([#787](https://github.com/open-feature/dotnet-sdk/issues/787)) ([c942dba](https://github.com/open-feature/dotnet-sdk/commit/c942dba481a4cc0cbc154287bcd391103cb39217))
+
 ## [2.14.0](https://github.com/open-feature/dotnet-sdk/compare/v2.13.0...v2.14.0) (2026-06-20)
 
 
