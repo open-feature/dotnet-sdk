@@ -6,6 +6,9 @@ on:
     paths:
       - "src/**"
       - "test/OpenFeature.Benchmarks/**"
+      - "test/Directory.Build.props"
+      - "Directory.Packages.props"
+      - "global.json"
       - ".github/workflows/benchmark.yml"
   schedule:
     # Run daily at 03:00 UTC.
