@@ -15,6 +15,12 @@ on:
     - cron: "0 3 * * *"
   workflow_dispatch:
 
+# Prevent overlapping runs (push + schedule + manual dispatch) from racing
+# when pushing results to the gh-pages branch.
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 permissions:
   contents: read
 
@@ -34,6 +40,10 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
+          # Only the "Publish benchmark results" step needs to push to gh-pages, and it
+          # authenticates using its own repo-token input rather than the checkout's
+          # persisted credentials, so keep the working tree's git config read-only.
+          persist-credentials: false
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
@@ -49,7 +59,7 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore test/OpenFeature.Benchmarks/OpenFeature.Benchmarks.csproj
 
       - name: Run benchmarks
         working-directory: test/OpenFeature.Benchmarks
