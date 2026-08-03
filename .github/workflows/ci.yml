@@ -8,18 +8,6 @@ on:
   merge_group:
   workflow_dispatch:
 
-# This workflow owns the only required status check (`CI Gate`), so it must never be
-# filtered out. A workflow skipped by `paths`/`paths-ignore` reports no check runs at all,
-# and a required check that never reports blocks the pull request forever and eventually
-# times the entry out of the merge queue.
-#
-# `needs:` cannot reference a job in a different workflow file, which is why every gated
-# job is called from here. The work itself lives in the `reusable-*.yml` building blocks.
-# Those have to sit directly in `.github/workflows/` - GitHub does not support reusable
-# workflows in subdirectories, and a `./.github/workflows/<dir>/<file>.yml` reference fails
-# at run time rather than being caught by a linter. Hence the filename prefix instead of a
-# folder.
-
 concurrency:
   # Supersede in-flight runs for the same pull request, but never cancel a merge queue run:
   # a cancelled run reports a non-success conclusion and ejects the pull request from the
@@ -77,13 +65,6 @@ jobs:
       packages: write
     uses: ./.github/workflows/reusable-packaging.yml
 
-  # The single required status check. Branch protection lists `CI Gate` and nothing else
-  # from this workflow, so jobs and matrix legs can be added, removed or renamed without
-  # silently detaching branch protection.
-  #
-  # `if: always()` is mandatory. Without it this job inherits the implicit `success()`
-  # condition, so a failing dependency makes it *skipped* - and branch protection treats a
-  # skipped check as satisfied, which would let exactly the broken pull requests through.
   ci-gate:
     name: CI Gate
     if: always()
