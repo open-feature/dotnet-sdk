@@ -22,12 +22,15 @@
   </Folder>
   <Folder Name="/.root/.github/workflows/">
     <File Path=".github/workflows/ci.yml" />
-    <File Path=".github/workflows/code-coverage.yml" />
-    <File Path=".github/workflows/codeql-analysis.yml" />
-    <File Path=".github/workflows/dotnet-format.yml" />
-    <File Path=".github/workflows/e2e.yml" />
+    <File Path=".github/workflows/dco-merge-group.yml" />
     <File Path=".github/workflows/lint-pr.yml" />
     <File Path=".github/workflows/release.yml" />
+    <File Path=".github/workflows/reusable-aot.yml" />
+    <File Path=".github/workflows/reusable-build.yml" />
+    <File Path=".github/workflows/reusable-coverage.yml" />
+    <File Path=".github/workflows/reusable-e2e.yml" />
+    <File Path=".github/workflows/reusable-format.yml" />
+    <File Path=".github/workflows/reusable-packaging.yml" />
   </Folder>
   <Folder Name="/.root/.vscode/">
     <File Path=".vscode/launch.json" />
