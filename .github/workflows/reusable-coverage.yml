@@ -14,6 +14,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      code-quality: write
 
     strategy:
       matrix:
@@ -26,12 +27,14 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
+          # Check out the PR head commit (not the merge commit) so coverage line numbers map to the diff
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup .NET
         uses: ./.github/actions/setup-dotnet
 
       - name: Run Test
-        run: dotnet test --coverlet --coverlet-output-format opencover --coverlet-exclude "[GitHubActionsTestLogger*]*" --ignore-exit-code 8
+        run: dotnet test --coverlet --coverlet-output-format opencover cobertura --ignore-exit-code 8
 
       # Keep globbing on non-Windows runners (works today)
       - name: Upload coverage to Codecov (non-Windows)
@@ -69,3 +72,29 @@ jobs:
           fail_ci_if_error: true
           verbose: true
           token: ${{ secrets.codecov-token }}
+
+      # GitHub's code coverage API takes a single Cobertura file, so merge the per-project/per-TFM reports.
+      # Paths are rewritten to be repository-relative so coverage maps onto the files in the diff.
+      - name: Merge Cobertura reports (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.5.11
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          reportgenerator \
+            -reports:"**/coverage.cobertura.*.xml" \
+            -targetdir:"coverage-report" \
+            -reporttypes:Cobertura \
+            -filefilters:"-**/obj/**"
+          sed -i -e "s#${GITHUB_WORKSPACE}/##g" \
+                 -e "s#<source>[^<]*</source>#<source>.</source>#g" \
+                 coverage-report/Cobertura.xml
+
+      - name: Upload coverage to GitHub (Linux)
+        if: runner.os == 'Linux'
+        uses: actions/upload-code-coverage@1c15be36fc3733ba839b1dd643bd9556e4426dc1 # v1.4.1
+        with:
+          file: coverage-report/Cobertura.xml
+          language: C#
+          label: code-coverage/coverlet
+          # Best effort: a coverage-service outage must never block CI. Codecov remains the gate.
+          fail-on-error: false

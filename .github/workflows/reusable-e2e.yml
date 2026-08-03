@@ -27,4 +27,4 @@ jobs:
         run: cp spec/specification/assets/gherkin/*.feature test/OpenFeature.E2ETests/Features/
 
       - name: Run Tests
-        run: dotnet test test/OpenFeature.E2ETests/ --configuration Release --report-github
+        run: dotnet test test/OpenFeature.E2ETests/ --configuration Release --report-gh

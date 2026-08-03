@@ -20,8 +20,8 @@
     <Using Include="Reqnroll" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="GitHubActionsTestLogger" />
+  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('Tests'))">
+    <PackageReference Include="Microsoft.Testing.Extensions.GitHubActionsReport" />
   </ItemGroup>
 
   <!-- Stops warning to use the .ConfigureAwait method. Tests should configure the await context as opposed to library code -->
