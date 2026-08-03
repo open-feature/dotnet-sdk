@@ -3,18 +3,33 @@ name: CI
 on:
   push:
     branches: [main]
-    paths-ignore:
-      - "**.md"
   pull_request:
     branches: [main]
-    paths-ignore:
-      - "**.md"
+  merge_group:
+  workflow_dispatch:
+
+# Every job that produces a required status check lives in this workflow, so it must
+# never be filtered out. A workflow skipped by `paths`/`paths-ignore` reports no check
+# runs at all, and a required check that never reports blocks the pull request forever
+# and times the entry out of the merge queue.
+
+concurrency:
+  # Supersede in-flight runs for the same pull request, but never cancel a merge queue
+  # run: a cancelled run reports a non-success conclusion and ejects the PR from the queue.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
 
 jobs:
   build:
+    name: Build & Test (${{ matrix.os }})
+
     permissions:
       contents: read
       pull-requests: write
+
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
@@ -28,18 +43,8 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
-        with:
-          global-json-file: global.json
-
-      - name: Cache NuGet packages
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', 'Directory.Packages.props', 'global.json') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
+      - name: Setup .NET
+        uses: ./.github/actions/setup-dotnet
 
       - name: Restore
         run: dotnet restore
@@ -54,14 +59,103 @@ jobs:
         run: |
           dotnet publish ./samples/AspNetCore/Samples.AspNetCore.csproj
 
-  packaging:
-    needs: build
+  coverage:
+    name: Code Coverage (${{ matrix.os }})
+
+    # Coverage is a reporting concern, not a merge gate. The `gh-readonly-queue/*` ref a
+    # merge group builds is thrown away, so uploading it to Codecov is meaningless noise,
+    # and `build` already runs the same tests on the same platforms inside the queue.
+    # `ci-gate` allows this job to be skipped (see `allowed-skips`).
+    if: github.event_name != 'merge_group'
 
     permissions:
       contents: read
-      packages: write
-      id-token: write
-      attestations: write
+      pull-requests: write
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: ./.github/actions/setup-dotnet
+
+      - name: Run Test
+        run: dotnet test --coverlet --coverlet-output-format opencover --coverlet-exclude "[GitHubActionsTestLogger*]*" --ignore-exit-code 8
+
+      # Keep globbing on non-Windows runners (works today)
+      - name: Upload coverage to Codecov (non-Windows)
+        if: runner.os != 'Windows'
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          name: Code Coverage for ${{ matrix.os }}
+          files: "**/TestResults/**/coverage.opencover.*.xml"
+          disable_search: true
+          fail_ci_if_error: true
+          verbose: true
+          token: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
+
+      # On Windows, avoid passing a glob that expands into multiple args
+      - name: Find coverage reports (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $files = Get-ChildItem -Path "$PWD" -Recurse -Filter "coverage.opencover.*.xml" | ForEach-Object { $_.FullName }
+          if (-not $files -or $files.Count -eq 0) {
+            throw "No coverage.opencover.*.xml files were found under the repository."
+          }
+
+          # Codecov accepts comma-separated file paths
+          $csv = ($files -join ",")
+          "CODECOV_FILES=$csv" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Upload coverage to Codecov (Windows)
+        if: runner.os == 'Windows'
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          name: Code Coverage for ${{ matrix.os }}
+          files: ${{ env.CODECOV_FILES }}
+          disable_search: true
+          fail_ci_if_error: true
+          verbose: true
+          token: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
+
+  format:
+    name: Format
+
+    permissions:
+      contents: read
+      pull-requests: write
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Setup .NET
+        uses: ./.github/actions/setup-dotnet
+
+      - name: dotnet format
+        run: |
+          # Exclude diagnostics to work around dotnet-format issue, see https://github.com/dotnet/sdk/issues/50012
+          dotnet format --verify-no-changes OpenFeature.slnx --exclude-diagnostics IL2026 --exclude-diagnostics IL3050
+
+  # Deliberately *not* given a friendly `name:`. `e2e-tests` is currently a required status
+  # check on `main` and `v1`, and a required context that stops reporting blocks every open
+  # pull request. Keeping the check run name identical lets this change merge before branch
+  # protection is switched over to `CI Gate`. Safe to rename once that switch has happened.
+  e2e-tests:
+    permissions:
+      contents: read
+      pull-requests: write
 
     runs-on: ubuntu-latest
 
@@ -72,37 +166,191 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
-        with:
-          global-json-file: global.json
+      - name: Setup .NET
+        uses: ./.github/actions/setup-dotnet
 
-      - name: Cache NuGet packages
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - name: Initialize Tests
+        run: cp spec/specification/assets/gherkin/*.feature test/OpenFeature.E2ETests/Features/
+
+      - name: Run Tests
+        run: dotnet test test/OpenFeature.E2ETests/ --configuration Release --report-github
+
+  aot:
+    name: AOT Test (${{ matrix.os }}, ${{ matrix.arch }})
+
+    permissions:
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux x64
+          - os: ubuntu-latest
+            arch: x64
+            runtime: linux-x64
+          # Linux ARM64
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            runtime: linux-arm64
+          # Windows x64
+          - os: windows-latest
+            arch: x64
+            runtime: win-x64
+          # Windows ARM64
+          - os: windows-11-arm
+            arch: arm64
+            runtime: win-arm64
+          # macOS x64
+          - os: macos-15-intel
+            arch: x64
+            runtime: osx-x64
+          # macOS ARM64 (Apple Silicon)
+          - os: macos-latest
+            arch: arm64
+            runtime: osx-arm64
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', 'Directory.Packages.props', 'global.json') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Setup .NET
+        uses: ./.github/actions/setup-dotnet
+        with:
+          cache-key-suffix: -${{ matrix.arch }}
+
+      - name: Restore dependencies
+        shell: pwsh
+        run: dotnet restore
+
+      - name: Build solution
+        shell: pwsh
+        run: dotnet build -c Release --no-restore
+
+      - name: Test AOT compatibility project build
+        shell: pwsh
+        run: dotnet build test/OpenFeature.AotCompatibility/OpenFeature.AotCompatibility.csproj -c Release --no-restore
+
+      - name: Publish AOT compatibility test (cross-platform)
+        shell: pwsh
+        run: |
+          dotnet publish test/OpenFeature.AotCompatibility/OpenFeature.AotCompatibility.csproj `
+            -f net10.0 `
+            -r ${{ matrix.runtime }} `
+            -o ./aot-output
+
+      - name: Run AOT compatibility test
+        shell: pwsh
+        run: |
+          if ("${{ runner.os }}" -eq "Windows") {
+            ./aot-output/OpenFeature.AotCompatibility.exe
+          } else {
+            chmod +x ./aot-output/OpenFeature.AotCompatibility
+            ./aot-output/OpenFeature.AotCompatibility
+          }
+
+  packaging:
+    name: Packaging
+    needs: build
+
+    permissions:
+      contents: read
+      packages: write
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Setup .NET
+        uses: ./.github/actions/setup-dotnet
 
       - name: Restore
         run: dotnet restore
 
-      - name: Pack NuGet packages (CI versions)
-        if: startsWith(github.ref, 'refs/heads/')
-        run: dotnet pack -c Release --no-restore --version-suffix "ci.$(date -u +%Y%m%dT%H%M%S)+sha.${GITHUB_SHA:0:9}"
+      - name: Compute version suffix
+        id: suffix
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          case "$EVENT_NAME" in
+            push)         prefix=ci ;;
+            pull_request) prefix=pr ;;
+            *)            prefix=mq ;;
+          esac
+          echo "value=${prefix}.$(date -u +%Y%m%dT%H%M%S)+sha.${GITHUB_SHA:0:9}" >> "$GITHUB_OUTPUT"
 
-      - name: Pack NuGet packages (PR versions)
-        if: startsWith(github.ref, 'refs/pull/')
-        run: dotnet pack -c Release --no-restore --version-suffix "pr.$(date -u +%Y%m%dT%H%M%S)+sha.${GITHUB_SHA:0:9}"
+      - name: Pack NuGet packages
+        run: dotnet pack -c Release --no-restore --version-suffix "${{ steps.suffix.outputs.value }}"
 
+      # `github.event.pull_request` is absent outside `pull_request`, and GitHub coerces a
+      # null to 0 when comparing against a boolean, so `... .fork == false` is true on
+      # `push` and `merge_group` too. The event name must be checked explicitly, otherwise
+      # every merge queue entry would publish a package for a ref that is thrown away.
       - name: Publish NuGet packages (base)
-        if: github.event.pull_request.head.repo.fork == false
+        if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
         run: dotnet nuget push "src/**/*.nupkg" --api-key "${{ secrets.GITHUB_TOKEN }}" --source https://nuget.pkg.github.com/open-feature/index.json
 
       - name: Publish NuGet packages (fork)
-        if: github.event.pull_request.head.repo.fork == true
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == true
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: nupkgs
           path: src/**/*.nupkg
+
+  # The single required status check. Branch protection lists `CI Gate` and nothing else
+  # from this workflow, so matrix legs can be added, removed or renamed without silently
+  # detaching branch protection.
+  #
+  # `if: always()` is mandatory. Without it this job inherits the implicit `success()`
+  # condition, so a failing dependency makes it *skipped* — and branch protection treats a
+  # skipped check as satisfied, which would let exactly the broken pull requests through.
+  ci-gate:
+    name: CI Gate
+    if: always()
+    needs: [build, coverage, format, e2e-tests, aot, packaging]
+
+    permissions:
+      contents: read
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check that every gated job succeeded
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+          # Jobs that are allowed to report `skipped`. Anything else that skips fails the
+          # gate, so an accidental `if:` cannot quietly stop gating a job.
+          ALLOWED_SKIPS: coverage
+        run: |
+          echo "### CI Gate" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Job | Result |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| --- | --- |" >> "$GITHUB_STEP_SUMMARY"
+          echo "$NEEDS_JSON" | jq -r 'to_entries[] | "| \(.key) | \(.value.result) |"' >> "$GITHUB_STEP_SUMMARY"
+
+          failing=$(echo "$NEEDS_JSON" | jq -r --arg allowed "$ALLOWED_SKIPS" '
+            ($allowed | split(",") | map(select(length > 0))) as $ok
+            | to_entries[]
+            | select(.value.result != "success")
+            | select(.value.result != "skipped" or ([.key] - $ok | length) > 0)
+            | "\(.key): \(.value.result)"
+          ')
+
+          if [ -n "$failing" ]; then
+            echo "::error::One or more gated jobs did not succeed:"
+            echo "$failing"
+            exit 1
+          fi
+
+          echo "All gated jobs succeeded or were intentionally skipped."

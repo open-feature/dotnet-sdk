@@ -1,0 +1,25 @@
+name: "Setup .NET"
+description: "Installs the .NET SDK pinned by global.json and restores the NuGet package cache"
+
+inputs:
+  cache-key-suffix:
+    description: "Extra qualifier appended to the NuGet cache key, e.g. the runner architecture"
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+      with:
+        global-json-file: global.json
+
+    - name: Cache NuGet packages
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}${{ inputs.cache-key-suffix }}-nuget-${{ hashFiles('**/*.csproj', 'Directory.Packages.props', 'global.json') }}
+        restore-keys: |
+          ${{ runner.os }}${{ inputs.cache-key-suffix }}-nuget-
+          ${{ runner.os }}-nuget-
