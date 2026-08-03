@@ -63,3 +63,7 @@ jobs:
         with:
           name: nupkgs
           path: src/**/*.nupkg
+          # The artifact is the only way a fork contributor gets the packages, so an empty
+          # upload should fail rather than warn: pack succeeded but produced nothing means
+          # something changed about packability, and it would otherwise go unnoticed.
+          if-no-files-found: error
