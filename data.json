@@ -1,0 +1,130 @@
+{
+  "lastUpdated": 1785768652315,
+  "repoUrl": "https://github.com/open-feature/dotnet-sdk",
+  "entries": {
+    "OpenFeature.Benchmark.OpenFeatureClientBenchmarks": [
+      {
+        "commit": {
+          "author": {
+            "username": "berkslv"
+          },
+          "committer": {
+            "username": "web-flow"
+          },
+          "sha": "99380529b9e688e5fd41df3f5364518f3cde4759",
+          "message": "ci: add continuous BenchmarkDotNet publishing workflow (#791)\n\n* ci: add continuous BenchmarkDotNet publishing workflow\n\nAdds a new GitHub Actions workflow that runs the benchmarks in\ntest/OpenFeature.Benchmarks on push to main, daily on a schedule, and\nvia manual dispatch. Results are published to the gh-pages branch\nusing martincostello/benchmarkdotnet-results-publisher for tracking\nperformance over time via a GitHub Pages dashboard.\n\nAlso adds net8.0 to the benchmarks project's target frameworks so the\nexisting SimpleJob(RuntimeMoniker.Net80, baseline: true) benchmark job\ncan build and run in CI.\n\nCloses #625\n\nSigned-off-by: Berk Selvi <berkslv@gmail.com>\n\n* Potential fix for pull request finding\n\nCo-authored-by: Copilot Autofix powered by AI <175728472+Copilot@users.noreply.github.com>\nSigned-off-by: Berk Selvi <54676516+berkslv@users.noreply.github.com>\n\n* ci: harden benchmark workflow permissions and add concurrency control\n\n- Set persist-credentials: false on checkout since only the publisher\n  step needs write access, and it authenticates via its own repo-token\n  input rather than relying on ambient git credentials.\n- Add a concurrency group so overlapping push/schedule/dispatch runs\n  cannot race when pushing results to gh-pages.\n- Scope 'dotnet restore' to the benchmarks project explicitly instead\n  of restoring the whole repository.\n\nAddresses review feedback from CodeRabbit and Copilot on PR #791.\n\nSigned-off-by: Berk Selvi <berkslv@gmail.com>\n\n---------\n\nSigned-off-by: Berk Selvi <berkslv@gmail.com>\nSigned-off-by: Berk Selvi <54676516+berkslv@users.noreply.github.com>\nCo-authored-by: Copilot Autofix powered by AI <175728472+Copilot@users.noreply.github.com>",
+          "timestamp": "2026-08-03T14:43:27Z",
+          "url": "https://github.com/open-feature/dotnet-sdk/commit/99380529b9e688e5fd41df3f5364518f3cde4759"
+        },
+        "date": 1785768652315,
+        "benches": [
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetBooleanValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 9660.565806462215,
+            "unit": "ns",
+            "range": "± 25.540119809087816",
+            "bytesAllocated": 2168
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetBooleanValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 9707.508353097099,
+            "unit": "ns",
+            "range": "± 13.171632154854578",
+            "bytesAllocated": 2168
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetBooleanValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions",
+            "value": 9711.142445882162,
+            "unit": "ns",
+            "range": "± 23.934796825201104",
+            "bytesAllocated": 2168
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetStringValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 9700.108936016377,
+            "unit": "ns",
+            "range": "± 27.265801629227823",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetStringValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 9714.540854317802,
+            "unit": "ns",
+            "range": "± 19.404846934251122",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetStringValue_WithoutEvaluationContext_WithEmptyFlagEvaluationOptions",
+            "value": 9875.383677891323,
+            "unit": "ns",
+            "range": "± 26.50903297499455",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetIntegerValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 9738.560217721122,
+            "unit": "ns",
+            "range": "± 16.927472204421328",
+            "bytesAllocated": 2240
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetIntegerValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 9710.068378993443,
+            "unit": "ns",
+            "range": "± 18.168474436887152",
+            "bytesAllocated": 2240
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetIntegerValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions",
+            "value": 9803.997391764324,
+            "unit": "ns",
+            "range": "± 92.56233841732687",
+            "bytesAllocated": 2240
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetDoubleValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 9811.223680936373,
+            "unit": "ns",
+            "range": "± 11.343379844840415",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetDoubleValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 9920.61703898112,
+            "unit": "ns",
+            "range": "± 125.25865156965996",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetDoubleValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions",
+            "value": 9813.764219430777,
+            "unit": "ns",
+            "range": "± 18.562934829571326",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetObjectValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 9674.247216796875,
+            "unit": "ns",
+            "range": "± 28.916731797351027",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetObjectValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 9781.945523579916,
+            "unit": "ns",
+            "range": "± 20.231212972550708",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetObjectValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions",
+            "value": 9727.561679295131,
+            "unit": "ns",
+            "range": "± 17.06455040970166",
+            "bytesAllocated": 2256
+          }
+        ]
+      }
+    ]
+  }
+}
