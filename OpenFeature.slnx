@@ -15,6 +15,10 @@
     <File Path="version.txt" />
   </Folder>
   <Folder Name="/.root/.github/" />
+  <Folder Name="/.root/.github/actions/">
+    <File Path=".github/actions/sbom-generator/action.yml" />
+    <File Path=".github/actions/setup-dotnet/action.yml" />
+  </Folder>
   <Folder Name="/.root/.github/ISSUE_TEMPLATE/">
     <File Path=".github/ISSUE_TEMPLATE/bug.yaml" />
     <File Path=".github/ISSUE_TEMPLATE/documentation.yaml" />

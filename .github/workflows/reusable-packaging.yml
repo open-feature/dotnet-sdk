@@ -19,6 +19,7 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
+          persist-credentials: false
 
       - name: Setup .NET
         uses: ./.github/actions/setup-dotnet
@@ -41,7 +42,9 @@ jobs:
       # Always pack, even when nothing is published: a broken pack is a real build break
       # and should fail the gate rather than only surfacing at release time.
       - name: Pack NuGet packages
-        run: dotnet pack -c Release --no-restore --version-suffix "${{ steps.suffix.outputs.value }}"
+        env:
+          VERSION_SUFFIX: ${{ steps.suffix.outputs.value }}
+        run: dotnet pack -c Release --no-restore --version-suffix "$VERSION_SUFFIX"
 
       # `github.event.pull_request` is absent outside `pull_request`, and GitHub coerces the
       # missing value to 0 when comparing against a boolean, so `... .fork == false` is also
@@ -50,7 +53,9 @@ jobs:
       # `gh-readonly-queue/*` ref that is thrown away moments later.
       - name: Publish NuGet packages (base)
         if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
-        run: dotnet nuget push "src/**/*.nupkg" --api-key "${{ secrets.GITHUB_TOKEN }}" --source https://nuget.pkg.github.com/open-feature/index.json
+        env:
+          NUGET_API_KEY: ${{ secrets.GITHUB_TOKEN }}
+        run: dotnet nuget push "src/**/*.nupkg" --api-key "$NUGET_API_KEY" --source https://nuget.pkg.github.com/open-feature/index.json
 
       - name: Publish NuGet packages (fork)
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == true

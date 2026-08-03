@@ -12,7 +12,6 @@ jobs:
 
     permissions:
       contents: read
-      pull-requests: write
 
     strategy:
       matrix:
@@ -26,6 +25,7 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
+          persist-credentials: false
 
       - name: Setup .NET
         uses: ./.github/actions/setup-dotnet
