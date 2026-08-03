@@ -1,0 +1,60 @@
+name: Reusable / Packaging
+
+on:
+  workflow_call:
+
+jobs:
+  packaging:
+    name: dotnet pack
+
+    permissions:
+      contents: read
+      packages: write
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Setup .NET
+        uses: ./.github/actions/setup-dotnet
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Compute version suffix
+        id: suffix
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          case "$EVENT_NAME" in
+            push)         prefix=ci ;;
+            pull_request) prefix=pr ;;
+            *)            prefix=mq ;;
+          esac
+          echo "value=${prefix}.$(date -u +%Y%m%dT%H%M%S)+sha.${GITHUB_SHA:0:9}" >> "$GITHUB_OUTPUT"
+
+      # Always pack, even when nothing is published: a broken pack is a real build break
+      # and should fail the gate rather than only surfacing at release time.
+      - name: Pack NuGet packages
+        run: dotnet pack -c Release --no-restore --version-suffix "${{ steps.suffix.outputs.value }}"
+
+      # `github.event.pull_request` is absent outside `pull_request`, and GitHub coerces the
+      # missing value to 0 when comparing against a boolean, so `... .fork == false` is also
+      # true on `push` and `merge_group`. The event name must therefore be checked
+      # explicitly, otherwise every merge queue entry would publish a package for a
+      # `gh-readonly-queue/*` ref that is thrown away moments later.
+      - name: Publish NuGet packages (base)
+        if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
+        run: dotnet nuget push "src/**/*.nupkg" --api-key "${{ secrets.GITHUB_TOKEN }}" --source https://nuget.pkg.github.com/open-feature/index.json
+
+      - name: Publish NuGet packages (fork)
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == true
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: nupkgs
+          path: src/**/*.nupkg
