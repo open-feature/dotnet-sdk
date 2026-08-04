@@ -28,10 +28,7 @@ jobs:
 
   coverage:
     name: Coverage
-    # Coverage is a reporting concern, not a merge gate. The `gh-readonly-queue/*` ref a
-    # merge group builds is thrown away, so uploading it to Codecov is meaningless, and
-    # `build` already runs the same tests on the same platforms inside the queue.
-    # This is the only job `ci-gate` is allowed to see as `skipped`.
+    # Coverage isn't required for the merge queue.
     if: github.event_name != 'merge_group'
     permissions:
       contents: read
