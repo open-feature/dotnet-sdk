@@ -1,26 +1,25 @@
-name: dotnet format
+name: Reusable / Format
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  workflow_call:
 
 jobs:
-  check-format:
-    runs-on: ubuntu-latest
+  format:
+    name: dotnet format
+
     permissions:
       contents: read
-      pull-requests: write
+
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Check out code
+      - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
-          global-json-file: global.json
+          persist-credentials: false
+
+      - name: Setup .NET
+        uses: ./.github/actions/setup-dotnet
 
       - name: dotnet format
         run: |

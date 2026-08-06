@@ -3,106 +3,104 @@ name: CI
 on:
   push:
     branches: [main]
-    paths-ignore:
-      - "**.md"
   pull_request:
     branches: [main]
-    paths-ignore:
-      - "**.md"
+  merge_group:
+  workflow_dispatch:
+
+concurrency:
+  # Supersede in-flight runs for the same pull request, but never cancel a merge queue run:
+  # a cancelled run reports a non-success conclusion and ejects the pull request from the
+  # queue. Deliberately not set in the called workflows - sharing a group between caller and
+  # callee makes a run cancel itself.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
 
 jobs:
   build:
+    name: Build
     permissions:
       contents: read
-      pull-requests: write
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+    uses: ./.github/workflows/reusable-build.yml
 
-    runs-on: ${{ matrix.os }}
+  coverage:
+    name: Coverage
+    # Coverage isn't required for the merge queue.
+    if: github.event_name != 'merge_group'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/reusable-coverage.yml
+    secrets:
+      codecov-token: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          fetch-depth: 0
-          submodules: recursive
+  format:
+    name: Format
+    permissions:
+      contents: read
+    uses: ./.github/workflows/reusable-format.yml
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
-        with:
-          global-json-file: global.json
+  e2e:
+    name: E2E
+    permissions:
+      contents: read
+    uses: ./.github/workflows/reusable-e2e.yml
 
-      - name: Cache NuGet packages
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', 'Directory.Packages.props', 'global.json') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
-
-      - name: Restore
-        run: dotnet restore
-
-      - name: Build
-        run: dotnet build -c Release --no-restore
-
-      - name: Test
-        run: dotnet test -c Release --no-build --report-github --ignore-exit-code 8
-
-      - name: aot-publish test
-        run: |
-          dotnet publish ./samples/AspNetCore/Samples.AspNetCore.csproj
+  aot:
+    name: AOT
+    permissions:
+      contents: read
+    uses: ./.github/workflows/reusable-aot.yml
 
   packaging:
+    name: Packaging
     needs: build
-
     permissions:
       contents: read
       packages: write
-      id-token: write
-      attestations: write
+    uses: ./.github/workflows/reusable-packaging.yml
+
+  ci-gate:
+    name: CI Gate
+    if: always()
+    needs: [build, coverage, format, e2e, aot, packaging]
+
+    permissions:
+      contents: read
 
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          fetch-depth: 0
-          submodules: recursive
+      - name: Check that every gated job succeeded
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+          # Jobs allowed to report `skipped`. Anything else that skips fails the gate, so an
+          # accidental `if:` cannot quietly stop gating a job.
+          ALLOWED_SKIPS: coverage
+        run: |
+          {
+            echo "### CI Gate"
+            echo ""
+            echo "| Job | Result |"
+            echo "| --- | --- |"
+            echo "$NEEDS_JSON" | jq -r 'to_entries[] | "| \(.key) | \(.value.result) |"'
+          } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
-        with:
-          global-json-file: global.json
+          failing=$(echo "$NEEDS_JSON" | jq -r --arg allowed "$ALLOWED_SKIPS" '
+            ($allowed | split(",") | map(select(length > 0))) as $ok
+            | to_entries[]
+            | select(.value.result != "success")
+            | select(.value.result != "skipped" or ([.key] - $ok | length) > 0)
+            | "\(.key): \(.value.result)"
+          ')
 
-      - name: Cache NuGet packages
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', 'Directory.Packages.props', 'global.json') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
+          if [ -n "$failing" ]; then
+            echo "::error::One or more gated jobs did not succeed:"
+            echo "$failing"
+            exit 1
+          fi
 
-      - name: Restore
-        run: dotnet restore
-
-      - name: Pack NuGet packages (CI versions)
-        if: startsWith(github.ref, 'refs/heads/')
-        run: dotnet pack -c Release --no-restore --version-suffix "ci.$(date -u +%Y%m%dT%H%M%S)+sha.${GITHUB_SHA:0:9}"
-
-      - name: Pack NuGet packages (PR versions)
-        if: startsWith(github.ref, 'refs/pull/')
-        run: dotnet pack -c Release --no-restore --version-suffix "pr.$(date -u +%Y%m%dT%H%M%S)+sha.${GITHUB_SHA:0:9}"
-
-      - name: Publish NuGet packages (base)
-        if: github.event.pull_request.head.repo.fork == false
-        run: dotnet nuget push "src/**/*.nupkg" --api-key "${{ secrets.GITHUB_TOKEN }}" --source https://nuget.pkg.github.com/open-feature/index.json
-
-      - name: Publish NuGet packages (fork)
-        if: github.event.pull_request.head.repo.fork == true
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: nupkgs
-          path: src/**/*.nupkg
+          echo "All gated jobs succeeded or were intentionally skipped."

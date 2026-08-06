@@ -1,18 +1,15 @@
-name: AOT Compatibility
+name: Reusable / AOT Compatibility
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-  merge_group:
-  workflow_dispatch:
+  workflow_call:
 
 jobs:
-  aot-compatibility:
-    name: AOT Test (${{ matrix.os }}, ${{ matrix.arch }})
+  aot:
+    name: ${{ matrix.runtime }}
+
     permissions:
       contents: read
+
     strategy:
       fail-fast: false
       matrix:
@@ -50,20 +47,12 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
+          persist-credentials: false
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+      - name: Setup .NET
+        uses: ./.github/actions/setup-dotnet
         with:
-          global-json-file: global.json
-
-      - name: Cache NuGet packages
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-${{ matrix.arch }}-nuget-${{ hashFiles('**/*.csproj', 'Directory.Packages.props', 'global.json') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.arch }}-nuget-
-            ${{ runner.os }}-nuget-
+          cache-key-suffix: -${{ matrix.arch }}
 
       - name: Restore dependencies
         shell: pwsh

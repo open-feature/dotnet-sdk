@@ -1,0 +1,30 @@
+name: Reusable / E2E Tests
+
+on:
+  workflow_call:
+
+jobs:
+  e2e:
+    name: dotnet test
+
+    permissions:
+      contents: read
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Setup .NET
+        uses: ./.github/actions/setup-dotnet
+
+      - name: Initialize Tests
+        run: cp spec/specification/assets/gherkin/*.feature test/OpenFeature.E2ETests/Features/
+
+      - name: Run Tests
+        run: dotnet test test/OpenFeature.E2ETests/ --configuration Release --report-github

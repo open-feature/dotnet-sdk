@@ -1,20 +1,19 @@
-name: Code Coverage
+name: Reusable / Code Coverage
 
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      - "**.md"
-  pull_request:
-    branches: [main]
-    paths-ignore:
-      - "**.md"
+  workflow_call:
+    secrets:
+      codecov-token:
+        description: "Codecov upload token."
+        required: true
 
 jobs:
-  build-test-report:
+  coverage:
+    name: ${{ matrix.os }}
+
     permissions:
       contents: read
-      pull-requests: write
+
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
@@ -22,22 +21,14 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
+          persist-credentials: false
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
-        with:
-          global-json-file: global.json
-
-      - name: Cache NuGet packages
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', 'Directory.Packages.props', 'global.json') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
+      - name: Setup .NET
+        uses: ./.github/actions/setup-dotnet
 
       - name: Run Test
         run: dotnet test --coverlet --coverlet-output-format opencover --coverlet-exclude "[GitHubActionsTestLogger*]*" --ignore-exit-code 8
@@ -52,7 +43,7 @@ jobs:
           disable_search: true
           fail_ci_if_error: true
           verbose: true
-          token: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
+          token: ${{ secrets.codecov-token }}
 
       # On Windows, avoid passing a glob that expands into multiple args
       - name: Find coverage reports (Windows)
@@ -77,4 +68,4 @@ jobs:
           disable_search: true
           fail_ci_if_error: true
           verbose: true
-          token: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
+          token: ${{ secrets.codecov-token }}
