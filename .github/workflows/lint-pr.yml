@@ -48,6 +48,7 @@ jobs:
     name: PR title lint
     if: github.event_name == 'merge_group'
     runs-on: ubuntu-slim
+    permissions: {}
 
     steps:
       - name: Skip for merge queue
