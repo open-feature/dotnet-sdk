@@ -29,6 +29,7 @@ jobs:
           fetch-depth: 0
           # Check out the PR head commit (not the merge commit) so coverage line numbers map to the diff
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
 
       - name: Setup .NET
         uses: ./.github/actions/setup-dotnet

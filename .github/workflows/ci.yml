@@ -8,18 +8,6 @@ on:
   merge_group:
   workflow_dispatch:
 
-# This workflow owns the only required status check (`CI Gate`), so it must never be
-# filtered out. A workflow skipped by `paths`/`paths-ignore` reports no check runs at all,
-# and a required check that never reports blocks the pull request forever and eventually
-# times the entry out of the merge queue.
-#
-# `needs:` cannot reference a job in a different workflow file, which is why every gated
-# job is called from here. The work itself lives in the `reusable-*.yml` building blocks.
-# Those have to sit directly in `.github/workflows/` - GitHub does not support reusable
-# workflows in subdirectories, and a `./.github/workflows/<dir>/<file>.yml` reference fails
-# at run time rather than being caught by a linter. Hence the filename prefix instead of a
-# folder.
-
 concurrency:
   # Supersede in-flight runs for the same pull request, but never cancel a merge queue run:
   # a cancelled run reports a non-success conclusion and ejects the pull request from the
@@ -36,20 +24,14 @@ jobs:
     name: Build
     permissions:
       contents: read
-      pull-requests: write
     uses: ./.github/workflows/reusable-build.yml
 
   coverage:
     name: Coverage
-    # Coverage is a reporting concern, not a merge gate. The `gh-readonly-queue/*` ref a
-    # merge group builds is thrown away, so uploading it to Codecov is meaningless, and
-    # `build` already runs the same tests on the same platforms inside the queue.
-    # This is the only job `ci-gate` is allowed to see as `skipped`.
+    # Coverage isn't required for the merge queue.
     if: github.event_name != 'merge_group'
     permissions:
       contents: read
-      pull-requests: write
-      code-quality: write
     uses: ./.github/workflows/reusable-coverage.yml
     secrets:
       codecov-token: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
@@ -58,14 +40,12 @@ jobs:
     name: Format
     permissions:
       contents: read
-      pull-requests: write
     uses: ./.github/workflows/reusable-format.yml
 
   e2e:
     name: E2E
     permissions:
       contents: read
-      pull-requests: write
     uses: ./.github/workflows/reusable-e2e.yml
 
   aot:
@@ -82,13 +62,6 @@ jobs:
       packages: write
     uses: ./.github/workflows/reusable-packaging.yml
 
-  # The single required status check. Branch protection lists `CI Gate` and nothing else
-  # from this workflow, so jobs and matrix legs can be added, removed or renamed without
-  # silently detaching branch protection.
-  #
-  # `if: always()` is mandatory. Without it this job inherits the implicit `success()`
-  # condition, so a failing dependency makes it *skipped* - and branch protection treats a
-  # skipped check as satisfied, which would let exactly the broken pull requests through.
   ci-gate:
     name: CI Gate
     if: always()

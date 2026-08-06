@@ -9,7 +9,6 @@ jobs:
 
     permissions:
       contents: read
-      pull-requests: write
 
     runs-on: ubuntu-latest
 
@@ -19,6 +18,7 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
+          persist-credentials: false
 
       - name: Setup .NET
         uses: ./.github/actions/setup-dotnet
@@ -27,4 +27,4 @@ jobs:
         run: cp spec/specification/assets/gherkin/*.feature test/OpenFeature.E2ETests/Features/
 
       - name: Run Tests
-        run: dotnet test test/OpenFeature.E2ETests/ --configuration Release --report-gh
+        run: dotnet test test/OpenFeature.E2ETests/ --configuration Release --report-github
