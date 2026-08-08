@@ -11,6 +11,14 @@ namespace OpenFeature;
 /// </summary>
 internal sealed partial class ProviderRepository : IAsyncDisposable
 {
+    /// <summary>
+    /// The error message for a domain-scoped provider that is bound to a second domain.
+    /// <see cref="Api"/> throws the same message when it rejects the registration early.
+    /// </summary>
+    internal const string DomainScopedBindingError =
+        "A domain-scoped provider instance cannot be bound to more than one domain. " +
+        "Use a separate provider instance for each domain.";
+
     private ILogger _logger = NullLogger<ProviderRepository>.Instance;
 
     private FeatureProvider _defaultProvider = new NoOpFeatureProvider();
@@ -75,6 +83,10 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
                 return;
             }
 
+            // Bind the domain before any change to the repository.
+            // If the bind fails, the repository does not change.
+            BindDomainOrThrow(featureProvider, null);
+
             var oldProvider = this._defaultProvider;
             this._defaultProvider = featureProvider;
             // We want to allow shutdown to happen concurrently with initialization, and the caller to not
@@ -86,13 +98,14 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
             this._providersLock.ExitWriteLock();
         }
 
-        await InitProviderAsync(this._defaultProvider, context, afterInitSuccess, afterInitError, cancellationToken)
+        await InitProviderAsync(featureProvider, context, null, afterInitSuccess, afterInitError, cancellationToken)
             .ConfigureAwait(false);
     }
 
     private static async Task InitProviderAsync(
         FeatureProvider? newProvider,
         EvaluationContext context,
+        string? domain,
         Func<FeatureProvider, CancellationToken, Task>? afterInitialization,
         Func<FeatureProvider, Exception, CancellationToken, Task>? afterError,
         CancellationToken cancellationToken = default)
@@ -105,7 +118,7 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
         {
             try
             {
-                await newProvider.InitializeAsync(context, cancellationToken).ConfigureAwait(false);
+                await newProvider.InitializeAsync(context, domain, cancellationToken).ConfigureAwait(false);
                 if (afterInitialization != null)
                 {
                     await afterInitialization.Invoke(newProvider, cancellationToken).ConfigureAwait(false);
@@ -155,6 +168,9 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
             this._featureProviders.TryGetValue(domain, out var oldProvider);
             if (featureProvider != null)
             {
+                // Bind the domain before any change to the repository.
+                // If the bind fails, the repository does not change.
+                BindDomainOrThrow(featureProvider, domain);
                 this._featureProviders.AddOrUpdate(domain, featureProvider,
                     (key, current) => featureProvider);
             }
@@ -174,7 +190,7 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
             this._providersLock.ExitWriteLock();
         }
 
-        await InitProviderAsync(featureProvider, context, afterInitSuccess, afterInitError, cancellationToken).ConfigureAwait(false);
+        await InitProviderAsync(featureProvider, context, domain, afterInitSuccess, afterInitError, cancellationToken).ConfigureAwait(false);
     }
 
     /// <remarks>
@@ -195,12 +211,42 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
 
         // Clear ownership while still under the write lock — the provider is confirmed unused.
         // This prevents a race where async shutdown clears ownership after a re-registration.
+        // Release the domain binding too. A domain-scoped provider can then be registered under another domain.
         if (targetProvider != null)
         {
             targetProvider.UnbindApiInstance();
+            targetProvider.UnbindDomain();
         }
 
         await this.SafeShutdownProviderAsync(targetProvider, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Binds a domain-scoped provider to the domain it is installed under. If the provider is already bound
+    /// to a different domain, this method throws and the registration stops.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This method enforces the rule that a domain-scoped instance serves one domain at most.
+    /// <see cref="Api"/> runs an early check first, so that most rejections happen before any state changes.
+    /// That early check does not hold the lock. This method makes the final decision under the same write
+    /// lock that releases a provider, so a release cannot happen between the check and the install.
+    /// </para>
+    /// <para>
+    /// Call this method before you change the provider maps. If it throws, the repository does not change.
+    /// </para>
+    /// <para>This must be called within a write lock of the _providersLock.</para>
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">
+    /// The provider is domain-scoped and already bound to a different domain.
+    /// </exception>
+    /// <seealso href="https://openfeature.dev/specification/sections/flag-evaluation#condition-118">Specification 1.1.8.1</seealso>
+    private static void BindDomainOrThrow(FeatureProvider provider, string? domain)
+    {
+        if (provider.IsDomainScoped && !provider.TryBindDomain(domain))
+        {
+            throw new InvalidOperationException(DomainScopedBindingError);
+        }
     }
 
     /// <remarks>
@@ -279,9 +325,11 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
             this._featureProviders.Clear();
 
             // Clear ownership under the write lock for all providers being shut down.
+            // Release the domain binding too. A domain-scoped provider can then be registered again.
             foreach (var provider in providers)
             {
                 provider.UnbindApiInstance();
+                provider.UnbindDomain();
             }
         }
         finally

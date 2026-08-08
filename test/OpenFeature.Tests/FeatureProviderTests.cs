@@ -123,4 +123,83 @@ public class FeatureProviderTests : ClearOpenFeatureInstanceFixture
         Assert.Equal(ErrorType.TargetingKeyMissing, boolRes2.ErrorType);
         Assert.Null(boolRes2.ErrorMessage);
     }
+
+    [Fact]
+    [Specification("2.4.3", "The `provider` MAY declare that it is `domain-scoped`, indicating that it maintains state specific to a single `domain`, such as a persistent cache, that cannot be shared across `domains`.")]
+    public void Provider_May_Declare_Itself_Domain_Scoped()
+    {
+        // The declaration is optional, so providers that say nothing are not domain-scoped.
+        Assert.False(new TestProvider().IsDomainScoped);
+        Assert.False(new NoOpFeatureProvider().IsDomainScoped);
+
+        Assert.True(new DomainScopedInitializeProvider().IsDomainScoped);
+    }
+
+    [Fact]
+    [Specification("2.4.1", "The `provider` MAY define an initialization function which accepts the global `evaluation context` and an optional bound `domain`, which performs initialization logic relevant to the provider.")]
+    public async Task Provider_Overriding_Only_The_Legacy_Initialize_Is_Still_Initialized()
+    {
+        var provider = new LegacyInitializeProvider();
+
+        await Api.Instance.SetProviderAsync("legacy-domain", provider, TestContext.Current.CancellationToken);
+
+        Assert.Equal(1, provider.InitializeCount);
+    }
+
+    [Fact]
+    [Specification("2.4.1", "The `provider` MAY define an initialization function which accepts the global `evaluation context` and an optional bound `domain`, which performs initialization logic relevant to the provider.")]
+    public async Task Provider_Overriding_The_Domain_Aware_Initialize_Receives_The_Bound_Domain()
+    {
+        var provider = new DomainAwareInitializeProvider();
+
+        await Api.Instance.SetProviderAsync("aware-domain", provider, TestContext.Current.CancellationToken);
+
+        Assert.Equal("aware-domain", provider.Domain);
+    }
+
+    [Fact]
+    [Specification("2.4.4", "A `provider` that declares itself `domain-scoped` MUST accept the bound `domain` during initialization.")]
+    public async Task Domain_Scoped_Provider_Is_Given_The_Bound_Domain_During_Initialization()
+    {
+        var provider = new DomainScopedInitializeProvider();
+
+        await Api.Instance.SetProviderAsync("scoped-domain", provider, TestContext.Current.CancellationToken);
+
+        Assert.Equal("scoped-domain", provider.Domain);
+    }
+
+    private sealed class LegacyInitializeProvider : TestProvider
+    {
+        public int InitializeCount { get; private set; }
+
+        public override Task InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default)
+        {
+            this.InitializeCount++;
+            return Task.CompletedTask;
+        }
+    }
+
+    private sealed class DomainAwareInitializeProvider : TestProvider
+    {
+        public string? Domain { get; private set; }
+
+        public override Task InitializeAsync(EvaluationContext context, string? domain, CancellationToken cancellationToken = default)
+        {
+            this.Domain = domain;
+            return Task.CompletedTask;
+        }
+    }
+
+    private sealed class DomainScopedInitializeProvider : TestProvider
+    {
+        public string? Domain { get; private set; }
+
+        public override bool IsDomainScoped => true;
+
+        public override Task InitializeAsync(EvaluationContext context, string? domain, CancellationToken cancellationToken = default)
+        {
+            this.Domain = domain;
+            return Task.CompletedTask;
+        }
+    }
 }

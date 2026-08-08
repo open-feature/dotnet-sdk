@@ -248,6 +248,36 @@ FeatureClient scopedClient = Api.Instance.GetClient("clientForCache");
 Domains can be defined on a provider during registration.
 For more details, please refer to the [providers](#providers) section.
 
+#### Domain-aware provider initialization
+
+The domain a provider is registered under is supplied to the provider when it is initialized, so a provider
+can key any state it keeps on the domain it is serving:
+
+```csharp
+public class CachedProvider : FeatureProvider
+{
+    public override Task InitializeAsync(EvaluationContext context, string? domain, CancellationToken cancellationToken = default)
+    {
+        // domain is "clientForCache" here, and null when registered as the default provider
+    }
+}
+```
+
+A single provider instance can back several domains. It is initialized once, with the domain it was first
+registered under; registering the same instance again does not initialize it a second time. A provider that
+keeps state that cannot be shared across domains — a persistent cache, for example — can declare itself
+domain-scoped, which restricts the instance to a single domain:
+
+```csharp
+public class CachedProvider : FeatureProvider
+{
+    public override bool IsDomainScoped => true;
+}
+```
+
+Registering a domain-scoped provider instance for a second domain throws an `InvalidOperationException`
+and leaves the existing registration untouched. Use a separate instance per domain instead.
+
 ### Eventing
 
 Events allow you to react to state changes in the provider or underlying flag management system, such as flag definition changes,
@@ -377,6 +407,24 @@ public class MyProvider : FeatureProvider
     public override Task<ResolutionDetails<Value>> ResolveStructureValueAsync(string flagKey, Value defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default)
     {
         // resolve an object flag value
+    }
+}
+```
+
+If your provider needs to do work before it can resolve flags, override `InitializeAsync`.
+The SDK supplies the [domain](#domains) the provider was registered under, or `null` when it was registered
+as the default provider:
+
+```csharp
+public class MyProvider : FeatureProvider
+{
+    // Set this to true if the provider keeps state that cannot be shared across domains,
+    // such as a persistent cache. The SDK then rejects binding this instance to a second domain.
+    public override bool IsDomainScoped => true;
+
+    public override Task InitializeAsync(EvaluationContext context, string? domain, CancellationToken cancellationToken = default)
+    {
+        // perform any initialization work, keyed on the bound domain
     }
 }
 ```
