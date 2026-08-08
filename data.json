@@ -1,5 +1,5 @@
 {
-  "lastUpdated": 1786075521755,
+  "lastUpdated": 1786160308510,
   "repoUrl": "https://github.com/open-feature/dotnet-sdk",
   "entries": {
     "OpenFeature.Benchmark.OpenFeatureClientBenchmarks": [
@@ -243,6 +243,128 @@
             "value": 10723.324771336147,
             "unit": "ns",
             "range": "± 26.45061634290136",
+            "bytesAllocated": 2256
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "username": "askpt"
+          },
+          "committer": {
+            "username": "web-flow"
+          },
+          "sha": "058cf5227ddfb9d3b4bbaa98d5a0a41295e63899",
+          "message": "ci: gate all checks behind a single required job and fix merge queue (#801)\n\n* ci: consolidate PR checks behind a single required \"CI Gate\" job\n\n`needs:` cannot reference jobs in another workflow file, so a single required\nstatus check means the gated jobs have to live in one workflow. Fold\ncode-coverage.yml, dotnet-format.yml, aot-compatibility.yml and e2e.yml into\nci.yml and add a `CI Gate` job that depends on all of them.\n\nOnce branch protection requires only `DCO` + `CI Gate`, build, test, coverage,\nformat, E2E and the AOT matrix all become effectively required, and matrix legs\ncan be added or removed without editing branch protection.\n\nAlong the way this fixes several things that were silently broken:\n\n- ci.yml, code-coverage.yml and dotnet-format.yml had no `merge_group` trigger,\n  so the merge queue never validated build, test, coverage or format against the\n  merged result. They now run there.\n\n- ci.yml and code-coverage.yml used workflow-level `paths-ignore: \"**.md\"`.\n  A workflow skipped by path filtering reports no check runs at all, so a\n  required check inside it would leave docs-only pull requests blocked forever.\n  The filter is gone.\n\n- The gate uses `if: always()`. Without it the job inherits the implicit\n  `success()` condition and is *skipped* when a dependency fails - and branch\n  protection treats a skipped check as satisfied, which would let exactly the\n  broken pull requests through. The jq predicate also fails on `cancelled` and\n  on any skip that is not explicitly allow-listed.\n\n- `github.event.pull_request.head.repo.fork == false` is true on `push` and\n  `merge_group` because GitHub coerces the missing value to 0 before comparing.\n  Combined with `startsWith(github.ref, 'refs/heads/')`, which matches\n  `refs/heads/gh-readonly-queue/*`, adding a merge_group trigger would have\n  published a NuGet package for every queue entry. The packaging job now checks\n  `github.event_name` explicitly, always packs as a validation step, and\n  publishes only on push or a non-fork pull request.\n\n- Merge queue runs are never cancelled by the concurrency group; a cancelled run\n  reports a non-success conclusion and ejects the pull request from the queue.\n\nCoverage is skipped on `merge_group` - the `gh-readonly-queue/*` ref is thrown\naway, so uploading it to Codecov is meaningless and `build` already runs the\nsame tests there. It is the only entry in the gate's allow-list.\n\nThe E2E job deliberately keeps the bare `e2e-tests` id so its check run name is\nunchanged; it is a required context today and a required check that stops\nreporting blocks every open pull request.\n\nDuplicated setup-dotnet and NuGet cache blocks move into a local composite\naction.\n\nBranch protection still has to be updated after this merges.\n\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\n\n* ci: split the gated jobs into reusable workflows\n\nFollow-up to the CI Gate consolidation. Rather than one long ci.yml, each unit\nof work becomes a `workflow_call` building block and ci.yml is reduced to an\norchestrator that wires them together and evaluates the gate.\n\n  ci.yml\n    build      -> reusable-build.yml\n    coverage   -> reusable-coverage.yml\n    format     -> reusable-format.yml\n    e2e        -> reusable-e2e.yml\n    aot        -> reusable-aot.yml\n    packaging  -> reusable-packaging.yml\n    ci-gate    -- the single required status check\n\nThe gate still has to live in ci.yml because `needs:` cannot reference a job in\nanother workflow file. Everything else moves out.\n\nBeyond readability, actionlint cross-validates the calls, so a typo in an input\nor secret name becomes a lint error rather than a runtime failure.\n\nThe blocks take no inputs. They have exactly one caller in this repository, so\nparameters would only ever be passed their own defaults. The one thing that does\nhave to cross the boundary is the Codecov token: secrets are not visible to a\ncalled workflow unless they are passed explicitly.\n\nOne consequence worth calling out: check runs produced through a reusable\nworkflow are named `<caller job> / <called job>`, so the checks are now\n`Build / ubuntu-latest`, `AOT / linux-arm64`, `Format / dotnet format` and so\non. That means the `e2e-tests` context cannot be preserved the way it was in\nthe previous commit, and branch protection has to drop it before this merges\nrather than after. `CI Gate` is unaffected - it is a plain job in ci.yml, so its\nname has no prefix and stays stable as jobs move around underneath it.\n\nReusable workflows are `workflow_call`-only so they never self-trigger, and\nconcurrency stays in the caller alone - sharing a group between caller and\ncallee makes a run cancel itself.\n\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\n\n* ci: fix stale workflow paths in the solution file\n\nThe reusable-workflow split left OpenFeature.slnx pointing at\ncode-coverage.yml, dotnet-format.yml and e2e.yml, which no longer\nexist. Repoint them at their reusable-* successors and list the two\nremaining new workflows so the folder covers the whole CI surface.\n\nAlso drops codeql-analysis.yml, a dead entry left behind when that\nworkflow was deleted in #700, and adds dco-merge-group.yml, which was\nnever listed.\n\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\n\n* ci: tighten permissions and checkout credentials in the reusable workflows\n\nSet persist-credentials: false on all six checkouts. Nothing runs git\nafter checkout - the steps are dotnet restore/build/test/pack/push, a\nCodecov upload over HTTPS and a file copy - so leaving the job token in\n.git/config only widens the blast radius of a compromised step. The spec\nsubmodule is a public HTTPS URL, so recursive checkout is unaffected.\n\nDrop pull-requests: write from build, coverage, format and e2e. It was\napplied uniformly in #439 when permissions blocks were first added,\nwithout a per-job need. --report-github emits workflow commands and a\nstep summary, and codecov-action uploads with its own token; the PR\ncomment comes from the Codecov app, not the action. lint-pr and release\nkeep theirs because they really do write to pull requests.\n\nPass the packaging secret and version suffix through env instead of\nexpanding them into the run body, so neither is materialised in the\ngenerated script.\n\nAlso list the two composite actions in the solution file, matching the\nworkflows folder already there.\n\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\n\n* ci: fail the fork package upload when no packages are produced\n\nactions/upload-artifact defaults to if-no-files-found: warn, so a fork\npull request that packed nothing would hand the contributor an empty\nnupkgs artifact and still report success. The artifact is the only way a\nfork gets the packages, and that path is rarely exercised, so a silent\nregression could sit unnoticed. Fail instead.\n\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\n\n* Removed comments.\n\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\n\n* ci: update coverage job comment to clarify merge queue requirements\n\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\n\n* Update lint-pr.yml\n\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\n\n* Refactor PR lint workflow for merge group support\n\nUpdated the linting workflow to include a separate job for merge group checks and adjusted the runner environment to ubuntu-slim.\n\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\n\n* Potential fix for pull request finding 'CodeQL / Workflow does not contain permissions'\n\nCo-authored-by: Copilot Autofix powered by AI <62310815+github-advanced-security[bot]@users.noreply.github.com>\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\n\n* Update lint-pr.yml\n\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\n\n* Refactor Lint PR workflow configuration\n\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\n\n---------\n\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\nCo-authored-by: Copilot Autofix powered by AI <62310815+github-advanced-security[bot]@users.noreply.github.com>",
+          "timestamp": "2026-08-06T09:22:28Z",
+          "url": "https://github.com/open-feature/dotnet-sdk/commit/058cf5227ddfb9d3b4bbaa98d5a0a41295e63899"
+        },
+        "date": 1786160308510,
+        "benches": [
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetBooleanValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 10583.759544959436,
+            "unit": "ns",
+            "range": "± 35.310244696997934",
+            "bytesAllocated": 2168
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetBooleanValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 10502.085969034832,
+            "unit": "ns",
+            "range": "± 22.518505404156443",
+            "bytesAllocated": 2168
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetBooleanValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions",
+            "value": 10830.736461094448,
+            "unit": "ns",
+            "range": "± 22.450705782207816",
+            "bytesAllocated": 2168
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetStringValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 10946.57497229943,
+            "unit": "ns",
+            "range": "± 23.81124803186066",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetStringValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 10821.788959209736,
+            "unit": "ns",
+            "range": "± 15.72242770179839",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetStringValue_WithoutEvaluationContext_WithEmptyFlagEvaluationOptions",
+            "value": 10729.390413724459,
+            "unit": "ns",
+            "range": "± 24.135247891349543",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetIntegerValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 10661.12255532401,
+            "unit": "ns",
+            "range": "± 26.125250460976176",
+            "bytesAllocated": 2240
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetIntegerValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 10553.552220271184,
+            "unit": "ns",
+            "range": "± 25.95493839257794",
+            "bytesAllocated": 2240
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetIntegerValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions",
+            "value": 10526.073373647836,
+            "unit": "ns",
+            "range": "± 49.962218468103416",
+            "bytesAllocated": 2240
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetDoubleValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 10664.439685276577,
+            "unit": "ns",
+            "range": "± 27.29728995721753",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetDoubleValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 10494.340264638266,
+            "unit": "ns",
+            "range": "± 14.083059141041065",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetDoubleValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions",
+            "value": 10726.829259599957,
+            "unit": "ns",
+            "range": "± 31.442899885353718",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetObjectValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 10637.674843924386,
+            "unit": "ns",
+            "range": "± 24.13582356467964",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetObjectValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 10652.657452174595,
+            "unit": "ns",
+            "range": "± 20.841703830388724",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetObjectValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions",
+            "value": 10888.186854771206,
+            "unit": "ns",
+            "range": "± 26.088538546554727",
             "bytesAllocated": 2256
           }
         ]
