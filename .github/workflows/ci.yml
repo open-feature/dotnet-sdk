@@ -33,7 +33,7 @@ jobs:
     permissions:
       contents: read
       code-quality: write
-      pull-requests: write
+      pull-requests: read
     uses: ./.github/workflows/reusable-coverage.yml
     secrets:
       codecov-token: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
