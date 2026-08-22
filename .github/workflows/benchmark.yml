@@ -66,7 +66,7 @@ jobs:
         run: dotnet run -c Release --framework net10.0 -- --filter "*" --exporters json
 
       - name: Publish benchmark results
-        uses: martincostello/benchmarkdotnet-results-publisher@b8fe7bb9691c4fdcda7dee630aa09493e81004b8 # v2.0.5
+        uses: martincostello/benchmarkdotnet-results-publisher@236641c0fbb0e2dfbed98a9564b21d7abb7c6b09 # v2.1.0
         with:
           branch: gh-pages
           results-path: test/OpenFeature.Benchmarks/BenchmarkDotNet.Artifacts/results
