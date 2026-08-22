@@ -1,5 +1,5 @@
 {
-  "lastUpdated": 1787369047515,
+  "lastUpdated": 1787396173121,
   "repoUrl": "https://github.com/open-feature/dotnet-sdk",
   "entries": {
     "OpenFeature.Benchmark.OpenFeatureClientBenchmarks": [
@@ -2195,6 +2195,128 @@
             "value": 7650.835284641811,
             "unit": "ns",
             "range": "± 29.40764726878288",
+            "bytesAllocated": 2256
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "username": "askpt"
+          },
+          "committer": {
+            "username": "web-flow"
+          },
+          "sha": "fa4a7defc22b7ecacba6da06d38c45e76ebbf374",
+          "message": "ci: use MTP GitHub Actions report and upload coverage to GitHub (#800)\n\n* ci: consolidate PR checks behind a single required \"CI Gate\" job\n\n`needs:` cannot reference jobs in another workflow file, so a single required\nstatus check means the gated jobs have to live in one workflow. Fold\ncode-coverage.yml, dotnet-format.yml, aot-compatibility.yml and e2e.yml into\nci.yml and add a `CI Gate` job that depends on all of them.\n\nOnce branch protection requires only `DCO` + `CI Gate`, build, test, coverage,\nformat, E2E and the AOT matrix all become effectively required, and matrix legs\ncan be added or removed without editing branch protection.\n\nAlong the way this fixes several things that were silently broken:\n\n- ci.yml, code-coverage.yml and dotnet-format.yml had no `merge_group` trigger,\n  so the merge queue never validated build, test, coverage or format against the\n  merged result. They now run there.\n\n- ci.yml and code-coverage.yml used workflow-level `paths-ignore: \"**.md\"`.\n  A workflow skipped by path filtering reports no check runs at all, so a\n  required check inside it would leave docs-only pull requests blocked forever.\n  The filter is gone.\n\n- The gate uses `if: always()`. Without it the job inherits the implicit\n  `success()` condition and is *skipped* when a dependency fails - and branch\n  protection treats a skipped check as satisfied, which would let exactly the\n  broken pull requests through. The jq predicate also fails on `cancelled` and\n  on any skip that is not explicitly allow-listed.\n\n- `github.event.pull_request.head.repo.fork == false` is true on `push` and\n  `merge_group` because GitHub coerces the missing value to 0 before comparing.\n  Combined with `startsWith(github.ref, 'refs/heads/')`, which matches\n  `refs/heads/gh-readonly-queue/*`, adding a merge_group trigger would have\n  published a NuGet package for every queue entry. The packaging job now checks\n  `github.event_name` explicitly, always packs as a validation step, and\n  publishes only on push or a non-fork pull request.\n\n- Merge queue runs are never cancelled by the concurrency group; a cancelled run\n  reports a non-success conclusion and ejects the pull request from the queue.\n\nCoverage is skipped on `merge_group` - the `gh-readonly-queue/*` ref is thrown\naway, so uploading it to Codecov is meaningless and `build` already runs the\nsame tests there. It is the only entry in the gate's allow-list.\n\nThe E2E job deliberately keeps the bare `e2e-tests` id so its check run name is\nunchanged; it is a required context today and a required check that stops\nreporting blocks every open pull request.\n\nDuplicated setup-dotnet and NuGet cache blocks move into a local composite\naction.\n\nBranch protection still has to be updated after this merges.\n\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\n\n* ci: split the gated jobs into reusable workflows\n\nFollow-up to the CI Gate consolidation. Rather than one long ci.yml, each unit\nof work becomes a `workflow_call` building block and ci.yml is reduced to an\norchestrator that wires them together and evaluates the gate.\n\n  ci.yml\n    build      -> reusable-build.yml\n    coverage   -> reusable-coverage.yml\n    format     -> reusable-format.yml\n    e2e        -> reusable-e2e.yml\n    aot        -> reusable-aot.yml\n    packaging  -> reusable-packaging.yml\n    ci-gate    -- the single required status check\n\nThe gate still has to live in ci.yml because `needs:` cannot reference a job in\nanother workflow file. Everything else moves out.\n\nBeyond readability, actionlint cross-validates the calls, so a typo in an input\nor secret name becomes a lint error rather than a runtime failure.\n\nThe blocks take no inputs. They have exactly one caller in this repository, so\nparameters would only ever be passed their own defaults. The one thing that does\nhave to cross the boundary is the Codecov token: secrets are not visible to a\ncalled workflow unless they are passed explicitly.\n\nOne consequence worth calling out: check runs produced through a reusable\nworkflow are named `<caller job> / <called job>`, so the checks are now\n`Build / ubuntu-latest`, `AOT / linux-arm64`, `Format / dotnet format` and so\non. That means the `e2e-tests` context cannot be preserved the way it was in\nthe previous commit, and branch protection has to drop it before this merges\nrather than after. `CI Gate` is unaffected - it is a plain job in ci.yml, so its\nname has no prefix and stays stable as jobs move around underneath it.\n\nReusable workflows are `workflow_call`-only so they never self-trigger, and\nconcurrency stays in the caller alone - sharing a group between caller and\ncallee makes a run cancel itself.\n\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\n\n* ci: use MTP GitHub Actions report and upload coverage to GitHub\n\nThe `--report-github` switch used in CI is not a real option. Neither\nMicrosoft.Testing.Platform, xUnit v3, coverlet.MTP nor the .NET SDK\nregister it, so it was silently ignored and no annotations or job\nsummary were ever produced. GitHubActionsTestLogger was dead weight too:\nit is a VSTest logger, and this repo runs tests through Microsoft Testing\nPlatform, which never loads it.\n\nReplace both with the first-party Microsoft.Testing.Extensions.GitHubActionsReport\nextension and its documented `--report-gh` switch (MTP 2.3.0+). This\ngives per-assembly log groups, failure/skip annotations and a Markdown\njob summary. The extension is scoped to test projects so it does not turn\nthe benchmark and AOT sample projects into test applications. It is only\npublished as a prerelease today, so the version is pinned and should be\nmoved to the stable release once one ships.\n\nAlso add GitHub's built-in code coverage alongside Codecov. Coverlet now\nemits Cobertura next to OpenCover, the per-project/per-TFM reports are\nmerged into one file with ReportGenerator, and paths are rewritten to be\nrepository-relative so coverage maps onto the diff. Codecov keeps using\nthe unchanged OpenCover reports. The upload is best effort for now, since\nit needs Code Quality enabled on the repository.\n\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\n\n* Update CI workflow permissions for code quality\n\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\n\n* Fix tests\n\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\n\n* Apply suggestions from code review\n\nCo-authored-by: Copilot Autofix powered by AI <175728472+Copilot@users.noreply.github.com>\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\n\n---------\n\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\nCo-authored-by: Copilot Autofix powered by AI <175728472+Copilot@users.noreply.github.com>",
+          "timestamp": "2026-08-22T10:50:25Z",
+          "url": "https://github.com/open-feature/dotnet-sdk/commit/fa4a7defc22b7ecacba6da06d38c45e76ebbf374"
+        },
+        "date": 1787396173121,
+        "benches": [
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetBooleanValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 10363.801051213191,
+            "unit": "ns",
+            "range": "± 23.1126266751857",
+            "bytesAllocated": 2168
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetBooleanValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 10438.254299708775,
+            "unit": "ns",
+            "range": "± 18.843534115670135",
+            "bytesAllocated": 2168
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetBooleanValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions",
+            "value": 10369.42653479943,
+            "unit": "ns",
+            "range": "± 32.583603533888066",
+            "bytesAllocated": 2168
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetStringValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 10587.364774263822,
+            "unit": "ns",
+            "range": "± 14.97061625907954",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetStringValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 10597.24073079427,
+            "unit": "ns",
+            "range": "± 32.041488105175866",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetStringValue_WithoutEvaluationContext_WithEmptyFlagEvaluationOptions",
+            "value": 10608.944020589193,
+            "unit": "ns",
+            "range": "± 32.75547597625197",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetIntegerValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 10445.089105878558,
+            "unit": "ns",
+            "range": "± 20.168601194930527",
+            "bytesAllocated": 2240
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetIntegerValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 10370.933632405598,
+            "unit": "ns",
+            "range": "± 16.49319223562003",
+            "bytesAllocated": 2240
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetIntegerValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions",
+            "value": 10428.254641941616,
+            "unit": "ns",
+            "range": "± 21.36134318617774",
+            "bytesAllocated": 2240
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetDoubleValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 10398.72590637207,
+            "unit": "ns",
+            "range": "± 17.73336227919454",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetDoubleValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 10321.368958536785,
+            "unit": "ns",
+            "range": "± 22.370978374675452",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetDoubleValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions",
+            "value": 10480.831853594098,
+            "unit": "ns",
+            "range": "± 28.936934283894214",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetObjectValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 10463.25042622884,
+            "unit": "ns",
+            "range": "± 32.03709980265981",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetObjectValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 10570.982821655274,
+            "unit": "ns",
+            "range": "± 20.5657166534211",
+            "bytesAllocated": 2256
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetObjectValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions",
+            "value": 10636.139514160157,
+            "unit": "ns",
+            "range": "± 31.97808799842038",
             "bytesAllocated": 2256
           }
         ]
