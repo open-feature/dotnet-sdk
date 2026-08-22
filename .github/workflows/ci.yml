@@ -32,6 +32,8 @@ jobs:
     if: github.event_name != 'merge_group'
     permissions:
       contents: read
+      code-quality: write
+      pull-requests: read
     uses: ./.github/workflows/reusable-coverage.yml
     secrets:
       codecov-token: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
