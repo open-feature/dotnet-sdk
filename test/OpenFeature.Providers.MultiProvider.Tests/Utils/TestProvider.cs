@@ -29,14 +29,16 @@ public class TestProvider : FeatureProvider
     private readonly Exception? _initException;
     private readonly Exception? _shutdownException;
     private readonly bool _emitsLifecycleEvents;
+    private readonly Task? _initGate;
     private readonly List<TrackingInvocation> _trackingInvocations = new();
 
-    public TestProvider(string name, Exception? initException = null, Exception? shutdownException = null, bool emitsLifecycleEvents = false)
+    public TestProvider(string name, Exception? initException = null, Exception? shutdownException = null, bool emitsLifecycleEvents = false, Task? initGate = null)
     {
         this._name = name;
         this._initException = initException;
         this._shutdownException = shutdownException;
         this._emitsLifecycleEvents = emitsLifecycleEvents;
+        this._initGate = initGate;
     }
 
     public override bool EmitsLifecycleEvents => this._emitsLifecycleEvents;
@@ -64,7 +66,10 @@ public class TestProvider : FeatureProvider
             await this.SendProviderEventAsync(ProviderEventTypes.ProviderReady, cancellationToken: cancellationToken).ConfigureAwait(false);
         }
 
-        await Task.CompletedTask;
+        if (this._initGate != null)
+        {
+            await this._initGate.ConfigureAwait(false);
+        }
     }
 
     public override async Task ShutdownAsync(CancellationToken cancellationToken = default)
@@ -113,6 +118,6 @@ public class TestProvider : FeatureProvider
             ProviderName = this._name,
             ErrorType = errorType
         };
-        await this.EventChannel.Writer.WriteAsync(payload, cancellationToken);
+        await this.EventChannel.Writer.WriteAsync(new Event { EventPayload = payload, Provider = this }, cancellationToken);
     }
 }

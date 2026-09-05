@@ -358,6 +358,33 @@ public class MultiProviderEventTests
         AssertEvent(evt, "MultiProvider", ProviderEventTypes.ProviderError, errorType: ErrorType.ProviderFatal);
     }
 
+    [Fact]
+    public async Task InitializeAsync_WhenChildReadyProcessedDuringInit_SuppressesDuplicateReadyEmission()
+    {
+        var gate = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var child = new TestProvider("child1", emitsLifecycleEvents: true, initGate: gate.Task);
+        var multiProvider = CreateMultiProvider(child);
+
+        var initTask = multiProvider.InitializeAsync(_context, TestContext.Current.CancellationToken);
+
+        using (var cts = new CancellationTokenSource(2000))
+        {
+            while (multiProvider.Status != ProviderStatus.Ready && !cts.Token.IsCancellationRequested)
+            {
+                await Task.Delay(20, cts.Token);
+            }
+        }
+
+        Assert.Equal(ProviderStatus.Ready, multiProvider.Status);
+
+        gate.SetResult(true);
+        await initTask;
+
+        var events = await ReadEvents(multiProvider.GetEventChannel(), expectedCount: 2, timeoutMs: 300);
+        var evt = Assert.Single(events);
+        AssertEvent(evt, "MultiProvider", ProviderEventTypes.ProviderReady, "MultiProvider successfully initialized");
+    }
+
     // Helper methods
     private MultiProvider CreateMultiProvider(params FeatureProvider[] providers)
     {
