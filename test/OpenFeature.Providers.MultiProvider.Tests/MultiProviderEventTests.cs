@@ -292,6 +292,39 @@ public class MultiProviderEventTests
             multiProvider.ResolveBooleanValueAsync(TestFlagKey, false, cancellationToken: TestContext.Current.CancellationToken));
     }
 
+    [Fact]
+    public async Task RegisteredViaApi_EmitsProviderReadyExactlyOnce()
+    {
+        // Arrange - MultiProvider opts in to emitting its own lifecycle events, so the SDK must not
+        // synthesize an additional PROVIDER_READY when it is registered (previously it double-emitted).
+        var multiProvider = CreateMultiProvider(new TestProvider("child1"), new TestProvider("child2"));
+        var eventHandler = Substitute.For<EventHandlerDelegate>();
+
+        try
+        {
+            Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
+
+            // Act
+            await Api.Instance.SetProviderAsync(multiProvider, TestContext.Current.CancellationToken);
+
+            // Assert - exactly one PROVIDER_READY reaches the handler, and it stays at one.
+            using var cts = new CancellationTokenSource(1000);
+            while (eventHandler.ReceivedCalls().Count() < 1 && !cts.Token.IsCancellationRequested)
+            {
+                await Task.Delay(50, cts.Token);
+            }
+
+            await Task.Delay(300, TestContext.Current.CancellationToken);
+            eventHandler.Received(1).Invoke(Arg.Is<ProviderEventPayload>(
+                payload => payload!.Type == ProviderEventTypes.ProviderReady));
+        }
+        finally
+        {
+            Api.Instance.RemoveHandler(ProviderEventTypes.ProviderReady, eventHandler);
+            await Api.Instance.ShutdownAsync();
+        }
+    }
+
     // Helper methods
     private MultiProvider CreateMultiProvider(params FeatureProvider[] providers)
     {

@@ -1,4 +1,8 @@
+using System.Collections.Concurrent;
 using System.Collections.Immutable;
+#if NET
+using System.Diagnostics.CodeAnalysis;
+#endif
 using System.Threading.Channels;
 using OpenFeature.Constant;
 using OpenFeature.Model;
@@ -29,6 +33,46 @@ public abstract class FeatureProvider
     /// The event channel of the provider.
     /// </summary>
     protected readonly Channel<object> EventChannel = Channel.CreateBounded<object>(1);
+
+    /// <summary>
+    /// Indicates that the provider emits its own <see cref="ProviderEventTypes.ProviderReady"/> and
+    /// <see cref="ProviderEventTypes.ProviderError"/> lifecycle events (OpenFeature spec v0.9.0).
+    /// <para>
+    /// When <c>true</c>, the SDK does not emit synthetic lifecycle events on the provider's behalf and
+    /// instead derives the provider status solely from the events the provider emits on its
+    /// <see cref="GetEventChannel">event channel</see>. Providers that opt in must emit
+    /// <see cref="ProviderEventTypes.ProviderReady"/> before <see cref="InitializeAsync"/> terminates
+    /// normally, and <see cref="ProviderEventTypes.ProviderError"/> before it terminates abnormally.
+    /// </para>
+    /// <para>
+    /// When <c>false</c> (the default), the SDK emits synthetic lifecycle events after
+    /// <see cref="InitializeAsync"/> returns or throws. This legacy behavior is deprecated and will be
+    /// removed in a future major version.
+    /// </para>
+    /// </summary>
+    /// <seealso href="https://github.com/open-feature/spec/blob/v0.9.0/specification/appendix-e-migrations.md">Appendix E: Migrations</seealso>
+    public virtual bool EmitsLifecycleEvents => false;
+
+    /// <summary>
+    /// Caches, per concrete provider type, whether <see cref="InitializeAsync"/> is overridden.
+    /// </summary>
+    private static readonly ConcurrentDictionary<Type, bool> OverridesInitializeCache = new();
+
+    /// <summary>
+    /// Determines whether this provider overrides <see cref="InitializeAsync"/>, i.e. it defines an
+    /// initialization function. Providers without an initialization function are treated as READY from
+    /// registration (spec Condition 2.8.5).
+    /// </summary>
+    /// <returns><c>true</c> if the concrete type overrides <see cref="InitializeAsync"/>; otherwise <c>false</c>.</returns>
+    internal bool OverridesInitialize() => OverridesInitializeCache.GetOrAdd(this.GetType(), ComputeOverridesInitialize);
+
+#if NET
+    [UnconditionalSuppressMessage("Trimming", "IL2070",
+        Justification = "InitializeAsync is a public virtual method invoked by the SDK for every registered provider, so it is always preserved and available for reflection.")]
+#endif
+    private static bool ComputeOverridesInitialize(Type type) =>
+        type.GetMethod(nameof(InitializeAsync), new[] { typeof(EvaluationContext), typeof(CancellationToken) })?.DeclaringType
+        != typeof(FeatureProvider);
 
     /// <summary>
     /// Metadata describing the provider.

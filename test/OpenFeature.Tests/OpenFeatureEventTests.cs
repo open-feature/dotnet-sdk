@@ -1,7 +1,10 @@
 using AutoFixture;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
 using OpenFeature.Constant;
 using OpenFeature.Model;
+using OpenFeature.Providers.Memory;
 using OpenFeature.Tests.Internal;
 
 namespace OpenFeature.Tests;
@@ -508,5 +511,92 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         await Api.Instance.SetProviderAsync("5.3.5", provider, TestContext.Current.CancellationToken);
         _ = provider.SendEventAsync(type, TestContext.Current.CancellationToken);
         await Utils.AssertUntilAsync(_ => Assert.True(provider.Status == status));
+    }
+
+    [Fact]
+    [Specification("2.8.1", "The `provider` MUST emit an event to signal each status transition, including transitions resulting from lifecycle methods.")]
+    [Specification("2.8.2", "The `provider` MUST emit the `PROVIDER_READY` event before its `initialize` function terminates normally.")]
+    public async Task Provider_That_Emits_Own_Lifecycle_Events_Should_Not_Get_Synthetic_Ready()
+    {
+        var eventHandler = Substitute.For<EventHandlerDelegate>();
+        Api.Instance.AddHandler(ProviderEventTypes.ProviderReady, eventHandler);
+
+        var provider = new LifecycleEmittingTestProvider();
+        await Api.Instance.SetProviderAsync(provider, TestContext.Current.CancellationToken);
+
+        // The provider's own PROVIDER_READY should reach the handler exactly once.
+        await Utils.AssertUntilAsync(_ => eventHandler
+            .Received(1)
+            .Invoke(Arg.Is<ProviderEventPayload>(
+                payload => payload!.ProviderName == provider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderReady)));
+
+        // Give any (erroneously) synthesized event time to arrive, then confirm the count is still one.
+        await Task.Delay(300, TestContext.Current.CancellationToken);
+        eventHandler
+            .Received(1)
+            .Invoke(Arg.Is<ProviderEventPayload>(
+                payload => payload!.ProviderName == provider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderReady));
+
+        Assert.Equal(ProviderStatus.Ready, provider.Status);
+    }
+
+    [Fact]
+    [Specification("2.8.3", "The `provider` MUST emit the `PROVIDER_ERROR` event before its `initialize` function terminates abnormally.")]
+    [Specification("5.3.5", "If the provider emits an event, the value of the client's provider status MUST be updated accordingly.")]
+    public async Task Provider_That_Emits_Own_Error_Event_Should_Not_Get_Synthetic_Error()
+    {
+        var eventHandler = Substitute.For<EventHandlerDelegate>();
+        Api.Instance.AddHandler(ProviderEventTypes.ProviderError, eventHandler);
+
+        var provider = new LifecycleEmittingTestProvider(initErrorType: ErrorType.ProviderFatal);
+        await Api.Instance.SetProviderAsync(provider, TestContext.Current.CancellationToken);
+
+        await Utils.AssertUntilAsync(_ => eventHandler
+            .Received(1)
+            .Invoke(Arg.Is<ProviderEventPayload>(
+                payload => payload!.ProviderName == provider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderError)));
+
+        // No synthetic error should follow the provider's own event.
+        await Task.Delay(300, TestContext.Current.CancellationToken);
+        eventHandler
+            .Received(1)
+            .Invoke(Arg.Is<ProviderEventPayload>(
+                payload => payload!.ProviderName == provider.GetMetadata().Name && payload.Type == ProviderEventTypes.ProviderError));
+
+        // The provider emitted PROVIDER_FATAL, so status must be derived as Fatal.
+        Assert.Equal(ProviderStatus.Fatal, provider.Status);
+    }
+
+    [Fact]
+    [Specification("5.3.1", "If the provider's `initialize` function terminates normally, `PROVIDER_READY` handlers MUST run.")]
+    public async Task Legacy_Provider_Registration_Should_Log_Deprecation_Warning()
+    {
+        var logger = new FakeLogger();
+        Api.Instance.SetLogger(logger);
+
+        // TestProvider overrides InitializeAsync but does not opt in to emitting its own lifecycle events.
+        var provider = new TestProvider();
+        await Api.Instance.SetProviderAsync(provider, TestContext.Current.CancellationToken);
+
+        Assert.Contains(logger.Collector.GetSnapshot(),
+            record => record.Level == LogLevel.Debug && record.Id.Id == 106);
+    }
+
+    [Fact]
+    [Specification("2.8.5", "The `provider` defines a mechanism to gracefully shutdown and dispose of resources.")]
+    public async Task NoInit_Provider_Registration_Should_Not_Log_Deprecation_Warning_And_Be_Ready()
+    {
+        var logger = new FakeLogger();
+        Api.Instance.SetLogger(logger);
+
+        // InMemoryProvider does not define an initialization function (Condition 2.8.5).
+        var provider = new InMemoryProvider();
+        await Api.Instance.SetProviderAsync(provider, TestContext.Current.CancellationToken);
+
+        Assert.DoesNotContain(logger.Collector.GetSnapshot(),
+            record => record.Level == LogLevel.Debug && record.Id.Id == 106);
+
+        // Providers with no initialize function are treated as READY from registration.
+        await Utils.AssertUntilAsync(_ => Assert.Equal(ProviderStatus.Ready, provider.Status));
     }
 }
