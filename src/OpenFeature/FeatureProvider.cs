@@ -70,9 +70,17 @@ public abstract class FeatureProvider
     [UnconditionalSuppressMessage("Trimming", "IL2070",
         Justification = "InitializeAsync is a public virtual method invoked by the SDK for every registered provider, so it is always preserved and available for reflection.")]
 #endif
-    private static bool ComputeOverridesInitialize(Type type) =>
-        type.GetMethod(nameof(InitializeAsync), new[] { typeof(EvaluationContext), typeof(CancellationToken) })?.DeclaringType
-        != typeof(FeatureProvider);
+    private static bool ComputeOverridesInitialize(Type type)
+    {
+        var method = type.GetMethod(nameof(InitializeAsync), new[] { typeof(EvaluationContext), typeof(CancellationToken) });
+        if (method is null || !method.IsVirtual)
+        {
+            return false;
+        }
+
+        return method.DeclaringType != typeof(FeatureProvider)
+            && method.GetBaseDefinition().DeclaringType == typeof(FeatureProvider);
+    }
 
     /// <summary>
     /// Metadata describing the provider.

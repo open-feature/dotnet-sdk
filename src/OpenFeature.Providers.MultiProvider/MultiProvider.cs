@@ -30,6 +30,8 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
     private readonly SemaphoreSlim _shutdownSemaphore = new(1, 1);
     private readonly object _providerStatusLock = new();
     private ProviderStatus _providerStatus = ProviderStatus.NotReady;
+
+    private volatile bool _initializing;
     // 0 = Not disposed, 1 = Disposed
     // This is to handle the dispose pattern correctly with the async initialization and shutdown methods
     private volatile int _disposed;
@@ -174,6 +176,8 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
                 return;
             }
 
+            this._initializing = true;
+
             var initializationTasks = this._registeredProviders.Select(async rp =>
             {
                 try
@@ -226,6 +230,7 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
         }
         finally
         {
+            this._initializing = false;
             this._initializationSemaphore.Release();
         }
     }
@@ -442,6 +447,12 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
                         ProviderStatus.Stale => ProviderEventTypes.ProviderStale,
                         _ => (ProviderEventTypes?)null
                     };
+
+                    if (this._initializing &&
+                        eventType is ProviderEventTypes.ProviderReady or ProviderEventTypes.ProviderError)
+                    {
+                        eventType = null;
+                    }
                 }
                 else
                 {

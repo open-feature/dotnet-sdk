@@ -42,8 +42,8 @@ public class MultiProviderEventTests
 
         // Assert
         var events = await ReadEvents(multiProvider.GetEventChannel());
-        Assert.Single(events);
-        AssertEvent(events[0], "MultiProvider", ProviderEventTypes.ProviderReady, "MultiProvider successfully initialized");
+        var evt = Assert.Single(events);
+        AssertEvent(evt, "MultiProvider", ProviderEventTypes.ProviderReady, "MultiProvider successfully initialized");
     }
 
     [Fact]
@@ -58,8 +58,8 @@ public class MultiProviderEventTests
 
         // Verify the error event was emitted
         var events = await ReadEvents(multiProvider.GetEventChannel());
-        Assert.Single(events);
-        AssertEvent(events[0], "MultiProvider", ProviderEventTypes.ProviderError, errorType: ErrorType.ProviderFatal);
+        var evt = Assert.Single(events);
+        AssertEvent(evt, "MultiProvider", ProviderEventTypes.ProviderError, errorType: ErrorType.ProviderFatal);
     }
 
     [Fact]
@@ -78,8 +78,8 @@ public class MultiProviderEventTests
 
         // Verify the error event was emitted
         var events = await ReadEvents(multiProvider.GetEventChannel());
-        Assert.Single(events);
-        AssertEvent(events[0], "MultiProvider", ProviderEventTypes.ProviderError, errorType: ErrorType.ProviderFatal);
+        var evt = Assert.Single(events);
+        AssertEvent(evt, "MultiProvider", ProviderEventTypes.ProviderError, errorType: ErrorType.ProviderFatal);
     }
 
     [Fact]
@@ -100,8 +100,8 @@ public class MultiProviderEventTests
 
         // Verify the error event was emitted
         var events = await ReadEvents(multiProvider.GetEventChannel());
-        Assert.Single(events);
-        AssertEvent(events[0], "MultiProvider", ProviderEventTypes.ProviderError, errorType: ErrorType.General);
+        var evt = Assert.Single(events);
+        AssertEvent(evt, "MultiProvider", ProviderEventTypes.ProviderError, errorType: ErrorType.General);
     }
 
     [Fact]
@@ -123,9 +123,9 @@ public class MultiProviderEventTests
 
         // Assert
         var events = await ReadEvents(multiProvider.GetEventChannel());
-        Assert.Single(events);
-        AssertEvent(events[0], $"MultiProvider/{Provider1Name}", ProviderEventTypes.ProviderConfigurationChanged, "Config changed");
-        Assert.Contains(TestFlagKey, events[0].FlagsChanged!);
+        var evt = Assert.Single(events);
+        AssertEvent(evt, $"MultiProvider/{Provider1Name}", ProviderEventTypes.ProviderConfigurationChanged, "Config changed");
+        Assert.Contains(TestFlagKey, evt.FlagsChanged!);
     }
 
     [Fact]
@@ -160,8 +160,8 @@ public class MultiProviderEventTests
 
         // Assert
         var events = await ReadEvents(multiProvider.GetEventChannel());
-        Assert.Single(events);
-        AssertEvent(events[0], "MultiProvider", ProviderEventTypes.ProviderError, errorType: ErrorType.ProviderFatal);
+        var evt = Assert.Single(events);
+        AssertEvent(evt, "MultiProvider", ProviderEventTypes.ProviderError, errorType: ErrorType.ProviderFatal);
     }
 
     [Fact]
@@ -177,8 +177,8 @@ public class MultiProviderEventTests
 
         // Assert
         var events = await ReadEvents(multiProvider.GetEventChannel());
-        Assert.Single(events);
-        AssertEvent(events[0], "MultiProvider", ProviderEventTypes.ProviderStale);
+        var evt = Assert.Single(events);
+        AssertEvent(evt, "MultiProvider", ProviderEventTypes.ProviderStale);
     }
 
     [Fact]
@@ -237,9 +237,10 @@ public class MultiProviderEventTests
 
         // Assert
         var events = await ReadEvents(multiProvider.GetEventChannel());
-        Assert.Single(events);
-        Assert.NotNull(events[0].EventMetadata);
-        Assert.Equal("test", events[0].EventMetadata?.GetString("source"));
+        var evt = Assert.Single(events);
+        AssertEvent(evt, $"MultiProvider/{Provider1Name}", ProviderEventTypes.ProviderConfigurationChanged);
+        Assert.NotNull(evt.EventMetadata);
+        Assert.Equal("test", evt.EventMetadata?.GetString("source"));
     }
 
     [Fact]
@@ -323,6 +324,38 @@ public class MultiProviderEventTests
             Api.Instance.RemoveHandler(ProviderEventTypes.ProviderReady, eventHandler);
             await Api.Instance.ShutdownAsync();
         }
+    }
+
+    [Fact]
+    public async Task InitializeAsync_WithLifecycleEmittingChildren_EmitsProviderReadyExactlyOnce()
+    {
+        var child1 = new TestProvider("child1", emitsLifecycleEvents: true);
+        var child2 = new TestProvider("child2", emitsLifecycleEvents: true);
+        var multiProvider = CreateMultiProvider(child1, child2);
+
+        // Act
+        await multiProvider.InitializeAsync(_context, TestContext.Current.CancellationToken);
+
+        await Task.Delay(100, TestContext.Current.CancellationToken);
+
+        var events = await ReadEvents(multiProvider.GetEventChannel(), expectedCount: 2, timeoutMs: 300);
+        var evt = Assert.Single(events);
+        AssertEvent(evt, "MultiProvider", ProviderEventTypes.ProviderReady, "MultiProvider successfully initialized");
+    }
+
+    [Fact]
+    public async Task InitializeAsync_WithLifecycleEmittingChildFailure_EmitsProviderErrorExactlyOnce()
+    {
+        var failingChild = new TestProvider("child1", new InvalidOperationException("Init failed"), emitsLifecycleEvents: true);
+        var healthyChild = new TestProvider("child2", emitsLifecycleEvents: true);
+        var multiProvider = CreateMultiProvider(failingChild, healthyChild);
+
+        await Assert.ThrowsAsync<AggregateException>(() => multiProvider.InitializeAsync(_context, TestContext.Current.CancellationToken));
+        await Task.Delay(100, TestContext.Current.CancellationToken);
+
+        var events = await ReadEvents(multiProvider.GetEventChannel(), expectedCount: 2, timeoutMs: 300);
+        var evt = Assert.Single(events);
+        AssertEvent(evt, "MultiProvider", ProviderEventTypes.ProviderError, errorType: ErrorType.ProviderFatal);
     }
 
     // Helper methods
