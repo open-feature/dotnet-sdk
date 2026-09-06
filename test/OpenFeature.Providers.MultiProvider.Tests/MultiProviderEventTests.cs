@@ -338,9 +338,12 @@ public class MultiProviderEventTests
 
         await Task.Delay(100, TestContext.Current.CancellationToken);
 
-        var events = await ReadEvents(multiProvider.GetEventChannel(), expectedCount: 2, timeoutMs: 300);
+        var events = await ReadEvents(multiProvider.GetEventChannel(), expectedCount: 1);
         var evt = Assert.Single(events);
         AssertEvent(evt, "MultiProvider", ProviderEventTypes.ProviderReady, "MultiProvider successfully initialized");
+
+        var extraEvents = await ReadEvents(multiProvider.GetEventChannel(), expectedCount: 1, timeoutMs: 300);
+        Assert.Empty(extraEvents);
     }
 
     [Fact]
@@ -353,9 +356,12 @@ public class MultiProviderEventTests
         await Assert.ThrowsAsync<AggregateException>(() => multiProvider.InitializeAsync(_context, TestContext.Current.CancellationToken));
         await Task.Delay(100, TestContext.Current.CancellationToken);
 
-        var events = await ReadEvents(multiProvider.GetEventChannel(), expectedCount: 2, timeoutMs: 300);
+        var events = await ReadEvents(multiProvider.GetEventChannel(), expectedCount: 1);
         var evt = Assert.Single(events);
         AssertEvent(evt, "MultiProvider", ProviderEventTypes.ProviderError, errorType: ErrorType.ProviderFatal);
+
+        var extraEvents = await ReadEvents(multiProvider.GetEventChannel(), expectedCount: 1, timeoutMs: 300);
+        Assert.Empty(extraEvents);
     }
 
     [Fact]
