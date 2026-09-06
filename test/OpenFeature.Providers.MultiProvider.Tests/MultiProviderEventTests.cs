@@ -386,9 +386,12 @@ public class MultiProviderEventTests
         gate.SetResult(true);
         await initTask;
 
-        var events = await ReadEvents(multiProvider.GetEventChannel(), expectedCount: 2, timeoutMs: 300);
+        var events = await ReadEvents(multiProvider.GetEventChannel(), expectedCount: 1);
         var evt = Assert.Single(events);
         AssertEvent(evt, "MultiProvider", ProviderEventTypes.ProviderReady, "MultiProvider successfully initialized");
+
+        var extraEvents = await ReadEvents(multiProvider.GetEventChannel(), expectedCount: 1, timeoutMs: 300);
+        Assert.Empty(extraEvents);
     }
 
     // Helper methods
