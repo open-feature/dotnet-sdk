@@ -394,7 +394,7 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
                     return;
                 }
 
-                if (item is not Event { EventPayload: { } eventPayload })
+                if (item is not ProviderEventPayload eventPayload)
                 {
                     continue;
                 }

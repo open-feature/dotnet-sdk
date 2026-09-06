@@ -118,6 +118,6 @@ public class TestProvider : FeatureProvider
             ProviderName = this._name,
             ErrorType = errorType
         };
-        await this.EventChannel.Writer.WriteAsync(new Event { EventPayload = payload, Provider = this }, cancellationToken);
+        await this.EventChannel.Writer.WriteAsync(payload, cancellationToken);
     }
 }

@@ -411,8 +411,7 @@ public class MultiProviderEventTests
     private static async Task EmitEventToProvider(FeatureProvider provider, ProviderEventPayload eventPayload)
     {
         var eventChannel = provider.GetEventChannel();
-        var eventWrapper = new Event { EventPayload = eventPayload, Provider = provider };
-        await eventChannel.Writer.WriteAsync(eventWrapper);
+        await eventChannel.Writer.WriteAsync(eventPayload);
     }
 
     private static async Task<List<ProviderEventPayload>> ReadEvents(Channel<object> channel, int expectedCount = 1, int timeoutMs = 1000)
