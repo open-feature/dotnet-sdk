@@ -30,6 +30,8 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
     private readonly SemaphoreSlim _shutdownSemaphore = new(1, 1);
     private readonly object _providerStatusLock = new();
     private ProviderStatus _providerStatus = ProviderStatus.NotReady;
+
+    private volatile bool _initializing;
     // 0 = Not disposed, 1 = Disposed
     // This is to handle the dispose pattern correctly with the async initialization and shutdown methods
     private volatile int _disposed;
@@ -151,6 +153,14 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
     }
 
     /// <inheritdoc/>
+    /// <remarks>
+    /// The MultiProvider emits its own <see cref="ProviderEventTypes.ProviderReady"/> and
+    /// <see cref="ProviderEventTypes.ProviderError"/> lifecycle events from <see cref="InitializeAsync"/>,
+    /// so the SDK does not synthesize them (OpenFeature spec v0.9.0, Appendix E).
+    /// </remarks>
+    public override bool EmitsLifecycleEvents => true;
+
+    /// <inheritdoc/>
     public override async Task InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default)
     {
         if (this._disposed == 1)
@@ -165,6 +175,8 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
             {
                 return;
             }
+
+            this._initializing = true;
 
             var initializationTasks = this._registeredProviders.Select(async rp =>
             {
@@ -218,6 +230,7 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
         }
         finally
         {
+            this._initializing = false;
             this._initializationSemaphore.Release();
         }
     }
@@ -381,7 +394,7 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
                     return;
                 }
 
-                if (item is not Event { EventPayload: { } eventPayload })
+                if (item is not ProviderEventPayload eventPayload)
                 {
                     continue;
                 }
@@ -434,6 +447,12 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
                         ProviderStatus.Stale => ProviderEventTypes.ProviderStale,
                         _ => (ProviderEventTypes?)null
                     };
+
+                    if (this._initializing &&
+                        eventType is ProviderEventTypes.ProviderReady or ProviderEventTypes.ProviderError)
+                    {
+                        eventType = null;
+                    }
                 }
                 else
                 {

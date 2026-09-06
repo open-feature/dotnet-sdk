@@ -359,6 +359,13 @@ public sealed class Api : IEventBus
     /// </summary>
     private async Task AfterInitializationAsync(FeatureProvider provider, CancellationToken cancellationToken = default)
     {
+        if (EmitsOwnLifecycleEvents(provider))
+        {
+            // The provider owns its lifecycle events; the SDK must not synthesize them (spec v0.9.0, Appendix E).
+            // Status is derived from the provider's emitted events via EventExecutor.UpdateProviderStatus.
+            return;
+        }
+
         provider.Status = ProviderStatus.Ready;
         var eventPayload = new ProviderEventPayload
         {
@@ -376,6 +383,13 @@ public sealed class Api : IEventBus
     /// </summary>
     private async Task AfterErrorAsync(FeatureProvider provider, Exception? ex, CancellationToken cancellationToken = default)
     {
+        if (EmitsOwnLifecycleEvents(provider))
+        {
+            // The provider owns its lifecycle events; the SDK must not synthesize them (spec v0.9.0, Appendix E).
+            // Status is derived from the provider's emitted events via EventExecutor.UpdateProviderStatus.
+            return;
+        }
+
         provider.Status = typeof(ProviderFatalException) == ex?.GetType() ? ProviderStatus.Fatal : ProviderStatus.Error;
         var eventPayload = new ProviderEventPayload
         {
@@ -387,6 +401,15 @@ public sealed class Api : IEventBus
         await this._eventExecutor.EventChannel.Writer.WriteAsync(new Event { Provider = provider, EventPayload = eventPayload }, cancellationToken)
             .ConfigureAwait(false);
     }
+
+    /// <summary>
+    /// Determines whether the SDK should defer to the provider for lifecycle event emission.
+    /// This is the case only when the provider opts in via <see cref="FeatureProvider.EmitsLifecycleEvents"/>
+    /// and defines an initialization function. Providers without an initialization function are treated as
+    /// READY from registration (spec Condition 2.8.5), so the SDK still emits READY on their behalf.
+    /// </summary>
+    private static bool EmitsOwnLifecycleEvents(FeatureProvider provider) =>
+        provider.EmitsLifecycleEvents && provider.OverridesInitialize();
 
     /// <summary>
     /// This method should only be using for testing purposes. It will reset the singleton instance of the API.
