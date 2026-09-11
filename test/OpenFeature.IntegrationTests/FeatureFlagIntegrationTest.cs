@@ -124,7 +124,7 @@ public class FeatureFlagIntegrationTest
 
         // Assert
         Assert.True(response.IsSuccessStatusCode, "Expected HTTP status code 200 OK.");
-        Assert.True(handlerSuccess);
+        await AssertUntilAsync(() => handlerSuccess, TestContext.Current.CancellationToken).ConfigureAwait(true);
     }
 
     [Fact]
@@ -156,12 +156,8 @@ public class FeatureFlagIntegrationTest
 
         // Assert
         Assert.True(response.IsSuccessStatusCode, "Expected HTTP status code 200 OK.");
-        Assert.Multiple(() =>
-        {
-            Assert.Equal(2, counter);
-            Assert.True(handler1Success);
-            Assert.True(handler2Success);
-        });
+        await AssertUntilAsync(() => handler1Success && handler2Success, TestContext.Current.CancellationToken).ConfigureAwait(true);
+        Assert.Equal(2, counter);
     }
 
     [Fact]
@@ -195,7 +191,21 @@ public class FeatureFlagIntegrationTest
 
         // Assert
         Assert.True(response.IsSuccessStatusCode, "Expected HTTP status code 200 OK.");
-        Assert.Contains("Handler invoked from builder!", logs);
+        await AssertUntilAsync(() => logs.Contains("Handler invoked from builder!"), TestContext.Current.CancellationToken).ConfigureAwait(true);
+    }
+
+    private static async Task AssertUntilAsync(Func<bool> condition, CancellationToken cancellationToken, int timeoutMs = 5000, int pollMs = 25)
+    {
+        var deadline = DateTime.UtcNow.AddMilliseconds(timeoutMs);
+        while (!condition())
+        {
+            if (DateTime.UtcNow >= deadline)
+            {
+                Assert.Fail("Condition was not met within the allotted time.");
+            }
+
+            await Task.Delay(pollMs, cancellationToken).ConfigureAwait(false);
+        }
     }
 
     private static async Task<TestServer> CreateServerAsync(ServiceLifetime serviceLifetime,
