@@ -1,4 +1,6 @@
-namespace OpenFeature.Hosting.Tests;
+using OpenFeature.Hosting;
+
+namespace OpenFeature.Providers.DependencyInjection.Tests;
 
 public class GuardTests
 {

@@ -1,9 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
+using OpenFeature.Hosting;
 using OpenFeature.Hosting.Providers.Memory;
 using OpenFeature.Model;
 using OpenFeature.Providers.Memory;
 
-namespace OpenFeature.Hosting.Tests.Providers.Memory;
+namespace OpenFeature.Providers.DependencyInjection.Tests.Providers.Memory;
 
 public class FeatureBuilderExtensionsTests
 {
