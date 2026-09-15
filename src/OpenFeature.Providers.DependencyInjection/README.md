@@ -35,7 +35,8 @@ Provider libraries integrate by adding extension methods on `OpenFeatureBuilder`
 
 ```csharp
 using Microsoft.Extensions.DependencyInjection;
-using OpenFeature.Hosting;
+using OpenFeature;                    // AddProvider and the core builder extensions
+using OpenFeature.DependencyInjection; // OpenFeatureBuilder, OpenFeatureOptions
 
 namespace OpenFeature.Contrib.Providers.MyProvider;
 
