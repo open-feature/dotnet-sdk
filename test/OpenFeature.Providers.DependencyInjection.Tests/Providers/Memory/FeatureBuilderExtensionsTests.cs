@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using OpenFeature.Hosting;
-using OpenFeature.Hosting.Providers.Memory;
+using OpenFeature.DependencyInjection;
 using OpenFeature.Model;
 using OpenFeature.Providers.Memory;
 

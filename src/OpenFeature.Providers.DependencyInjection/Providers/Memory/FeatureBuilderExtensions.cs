@@ -1,14 +1,15 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using OpenFeature.DependencyInjection;
 using OpenFeature.Providers.Memory;
 
-namespace OpenFeature.Hosting.Providers.Memory;
+namespace OpenFeature;
 
 /// <summary>
 /// Extension methods for configuring feature providers with <see cref="OpenFeatureBuilder"/>.
 /// </summary>
 #if NET8_0_OR_GREATER
-[System.Diagnostics.CodeAnalysis.Experimental(Diagnostics.FeatureCodes.NewDi)]
+[System.Diagnostics.CodeAnalysis.Experimental(DependencyInjection.Diagnostics.FeatureCodes.NewDi)]
 #endif
 public static partial class FeatureBuilderExtensions
 {

@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using OpenFeature.Hosting;
-using OpenFeature.Hosting.Internal;
+using OpenFeature.DependencyInjection;
+using OpenFeature.DependencyInjection.Internal;
 using OpenFeature.Model;
 
 namespace OpenFeature.Providers.DependencyInjection.Tests;
@@ -59,7 +59,7 @@ public partial class OpenFeatureBuilderExtensionsTests
     }
 
 #if NET8_0_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.Experimental(Hosting.Diagnostics.FeatureCodes.NewDi)]
+    [System.Diagnostics.CodeAnalysis.Experimental(OpenFeature.DependencyInjection.Diagnostics.FeatureCodes.NewDi)]
 #endif
     [Theory]
     [InlineData(1, true, 0)]
@@ -92,7 +92,7 @@ public partial class OpenFeatureBuilderExtensionsTests
     class TestOptions : OpenFeatureOptions { }
 
 #if NET8_0_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.Experimental(Hosting.Diagnostics.FeatureCodes.NewDi)]
+    [System.Diagnostics.CodeAnalysis.Experimental(OpenFeature.DependencyInjection.Diagnostics.FeatureCodes.NewDi)]
 #endif
     [Theory]
     [InlineData(1)]

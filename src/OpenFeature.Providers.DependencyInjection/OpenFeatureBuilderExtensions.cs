@@ -2,8 +2,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using OpenFeature.Constant;
-using OpenFeature.Hosting;
-using OpenFeature.Hosting.Internal;
+using OpenFeature.DependencyInjection;
+using OpenFeature.DependencyInjection.Internal;
 using OpenFeature.Model;
 
 namespace OpenFeature;

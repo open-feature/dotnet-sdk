@@ -1,4 +1,4 @@
-using OpenFeature.Hosting;
+using OpenFeature.DependencyInjection;
 
 namespace OpenFeature.Providers.DependencyInjection.Tests;
 
