@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: release-please-${{ github.ref }}
+  cancel-in-progress: false
+
 permissions:
   contents: write
   pull-requests: write
@@ -24,7 +28,7 @@ jobs:
         with:
           token: ${{secrets.RELEASE_PLEASE_ACTION_TOKEN}}
     outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
+      release_created: ${{ steps.release.outputs.releases_created }}
       release_tag_name: ${{ steps.release.outputs.tag_name }}
 
   release:
