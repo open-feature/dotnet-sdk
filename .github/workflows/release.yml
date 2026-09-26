@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: release-please-${{ github.ref }}
+  cancel-in-progress: false
+
 permissions:
   contents: write
   pull-requests: write
@@ -24,7 +28,7 @@ jobs:
         with:
           token: ${{secrets.RELEASE_PLEASE_ACTION_TOKEN}}
     outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
+      release_created: ${{ steps.release.outputs.releases_created }}
       release_tag_name: ${{ steps.release.outputs.tag_name }}
 
   release:
@@ -39,7 +43,7 @@ jobs:
     if: ${{ fromJSON(needs.release-please.outputs.release_created || false) }}
 
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
@@ -64,7 +68,7 @@ jobs:
 
         # Get a short-lived NuGet API key
       - name: NuGet login (OIDC → temp API key)
-        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
         id: login
         with:
           user: ${{secrets.NUGET_USER}}
