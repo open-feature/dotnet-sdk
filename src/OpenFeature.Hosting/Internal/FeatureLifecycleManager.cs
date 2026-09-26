@@ -26,13 +26,13 @@ internal sealed partial class FeatureLifecycleManager : IFeatureLifecycleManager
         if (options.HasDefaultProvider)
         {
             var featureProvider = _serviceProvider.GetRequiredService<FeatureProvider>();
-            await _featureApi.SetProviderAsync(featureProvider).ConfigureAwait(false);
+            await _featureApi.SetProviderAsync(featureProvider, cancellationToken).ConfigureAwait(false);
         }
 
         foreach (var name in options.ProviderNames)
         {
             var featureProvider = _serviceProvider.GetRequiredKeyedService<FeatureProvider>(name);
-            await _featureApi.SetProviderAsync(name, featureProvider).ConfigureAwait(false);
+            await _featureApi.SetProviderAsync(name, featureProvider, cancellationToken).ConfigureAwait(false);
         }
 
         var hooks = new List<Hook>();
