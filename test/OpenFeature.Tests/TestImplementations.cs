@@ -149,3 +149,55 @@ public class TestProvider : FeatureProvider
         return this.EventChannel.Writer.WriteAsync(new ProviderEventPayload { Type = eventType, ProviderName = this.GetMetadata().Name, }, cancellationToken);
     }
 }
+
+/// <summary>
+/// A provider that opts in to emitting its own PROVIDER_READY / PROVIDER_ERROR lifecycle events
+/// (spec v0.9.0). It emits the appropriate event from <see cref="InitializeAsync"/>, so the SDK must
+/// not synthesize lifecycle events on its behalf.
+/// </summary>
+public class LifecycleEmittingTestProvider : TestProvider
+{
+    private readonly ErrorType? _initErrorType;
+    private readonly bool _throwOnError;
+
+    public LifecycleEmittingTestProvider(string? name = null, ErrorType? initErrorType = null, bool throwOnError = true)
+        : base(name)
+    {
+        this._initErrorType = initErrorType;
+        this._throwOnError = throwOnError;
+    }
+
+    /// <inheritdoc/>
+    public override bool EmitsLifecycleEvents => true;
+
+    /// <inheritdoc/>
+    public override async Task InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default)
+    {
+        if (this._initErrorType.HasValue)
+        {
+            // Emit PROVIDER_ERROR before terminating abnormally (spec 2.8.3).
+            await this.EventChannel.Writer.WriteAsync(new ProviderEventPayload
+            {
+                Type = ProviderEventTypes.ProviderError,
+                ProviderName = this.GetMetadata().Name,
+                ErrorType = this._initErrorType,
+                Message = "Provider failed to initialize",
+            }, cancellationToken).ConfigureAwait(false);
+
+            if (this._throwOnError)
+            {
+                throw new InvalidOperationException("Provider failed to initialize");
+            }
+
+            return;
+        }
+
+        // Emit PROVIDER_READY before terminating normally (spec 2.8.2).
+        await this.EventChannel.Writer.WriteAsync(new ProviderEventPayload
+        {
+            Type = ProviderEventTypes.ProviderReady,
+            ProviderName = this.GetMetadata().Name,
+            Message = "Provider is ready",
+        }, cancellationToken).ConfigureAwait(false);
+    }
+}
