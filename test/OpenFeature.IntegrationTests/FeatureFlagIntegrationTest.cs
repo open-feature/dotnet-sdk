@@ -108,9 +108,10 @@ public class FeatureFlagIntegrationTest
         };
 
         var handlerSuccess = false;
+        var handlerInvoked = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         Action<OpenFeatureBuilder> openFeatureBuilder = cfg =>
         {
-            cfg.AddHandler(ProviderEventTypes.ProviderReady, (_) => { handlerSuccess = true; });
+            cfg.AddHandler(ProviderEventTypes.ProviderReady, (_) => { handlerSuccess = true; handlerInvoked.TrySetResult(true); });
         };
 
         using var server = await CreateServerAsync(ServiceLifetime.Transient, configureServices, openFeatureBuilder)
@@ -124,6 +125,7 @@ public class FeatureFlagIntegrationTest
 
         // Assert
         Assert.True(response.IsSuccessStatusCode, "Expected HTTP status code 200 OK.");
+        await handlerInvoked.Task.WaitAsync(TestContext.Current.CancellationToken).ConfigureAwait(true);
         Assert.True(handlerSuccess);
     }
 
@@ -139,10 +141,12 @@ public class FeatureFlagIntegrationTest
         var counter = 0;
         var handler1Success = false;
         var handler2Success = false;
+        var handler1Invoked = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var handler2Invoked = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         Action<OpenFeatureBuilder> openFeatureBuilder = cfg =>
         {
-            cfg.AddHandler(ProviderEventTypes.ProviderReady, sp => { Interlocked.Increment(ref counter); return _ => { handler1Success = true; }; });
-            cfg.AddHandler(ProviderEventTypes.ProviderReady, sp => { Interlocked.Increment(ref counter); return _ => { handler2Success = true; }; });
+            cfg.AddHandler(ProviderEventTypes.ProviderReady, sp => { Interlocked.Increment(ref counter); return _ => { handler1Success = true; handler1Invoked.TrySetResult(true); }; });
+            cfg.AddHandler(ProviderEventTypes.ProviderReady, sp => { Interlocked.Increment(ref counter); return _ => { handler2Success = true; handler2Invoked.TrySetResult(true); }; });
         };
 
         using var server = await CreateServerAsync(ServiceLifetime.Transient, configureServices, openFeatureBuilder)
@@ -156,6 +160,8 @@ public class FeatureFlagIntegrationTest
 
         // Assert
         Assert.True(response.IsSuccessStatusCode, "Expected HTTP status code 200 OK.");
+        await handler1Invoked.Task.WaitAsync(TestContext.Current.CancellationToken).ConfigureAwait(true);
+        await handler2Invoked.Task.WaitAsync(TestContext.Current.CancellationToken).ConfigureAwait(true);
         Assert.Multiple(() =>
         {
             Assert.Equal(2, counter);
@@ -169,9 +175,17 @@ public class FeatureFlagIntegrationTest
     {
         // Arrange
         var logs = string.Empty;
+        var handlerLogged = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         Action<IServiceCollection> configureServices = services =>
         {
-            services.AddFakeLogging(a => a.OutputSink = log => logs = string.Join('|', logs, log));
+            services.AddFakeLogging(a => a.OutputSink = log =>
+            {
+                logs = string.Join('|', logs, log);
+                if (log.Contains("Handler invoked from builder!"))
+                {
+                    handlerLogged.TrySetResult(true);
+                }
+            });
             services.AddTransient<IFeatureFlagConfigurationService, FlagConfigurationService>();
         };
 
@@ -195,6 +209,7 @@ public class FeatureFlagIntegrationTest
 
         // Assert
         Assert.True(response.IsSuccessStatusCode, "Expected HTTP status code 200 OK.");
+        await handlerLogged.Task.WaitAsync(TestContext.Current.CancellationToken).ConfigureAwait(true);
         Assert.Contains("Handler invoked from builder!", logs);
     }
 

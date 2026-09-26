@@ -23,17 +23,6 @@ internal sealed partial class FeatureLifecycleManager : IFeatureLifecycleManager
         this.LogStartingInitializationOfFeatureProvider();
 
         var options = _serviceProvider.GetRequiredService<IOptions<OpenFeatureOptions>>().Value;
-        if (options.HasDefaultProvider)
-        {
-            var featureProvider = _serviceProvider.GetRequiredService<FeatureProvider>();
-            await _featureApi.SetProviderAsync(featureProvider).ConfigureAwait(false);
-        }
-
-        foreach (var name in options.ProviderNames)
-        {
-            var featureProvider = _serviceProvider.GetRequiredKeyedService<FeatureProvider>(name);
-            await _featureApi.SetProviderAsync(name, featureProvider).ConfigureAwait(false);
-        }
 
         var hooks = new List<Hook>();
         foreach (var hookName in options.HookNames)
@@ -48,6 +37,18 @@ internal sealed partial class FeatureLifecycleManager : IFeatureLifecycleManager
         foreach (var handler in handlers)
         {
             _featureApi.AddHandler(handler.ProviderEventType, handler.EventHandlerDelegate);
+        }
+
+        if (options.HasDefaultProvider)
+        {
+            var featureProvider = _serviceProvider.GetRequiredService<FeatureProvider>();
+            await _featureApi.SetProviderAsync(featureProvider).ConfigureAwait(false);
+        }
+
+        foreach (var name in options.ProviderNames)
+        {
+            var featureProvider = _serviceProvider.GetRequiredKeyedService<FeatureProvider>(name);
+            await _featureApi.SetProviderAsync(name, featureProvider).ConfigureAwait(false);
         }
     }
 
