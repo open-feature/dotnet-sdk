@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.14.2](https://github.com/open-feature/dotnet-sdk/compare/v2.14.1...v2.14.2) (2026-09-26)
+
+
+### 🐛 Bug Fixes
+
+* pass cancellation token to provider initialization for DI service ([#819](https://github.com/open-feature/dotnet-sdk/issues/819)) ([f3342e3](https://github.com/open-feature/dotnet-sdk/commit/f3342e3893ba71ec826d9a5f59c474f5484a908d))
+
 ## [2.14.1](https://github.com/open-feature/dotnet-sdk/compare/v2.14.0...v2.14.1) (2026-08-08)
 
 
