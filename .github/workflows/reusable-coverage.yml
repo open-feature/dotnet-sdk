@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           # Check out the PR head commit (not the merge commit) so coverage line numbers map to the diff
@@ -40,7 +40,7 @@ jobs:
       # Keep globbing on non-Windows runners (works today)
       - name: Upload coverage to Codecov (non-Windows)
         if: runner.os != 'Windows'
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           name: Code Coverage for ${{ matrix.os }}
           files: "**/TestResults/**/coverage.opencover.*.xml"
@@ -65,7 +65,7 @@ jobs:
 
       - name: Upload coverage to Codecov (Windows)
         if: runner.os == 'Windows'
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           name: Code Coverage for ${{ matrix.os }}
           files: ${{ env.CODECOV_FILES }}
