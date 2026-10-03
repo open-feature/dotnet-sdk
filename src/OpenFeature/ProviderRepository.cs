@@ -211,11 +211,12 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
 
         // Clear ownership while still under the write lock — the provider is confirmed unused.
         // This prevents a race where async shutdown clears ownership after a re-registration.
-        // Release the domain binding too. A domain-scoped provider can then be registered under another domain.
+        // Release the domain binding first. API ownership is the guard that stops another Api from binding
+        // this instance until both are cleared, so it must be the last thing released.
         if (targetProvider != null)
         {
-            targetProvider.UnbindApiInstance();
             targetProvider.UnbindDomain();
+            targetProvider.UnbindApiInstance();
         }
 
         await this.SafeShutdownProviderAsync(targetProvider, cancellationToken).ConfigureAwait(false);
@@ -325,11 +326,11 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
             this._featureProviders.Clear();
 
             // Clear ownership under the write lock for all providers being shut down.
-            // Release the domain binding too. A domain-scoped provider can then be registered again.
+            // Release the domain binding first, so API ownership still guards the instance until both are cleared.
             foreach (var provider in providers)
             {
-                provider.UnbindApiInstance();
                 provider.UnbindDomain();
+                provider.UnbindApiInstance();
             }
         }
         finally

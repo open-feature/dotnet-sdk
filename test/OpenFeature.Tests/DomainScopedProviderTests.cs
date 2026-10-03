@@ -218,6 +218,31 @@ public class DomainScopedProviderTests : ClearOpenFeatureInstanceFixture
         Assert.Same(provider, Api.Instance.GetProvider("domain-a"));
     }
 
+    [Fact]
+    [Specification("1.1.8.1", "The `provider mutator` MUST NOT bind a `domain-scoped` provider instance to more than one `domain`, rejecting any attempt to bind an already-bound instance to an additional `domain`.")]
+    public async Task Domain_Scoped_Provider_Can_Move_To_Another_Api_Only_After_The_First_Api_Releases_It()
+    {
+        var first = new Api();
+        var second = new Api();
+        var provider = new DomainRecordingProvider { DomainScoped = true };
+
+        await first.SetProviderAsync("domain-a", provider, TestContext.Current.CancellationToken);
+
+        // While the first Api owns the instance, the second Api cannot bind it, even to the same domain.
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            second.SetProviderAsync("domain-a", provider, TestContext.Current.CancellationToken));
+
+        // A full release clears both the domain binding and the API ownership.
+        await first.ShutdownAsync();
+
+        await second.SetProviderAsync("domain-b", provider, TestContext.Current.CancellationToken);
+
+        Assert.Same(provider, second.GetProvider("domain-b"));
+        Assert.False(provider.TryBindDomain("domain-c"));
+
+        await second.ShutdownAsync();
+    }
+
     private class DomainRecordingProvider : FeatureProvider
     {
         private readonly Metadata _metadata = new(nameof(DomainRecordingProvider));
