@@ -100,8 +100,8 @@ public class FeatureLifecycleManagerTests : IAsyncLifetime
         });
         services.AddSingleton<FeatureProvider>(provider);
 
-        bool hookExecuted = false;
-        services.AddSingleton(new EventHandlerDelegateWrapper(ProviderEventTypes.ProviderReady, (p) => { hookExecuted = true; }));
+        var handlerInvoked = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        services.AddSingleton(new EventHandlerDelegateWrapper(ProviderEventTypes.ProviderReady, (p) => handlerInvoked.TrySetResult(true)));
 
         var api = Api.Instance;
 
@@ -111,7 +111,37 @@ public class FeatureLifecycleManagerTests : IAsyncLifetime
         await lifecycleManager.EnsureInitializedAsync(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(hookExecuted);
+        var completed = await Task.WhenAny(handlerInvoked.Task, Task.Delay(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken));
+        Assert.Equal(handlerInvoked.Task, completed);
+        Assert.True(await handlerInvoked.Task);
+    }
+
+    [Fact]
+    public async Task EnsureInitializedAsync_AddHandlers_ForNamedProvider()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var provider = new NoOpFeatureProvider();
+        services.AddOptions<OpenFeatureOptions>().Configure(options =>
+        {
+            options.AddProviderName("my-domain");
+        });
+        services.AddKeyedSingleton<FeatureProvider>("my-domain", provider);
+
+        var handlerInvoked = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        services.AddSingleton(new EventHandlerDelegateWrapper(ProviderEventTypes.ProviderReady, (p) => handlerInvoked.TrySetResult(true)));
+
+        var api = Api.Instance;
+
+        // Act
+        using var serviceProvider = services.BuildServiceProvider();
+        var lifecycleManager = new FeatureLifecycleManager(api, serviceProvider, NullLogger<FeatureLifecycleManager>.Instance);
+        await lifecycleManager.EnsureInitializedAsync(TestContext.Current.CancellationToken);
+
+        // Assert
+        var completed = await Task.WhenAny(handlerInvoked.Task, Task.Delay(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken));
+        Assert.Equal(handlerInvoked.Task, completed);
+        Assert.True(await handlerInvoked.Task);
     }
 
     [Fact]
