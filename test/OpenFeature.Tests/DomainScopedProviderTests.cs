@@ -129,6 +129,11 @@ public class DomainScopedProviderTests : ClearOpenFeatureInstanceFixture
         await Api.Instance.SetProviderAsync("domain-b", provider, TestContext.Current.CancellationToken);
 
         Assert.Same(provider, Api.Instance.GetProvider("domain-b"));
+
+        // The instance is bound to the new domain, but it is not initialized again. Initialization state lives
+        // on the instance, so the domain it was initialized with is still the first one.
+        Assert.Equal(1, provider.InitializeCount);
+        Assert.Equal("domain-a", provider.LastDomain);
     }
 
     [Fact]
@@ -143,6 +148,11 @@ public class DomainScopedProviderTests : ClearOpenFeatureInstanceFixture
         await Api.Instance.SetProviderAsync("domain-b", provider, TestContext.Current.CancellationToken);
 
         Assert.Same(provider, Api.Instance.GetProvider("domain-b"));
+
+        // The instance is bound to the new domain, but it is not initialized again. Initialization state lives
+        // on the instance, so the domain it was initialized with is still the first one.
+        Assert.Equal(1, provider.InitializeCount);
+        Assert.Equal("domain-a", provider.LastDomain);
     }
 
     [Fact]

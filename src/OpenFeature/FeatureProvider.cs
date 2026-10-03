@@ -250,12 +250,11 @@ public abstract class FeatureProvider
     /// that overload works without changes.
     /// </para>
     /// <para>
-    /// The SDK initializes a registered provider instance once, even if the instance is bound to several
-    /// domains. In that case, the domain passed is the first domain that the instance was registered under.
-    /// The SDK releases an instance when a new provider replaces it, or when the API shuts down. If a
-    /// released instance is registered again, the SDK initializes it again with the new domain. A provider
-    /// that keeps state per domain must override <see cref="IsDomainScoped"/> to return <c>true</c>. The SDK
-    /// then binds the instance to one domain at most.
+    /// The SDK initializes a provider instance once. If the same instance is registered again, under the same
+    /// domain or under a new one, the SDK does not initialize it a second time. The domain passed is the
+    /// domain that the instance was first registered under. A provider that keeps state per domain must
+    /// override <see cref="IsDomainScoped"/> to return <c>true</c>. The SDK then binds the instance to one
+    /// domain at most while it is registered.
     /// </para>
     /// </remarks>
     /// <seealso href="https://openfeature.dev/specification/sections/providers#requirement-241">Specification 2.4.1</seealso>
