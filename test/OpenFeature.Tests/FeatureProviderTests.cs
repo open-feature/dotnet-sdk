@@ -123,4 +123,68 @@ public class FeatureProviderTests : ClearOpenFeatureInstanceFixture
         Assert.Equal(ErrorType.TargetingKeyMissing, boolRes2.ErrorType);
         Assert.Null(boolRes2.ErrorMessage);
     }
+
+    [Fact]
+    public void OverridesInitialize_WhenProviderOverridesInitialize_ReturnsTrue()
+    {
+        var provider = new TestProvider();
+
+        Assert.True(provider.OverridesInitialize());
+    }
+
+    [Fact]
+    public void OverridesInitialize_WhenProviderDoesNotDefineInitialize_ReturnsFalse()
+    {
+        var provider = new NoInitProvider();
+
+        Assert.False(provider.OverridesInitialize());
+    }
+
+    [Fact]
+    public void OverridesInitialize_WhenInitializeHiddenWithNew_ReturnsFalse()
+    {
+        var provider = new NewHidingProvider();
+
+        Assert.False(provider.OverridesInitialize());
+    }
+
+    [Fact]
+    public void OverridesInitialize_WhenInitializeHiddenWithNewVirtual_ReturnsFalse()
+    {
+        var provider = new NewVirtualHidingProvider();
+
+        Assert.False(provider.OverridesInitialize());
+    }
+
+    private class NoInitProvider : FeatureProvider
+    {
+        public override Metadata GetMetadata() => new("no-init");
+
+        public override Task<ResolutionDetails<bool>> ResolveBooleanValueAsync(string flagKey, bool defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default) =>
+            Task.FromResult(new ResolutionDetails<bool>(flagKey, defaultValue));
+
+        public override Task<ResolutionDetails<string>> ResolveStringValueAsync(string flagKey, string defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default) =>
+            Task.FromResult(new ResolutionDetails<string>(flagKey, defaultValue));
+
+        public override Task<ResolutionDetails<int>> ResolveIntegerValueAsync(string flagKey, int defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default) =>
+            Task.FromResult(new ResolutionDetails<int>(flagKey, defaultValue));
+
+        public override Task<ResolutionDetails<double>> ResolveDoubleValueAsync(string flagKey, double defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default) =>
+            Task.FromResult(new ResolutionDetails<double>(flagKey, defaultValue));
+
+        public override Task<ResolutionDetails<Value>> ResolveStructureValueAsync(string flagKey, Value defaultValue, EvaluationContext? context = null, CancellationToken cancellationToken = default) =>
+            Task.FromResult(new ResolutionDetails<Value>(flagKey, defaultValue));
+    }
+
+    private sealed class NewHidingProvider : NoInitProvider
+    {
+        public new Task InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+    }
+
+    private class NewVirtualHidingProvider : NoInitProvider
+    {
+        public new virtual Task InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+    }
 }
