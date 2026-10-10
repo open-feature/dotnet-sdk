@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using OpenFeature.DependencyInjection;
 using OpenFeature.Hosting;
 using OpenFeature.Hosting.Internal;
 using OpenFeature.Isolated;

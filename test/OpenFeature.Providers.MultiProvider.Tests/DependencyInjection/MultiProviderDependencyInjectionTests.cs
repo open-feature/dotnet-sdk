@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
-using OpenFeature.Hosting;
+using OpenFeature.DependencyInjection;
 using OpenFeature.Model;
 using OpenFeature.Providers.MultiProvider.DependencyInjection;
 using OpenFeature.Providers.MultiProvider.Strategies;

@@ -1,6 +1,6 @@
 using OpenFeature.Providers.Memory;
 
-namespace OpenFeature.Hosting.Providers.Memory;
+namespace OpenFeature.DependencyInjection;
 
 /// <summary>
 /// Options for configuring the in-memory feature flag provider.
