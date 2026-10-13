@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <RootNamespace>OpenFeature.Providers.MultiProvider</RootNamespace>
@@ -13,6 +13,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OpenFeature\OpenFeature.csproj" />
-    <ProjectReference Include="..\OpenFeature.Hosting\OpenFeature.Hosting.csproj" />
+    <ProjectReference Include="..\OpenFeature.Providers.DependencyInjection\OpenFeature.Providers.DependencyInjection.csproj" />
   </ItemGroup>
 </Project>
