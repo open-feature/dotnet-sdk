@@ -27,7 +27,7 @@ public class ProviderRepositoryTests
         providerMock.Status.Returns(ProviderStatus.NotReady);
         var context = new EvaluationContextBuilder().Build();
         await repository.SetProviderAsync(providerMock, context, cancellationToken: TestContext.Current.CancellationToken);
-        providerMock.Received(1).InitializeAsync(context, TestContext.Current.CancellationToken);
+        providerMock.Received(1).InitializeAsync(context, null, TestContext.Current.CancellationToken);
         providerMock.DidNotReceive().ShutdownAsync(TestContext.Current.CancellationToken);
     }
 
@@ -80,7 +80,7 @@ public class ProviderRepositoryTests
         var providerMock = Substitute.For<FeatureProvider>();
         providerMock.Status.Returns(ProviderStatus.NotReady);
         var context = new EvaluationContextBuilder().Build();
-        providerMock.When(x => x.InitializeAsync(context, Arg.Any<CancellationToken>())).Throw(new Exception("BAD THINGS"));
+        providerMock.When(x => x.InitializeAsync(context, null, Arg.Any<CancellationToken>())).Throw(new Exception("BAD THINGS"));
         var callCount = 0;
         Exception? receivedError = null;
         await repository.SetProviderAsync(providerMock, context, afterInitError: (theProvider, error, ct) =>
@@ -105,7 +105,7 @@ public class ProviderRepositoryTests
         var cancellationToken = cancellationTokenSource.Token;
 
         var context = new EvaluationContextBuilder().Build();
-        providerMock.When(x => x.InitializeAsync(context, cancellationToken)).Throw(new Exception("BAD THINGS"));
+        providerMock.When(x => x.InitializeAsync(context, null, cancellationToken)).Throw(new Exception("BAD THINGS"));
 
         var errorCancellationToken = CancellationToken.None;
         await repository.SetProviderAsync(providerMock, context, afterInitError: (theProvider, error, ct) =>
@@ -131,7 +131,7 @@ public class ProviderRepositoryTests
         providerMock.Status.Returns(status);
         var context = new EvaluationContextBuilder().Build();
         await repository.SetProviderAsync(providerMock, context, cancellationToken: TestContext.Current.CancellationToken);
-        providerMock.DidNotReceive().InitializeAsync(context, TestContext.Current.CancellationToken);
+        providerMock.DidNotReceive().InitializeAsync(context, null, TestContext.Current.CancellationToken);
     }
 
     [Theory]
@@ -189,7 +189,7 @@ public class ProviderRepositoryTests
         providerMock.Status.Returns(ProviderStatus.NotReady);
         var context = new EvaluationContextBuilder().Build();
         await repository.SetProviderAsync("the-name", providerMock, context, cancellationToken: TestContext.Current.CancellationToken);
-        providerMock.Received(1).InitializeAsync(context, TestContext.Current.CancellationToken);
+        providerMock.Received(1).InitializeAsync(context, "the-name", TestContext.Current.CancellationToken);
         providerMock.DidNotReceive().ShutdownAsync(TestContext.Current.CancellationToken);
     }
 
@@ -241,7 +241,7 @@ public class ProviderRepositoryTests
         var providerMock = Substitute.For<FeatureProvider>();
         providerMock.Status.Returns(ProviderStatus.NotReady);
         var context = new EvaluationContextBuilder().Build();
-        providerMock.When(x => x.InitializeAsync(context, Arg.Any<CancellationToken>())).Throw(new Exception("BAD THINGS"));
+        providerMock.When(x => x.InitializeAsync(context, "the-provider", Arg.Any<CancellationToken>())).Throw(new Exception("BAD THINGS"));
         var callCount = 0;
         Exception? receivedError = null;
         await repository.SetProviderAsync("the-provider", providerMock, context, afterInitError: (theProvider, error, ct) =>
@@ -266,7 +266,7 @@ public class ProviderRepositoryTests
         var cancellationToken = cancellationTokenSource.Token;
 
         var context = new EvaluationContextBuilder().Build();
-        providerMock.When(x => x.InitializeAsync(context, cancellationToken)).Throw(new Exception("BAD THINGS"));
+        providerMock.When(x => x.InitializeAsync(context, "the-provider", cancellationToken)).Throw(new Exception("BAD THINGS"));
 
         var errorCancellationToken = CancellationToken.None;
         await repository.SetProviderAsync("the-provider", providerMock, context, afterInitError: (theProvider, error, ct) =>
@@ -292,7 +292,7 @@ public class ProviderRepositoryTests
         providerMock.Status.Returns(status);
         var context = new EvaluationContextBuilder().Build();
         await repository.SetProviderAsync("the-name", providerMock, context, cancellationToken: TestContext.Current.CancellationToken);
-        providerMock.DidNotReceive().InitializeAsync(context, TestContext.Current.CancellationToken);
+        providerMock.DidNotReceive().InitializeAsync(context, "the-name", TestContext.Current.CancellationToken);
     }
 
     [Theory]
@@ -468,7 +468,7 @@ public class ProviderRepositoryTests
         await repository.SetProviderAsync(provider, context, cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Equal(provider, repository.GetProvider());
-        provider.Received(1).InitializeAsync(context, TestContext.Current.CancellationToken);
+        provider.Received(1).InitializeAsync(context, null, TestContext.Current.CancellationToken);
         provider.DidNotReceive().ShutdownAsync(TestContext.Current.CancellationToken);
     }
 
@@ -483,7 +483,7 @@ public class ProviderRepositoryTests
         await repository.SetProviderAsync(null, context, cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Equal(provider, repository.GetProvider());
-        provider.Received(1).InitializeAsync(context, TestContext.Current.CancellationToken);
+        provider.Received(1).InitializeAsync(context, null, TestContext.Current.CancellationToken);
         provider.DidNotReceive().ShutdownAsync(TestContext.Current.CancellationToken);
     }
 
