@@ -86,11 +86,11 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
             this._providersLock.ExitWriteLock();
         }
 
-        await InitProviderAsync(this._defaultProvider, context, afterInitSuccess, afterInitError, cancellationToken)
+        await this.InitProviderAsync(this._defaultProvider, context, afterInitSuccess, afterInitError, cancellationToken)
             .ConfigureAwait(false);
     }
 
-    private static async Task InitProviderAsync(
+    private async Task InitProviderAsync(
         FeatureProvider? newProvider,
         EvaluationContext context,
         Func<FeatureProvider, CancellationToken, Task>? afterInitialization,
@@ -101,6 +101,15 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
         {
             return;
         }
+
+        // A provider that defines an initialization function but does not opt in to emitting its own
+        // lifecycle events relies on the SDK's deprecated synthetic PROVIDER_READY/PROVIDER_ERROR path
+        // (spec v0.9.0, Appendix E).
+        if (newProvider.OverridesInitialize() && !newProvider.EmitsLifecycleEvents)
+        {
+            this.LegacyLifecycleEventsDeprecated(newProvider.GetMetadata()?.Name);
+        }
+
         if (newProvider.Status == ProviderStatus.NotReady)
         {
             try
@@ -174,7 +183,7 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
             this._providersLock.ExitWriteLock();
         }
 
-        await InitProviderAsync(featureProvider, context, afterInitSuccess, afterInitError, cancellationToken).ConfigureAwait(false);
+        await this.InitProviderAsync(featureProvider, context, afterInitSuccess, afterInitError, cancellationToken).ConfigureAwait(false);
     }
 
     /// <remarks>
@@ -298,4 +307,7 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
 
     [LoggerMessage(EventId = 105, Level = LogLevel.Error, Message = "Error shutting down provider: {TargetProviderName}`")]
     partial void ErrorShuttingDownProvider(string? targetProviderName, Exception exception);
+
+    [LoggerMessage(EventId = 106, Level = LogLevel.Debug, Message = "Provider '{TargetProviderName}' relies on the SDK to emit synthetic PROVIDER_READY/PROVIDER_ERROR events. This behavior is deprecated (OpenFeature spec v0.9.0); providers should emit their own lifecycle events and set FeatureProvider.EmitsLifecycleEvents to true.")]
+    partial void LegacyLifecycleEventsDeprecated(string? targetProviderName);
 }
