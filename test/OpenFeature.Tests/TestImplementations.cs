@@ -201,3 +201,46 @@ public class LifecycleEmittingTestProvider : TestProvider
         }, cancellationToken).ConfigureAwait(false);
     }
 }
+
+/// <summary>
+/// A provider that opts in to emitting its own lifecycle events but emits PROVIDER_READY only after a delay
+/// that starts once <see cref="InitializeAsync"/> has returned, or never emits any event.
+/// </summary>
+public class DeferredLifecycleTestProvider : TestProvider
+{
+    private readonly TimeSpan? _emitReadyAfter;
+    private readonly bool _throwOnInit;
+
+    public DeferredLifecycleTestProvider(TimeSpan? emitReadyAfter = null, bool throwOnInit = false)
+    {
+        this._emitReadyAfter = emitReadyAfter;
+        this._throwOnInit = throwOnInit;
+    }
+
+    /// <inheritdoc/>
+    public override bool EmitsLifecycleEvents => true;
+
+    /// <inheritdoc/>
+    public override Task InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default)
+    {
+        if (this._throwOnInit)
+        {
+            throw new InvalidOperationException("Provider failed to initialize");
+        }
+
+        if (this._emitReadyAfter is { } delay)
+        {
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(delay).ConfigureAwait(false);
+                await this.EventChannel.Writer.WriteAsync(new ProviderEventPayload
+                {
+                    Type = ProviderEventTypes.ProviderReady,
+                    ProviderName = this.GetMetadata().Name,
+                }).ConfigureAwait(false);
+            });
+        }
+
+        return Task.CompletedTask;
+    }
+}

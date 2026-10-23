@@ -568,6 +568,45 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
     }
 
     [Fact]
+    [Specification("1.1.2.4", "The provider's `initialize` function and its resulting lifecycle event MUST be processed before the set provider call completes.")]
+    public async Task Lifecycle_Emitting_Provider_Should_Be_Ready_When_SetProvider_Completes()
+    {
+        var provider = new DeferredLifecycleTestProvider(emitReadyAfter: TimeSpan.FromMilliseconds(200));
+
+        await Api.Instance.SetProviderAsync(provider, TestContext.Current.CancellationToken);
+
+        Assert.Equal(ProviderStatus.Ready, provider.Status);
+    }
+
+    [Fact]
+    [Specification("1.1.2.4", "The provider's `initialize` function and its resulting lifecycle event MUST be processed before the set provider call completes.")]
+    public async Task Lifecycle_Emitting_Provider_Throwing_Without_Error_Event_Should_Be_Error_And_Log_Warning()
+    {
+        var logger = new FakeLogger();
+        Api.Instance.SetLogger(logger);
+        var provider = new DeferredLifecycleTestProvider(throwOnInit: true);
+
+        await Api.Instance.SetProviderAsync(provider, TestContext.Current.CancellationToken);
+
+        Assert.Equal(ProviderStatus.Error, provider.Status);
+        Assert.Contains(logger.Collector.GetSnapshot(),
+            record => record.Level == LogLevel.Warning && record.Id.Id == 107);
+    }
+
+    [Fact]
+    [Specification("1.1.2.4", "The provider's `initialize` function and its resulting lifecycle event MUST be processed before the set provider call completes.")]
+    public async Task Lifecycle_Emitting_Provider_Never_Emitting_Event_Should_Wait_Until_Cancelled()
+    {
+        var provider = new DeferredLifecycleTestProvider();
+        using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(200));
+
+        await Api.Instance.SetProviderAsync(provider, cts.Token);
+
+        Assert.True(cts.IsCancellationRequested);
+        Assert.Equal(ProviderStatus.Error, provider.Status);
+    }
+
+    [Fact]
     [Specification("5.3.1", "If the provider's `initialize` function terminates normally, `PROVIDER_READY` handlers MUST run.")]
     public async Task Legacy_Provider_Registration_Should_Log_Deprecation_Warning()
     {
@@ -583,7 +622,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
     }
 
     [Fact]
-    [Specification("2.8.5", "The `provider` defines a mechanism to gracefully shutdown and dispose of resources.")]
+    [Specification("2.8.5.1", "If the provider does not define an `initialize` function, the SDK treats the provider as READY from registration.")]
     public async Task NoInit_Provider_Registration_Should_Not_Log_Deprecation_Warning_And_Be_Ready()
     {
         var logger = new FakeLogger();

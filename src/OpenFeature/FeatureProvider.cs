@@ -49,6 +49,15 @@ public abstract class FeatureProvider
     /// <see cref="InitializeAsync"/> returns or throws. This legacy behavior is deprecated and will be
     /// removed in a future major version.
     /// </para>
+    /// <para>
+    /// Opting in is optional for now, but providers will be required to emit their own lifecycle events in a
+    /// future major version.
+    /// </para>
+    /// <para>
+    /// The SDK waits for the emitted <see cref="ProviderEventTypes.ProviderReady"/> or
+    /// <see cref="ProviderEventTypes.ProviderError"/> event to be processed before the call to set the provider
+    /// completes, so a provider that opts in must always emit one of them from <see cref="InitializeAsync"/>.
+    /// </para>
     /// </summary>
     /// <seealso href="https://github.com/open-feature/spec/blob/v0.9.0/specification/appendix-e-migrations.md">Appendix E: Migrations</seealso>
     public virtual bool EmitsLifecycleEvents => false;
@@ -149,6 +158,8 @@ public abstract class FeatureProvider
     /// Not visible outside OpenFeature assembly
     /// </summary>
     internal virtual ProviderStatus Status { get; set; } = ProviderStatus.NotReady;
+
+    internal TaskCompletionSource<bool>? LifecycleSettled { get; set; }
 
     /// <summary>
     /// Tracks which Api instance this provider is currently bound to.
