@@ -664,6 +664,26 @@ public class OpenFeatureClientTests : ClearOpenFeatureInstanceFixture
     }
 
     [Fact]
+    public async Task When_Only_One_Context_Has_Data_The_Provider_Receives_It_Unchanged()
+    {
+        var fixture = new Fixture();
+        var flagName = fixture.Create<string>();
+        var clientContext = EvaluationContext.Builder().SetTargetingKey("user").Set("key", "client").Build();
+
+        var featureProviderMock = Substitute.For<FeatureProvider>();
+        featureProviderMock.ResolveBooleanValueAsync(flagName, false, Arg.Any<EvaluationContext>(), TestContext.Current.CancellationToken).Returns(new ResolutionDetails<bool>(flagName, true));
+        featureProviderMock.GetMetadata().Returns(new Metadata(fixture.Create<string>()));
+        featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
+
+        await Api.Instance.SetProviderAsync(featureProviderMock, TestContext.Current.CancellationToken);
+        var client = Api.Instance.GetClient(context: clientContext);
+
+        await client.GetBooleanValueAsync(flagName, false, cancellationToken: TestContext.Current.CancellationToken);
+
+        _ = featureProviderMock.Received(1).ResolveBooleanValueAsync(flagName, false, Arg.Is<EvaluationContext>(context => ReferenceEquals(context, clientContext)), TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
     [Specification("4.3.8", "'evaluation details' passed to the 'finally' stage matches the evaluation details returned to the application author")]
     public async Task FinallyHook_IncludesEvaluationDetails()
     {
