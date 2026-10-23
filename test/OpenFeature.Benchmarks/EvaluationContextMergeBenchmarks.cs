@@ -1,5 +1,6 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
+using OpenFeature.Constant;
 using OpenFeature.Model;
 
 namespace OpenFeature.Benchmark;
@@ -15,16 +16,24 @@ public class EvaluationContextMergeBenchmarks
     private EvaluationContext _invocationContext = null!;
 
     [GlobalSetup]
-    public void Setup()
+    public async Task Setup()
     {
         var emptyApi = new Api();
+        await emptyApi.SetProviderAsync(new NoOpFeatureProvider());
         this._emptyClient = emptyApi.GetClient("empty");
 
         var populatedApi = new Api();
+        await populatedApi.SetProviderAsync(new NoOpFeatureProvider());
         populatedApi.SetContext(CreateContext("api"));
         this._populatedClient = populatedApi.GetClient("populated", context: CreateContext("client"));
 
         this._invocationContext = CreateContext("invocation");
+
+        var details = await this._populatedClient.GetBooleanDetailsAsync(FlagKey, false, this._invocationContext);
+        if (details.ErrorType != ErrorType.None)
+        {
+            throw new InvalidOperationException($"Evaluation failed during setup: {details.ErrorType}");
+        }
     }
 
     [Benchmark(Baseline = true)]

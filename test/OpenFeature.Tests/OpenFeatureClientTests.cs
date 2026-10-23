@@ -663,12 +663,16 @@ public class OpenFeatureClientTests : ClearOpenFeatureInstanceFixture
         Assert.Equal(expectedResult, actualEvaluationContext.GetValue(key).AsString);
     }
 
-    [Fact]
-    public async Task When_Only_One_Context_Has_Data_The_Provider_Receives_It_Unchanged()
+    [Theory]
+    [InlineData("api")]
+    [InlineData("client")]
+    [InlineData("transaction")]
+    [InlineData("invocation")]
+    public async Task When_Only_One_Context_Has_Data_The_Provider_Receives_It_Unchanged(string source)
     {
         var fixture = new Fixture();
         var flagName = fixture.Create<string>();
-        var clientContext = EvaluationContext.Builder().SetTargetingKey("user").Set("key", "client").Build();
+        var singleContext = EvaluationContext.Builder().SetTargetingKey("user").Set("key", source).Build();
 
         var featureProviderMock = Substitute.For<FeatureProvider>();
         featureProviderMock.ResolveBooleanValueAsync(flagName, false, Arg.Any<EvaluationContext>(), TestContext.Current.CancellationToken).Returns(new ResolutionDetails<bool>(flagName, true));
@@ -676,11 +680,22 @@ public class OpenFeatureClientTests : ClearOpenFeatureInstanceFixture
         featureProviderMock.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
 
         await Api.Instance.SetProviderAsync(featureProviderMock, TestContext.Current.CancellationToken);
-        var client = Api.Instance.GetClient(context: clientContext);
 
-        await client.GetBooleanValueAsync(flagName, false, cancellationToken: TestContext.Current.CancellationToken);
+        if (source == "api")
+        {
+            Api.Instance.SetContext(singleContext);
+        }
+        else if (source == "transaction")
+        {
+            Api.Instance.SetTransactionContextPropagator(new AsyncLocalTransactionContextPropagator());
+            Api.Instance.SetTransactionContext(singleContext);
+        }
 
-        _ = featureProviderMock.Received(1).ResolveBooleanValueAsync(flagName, false, Arg.Is<EvaluationContext>(context => ReferenceEquals(context, clientContext)), TestContext.Current.CancellationToken);
+        var client = Api.Instance.GetClient(context: source == "client" ? singleContext : null);
+
+        await client.GetBooleanValueAsync(flagName, false, source == "invocation" ? singleContext : null, cancellationToken: TestContext.Current.CancellationToken);
+
+        _ = featureProviderMock.Received(1).ResolveBooleanValueAsync(flagName, false, Arg.Is<EvaluationContext>(context => ReferenceEquals(context, singleContext)), TestContext.Current.CancellationToken);
     }
 
     [Fact]
