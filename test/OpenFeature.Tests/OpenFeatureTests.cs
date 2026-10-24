@@ -18,20 +18,20 @@ public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
     }
 
     [Fact]
-    [Specification("1.1.2.2", "The provider mutator function MUST invoke the initialize function on the newly registered provider before using it to resolve flag values.")]
+    [Specification("1.1.2.2", "The `provider mutator` function MUST invoke the `initialize` function on the newly registered provider before using it to resolve flag values, supplying the bound `domain`, if any.")]
     public async Task OpenFeature_Should_Initialize_Provider()
     {
         var providerMockDefault = Substitute.For<FeatureProvider>();
         providerMockDefault.Status.Returns(ProviderStatus.NotReady);
 
         await Api.Instance.SetProviderAsync(providerMockDefault, TestContext.Current.CancellationToken);
-        await providerMockDefault.Received(1).InitializeAsync(Api.Instance.GetContext(), TestContext.Current.CancellationToken);
+        await providerMockDefault.Received(1).InitializeAsync(Api.Instance.GetContext(), null, TestContext.Current.CancellationToken);
 
         var providerMockNamed = Substitute.For<FeatureProvider>();
         providerMockNamed.Status.Returns(ProviderStatus.NotReady);
 
         await Api.Instance.SetProviderAsync("the-name", providerMockNamed, TestContext.Current.CancellationToken);
-        await providerMockNamed.Received(1).InitializeAsync(Api.Instance.GetContext(), TestContext.Current.CancellationToken);
+        await providerMockNamed.Received(1).InitializeAsync(Api.Instance.GetContext(), "the-name", TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -44,13 +44,13 @@ public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
         var cancellationToken = cancellationTokenSource.Token;
 
         await Api.Instance.SetProviderAsync(providerMockDefault, cancellationToken);
-        await providerMockDefault.Received(1).InitializeAsync(Api.Instance.GetContext(), cancellationToken);
+        await providerMockDefault.Received(1).InitializeAsync(Api.Instance.GetContext(), null, cancellationToken);
 
         var providerMockNamed = Substitute.For<FeatureProvider>();
         providerMockNamed.Status.Returns(ProviderStatus.NotReady);
 
         await Api.Instance.SetProviderAsync("the-name", providerMockNamed, cancellationToken);
-        await providerMockNamed.Received(1).InitializeAsync(Api.Instance.GetContext(), cancellationToken);
+        await providerMockNamed.Received(1).InitializeAsync(Api.Instance.GetContext(), "the-name", cancellationToken);
     }
 
     [Fact]
@@ -61,13 +61,13 @@ public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
         var cancellationToken = cancellationTokenSource.Token;
 
         var providerMockDefault = Substitute.For<FeatureProvider>();
-        providerMockDefault.InitializeAsync(Arg.Any<EvaluationContext>(), cancellationToken)
+        providerMockDefault.InitializeAsync(Arg.Any<EvaluationContext>(), null, cancellationToken)
             .Returns(ci => Task.FromCanceled(cancellationToken));
 
         await Assert.ThrowsAsync<TaskCanceledException>(() =>
             Api.Instance.SetProviderAsync(providerMockDefault, cancellationToken));
 
-        await providerMockDefault.Received(1).InitializeAsync(Api.Instance.GetContext(), cancellationToken);
+        await providerMockDefault.Received(1).InitializeAsync(Api.Instance.GetContext(), null, cancellationToken);
         Assert.Equal(ProviderStatus.Error, providerMockDefault.Status);
     }
 
@@ -80,26 +80,26 @@ public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
         providerA.Status.Returns(ProviderStatus.NotReady);
 
         await Api.Instance.SetProviderAsync(providerA, TestContext.Current.CancellationToken);
-        await providerA.Received(1).InitializeAsync(Api.Instance.GetContext(), TestContext.Current.CancellationToken);
+        await providerA.Received(1).InitializeAsync(Api.Instance.GetContext(), null, TestContext.Current.CancellationToken);
 
         var providerB = Substitute.For<FeatureProvider>();
         providerB.Status.Returns(ProviderStatus.NotReady);
 
         await Api.Instance.SetProviderAsync(providerB, TestContext.Current.CancellationToken);
-        await providerB.Received(1).InitializeAsync(Api.Instance.GetContext(), TestContext.Current.CancellationToken);
+        await providerB.Received(1).InitializeAsync(Api.Instance.GetContext(), null, TestContext.Current.CancellationToken);
         await providerA.Received(1).ShutdownAsync(TestContext.Current.CancellationToken);
 
         var providerC = Substitute.For<FeatureProvider>();
         providerC.Status.Returns(ProviderStatus.NotReady);
 
         await Api.Instance.SetProviderAsync("named", providerC, TestContext.Current.CancellationToken);
-        await providerC.Received(1).InitializeAsync(Api.Instance.GetContext(), TestContext.Current.CancellationToken);
+        await providerC.Received(1).InitializeAsync(Api.Instance.GetContext(), "named", TestContext.Current.CancellationToken);
 
         var providerD = Substitute.For<FeatureProvider>();
         providerD.Status.Returns(ProviderStatus.NotReady);
 
         await Api.Instance.SetProviderAsync("named", providerD, TestContext.Current.CancellationToken);
-        await providerD.Received(1).InitializeAsync(Api.Instance.GetContext(), TestContext.Current.CancellationToken);
+        await providerD.Received(1).InitializeAsync(Api.Instance.GetContext(), "named", TestContext.Current.CancellationToken);
         await providerC.Received(1).ShutdownAsync(TestContext.Current.CancellationToken);
     }
 
