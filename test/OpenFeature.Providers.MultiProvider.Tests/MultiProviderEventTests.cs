@@ -327,7 +327,7 @@ public class MultiProviderEventTests
         await Task.Delay(50, TestContext.Current.CancellationToken);
 
         // Assert
-        var events = await ReadEvents(multiProvider.GetEventChannel(), expectedCount: 0, timeoutMs: 300);
+        var events = await ReadEvents(multiProvider.GetEventChannel(), expectedCount: 1, timeoutMs: 300);
         Assert.Empty(events);
     }
 
