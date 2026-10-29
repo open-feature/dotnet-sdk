@@ -3,6 +3,7 @@ using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using OpenFeature.Constant;
 using OpenFeature.Model;
+using OpenFeature.Providers.Memory;
 using OpenFeature.Providers.MultiProvider.Models;
 using OpenFeature.Providers.MultiProvider.Strategies;
 using OpenFeature.Providers.MultiProvider.Strategies.Models;
@@ -290,6 +291,26 @@ public class MultiProviderEventTests
         // Verify that subsequent operations on disposed provider throw
         await Assert.ThrowsAsync<ObjectDisposedException>(() =>
             multiProvider.ResolveBooleanValueAsync(TestFlagKey, false, cancellationToken: TestContext.Current.CancellationToken));
+    }
+
+    [Fact]
+    public async Task HandleProviderEvent_OnConfigurationChangedFromRealProvider_ReEmitsEvent()
+    {
+        // Arrange - InMemoryProvider writes a bare ProviderEventPayload to its channel, as providers do
+        var inMemoryProvider = new InMemoryProvider();
+        var multiProvider = CreateMultiProvider(inMemoryProvider);
+
+        // Act
+        await inMemoryProvider.UpdateFlagsAsync(new Dictionary<string, Flag>
+        {
+            [TestFlagKey] = new Flag<bool>(new Dictionary<string, bool> { ["on"] = true }, "on")
+        });
+
+        // Assert
+        var events = await ReadEvents(multiProvider.GetEventChannel());
+        Assert.Single(events);
+        AssertEvent(events[0], $"MultiProvider/{Provider1Name}", ProviderEventTypes.ProviderConfigurationChanged);
+        Assert.Contains(TestFlagKey, events[0].FlagsChanged!);
     }
 
     // Helper methods
