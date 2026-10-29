@@ -313,6 +313,24 @@ public class MultiProviderEventTests
         Assert.Contains(TestFlagKey, evt.FlagsChanged!);
     }
 
+    [Fact]
+    public async Task HandleProviderEvent_WithNonProviderEventPayload_DoesNotEmitEvent()
+    {
+        // Arrange
+        var multiProvider = CreateMultiProvider(_provider1);
+
+        // Act
+        var eventChannel = _provider1.GetEventChannel();
+        await eventChannel.Writer.WriteAsync(new Event() { Provider = _provider1, EventPayload = CreateEvent(ProviderEventTypes.ProviderReady) },
+            TestContext.Current.CancellationToken);
+
+        await Task.Delay(50, TestContext.Current.CancellationToken);
+
+        // Assert
+        var events = await ReadEvents(multiProvider.GetEventChannel(), expectedCount: 0, timeoutMs: 300);
+        Assert.Empty(events);
+    }
+
     // Helper methods
     private MultiProvider CreateMultiProvider(params FeatureProvider[] providers)
     {
