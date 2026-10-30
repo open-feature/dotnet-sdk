@@ -508,7 +508,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
 
         await provider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, TestContext.Current.CancellationToken);
 
-        await firstEvent.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        await Utils.WaitOrTimeoutAsync(firstEvent.Task, TestContext.Current.CancellationToken, TimeSpan.FromSeconds(5));
         Assert.Equal(1, Volatile.Read(ref selfRemovals));
 
         // later events must still be delivered, and the removed handler must not run again
@@ -517,13 +517,14 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
 
         await provider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, TestContext.Current.CancellationToken);
 
-        await secondEvent.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        await Utils.WaitOrTimeoutAsync(secondEvent.Task, TestContext.Current.CancellationToken, TimeSpan.FromSeconds(5));
         Assert.Equal(1, Volatile.Read(ref selfRemovals));
 
         // the event executor must still be reading its channel, otherwise setting a provider hangs
-        await Api.Instance
-            .SetProviderAsync(fixture.Create<string>(), new TestProvider(fixture.Create<string>()), TestContext.Current.CancellationToken)
-            .WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        await Utils.WaitOrTimeoutAsync(
+            Api.Instance.SetProviderAsync(fixture.Create<string>(), new TestProvider(fixture.Create<string>()), TestContext.Current.CancellationToken),
+            TestContext.Current.CancellationToken,
+            TimeSpan.FromSeconds(5));
     }
 
     [Fact]
@@ -550,7 +551,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
 
         await provider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, TestContext.Current.CancellationToken);
 
-        await firstEvent.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        await Utils.WaitOrTimeoutAsync(firstEvent.Task, TestContext.Current.CancellationToken, TimeSpan.FromSeconds(5));
         Assert.Equal(1, Volatile.Read(ref selfRemovals));
 
         var secondEvent = new TaskCompletionSource<ProviderEventPayload>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -558,7 +559,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
 
         await provider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, TestContext.Current.CancellationToken);
 
-        await secondEvent.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        await Utils.WaitOrTimeoutAsync(secondEvent.Task, TestContext.Current.CancellationToken, TimeSpan.FromSeconds(5));
         Assert.Equal(1, Volatile.Read(ref selfRemovals));
     }
 
@@ -589,7 +590,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
 
         await provider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, TestContext.Current.CancellationToken);
 
-        await firstEvent.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        await Utils.WaitOrTimeoutAsync(firstEvent.Task, TestContext.Current.CancellationToken, TimeSpan.FromSeconds(5));
         Assert.Equal(1, Volatile.Read(ref selfRemovals));
 
         var secondEvent = new TaskCompletionSource<ProviderEventPayload>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -597,7 +598,7 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
 
         await provider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, TestContext.Current.CancellationToken);
 
-        await secondEvent.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        await Utils.WaitOrTimeoutAsync(secondEvent.Task, TestContext.Current.CancellationToken, TimeSpan.FromSeconds(5));
         Assert.Equal(1, Volatile.Read(ref selfRemovals));
     }
 
@@ -614,11 +615,29 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
         var client = Api.Instance.GetClient(fixture.Create<string>(), fixture.Create<string>());
 
         var registeringHandlerInvocations = 0;
+        var newClientEvent = new TaskCompletionSource<ProviderEventPayload>(TaskCreationOptions.RunContinuationsAsynchronously);
         client.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, _ =>
         {
             Interlocked.Increment(ref registeringHandlerInvocations);
-            var otherClient = Api.Instance.GetClient(fixture.Create<string>(), fixture.Create<string>());
-            otherClient.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, _ => { });
+            var newClient = Api.Instance.GetClient(fixture.Create<string>(), fixture.Create<string>());
+            newClient.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, payload => newClientEvent.TrySetResult(payload!));
+        });
+
+        // registered after the mutating client so it is only reached once the handler list has been mutated
+        var existingClient = Api.Instance.GetClient(fixture.Create<string>(), fixture.Create<string>());
+        var existingClientEvent = new TaskCompletionSource<ProviderEventPayload>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var secondExistingClientEvent = new TaskCompletionSource<ProviderEventPayload>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var existingClientInvocations = 0;
+        existingClient.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, payload =>
+        {
+            if (Interlocked.Increment(ref existingClientInvocations) == 1)
+            {
+                existingClientEvent.TrySetResult(payload!);
+            }
+            else
+            {
+                secondExistingClientEvent.TrySetResult(payload!);
+            }
         });
 
         var otherHandlerEvent = new TaskCompletionSource<ProviderEventPayload>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -626,7 +645,8 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
 
         await provider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, TestContext.Current.CancellationToken);
 
-        await otherHandlerEvent.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        await Utils.WaitOrTimeoutAsync(otherHandlerEvent.Task, TestContext.Current.CancellationToken, TimeSpan.FromSeconds(5));
+        await Utils.WaitOrTimeoutAsync(existingClientEvent.Task, TestContext.Current.CancellationToken, TimeSpan.FromSeconds(5));
         Assert.Equal(1, Volatile.Read(ref registeringHandlerInvocations));
 
         var secondEvent = new TaskCompletionSource<ProviderEventPayload>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -634,8 +654,11 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
 
         await provider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, TestContext.Current.CancellationToken);
 
-        await secondEvent.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        await Utils.WaitOrTimeoutAsync(secondEvent.Task, TestContext.Current.CancellationToken, TimeSpan.FromSeconds(5));
+        await Utils.WaitOrTimeoutAsync(secondExistingClientEvent.Task, TestContext.Current.CancellationToken, TimeSpan.FromSeconds(5));
+        await Utils.WaitOrTimeoutAsync(newClientEvent.Task, TestContext.Current.CancellationToken, TimeSpan.FromSeconds(5));
         Assert.Equal(2, Volatile.Read(ref registeringHandlerInvocations));
+        Assert.Equal(2, Volatile.Read(ref existingClientInvocations));
     }
 
     [Fact]
