@@ -483,6 +483,162 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
     }
 
     [Fact]
+    [Specification("5.1.2", "When a `provider` signals the occurrence of a particular `event`, the associated `client` and `API` event handlers MUST run.")]
+    [Specification("5.2.7", "The `API` and `client` MUST provide a function allowing the removal of event handlers.")]
+    public async Task Client_Level_Event_Handlers_Should_Be_Able_To_Remove_Themselves_During_Event_Delivery()
+    {
+        var fixture = new Fixture();
+
+        var client = Api.Instance.GetClient(fixture.Create<string>(), fixture.Create<string>());
+        var provider = new TestProvider(fixture.Create<string>());
+        await Api.Instance.SetProviderAsync(client.GetMetadata().Name!, provider, TestContext.Current.CancellationToken);
+
+        var selfRemovals = 0;
+        EventHandlerDelegate runOnce = null!;
+        runOnce = _ =>
+        {
+            Interlocked.Increment(ref selfRemovals);
+            client.RemoveHandler(ProviderEventTypes.ProviderConfigurationChanged, runOnce);
+        };
+
+        client.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, runOnce);
+
+        var firstEvent = new TaskCompletionSource<ProviderEventPayload>(TaskCreationOptions.RunContinuationsAsynchronously);
+        client.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, payload => firstEvent.TrySetResult(payload!));
+
+        await provider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, TestContext.Current.CancellationToken);
+
+        await firstEvent.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        Assert.Equal(1, Volatile.Read(ref selfRemovals));
+
+        // later events must still be delivered, and the removed handler must not run again
+        var secondEvent = new TaskCompletionSource<ProviderEventPayload>(TaskCreationOptions.RunContinuationsAsynchronously);
+        client.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, payload => secondEvent.TrySetResult(payload!));
+
+        await provider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, TestContext.Current.CancellationToken);
+
+        await secondEvent.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        Assert.Equal(1, Volatile.Read(ref selfRemovals));
+
+        // the event executor must still be reading its channel, otherwise setting a provider hangs
+        await Api.Instance
+            .SetProviderAsync(fixture.Create<string>(), new TestProvider(fixture.Create<string>()), TestContext.Current.CancellationToken)
+            .WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
+    [Specification("5.1.2", "When a `provider` signals the occurrence of a particular `event`, the associated `client` and `API` event handlers MUST run.")]
+    [Specification("5.2.7", "The `API` and `client` MUST provide a function allowing the removal of event handlers.")]
+    public async Task API_Level_Event_Handlers_Should_Be_Able_To_Remove_Themselves_During_Event_Delivery()
+    {
+        var fixture = new Fixture();
+        var provider = new TestProvider(fixture.Create<string>());
+        await Api.Instance.SetProviderAsync(provider, TestContext.Current.CancellationToken);
+
+        var selfRemovals = 0;
+        EventHandlerDelegate runOnce = null!;
+        runOnce = _ =>
+        {
+            Interlocked.Increment(ref selfRemovals);
+            Api.Instance.RemoveHandler(ProviderEventTypes.ProviderConfigurationChanged, runOnce);
+        };
+
+        Api.Instance.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, runOnce);
+
+        var firstEvent = new TaskCompletionSource<ProviderEventPayload>(TaskCreationOptions.RunContinuationsAsynchronously);
+        Api.Instance.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, payload => firstEvent.TrySetResult(payload!));
+
+        await provider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, TestContext.Current.CancellationToken);
+
+        await firstEvent.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        Assert.Equal(1, Volatile.Read(ref selfRemovals));
+
+        var secondEvent = new TaskCompletionSource<ProviderEventPayload>(TaskCreationOptions.RunContinuationsAsynchronously);
+        Api.Instance.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, payload => secondEvent.TrySetResult(payload!));
+
+        await provider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, TestContext.Current.CancellationToken);
+
+        await secondEvent.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        Assert.Equal(1, Volatile.Read(ref selfRemovals));
+    }
+
+    [Fact]
+    [Specification("5.1.2", "When a `provider` signals the occurrence of a particular `event`, the associated `client` and `API` event handlers MUST run.")]
+    [Specification("5.2.7", "The `API` and `client` MUST provide a function allowing the removal of event handlers.")]
+    public async Task Default_Provider_Event_Handlers_Should_Be_Able_To_Remove_Themselves_During_Event_Delivery()
+    {
+        var fixture = new Fixture();
+
+        var provider = new TestProvider(fixture.Create<string>());
+        await Api.Instance.SetProviderAsync(provider, TestContext.Current.CancellationToken);
+
+        var client = Api.Instance.GetClient(fixture.Create<string>(), fixture.Create<string>());
+
+        var selfRemovals = 0;
+        EventHandlerDelegate runOnce = null!;
+        runOnce = _ =>
+        {
+            Interlocked.Increment(ref selfRemovals);
+            client.RemoveHandler(ProviderEventTypes.ProviderConfigurationChanged, runOnce);
+        };
+
+        client.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, runOnce);
+
+        var firstEvent = new TaskCompletionSource<ProviderEventPayload>(TaskCreationOptions.RunContinuationsAsynchronously);
+        client.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, payload => firstEvent.TrySetResult(payload!));
+
+        await provider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, TestContext.Current.CancellationToken);
+
+        await firstEvent.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        Assert.Equal(1, Volatile.Read(ref selfRemovals));
+
+        var secondEvent = new TaskCompletionSource<ProviderEventPayload>(TaskCreationOptions.RunContinuationsAsynchronously);
+        client.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, payload => secondEvent.TrySetResult(payload!));
+
+        await provider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, TestContext.Current.CancellationToken);
+
+        await secondEvent.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        Assert.Equal(1, Volatile.Read(ref selfRemovals));
+    }
+
+    [Fact]
+    [Specification("5.1.2", "When a `provider` signals the occurrence of a particular `event`, the associated `client` and `API` event handlers MUST run.")]
+    [Specification("5.2.1", "The `client` MUST provide a function for associating `handler functions` with a particular `provider event type`.")]
+    public async Task Event_Handlers_Should_Not_Interrupt_Delivery_When_A_Handler_Registers_A_Handler_For_A_New_Client()
+    {
+        var fixture = new Fixture();
+
+        var provider = new TestProvider(fixture.Create<string>());
+        await Api.Instance.SetProviderAsync(provider, TestContext.Current.CancellationToken);
+
+        var client = Api.Instance.GetClient(fixture.Create<string>(), fixture.Create<string>());
+
+        var registeringHandlerInvocations = 0;
+        client.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, _ =>
+        {
+            Interlocked.Increment(ref registeringHandlerInvocations);
+            var otherClient = Api.Instance.GetClient(fixture.Create<string>(), fixture.Create<string>());
+            otherClient.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, _ => { });
+        });
+
+        var otherHandlerEvent = new TaskCompletionSource<ProviderEventPayload>(TaskCreationOptions.RunContinuationsAsynchronously);
+        client.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, payload => otherHandlerEvent.TrySetResult(payload!));
+
+        await provider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, TestContext.Current.CancellationToken);
+
+        await otherHandlerEvent.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        Assert.Equal(1, Volatile.Read(ref registeringHandlerInvocations));
+
+        var secondEvent = new TaskCompletionSource<ProviderEventPayload>(TaskCreationOptions.RunContinuationsAsynchronously);
+        client.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, payload => secondEvent.TrySetResult(payload!));
+
+        await provider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, TestContext.Current.CancellationToken);
+
+        await secondEvent.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        Assert.Equal(2, Volatile.Read(ref registeringHandlerInvocations));
+    }
+
+    [Fact]
     public void RegisterClientFeatureProvider_WhenCalledWithNullProvider_DoesNotThrowException()
     {
         // Arrange
