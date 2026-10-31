@@ -1,4 +1,4 @@
-namespace OpenFeature.Hosting;
+namespace OpenFeature.DependencyInjection;
 
 /// <summary>
 /// Options to configure the default feature client name.
