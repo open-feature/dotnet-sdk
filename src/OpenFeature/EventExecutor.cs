@@ -250,11 +250,18 @@ internal sealed partial class EventExecutor : IAsyncDisposable
                 continue;
             }
 
-            lock (this._lockObj)
+            try
             {
-                this.ProcessApiHandlers(e);
-                this.ProcessClientHandlers(e);
-                this.ProcessDefaultProviderHandlers(e);
+                lock (this._lockObj)
+                {
+                    this.ProcessApiHandlers(e);
+                    this.ProcessClientHandlers(e);
+                    this.ProcessDefaultProviderHandlers(e);
+                }
+            }
+            catch (Exception exc)
+            {
+                this.ErrorRunningHandler(exc);
             }
         }
     }
@@ -263,7 +270,7 @@ internal sealed partial class EventExecutor : IAsyncDisposable
     {
         if (e.EventPayload?.Type != null && this._apiHandlers.TryGetValue(e.EventPayload.Type, out var eventHandlers))
         {
-            foreach (var eventHandler in eventHandlers)
+            foreach (var eventHandler in eventHandlers.ToArray())
             {
                 this.InvokeEventHandler(eventHandler, e);
             }
@@ -272,14 +279,14 @@ internal sealed partial class EventExecutor : IAsyncDisposable
 
     private void ProcessClientHandlers(Event e)
     {
-        foreach (var keyAndValue in this._namedProviderReferences)
+        foreach (var keyAndValue in this._namedProviderReferences.ToArray())
         {
             if (keyAndValue.Value == e.Provider
                 && this._clientHandlers.TryGetValue(keyAndValue.Key, out var clientRegistry)
                 && e.EventPayload?.Type != null
                 && clientRegistry.TryGetValue(e.EventPayload.Type, out var clientEventHandlers))
             {
-                foreach (var eventHandler in clientEventHandlers)
+                foreach (var eventHandler in clientEventHandlers.ToArray())
                 {
                     this.InvokeEventHandler(eventHandler, e);
                 }
@@ -294,7 +301,7 @@ internal sealed partial class EventExecutor : IAsyncDisposable
             return;
         }
 
-        foreach (var keyAndValues in this._clientHandlers)
+        foreach (var keyAndValues in this._clientHandlers.ToArray())
         {
             if (this._namedProviderReferences.ContainsKey(keyAndValues.Key))
             {
@@ -303,7 +310,7 @@ internal sealed partial class EventExecutor : IAsyncDisposable
 
             if (e.EventPayload?.Type != null && keyAndValues.Value.TryGetValue(e.EventPayload.Type, out var clientEventHandlers))
             {
-                foreach (var eventHandler in clientEventHandlers)
+                foreach (var eventHandler in clientEventHandlers.ToArray())
                 {
                     this.InvokeEventHandler(eventHandler, e);
                 }
