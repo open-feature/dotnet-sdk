@@ -229,6 +229,12 @@ internal sealed partial class EventExecutor : IAsyncDisposable
             {
                 case ProviderEventPayload eventPayload:
                     UpdateProviderStatus(provider, eventPayload);
+
+                    if (eventPayload.Type is ProviderEventTypes.ProviderReady or ProviderEventTypes.ProviderError)
+                    {
+                        provider.LifecycleSettled?.TrySetResult(true);
+                    }
+
                     await this.EventChannel.Writer.WriteAsync(new Event { Provider = provider, EventPayload = eventPayload }).ConfigureAwait(false);
                     break;
             }
