@@ -19,6 +19,8 @@ public sealed class Api : IEventBus
     private readonly ConcurrentStack<Hook> _hooks = new ConcurrentStack<Hook>();
     private ITransactionContextPropagator _transactionContextPropagator = new NoOpTransactionContextPropagator();
     private readonly object _transactionContextPropagatorLock = new();
+    // Keep concurrent callers from disposing the same executor and repository.
+    private readonly SemaphoreSlim _shutdownLock = new(1, 1);
 
     /// The reader/writer locks are not disposed because the singleton instance should never be disposed.
     private readonly ReaderWriterLockSlim _evaluationContextLock = new ReaderWriterLockSlim();
@@ -313,16 +315,24 @@ public sealed class Api : IEventBus
     /// </summary>
     public async Task ShutdownAsync()
     {
-        await using (this._eventExecutor.ConfigureAwait(false))
-        await using (this._repository.ConfigureAwait(false))
+        await this._shutdownLock.WaitAsync().ConfigureAwait(false);
+        try
         {
-            this._evaluationContext = EvaluationContext.Empty;
-            this._hooks.Clear();
-            this._transactionContextPropagator = new NoOpTransactionContextPropagator();
+            await using (this._eventExecutor.ConfigureAwait(false))
+            await using (this._repository.ConfigureAwait(false))
+            {
+                this._evaluationContext = EvaluationContext.Empty;
+                this._hooks.Clear();
+                this._transactionContextPropagator = new NoOpTransactionContextPropagator();
 
-            // TODO: make these lazy to avoid extra allocations on the common cleanup path?
-            this._eventExecutor = new EventExecutor();
-            this._repository = new ProviderRepository();
+                // TODO: make these lazy to avoid extra allocations on the common cleanup path?
+                this._eventExecutor = new EventExecutor();
+                this._repository = new ProviderRepository();
+            }
+        }
+        finally
+        {
+            this._shutdownLock.Release();
         }
     }
 
