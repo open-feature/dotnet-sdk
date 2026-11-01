@@ -662,6 +662,65 @@ public class OpenFeatureEventTest : ClearOpenFeatureInstanceFixture
     }
 
     [Fact]
+    [Specification("5.1.2", "When a `provider` signals the occurrence of a particular `event`, the associated `client` and `API` event handlers MUST run.")]
+    [Specification("5.2.1", "The `client` MUST provide a function for associating `handler functions` with a particular `provider event type`.")]
+    public async Task Event_Handlers_Should_Not_Interrupt_Delivery_When_A_Handler_Registers_A_Named_Provider()
+    {
+        var fixture = new Fixture();
+        var cancellationToken = TestContext.Current.CancellationToken;
+
+        var provider = new TestProvider(fixture.Create<string>());
+        await Api.Instance.SetProviderAsync(provider, cancellationToken);
+
+        var namedDomain = fixture.Create<string>();
+        var namedClient = Api.Instance.GetClient(namedDomain, fixture.Create<string>());
+        await Api.Instance.SetProviderAsync(namedDomain, provider, cancellationToken);
+
+        // the provider is also the default, so this client's handler runs after the named client's handler
+        var existingClient = Api.Instance.GetClient(fixture.Create<string>(), fixture.Create<string>());
+
+        var registeringHandlerInvocations = 0;
+        Task? registration = null;
+        namedClient.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, _ =>
+        {
+            if (Interlocked.Increment(ref registeringHandlerInvocations) == 1)
+            {
+                registration = Api.Instance.SetProviderAsync(
+                    fixture.Create<string>(),
+                    new TestProvider(fixture.Create<string>()),
+                    cancellationToken);
+            }
+        });
+
+        var firstEvent = new TaskCompletionSource<ProviderEventPayload>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var secondEvent = new TaskCompletionSource<ProviderEventPayload>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var existingClientInvocations = 0;
+        existingClient.AddHandler(ProviderEventTypes.ProviderConfigurationChanged, payload =>
+        {
+            if (Interlocked.Increment(ref existingClientInvocations) == 1)
+            {
+                firstEvent.TrySetResult(payload!);
+            }
+            else
+            {
+                secondEvent.TrySetResult(payload!);
+            }
+        });
+
+        await provider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, cancellationToken);
+
+        await Utils.WaitOrTimeoutAsync(firstEvent.Task, cancellationToken, TimeSpan.FromSeconds(5));
+        Assert.Equal(1, Volatile.Read(ref registeringHandlerInvocations));
+
+        await provider.SendEventAsync(ProviderEventTypes.ProviderConfigurationChanged, cancellationToken);
+
+        await Utils.WaitOrTimeoutAsync(secondEvent.Task, cancellationToken, TimeSpan.FromSeconds(5));
+        Assert.Equal(2, Volatile.Read(ref registeringHandlerInvocations));
+        Assert.Equal(2, Volatile.Read(ref existingClientInvocations));
+        await Utils.WaitOrTimeoutAsync(registration!, cancellationToken, TimeSpan.FromSeconds(5));
+    }
+
+    [Fact]
     public void RegisterClientFeatureProvider_WhenCalledWithNullProvider_DoesNotThrowException()
     {
         // Arrange
