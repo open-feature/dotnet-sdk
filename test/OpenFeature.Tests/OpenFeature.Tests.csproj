@@ -3,6 +3,7 @@
   <PropertyGroup>
     <RootNamespace>OpenFeature.Tests</RootNamespace>
     <OutputType>Exe</OutputType>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
