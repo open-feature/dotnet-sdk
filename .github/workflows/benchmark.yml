@@ -63,7 +63,7 @@ jobs:
 
       - name: Run benchmarks
         working-directory: test/OpenFeature.Benchmarks
-        run: dotnet run -c Release --framework net10.0 -- --filter "*" --exporters json
+        run: dotnet run -c Release --framework net9.0 -- --filter "*" --exporters json
 
       - name: Publish benchmark results
         uses: martincostello/benchmarkdotnet-results-publisher@9c523527deddd31d7e022f5db65ccdf3954d32c5 # v2.1.1
