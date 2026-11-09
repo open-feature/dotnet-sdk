@@ -350,23 +350,24 @@ internal sealed partial class EventExecutor : IAsyncDisposable
             this.ErrorRunningHandler(exc);
         }
     }
-private readonly SemaphoreSlim _shutdownLock = new SemaphoreSlim(1,1);
-private bool _ishutdownRequested =false;
+private readonly SemaphoreSlim _shutdownLock = new SemaphoreSlim(1, 1);
+    private bool _isShutdownRequested = false;
 
     public async Task ShutdownAsync()
     {
         await _shutdownLock.WaitAsync().ConfigureAwait(false);
         try
         {
-            if (_ishutdownRequested)
+            if (_isShutdownRequested)
             {
                 return;
             }
-_ishutdownRequested =true;
-        
-        this.EventChannel.Writer.Complete();
-        await this.EventChannel.Reader.Completion.ConfigureAwait(false);
-    }
+            
+            _isShutdownRequested = true;
+
+            this.EventChannel.Writer.Complete();
+            await this.EventChannel.Reader.Completion.ConfigureAwait(false);
+        }
         finally
         {
             _shutdownLock.Release();
