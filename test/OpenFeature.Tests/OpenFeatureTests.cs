@@ -125,6 +125,36 @@ public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
     }
 
     [Fact]
+    public async Task Concurrent_Shutdown_Calls_Wait_For_Ongoing_Cleanup()
+    {
+        var api = Api.Instance;
+        var shutdownStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var releaseShutdown = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var provider = Substitute.For<FeatureProvider>();
+        provider.Status.Returns(ProviderStatus.NotReady);
+        provider.ShutdownAsync(Arg.Any<CancellationToken>()).Returns(_ =>
+        {
+            shutdownStarted.TrySetResult();
+            return releaseShutdown.Task;
+        });
+
+        await api.SetProviderAsync(provider, TestContext.Current.CancellationToken);
+
+        var firstShutdown = api.ShutdownAsync();
+        await shutdownStarted.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        var secondShutdown = api.ShutdownAsync();
+        var secondCompletedBeforeFirst = secondShutdown.IsCompleted;
+
+        releaseShutdown.TrySetResult();
+        await Task.WhenAll(firstShutdown, secondShutdown);
+
+        Assert.False(secondCompletedBeforeFirst);
+#pragma warning disable xUnit1051
+        await provider.Received(1).ShutdownAsync();
+#pragma warning restore xUnit1051
+    }
+
+    [Fact]
     [Specification("1.1.3", "The `API` MUST provide a function to bind a given `provider` to one or more client `name`s. If the client-name already has a bound provider, it is overwritten with the new mapping.")]
     public async Task OpenFeature_Should_Not_Change_Named_Providers_When_Setting_Default_Provider()
     {
