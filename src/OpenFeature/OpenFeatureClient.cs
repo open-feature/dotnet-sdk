@@ -225,12 +225,32 @@ public sealed partial class FeatureClient : IFeatureClient
         // New up an evaluation context if one was not provided.
         context ??= EvaluationContext.Empty;
 
-        // merge api, client, transaction and invocation context
-        var evaluationContextBuilder = EvaluationContext.Builder();
-        evaluationContextBuilder.Merge(this._api.GetContext()); // API context
-        evaluationContextBuilder.Merge(this.GetContext()); // Client context
-        evaluationContextBuilder.Merge(this._api.GetTransactionContext()); // Transaction context
-        evaluationContextBuilder.Merge(context); // Invocation context
+        var apiContext = this._api.GetContext();
+        var clientContext = this.GetContext();
+        var transactionContext = this._api.GetTransactionContext();
+
+        var nonEmptyContextCount = (apiContext.Count > 0 ? 1 : 0) + (clientContext.Count > 0 ? 1 : 0) +
+                                   (transactionContext.Count > 0 ? 1 : 0) + (context.Count > 0 ? 1 : 0);
+
+        EvaluationContext evaluationContext;
+        if (nonEmptyContextCount > 1)
+        {
+            // merge api, client, transaction and invocation context
+            evaluationContext = EvaluationContext.Builder()
+                .Merge(apiContext) // API context
+                .Merge(clientContext) // Client context
+                .Merge(transactionContext) // Transaction context
+                .Merge(context) // Invocation context
+                .Build();
+        }
+        else
+        {
+            evaluationContext = apiContext.Count > 0 ? apiContext
+                : clientContext.Count > 0 ? clientContext
+                : transactionContext.Count > 0 ? transactionContext
+                : context.Count > 0 ? context
+                : EvaluationContext.Empty;
+        }
 
         var allHooks = ImmutableList.CreateBuilder<Hook>()
             .Concat(this._api.GetHooks())
@@ -248,7 +268,7 @@ public sealed partial class FeatureClient : IFeatureClient
         );
 
         FlagEvaluationDetails<T>? evaluation = null;
-        var hookRunner = new HookRunner<T>(allHooks, evaluationContextBuilder.Build(), sharedHookContext,
+        var hookRunner = new HookRunner<T>(allHooks, evaluationContext, sharedHookContext,
             this._logger);
 
         try
