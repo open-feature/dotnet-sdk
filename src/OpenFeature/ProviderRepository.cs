@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using OpenFeature.Constant;
+using OpenFeature.Error;
 using OpenFeature.Model;
 
 namespace OpenFeature;
@@ -86,11 +87,11 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
             this._providersLock.ExitWriteLock();
         }
 
-        await InitProviderAsync(this._defaultProvider, context, afterInitSuccess, afterInitError, cancellationToken)
+        await this.InitProviderAsync(this._defaultProvider, context, afterInitSuccess, afterInitError, cancellationToken)
             .ConfigureAwait(false);
     }
 
-    private static async Task InitProviderAsync(
+    private async Task InitProviderAsync(
         FeatureProvider? newProvider,
         EvaluationContext context,
         Func<FeatureProvider, CancellationToken, Task>? afterInitialization,
@@ -101,11 +102,31 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
         {
             return;
         }
+
+        // A provider that defines an initialization function but does not opt in to emitting its own
+        // lifecycle events relies on the SDK's deprecated synthetic PROVIDER_READY/PROVIDER_ERROR path
+        // (spec v0.9.0, Appendix E).
+        if (newProvider.OverridesInitialize() && !newProvider.EmitsLifecycleEvents)
+        {
+            this.LegacyLifecycleEventsDeprecated(newProvider.GetMetadata()?.Name);
+        }
+
         if (newProvider.Status == ProviderStatus.NotReady)
         {
+            var settled = newProvider.EmitsLifecycleEvents && newProvider.OverridesInitialize()
+                ? new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously)
+                : null;
+            newProvider.LifecycleSettled = settled;
+
             try
             {
                 await newProvider.InitializeAsync(context, cancellationToken).ConfigureAwait(false);
+                if (settled != null)
+                {
+                    using var registration = cancellationToken.Register(() => settled.TrySetCanceled(cancellationToken));
+                    await settled.Task.ConfigureAwait(false);
+                }
+
                 if (afterInitialization != null)
                 {
                     await afterInitialization.Invoke(newProvider, cancellationToken).ConfigureAwait(false);
@@ -113,10 +134,27 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
             }
             catch (Exception ex)
             {
+                if (settled is { Task.IsCompleted: false }
+                    && newProvider.GetEventChannel().Reader.TryPeek(out var pending)
+                    && pending is ProviderEventPayload { Type: ProviderEventTypes.ProviderError })
+                {
+                    await settled.Task.ConfigureAwait(false);
+                }
+
+                if (settled is { Task.Status: not TaskStatus.RanToCompletion })
+                {
+                    this.LifecycleErrorEventMissing(newProvider.GetMetadata()?.Name, ex);
+                    newProvider.Status = ex is ProviderFatalException ? ProviderStatus.Fatal : ProviderStatus.Error;
+                }
+
                 if (afterError != null)
                 {
                     await afterError.Invoke(newProvider, ex, cancellationToken).ConfigureAwait(false);
                 }
+            }
+            finally
+            {
+                newProvider.LifecycleSettled = null;
             }
         }
     }
@@ -174,7 +212,7 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
             this._providersLock.ExitWriteLock();
         }
 
-        await InitProviderAsync(featureProvider, context, afterInitSuccess, afterInitError, cancellationToken).ConfigureAwait(false);
+        await this.InitProviderAsync(featureProvider, context, afterInitSuccess, afterInitError, cancellationToken).ConfigureAwait(false);
     }
 
     /// <remarks>
@@ -298,4 +336,10 @@ internal sealed partial class ProviderRepository : IAsyncDisposable
 
     [LoggerMessage(EventId = 105, Level = LogLevel.Error, Message = "Error shutting down provider: {TargetProviderName}`")]
     partial void ErrorShuttingDownProvider(string? targetProviderName, Exception exception);
+
+    [LoggerMessage(EventId = 106, Level = LogLevel.Debug, Message = "Provider '{TargetProviderName}' relies on the SDK to emit synthetic PROVIDER_READY/PROVIDER_ERROR events. This behavior is deprecated (OpenFeature spec v0.9.0); providers should emit their own lifecycle events and set FeatureProvider.EmitsLifecycleEvents to true.")]
+    partial void LegacyLifecycleEventsDeprecated(string? targetProviderName);
+
+    [LoggerMessage(EventId = 107, Level = LogLevel.Warning, Message = "Provider '{TargetProviderName}' threw during initialization before a PROVIDER_READY/PROVIDER_ERROR event was processed. Providers that emit their own lifecycle events must emit PROVIDER_ERROR before throwing. Setting status to ERROR.")]
+    partial void LifecycleErrorEventMissing(string? targetProviderName, Exception exception);
 }

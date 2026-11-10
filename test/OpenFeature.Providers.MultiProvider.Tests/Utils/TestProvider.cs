@@ -28,14 +28,20 @@ public class TestProvider : FeatureProvider
     private readonly string _name;
     private readonly Exception? _initException;
     private readonly Exception? _shutdownException;
+    private readonly bool _emitsLifecycleEvents;
+    private readonly Task? _initGate;
     private readonly List<TrackingInvocation> _trackingInvocations = new();
 
-    public TestProvider(string name, Exception? initException = null, Exception? shutdownException = null)
+    public TestProvider(string name, Exception? initException = null, Exception? shutdownException = null, bool emitsLifecycleEvents = false, Task? initGate = null)
     {
         this._name = name;
         this._initException = initException;
         this._shutdownException = shutdownException;
+        this._emitsLifecycleEvents = emitsLifecycleEvents;
+        this._initGate = initGate;
     }
+
+    public override bool EmitsLifecycleEvents => this._emitsLifecycleEvents;
 
     public IReadOnlyList<TrackingInvocation> GetTrackingInvocations() => this._trackingInvocations.AsReadOnly();
 
@@ -47,10 +53,23 @@ public class TestProvider : FeatureProvider
     {
         if (this._initException != null)
         {
+            if (this._emitsLifecycleEvents)
+            {
+                await this.SendProviderEventAsync(ProviderEventTypes.ProviderError, ErrorType.ProviderFatal, cancellationToken).ConfigureAwait(false);
+            }
+
             throw this._initException;
         }
 
-        await Task.CompletedTask;
+        if (this._emitsLifecycleEvents)
+        {
+            await this.SendProviderEventAsync(ProviderEventTypes.ProviderReady, cancellationToken: cancellationToken).ConfigureAwait(false);
+        }
+
+        if (this._initGate != null)
+        {
+            await this._initGate.ConfigureAwait(false);
+        }
     }
 
     public override async Task ShutdownAsync(CancellationToken cancellationToken = default)
