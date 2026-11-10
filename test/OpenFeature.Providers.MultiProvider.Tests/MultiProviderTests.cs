@@ -159,15 +159,48 @@ public class MultiProviderClassTests
         };
         var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
-        this._mockProvider1.InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
-        this._mockProvider2.InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+        this._mockProvider1.InitializeAsync(this._evaluationContext, null, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+        this._mockProvider2.InitializeAsync(this._evaluationContext, null, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
 
         // Act
         await multiProvider.InitializeAsync(this._evaluationContext, TestContext.Current.CancellationToken);
 
         // Assert
-        await this._mockProvider1.Received(1).InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>());
-        await this._mockProvider2.Received(1).InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>());
+        await this._mockProvider1.Received(1).InitializeAsync(this._evaluationContext, null, Arg.Any<CancellationToken>());
+        await this._mockProvider2.Received(1).InitializeAsync(this._evaluationContext, null, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task InitializeAsync_WithDomain_PassesDomainToProviders()
+    {
+        // Arrange
+        var providerEntries = new List<ProviderEntry>
+        {
+            new(this._mockProvider1, Provider1Name),
+            new(this._mockProvider2, Provider2Name)
+        };
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
+
+        this._mockProvider1.InitializeAsync(this._evaluationContext, "my-domain", Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+        this._mockProvider2.InitializeAsync(this._evaluationContext, "my-domain", Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+
+        // Act
+        await multiProvider.InitializeAsync(this._evaluationContext, "my-domain", TestContext.Current.CancellationToken);
+
+        // Assert
+        await this._mockProvider1.Received(1).InitializeAsync(this._evaluationContext, "my-domain", Arg.Any<CancellationToken>());
+        await this._mockProvider2.Received(1).InitializeAsync(this._evaluationContext, "my-domain", Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public void IsDomainScoped_IsFalse()
+    {
+        // Arrange
+        var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
+        var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
+
+        // Act & Assert
+        Assert.False(multiProvider.IsDomainScoped);
     }
 
     [Fact]
@@ -182,8 +215,8 @@ public class MultiProviderClassTests
         };
         var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
-        this._mockProvider1.InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
-        this._mockProvider2.InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>()).ThrowsAsync(expectedException);
+        this._mockProvider1.InitializeAsync(this._evaluationContext, null, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+        this._mockProvider2.InitializeAsync(this._evaluationContext, null, Arg.Any<CancellationToken>()).ThrowsAsync(expectedException);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<AggregateException>(() => multiProvider.InitializeAsync(this._evaluationContext, TestContext.Current.CancellationToken));
@@ -566,7 +599,7 @@ public class MultiProviderClassTests
         var providerEntries = new List<ProviderEntry> { new(this._mockProvider1, Provider1Name) };
         var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
-        this._mockProvider1.InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+        this._mockProvider1.InitializeAsync(this._evaluationContext, null, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
 
         using var cts = new CancellationTokenSource();
 
@@ -574,7 +607,7 @@ public class MultiProviderClassTests
         await multiProvider.InitializeAsync(this._evaluationContext, cts.Token);
 
         // Assert
-        await this._mockProvider1.Received(1).InitializeAsync(this._evaluationContext, cts.Token);
+        await this._mockProvider1.Received(1).InitializeAsync(this._evaluationContext, null, cts.Token);
     }
 
     [Fact]
@@ -608,17 +641,17 @@ public class MultiProviderClassTests
         };
         var multiProvider = new MultiProvider(providerEntries, this._mockStrategy);
 
-        this._mockProvider1.InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
-        this._mockProvider2.InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
-        this._mockProvider3.InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+        this._mockProvider1.InitializeAsync(this._evaluationContext, null, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+        this._mockProvider2.InitializeAsync(this._evaluationContext, null, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+        this._mockProvider3.InitializeAsync(this._evaluationContext, null, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
 
         // Act & Assert
         await multiProvider.InitializeAsync(this._evaluationContext, TestContext.Current.CancellationToken);
 
         // Verify all providers were called
-        await this._mockProvider1.Received(1).InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>());
-        await this._mockProvider2.Received(1).InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>());
-        await this._mockProvider3.Received(1).InitializeAsync(this._evaluationContext, Arg.Any<CancellationToken>());
+        await this._mockProvider1.Received(1).InitializeAsync(this._evaluationContext, null, Arg.Any<CancellationToken>());
+        await this._mockProvider2.Received(1).InitializeAsync(this._evaluationContext, null, Arg.Any<CancellationToken>());
+        await this._mockProvider3.Received(1).InitializeAsync(this._evaluationContext, null, Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -792,7 +825,7 @@ public class MultiProviderClassTests
             multiProvider.InitializeAsync(this._evaluationContext, TestContext.Current.CancellationToken));
 
         // Verify that the underlying provider was never called since the object was disposed
-        await this._mockProvider1.DidNotReceive().InitializeAsync(Arg.Any<EvaluationContext>(), Arg.Any<CancellationToken>());
+        await this._mockProvider1.DidNotReceive().InitializeAsync(Arg.Any<EvaluationContext>(), Arg.Any<string?>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]

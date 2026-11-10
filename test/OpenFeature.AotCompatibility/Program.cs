@@ -31,6 +31,9 @@ internal class Program
             // Test isolated API instances
             await TestIsolatedApiAsync();
 
+            // Test domain-scoped provider binding and domain-aware initialization
+            await TestDomainScopedProviderAsync();
+
             // Test MultiProvider AOT compatibility
             await TestMultiProviderAotCompatibilityAsync();
 
@@ -137,6 +140,60 @@ internal class Program
         Console.WriteLine($"✓- Error flag evaluation: {errorResult.Value} (Error: {errorResult.ErrorType})");
         Console.WriteLine($"✓- Error message: '{errorResult.ErrorMessage}'");
         Console.WriteLine("✓- GetDescription() method was executed internally by the SDK during error handling");
+    }
+
+    private static async Task TestDomainScopedProviderAsync()
+    {
+        Console.WriteLine("\nTesting domain-scoped provider initialization...");
+
+        // Use an isolated instance. The other tests share the singleton, and this test must not change it.
+        var isolated = OpenFeatureFactory.CreateIsolated();
+
+        // The SDK must pass the bound domain to the provider when it initializes the provider.
+        // Domain binding uses no reflection, so it is not sensitive to AOT. This test runs the domain-aware
+        // registration path in a native binary. The other tests in this program only register default providers.
+        var scopedProvider = new DomainScopedTestProvider();
+        await isolated.SetProviderAsync("domain-a", scopedProvider);
+        if (scopedProvider.InitializedDomain != "domain-a")
+        {
+            throw new InvalidOperationException(
+                $"Expected the bound domain to be supplied to initialization, but got '{scopedProvider.InitializedDomain}'.");
+        }
+        Console.WriteLine($"✓- Bound domain supplied to initialization: '{scopedProvider.InitializedDomain}'");
+
+        // A domain-scoped instance serves one domain at most. The SDK must reject a second binding.
+        var rejected = false;
+        try
+        {
+            await isolated.SetProviderAsync("domain-b", scopedProvider);
+        }
+        catch (InvalidOperationException)
+        {
+            rejected = true;
+        }
+
+        if (!rejected)
+        {
+            throw new InvalidOperationException(
+                "Expected a domain-scoped provider to be rejected when bound to a second domain.");
+        }
+        Console.WriteLine("✓- Domain-scoped provider rejected when bound to a second domain");
+
+        // After the rejection, the first binding must still be in place.
+        if (isolated.GetProviderMetadata("domain-a")?.Name != scopedProvider.GetMetadata().Name)
+        {
+            throw new InvalidOperationException("Expected the original domain binding to survive the rejection.");
+        }
+        Console.WriteLine("✓- Original domain binding left intact after the rejection");
+
+        // A provider that is not domain-scoped can serve several domains from one instance.
+        var sharedProvider = new TestProvider();
+        await isolated.SetProviderAsync("domain-c", sharedProvider);
+        await isolated.SetProviderAsync("domain-d", sharedProvider);
+        Console.WriteLine("✓- Provider that is not domain-scoped serves multiple domains");
+
+        await isolated.ShutdownAsync();
+        Console.WriteLine("✓- Domain-scoped test instance shut down successfully");
     }
 
     private static async Task TestMultiProviderAotCompatibilityAsync()
@@ -327,6 +384,24 @@ internal class TestProvider : FeatureProvider
     public override Task<ResolutionDetails<Value>> ResolveStructureValueAsync(string flagKey, Value defaultValue,
         EvaluationContext? context = null, CancellationToken cancellationToken = default)
         => Task.FromResult(new ResolutionDetails<Value>(flagKey, new Value("test")));
+}
+
+/// <summary>
+/// A domain-scoped test provider. It records the domain that the SDK passes to initialization,
+/// so the test can make sure that the domain arrives and that a second binding is rejected.
+/// </summary>
+internal class DomainScopedTestProvider : TestProvider
+{
+    public string? InitializedDomain { get; private set; }
+
+    public override bool IsDomainScoped => true;
+
+    public override Task InitializeAsync(EvaluationContext context, string? domain,
+        CancellationToken cancellationToken = default)
+    {
+        this.InitializedDomain = domain;
+        return Task.CompletedTask;
+    }
 }
 
 /// <summary>

@@ -151,7 +151,11 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
     }
 
     /// <inheritdoc/>
-    public override async Task InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default)
+    public override Task InitializeAsync(EvaluationContext context, CancellationToken cancellationToken = default)
+        => this.InitializeAsync(context, null, cancellationToken);
+
+    /// <inheritdoc/>
+    public override async Task InitializeAsync(EvaluationContext context, string? domain, CancellationToken cancellationToken = default)
     {
         if (this._disposed == 1)
         {
@@ -170,7 +174,7 @@ public sealed partial class MultiProvider : FeatureProvider, IAsyncDisposable
             {
                 try
                 {
-                    await rp.Provider.InitializeAsync(context, cancellationToken).ConfigureAwait(false);
+                    await rp.Provider.InitializeAsync(context, domain, cancellationToken).ConfigureAwait(false);
                     rp.SetStatus(ProviderStatus.Ready);
                     return new ChildProviderStatus { ProviderName = rp.Name };
                 }
