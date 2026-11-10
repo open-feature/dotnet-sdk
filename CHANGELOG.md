@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.14.2](https://github.com/open-feature/dotnet-sdk/compare/v2.14.1...v2.14.2) (2026-11-10)
+
+
+### 🐛 Bug Fixes
+
+* continue event delivery when handlers change during dispatch ([#849](https://github.com/open-feature/dotnet-sdk/issues/849)) ([983c88c](https://github.com/open-feature/dotnet-sdk/commit/983c88cdc80edf79124818191e8ea0145e41e296))
+* pass cancellation token to provider initialization for DI service ([#819](https://github.com/open-feature/dotnet-sdk/issues/819)) ([f3342e3](https://github.com/open-feature/dotnet-sdk/commit/f3342e3893ba71ec826d9a5f59c474f5484a908d))
+* provider ready events not publishing for DI service ([#818](https://github.com/open-feature/dotnet-sdk/issues/818)) ([47d6fdb](https://github.com/open-feature/dotnet-sdk/commit/47d6fdbe8130425beca8e66673c507027b7d7e2e))
+* use semantic convention error.type values in evaluation events ([#852](https://github.com/open-feature/dotnet-sdk/issues/852)) ([d1b502f](https://github.com/open-feature/dotnet-sdk/commit/d1b502f839a6a3adad48abd6039b4cb7ae185cdf))
+
 ## [2.14.1](https://github.com/open-feature/dotnet-sdk/compare/v2.14.0...v2.14.1) (2026-08-08)
 
 
