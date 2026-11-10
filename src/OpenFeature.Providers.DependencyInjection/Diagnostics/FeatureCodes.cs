@@ -1,4 +1,4 @@
-namespace OpenFeature.Hosting.Diagnostics;
+namespace OpenFeature.DependencyInjection.Diagnostics;
 
 /// <summary>
 /// Contains identifiers for experimental features and diagnostics in the OpenFeature framework.

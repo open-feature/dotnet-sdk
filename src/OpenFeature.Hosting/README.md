@@ -145,6 +145,20 @@ builder.Services.Configure<FeatureLifecycleStateOptions>(options => {
 });
 ```
 
+## 🔀 What changed in this release
+
+The dependency-injection building blocks (`OpenFeatureBuilder` and the `AddProvider` / `AddHook` / `AddContext` / `AddHandler` extensions) were extracted into a new, hosting-free [`OpenFeature.Providers.DependencyInjection`](https://www.nuget.org/packages/OpenFeature.Providers.DependencyInjection) package so provider and community library authors can integrate without taking a dependency on `Microsoft.Extensions.Hosting`. `OpenFeature.Hosting` now builds on that package, so application developers keep using `AddOpenFeature(...)` exactly as before.
+
+If you are upgrading, note these **breaking changes**:
+
+| Change | Before | After |
+| --- | --- | --- |
+| Builder extensions (`AddInMemoryProvider`, `AddProvider`, `AddHook`, `AddContext`, `AddHandler`) moved namespace | `using OpenFeature.Hosting.Providers.Memory;` (and related) | `using OpenFeature;` |
+| `OpenFeatureBuilder`, `OpenFeatureOptions`, `InMemoryProviderOptions` moved namespace | `OpenFeature.Hosting.*` | `OpenFeature.DependencyInjection` |
+| `AddHostedFeatureLifecycle()` removed | `.AddHostedFeatureLifecycle()` (obsolete) | Delete the call — lifecycle is registered automatically by `AddOpenFeature(...)` |
+
+Update your `using` directives accordingly; no changes to the `AddOpenFeature(...)` call itself are required.
+
 ## 📚 Further Reading
 
 - [OpenFeature .NET SDK Documentation](https://github.com/open-feature/dotnet-sdk)
