@@ -44,7 +44,7 @@ public sealed class EvaluationEventBuilder<T>
 
         if (details.ErrorType != ErrorType.None)
         {
-            attributes[TelemetryConstants.ErrorCode] = details.ErrorType.ToString().ToLowerInvariant();
+            attributes[TelemetryConstants.ErrorCode] = details.ErrorType.GetFlagEvaluationErrorDescription();
 
             if (!string.IsNullOrWhiteSpace(details.ErrorMessage))
             {
