@@ -236,88 +236,97 @@ public class OpenFeatureHookTests : ClearOpenFeatureInstanceFixture
     }
 
     [Fact]
-    [Specification("3.2.2", "Evaluation context MUST be merged in the order: API (global; lowest precedence) - client - invocation - before hooks (highest precedence), with duplicate values being overwritten.")]
+    [Specification("3.2.1.1", "The API, Client and invocation MUST have a method for supplying evaluation context.")]
+    [Specification("3.2.3", "Evaluation context MUST be merged in the order: API (global; lowest precedence) -> transaction -> client -> invocation -> before hooks (highest precedence), with duplicate values being overwritten.")]
     [Specification("4.3.4", "When `before` hooks have finished executing, any resulting `evaluation context` MUST be merged with the existing `evaluation context`.")]
     public async Task Evaluation_Context_Must_Be_Merged_In_Correct_Order()
     {
-        var propGlobal = "4.3.4global";
-        var propGlobalToOverwrite = "4.3.4globalToOverwrite";
-
-        var propClient = "4.3.4client";
-        var propClientToOverwrite = "4.3.4clientToOverwrite";
-
-        var propInvocation = "4.3.4invocation";
-        var propInvocationToOverwrite = "4.3.4invocationToOverwrite";
-
-        var propTransaction = "4.3.4transaction";
-        var propTransactionToOverwrite = "4.3.4transactionToOverwrite";
-
-        var propHook = "4.3.4hook";
-
-        // setup a cascade of overwriting properties
+        // each commonN key is set in exactly two layers; the higher precedence layer must win
         Api.Instance.SetContext(new EvaluationContextBuilder()
-            .Set(propGlobal, true)
-            .Set(propGlobalToOverwrite, false)
+            .Set("api", "1")
+            .Set("common1", "1")
+            .Set("common2", "1")
+            .Set("common3", "1")
+            .Set("common7", "1")
+            .Build());
+
+        Api.Instance.SetTransactionContextPropagator(new AsyncLocalTransactionContextPropagator());
+        Api.Instance.SetTransactionContext(new EvaluationContextBuilder()
+            .Set("transaction", "2")
+            .Set("common1", "2")
+            .Set("common4", "2")
+            .Set("common5", "2")
             .Build());
 
         var clientContext = new EvaluationContextBuilder()
-            .Set(propClient, true)
-            .Set(propGlobalToOverwrite, true)
-            .Set(propClientToOverwrite, false)
-            .Build();
-
-        var transactionContext = new EvaluationContextBuilder()
-            .Set(propTransaction, true)
-            .Set(propInvocationToOverwrite, true)
-            .Set(propTransactionToOverwrite, false)
+            .Set("client", "3")
+            .Set("common2", "3")
+            .Set("common4", "3")
+            .Set("common6", "3")
             .Build();
 
         var invocationContext = new EvaluationContextBuilder()
-            .Set(propInvocation, true)
-            .Set(propClientToOverwrite, true)
-            .Set(propTransactionToOverwrite, true)
-            .Set(propInvocationToOverwrite, false)
+            .Set("invocation", "4")
+            .Set("common3", "4")
+            .Set("common5", "4")
+            .Set("common6", "4")
+            .Set("common8", "4")
             .Build();
-
 
         var hookContext = new EvaluationContextBuilder()
-            .Set(propHook, true)
-            .Set(propInvocationToOverwrite, true)
+            .Set("before", "5")
+            .Set("common7", "5")
+            .Set("common8", "5")
             .Build();
 
-        var transactionContextPropagator = new AsyncLocalTransactionContextPropagator();
-        transactionContextPropagator.SetTransactionContext(transactionContext);
-        Api.Instance.SetTransactionContextPropagator(transactionContextPropagator);
-
+        EvaluationContext? resolvedContext = null;
         var provider = Substitute.For<FeatureProvider>();
-
         provider.GetMetadata().Returns(new Metadata(null));
-
         provider.GetProviderHooks().Returns(ImmutableList<Hook>.Empty);
-
-        provider.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<EvaluationContext>(), TestContext.Current.CancellationToken).Returns(new ResolutionDetails<bool>("test", true));
-
+        provider.ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Do<EvaluationContext>(c => resolvedContext = c), Arg.Any<CancellationToken>())
+            .Returns(new ResolutionDetails<bool>("test", true));
         await Api.Instance.SetProviderAsync(provider, TestContext.Current.CancellationToken);
 
+        EvaluationContext? beforeContext = null;
+        EvaluationContext? afterContext = null;
         var hook = Substitute.For<Hook>();
-        hook.BeforeAsync(Arg.Any<HookContext<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), TestContext.Current.CancellationToken).Returns(hookContext);
-
+        hook.BeforeAsync(Arg.Do<HookContext<bool>>(c => beforeContext = c.EvaluationContext), Arg.Any<ImmutableDictionary<string, object>>(), Arg.Any<CancellationToken>()).Returns(hookContext);
+        _ = hook.AfterAsync(Arg.Do<HookContext<bool>>(c => afterContext = c.EvaluationContext), Arg.Any<FlagEvaluationDetails<bool>>(), Arg.Any<ImmutableDictionary<string, object>>(), Arg.Any<CancellationToken>());
 
         var client = Api.Instance.GetClient("test", "1.0.0", null, clientContext);
         await client.GetBooleanValueAsync("test", false, invocationContext, new FlagEvaluationOptions(ImmutableList.Create(hook), ImmutableDictionary<string, object>.Empty), TestContext.Current.CancellationToken);
 
-        // after proper merging, all properties should equal true
-        _ = provider.Received(1).ResolveBooleanValueAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Is<EvaluationContext>(y =>
-                    (y!.GetValue(propGlobal).AsBoolean ?? false)
-            && (y.GetValue(propClient).AsBoolean ?? false)
-            && (y.GetValue(propTransaction).AsBoolean ?? false)
-            && (y.GetValue(propGlobalToOverwrite).AsBoolean ?? false)
-            && (y.GetValue(propTransactionToOverwrite).AsBoolean ?? false)
-            && (y.GetValue(propInvocation).AsBoolean ?? false)
-            && (y.GetValue(propClientToOverwrite).AsBoolean ?? false)
-            && (y.GetValue(propHook).AsBoolean ?? false)
-            && (y.GetValue(propInvocationToOverwrite).AsBoolean ?? false)
-        ), TestContext.Current.CancellationToken);
+        AssertLayersMerged(beforeContext);
+        Assert.Equal("1", beforeContext!.GetValue("common7").AsString); // api, before hook not yet applied
+        Assert.Equal("4", beforeContext.GetValue("common8").AsString); // invocation, before hook not yet applied
+
+        AssertLayersMerged(afterContext);
+        AssertBeforeHookMerged(afterContext!);
+
+        AssertLayersMerged(resolvedContext);
+        AssertBeforeHookMerged(resolvedContext!);
+
+        static void AssertLayersMerged(EvaluationContext? context)
+        {
+            Assert.NotNull(context);
+            Assert.Equal("1", context.GetValue("api").AsString);
+            Assert.Equal("2", context.GetValue("transaction").AsString);
+            Assert.Equal("3", context.GetValue("client").AsString);
+            Assert.Equal("4", context.GetValue("invocation").AsString);
+            Assert.Equal("2", context.GetValue("common1").AsString); // transaction over api
+            Assert.Equal("3", context.GetValue("common2").AsString); // client over api
+            Assert.Equal("4", context.GetValue("common3").AsString); // invocation over api
+            Assert.Equal("3", context.GetValue("common4").AsString); // client over transaction
+            Assert.Equal("4", context.GetValue("common5").AsString); // invocation over transaction
+            Assert.Equal("4", context.GetValue("common6").AsString); // invocation over client
+        }
+
+        static void AssertBeforeHookMerged(EvaluationContext context)
+        {
+            Assert.Equal("5", context.GetValue("before").AsString);
+            Assert.Equal("5", context.GetValue("common7").AsString); // before hook over api
+            Assert.Equal("5", context.GetValue("common8").AsString); // before hook over invocation
+        }
     }
 
     [Fact]

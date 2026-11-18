@@ -226,28 +226,28 @@ public sealed partial class FeatureClient : IFeatureClient
         context ??= EvaluationContext.Empty;
 
         var apiContext = this._api.GetContext();
-        var clientContext = this.GetContext();
         var transactionContext = this._api.GetTransactionContext();
+        var clientContext = this.GetContext();
 
-        var nonEmptyContextCount = (apiContext.Count > 0 ? 1 : 0) + (clientContext.Count > 0 ? 1 : 0) +
-                                   (transactionContext.Count > 0 ? 1 : 0) + (context.Count > 0 ? 1 : 0);
+        var nonEmptyContextCount = (apiContext.Count > 0 ? 1 : 0) + (transactionContext.Count > 0 ? 1 : 0) +
+                                   (clientContext.Count > 0 ? 1 : 0) + (context.Count > 0 ? 1 : 0);
 
         EvaluationContext evaluationContext;
         if (nonEmptyContextCount > 1)
         {
-            // merge api, client, transaction and invocation context
+            // merge api, transaction, client and invocation context (spec 3.2.3)
             evaluationContext = EvaluationContext.Builder()
                 .Merge(apiContext) // API context
-                .Merge(clientContext) // Client context
                 .Merge(transactionContext) // Transaction context
+                .Merge(clientContext) // Client context
                 .Merge(context) // Invocation context
                 .Build();
         }
         else
         {
             evaluationContext = apiContext.Count > 0 ? apiContext
-                : clientContext.Count > 0 ? clientContext
                 : transactionContext.Count > 0 ? transactionContext
+                : clientContext.Count > 0 ? clientContext
                 : context.Count > 0 ? context
                 : EvaluationContext.Empty;
         }
@@ -366,10 +366,13 @@ public sealed partial class FeatureClient : IFeatureClient
         }
 
         var globalContext = this._api.GetContext();
+        var transactionContext = this._api.GetTransactionContext();
         var clientContext = this.GetContext();
 
+        // merge api, transaction, client and invocation context (spec 6.1.3)
         var evaluationContextBuilder = EvaluationContext.Builder()
             .Merge(globalContext)
+            .Merge(transactionContext)
             .Merge(clientContext);
         if (evaluationContext != null) evaluationContextBuilder.Merge(evaluationContext);
 
