@@ -128,13 +128,13 @@ public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
     public async Task Concurrent_Shutdown_Calls_Wait_For_Ongoing_Cleanup()
     {
         var api = Api.Instance;
-        var shutdownStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        var releaseShutdown = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var shutdownStarted = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var releaseShutdown = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         var provider = Substitute.For<FeatureProvider>();
         provider.Status.Returns(ProviderStatus.NotReady);
         provider.ShutdownAsync(Arg.Any<CancellationToken>()).Returns(_ =>
         {
-            shutdownStarted.TrySetResult();
+            shutdownStarted.TrySetResult(true);
             return releaseShutdown.Task;
         });
 
@@ -145,7 +145,7 @@ public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
         var secondShutdown = api.ShutdownAsync();
         var secondCompletedBeforeFirst = secondShutdown.IsCompleted;
 
-        releaseShutdown.TrySetResult();
+        releaseShutdown.TrySetResult(true);
         await Task.WhenAll(firstShutdown, secondShutdown);
 
         Assert.False(secondCompletedBeforeFirst);
