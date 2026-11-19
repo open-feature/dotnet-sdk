@@ -611,56 +611,57 @@ public class OpenFeatureClientTests : ClearOpenFeatureInstanceFixture
         Assert.Null(ex);
     }
 
-    public static TheoryData<string, EvaluationContext?, EvaluationContext?, EvaluationContext?, string> GenerateMergeEvaluationContextTestData()
-    {
-        const string key = "key";
-        const string global = "global";
-        const string client = "client";
-        const string invocation = "invocation";
-        var globalEvaluationContext = new[] { new EvaluationContextBuilder().Set(key, "global").Build(), null };
-        var clientEvaluationContext = new[] { new EvaluationContextBuilder().Set(key, "client").Build(), null };
-        var invocationEvaluationContext = new[] { new EvaluationContextBuilder().Set(key, "invocation").Build(), null };
-
-        var data = new TheoryData<string, EvaluationContext?, EvaluationContext?, EvaluationContext?, string>();
-        for (int i = 0; i < 2; i++)
-        {
-            for (int j = 0; j < 2; j++)
-            {
-                for (int k = 0; k < 2; k++)
-                {
-                    if (i == 1 && j == 1 && k == 1) continue;
-                    string expected;
-                    if (k == 0) expected = invocation;
-                    else if (j == 0) expected = client;
-                    else expected = global;
-                    data.Add(key, globalEvaluationContext[i], clientEvaluationContext[j], invocationEvaluationContext[k], expected);
-                }
-            }
-        }
-
-        return data;
-    }
-
-    [Theory]
-    [MemberData(nameof(GenerateMergeEvaluationContextTestData))]
-    [Specification("6.1.3", "The evaluation context passed to the provider's track function MUST be merged in the order: API (global; lowest precedence) - transaction - client - invocation (highest precedence), with duplicate values being overwritten.")]
-    public async Task TheClient_MergesTheEvaluationContextInTheCorrectOrder(string key, EvaluationContext? globalEvaluationContext, EvaluationContext? clientEvaluationContext, EvaluationContext? invocationEvaluationContext, string expectedResult)
+    [Fact]
+    [Specification("6.1.3", "The evaluation context passed to the provider's track function MUST be merged in the order: API (global; lowest precedence) -> transaction -> client -> invocation (highest precedence), with duplicate values being overwritten.")]
+    public async Task TheClient_MergesTheEvaluationContextInTheCorrectOrder()
     {
         var provider = new TestProvider();
         await Api.Instance.SetProviderAsync(provider, TestContext.Current.CancellationToken);
+
+        // each commonN key is set in exactly two layers; the higher precedence layer must win
+        Api.Instance.SetContext(new EvaluationContextBuilder()
+            .Set("api", "1")
+            .Set("common1", "1")
+            .Set("common2", "1")
+            .Set("common3", "1")
+            .Build());
+
+        Api.Instance.SetTransactionContextPropagator(new AsyncLocalTransactionContextPropagator());
+        Api.Instance.SetTransactionContext(new EvaluationContextBuilder()
+            .Set("transaction", "2")
+            .Set("common1", "2")
+            .Set("common4", "2")
+            .Set("common5", "2")
+            .Build());
+
         var client = Api.Instance.GetClient();
+        client.SetContext(new EvaluationContextBuilder()
+            .Set("client", "3")
+            .Set("common2", "3")
+            .Set("common4", "3")
+            .Set("common6", "3")
+            .Build());
 
-        const string trackingEventName = "trackingEventName";
+        client.Track("trackingEventName", new EvaluationContextBuilder()
+            .Set("invocation", "4")
+            .Set("common3", "4")
+            .Set("common5", "4")
+            .Set("common6", "4")
+            .Build());
 
-        Api.Instance.SetContext(globalEvaluationContext);
-        client.SetContext(clientEvaluationContext);
-        client.Track(trackingEventName, invocationEvaluationContext);
-        Assert.Single(provider.GetTrackingInvocations());
-        var actualEvaluationContext = provider.GetTrackingInvocations()[0].Item2;
-        Assert.NotNull(actualEvaluationContext);
-        Assert.NotEqual(0, actualEvaluationContext.Count);
-
-        Assert.Equal(expectedResult, actualEvaluationContext.GetValue(key).AsString);
+        var invocation = Assert.Single(provider.GetTrackingInvocations());
+        var trackedContext = invocation.Item2;
+        Assert.NotNull(trackedContext);
+        Assert.Equal("1", trackedContext.GetValue("api").AsString);
+        Assert.Equal("2", trackedContext.GetValue("transaction").AsString);
+        Assert.Equal("3", trackedContext.GetValue("client").AsString);
+        Assert.Equal("4", trackedContext.GetValue("invocation").AsString);
+        Assert.Equal("2", trackedContext.GetValue("common1").AsString); // transaction over api
+        Assert.Equal("3", trackedContext.GetValue("common2").AsString); // client over api
+        Assert.Equal("4", trackedContext.GetValue("common3").AsString); // invocation over api
+        Assert.Equal("3", trackedContext.GetValue("common4").AsString); // client over transaction
+        Assert.Equal("4", trackedContext.GetValue("common5").AsString); // invocation over transaction
+        Assert.Equal("4", trackedContext.GetValue("common6").AsString); // invocation over client
     }
 
     [Theory]
