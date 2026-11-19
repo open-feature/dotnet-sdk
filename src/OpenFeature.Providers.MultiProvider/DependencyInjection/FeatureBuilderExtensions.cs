@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OpenFeature.Hosting;
+using OpenFeature.DependencyInjection;
 
 namespace OpenFeature.Providers.MultiProvider.DependencyInjection;
 

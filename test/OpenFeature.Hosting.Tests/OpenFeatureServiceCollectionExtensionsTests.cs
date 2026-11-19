@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
+using OpenFeature.DependencyInjection;
 
 namespace OpenFeature.Hosting.Tests;
 

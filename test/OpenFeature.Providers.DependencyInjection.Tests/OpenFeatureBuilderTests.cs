@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
+using OpenFeature.DependencyInjection;
 
-namespace OpenFeature.Hosting.Tests;
+namespace OpenFeature.Providers.DependencyInjection.Tests;
 
 public class OpenFeatureBuilderTests
 {

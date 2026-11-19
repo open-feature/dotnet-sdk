@@ -3,7 +3,6 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using OpenFeature;
 using OpenFeature.Hooks;
-using OpenFeature.Hosting.Providers.Memory;
 using OpenFeature.Model;
 using OpenFeature.Providers.Memory;
 using OpenFeature.Providers.MultiProvider;
