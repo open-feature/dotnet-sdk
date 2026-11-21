@@ -60,6 +60,32 @@ public class EvaluationEventBuilderTests
         Assert.Equal("errorMessage", evaluationEvent.Attributes[TelemetryConstants.ErrorMessage]);
     }
 
+    [Theory]
+    [InlineData(ErrorType.ProviderNotReady, "provider_not_ready")]
+    [InlineData(ErrorType.FlagNotFound, "flag_not_found")]
+    [InlineData(ErrorType.ParseError, "parse_error")]
+    [InlineData(ErrorType.TypeMismatch, "type_mismatch")]
+    [InlineData(ErrorType.General, "general")]
+    [InlineData(ErrorType.InvalidContext, "invalid_context")]
+    [InlineData(ErrorType.TargetingKeyMissing, "targeting_key_missing")]
+    [InlineData(ErrorType.ProviderFatal, "provider_fatal")]
+    public void Build_ShouldMapErrorTypeToSemanticConventionValue(ErrorType errorType, string expected)
+    {
+        // Arrange
+        var clientMetadata = new ClientMetadata("client", "1.0.0");
+        var providerMetadata = new Metadata("provider");
+        var hookContext = new HookContext<Value>("flagKey", new Value(), FlagValueType.Object, clientMetadata,
+            providerMetadata, EvaluationContext.Empty);
+        var details = new FlagEvaluationDetails<Value>("flagKey", new Value("value"), errorType,
+            errorMessage: "errorMessage", reason: Reason.Error, variant: null);
+
+        // Act
+        var evaluationEvent = EvaluationEventBuilder<Value>.Build(hookContext, details);
+
+        // Assert
+        Assert.Equal(expected, evaluationEvent.Attributes[TelemetryConstants.ErrorCode]);
+    }
+
     [Fact]
     public void Build_ShouldHandleMissingVariant()
     {
