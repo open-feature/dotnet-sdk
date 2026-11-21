@@ -142,7 +142,7 @@ public class OpenFeatureTests : ClearOpenFeatureInstanceFixture
 
         var firstShutdown = api.ShutdownAsync();
 #if NETFRAMEWORK
-        var delayTask = Task.Delay(TimeSpan.FromSeconds(5));
+        var delayTask = Task.Delay(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
         await Task.WhenAny(shutdownStarted.Task, delayTask);
 #else
         await shutdownStarted.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
