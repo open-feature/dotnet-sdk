@@ -1,5 +1,5 @@
 {
-  "lastUpdated": 1795276350406,
+  "lastUpdated": 1795317357650,
   "repoUrl": "https://github.com/open-feature/dotnet-sdk",
   "entries": {
     "OpenFeature.Benchmark.OpenFeatureClientBenchmarks": [
@@ -18346,6 +18346,141 @@
             "bytesAllocated": 1496
           }
         ]
+      },
+      {
+        "commit": {
+          "author": {
+            "username": "ErfanJoghataei"
+          },
+          "committer": {
+            "username": "web-flow"
+          },
+          "sha": "7ec21ba2c4b9924cfb9221cbd1719d3b46dac0fb",
+          "message": "fix: serialize concurrent API shutdown calls (#841)\n\n* fix: serialize concurrent API shutdown calls\n\nSigned-off-by: Erfan Joghataei <erfan.joghataei2020@gmail.com>\n\n* fixup: use generic TaskCompletionSource for net472 compat\n\nSigned-off-by: Todd Baert <todd.baert@dynatrace.com>\n\n* fix: ensure concurrent shutdown calls respect cancellation with a delay\n\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\n\n* fix: ensure cancellation token is respected during shutdown delay in tests\n\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\n\n---------\n\nSigned-off-by: Erfan Joghataei <erfan.joghataei2020@gmail.com>\nSigned-off-by: Todd Baert <todd.baert@dynatrace.com>\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\nCo-authored-by: Todd Baert <todd.baert@dynatrace.com>\nCo-authored-by: André Silva <2493377+askpt@users.noreply.github.com>",
+          "timestamp": "2026-11-21T15:44:25Z",
+          "url": "https://github.com/open-feature/dotnet-sdk/commit/7ec21ba2c4b9924cfb9221cbd1719d3b46dac0fb"
+        },
+        "date": 1795317357650,
+        "metadata": {
+          "environment": {
+            "Architecture": "X64",
+            "BenchmarkDotNetVersion": "0.15.8",
+            "DotNetCliVersion": "10.0.404",
+            "LogicalCoreCount": 4,
+            "OsVersion": "Linux Ubuntu 26.04.1 LTS (Resolute Raccoon)",
+            "PhysicalCoreCount": 2,
+            "PhysicalProcessorCount": 1,
+            "ProcessorName": "AMD EPYC 9V45",
+            "RuntimeVersion": ".NET 10.0.15 (10.0.15, 10.0.1526.53008)"
+          }
+        },
+        "benches": [
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetBooleanValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 4829.148789625901,
+            "unit": "ns",
+            "range": "± 25.424449129066836",
+            "bytesAllocated": 1408
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetBooleanValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 5073.813385356556,
+            "unit": "ns",
+            "range": "± 119.95596287914951",
+            "bytesAllocated": 1408
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetBooleanValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions",
+            "value": 5068.295219930013,
+            "unit": "ns",
+            "range": "± 55.8335125577048",
+            "bytesAllocated": 1408
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetStringValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 4925.338309696743,
+            "unit": "ns",
+            "range": "± 67.52148191951271",
+            "bytesAllocated": 1496
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetStringValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 4967.488424173991,
+            "unit": "ns",
+            "range": "± 65.0397191695059",
+            "bytesAllocated": 1496
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetStringValue_WithoutEvaluationContext_WithEmptyFlagEvaluationOptions",
+            "value": 4869.29244333903,
+            "unit": "ns",
+            "range": "± 69.37393989437668",
+            "bytesAllocated": 1496
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetIntegerValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 4816.145728047689,
+            "unit": "ns",
+            "range": "± 30.715516260208435",
+            "bytesAllocated": 1480
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetIntegerValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 4778.683916727702,
+            "unit": "ns",
+            "range": "± 27.11378257615489",
+            "bytesAllocated": 1480
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetIntegerValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions",
+            "value": 4862.034876142229,
+            "unit": "ns",
+            "range": "± 48.757488847320396",
+            "bytesAllocated": 1480
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetDoubleValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 4872.685981750488,
+            "unit": "ns",
+            "range": "± 50.53422562611626",
+            "bytesAllocated": 1496
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetDoubleValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 4816.764334615072,
+            "unit": "ns",
+            "range": "± 22.40650807568371",
+            "bytesAllocated": 1496
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetDoubleValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions",
+            "value": 4877.886511230468,
+            "unit": "ns",
+            "range": "± 58.10266121137123",
+            "bytesAllocated": 1496
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetObjectValue_WithoutEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 4851.201435089111,
+            "unit": "ns",
+            "range": "± 64.75666271901176",
+            "bytesAllocated": 1496
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetObjectValue_WithEmptyEvaluationContext_WithoutFlagEvaluationOptions",
+            "value": 4813.677415114183,
+            "unit": "ns",
+            "range": "± 35.756006255445136",
+            "bytesAllocated": 1496
+          },
+          {
+            "name": "OpenFeature.Benchmark.OpenFeatureClientBenchmarks.OpenFeatureClient_GetObjectValue_WithEmptyEvaluationContext_WithEmptyFlagEvaluationOptions",
+            "value": 4833.1885657677285,
+            "unit": "ns",
+            "range": "± 20.810344695253097",
+            "bytesAllocated": 1496
+          }
+        ]
       }
     ],
     "OpenFeature.Benchmark.EvaluationContextMergeBenchmarks": [
@@ -18651,6 +18786,57 @@
             "value": 4028.7172951017105,
             "unit": "ns",
             "range": "± 113.98450959492358",
+            "bytesAllocated": 4008
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "username": "ErfanJoghataei"
+          },
+          "committer": {
+            "username": "web-flow"
+          },
+          "sha": "7ec21ba2c4b9924cfb9221cbd1719d3b46dac0fb",
+          "message": "fix: serialize concurrent API shutdown calls (#841)\n\n* fix: serialize concurrent API shutdown calls\n\nSigned-off-by: Erfan Joghataei <erfan.joghataei2020@gmail.com>\n\n* fixup: use generic TaskCompletionSource for net472 compat\n\nSigned-off-by: Todd Baert <todd.baert@dynatrace.com>\n\n* fix: ensure concurrent shutdown calls respect cancellation with a delay\n\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\n\n* fix: ensure cancellation token is respected during shutdown delay in tests\n\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\n\n---------\n\nSigned-off-by: Erfan Joghataei <erfan.joghataei2020@gmail.com>\nSigned-off-by: Todd Baert <todd.baert@dynatrace.com>\nSigned-off-by: André Silva <2493377+askpt@users.noreply.github.com>\nCo-authored-by: Todd Baert <todd.baert@dynatrace.com>\nCo-authored-by: André Silva <2493377+askpt@users.noreply.github.com>",
+          "timestamp": "2026-11-21T15:44:25Z",
+          "url": "https://github.com/open-feature/dotnet-sdk/commit/7ec21ba2c4b9924cfb9221cbd1719d3b46dac0fb"
+        },
+        "date": 1795317357650,
+        "metadata": {
+          "environment": {
+            "Architecture": "X64",
+            "BenchmarkDotNetVersion": "0.15.8",
+            "DotNetCliVersion": "10.0.404",
+            "LogicalCoreCount": 4,
+            "OsVersion": "Linux Ubuntu 26.04.1 LTS (Resolute Raccoon)",
+            "PhysicalCoreCount": 2,
+            "PhysicalProcessorCount": 1,
+            "ProcessorName": "AMD EPYC 9V45",
+            "RuntimeVersion": ".NET 10.0.15 (10.0.15, 10.0.1526.53008)"
+          }
+        },
+        "benches": [
+          {
+            "name": "OpenFeature.Benchmark.EvaluationContextMergeBenchmarks.AllContextsEmpty",
+            "value": 350.66970046361286,
+            "unit": "ns",
+            "range": "± 5.121641628571728",
+            "bytesAllocated": 1288
+          },
+          {
+            "name": "OpenFeature.Benchmark.EvaluationContextMergeBenchmarks.OnlyInvocationContext",
+            "value": 933.9457953316825,
+            "unit": "ns",
+            "range": "± 15.146763338398102",
+            "bytesAllocated": 1608
+          },
+          {
+            "name": "OpenFeature.Benchmark.EvaluationContextMergeBenchmarks.ApiClientAndInvocationContexts",
+            "value": 3806.9033460617065,
+            "unit": "ns",
+            "range": "± 14.259022270296793",
             "bytesAllocated": 4008
           }
         ]
