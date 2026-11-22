@@ -42,6 +42,9 @@ public sealed class Api : IEventBus
     /// </summary>
     /// <remarks>The provider cannot be set to null. Attempting to set the provider to null has no effect. May throw an exception if <paramref name="featureProvider"/> cannot be initialized.</remarks>
     /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
+    /// <exception cref="InvalidOperationException">
+    /// <paramref name="featureProvider"/> declares itself domain-scoped and is already bound to a domain
+    /// </exception>
     /// <returns>A <see cref="Task"/> that completes once Provider initialization is complete.</returns>
     public Task SetProviderAsync(FeatureProvider featureProvider)
     {
@@ -55,10 +58,13 @@ public sealed class Api : IEventBus
     /// <remarks>The provider cannot be set to null. Attempting to set the provider to null has no effect. May throw an exception if <paramref name="featureProvider"/> cannot be initialized.</remarks>
     /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
     /// <param name="cancellationToken">Propagates notification that the provider initialization should be canceled.</param>
+    /// <exception cref="InvalidOperationException">
+    /// <paramref name="featureProvider"/> declares itself domain-scoped and is already bound to a domain
+    /// </exception>
     /// <returns>A <see cref="Task"/> that completes once Provider initialization is complete.</returns>
     public async Task SetProviderAsync(FeatureProvider featureProvider, CancellationToken cancellationToken)
     {
-        this.ValidateProviderOwnership(featureProvider);
+        this.ValidateProviderBinding(featureProvider, null);
         this._eventExecutor.RegisterDefaultFeatureProvider(featureProvider);
         await this._repository.SetProviderAsync(featureProvider, this.GetContext(), this.AfterInitializationAsync, this.AfterErrorAsync, cancellationToken)
             .ConfigureAwait(false);
@@ -72,6 +78,9 @@ public sealed class Api : IEventBus
     /// <param name="domain">An identifier which logically binds clients with providers</param>
     /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
     /// <exception cref="ArgumentNullException">domain cannot be null or empty</exception>
+    /// <exception cref="InvalidOperationException">
+    /// <paramref name="featureProvider"/> declares itself domain-scoped and is already bound to another domain
+    /// </exception>
     /// <returns>A <see cref="Task"/> that completes once Provider initialization is complete.</returns>
     public Task SetProviderAsync(string domain, FeatureProvider featureProvider)
     {
@@ -87,6 +96,9 @@ public sealed class Api : IEventBus
     /// <param name="featureProvider">Implementation of <see cref="FeatureProvider"/></param>
     /// <param name="cancellationToken">Propagates notification that the provider initialization should be canceled.</param>
     /// <exception cref="ArgumentNullException">domain cannot be null or empty</exception>
+    /// <exception cref="InvalidOperationException">
+    /// <paramref name="featureProvider"/> declares itself domain-scoped and is already bound to another domain
+    /// </exception>
     /// <returns>A <see cref="Task"/> that completes once Provider initialization is complete.</returns>
     public async Task SetProviderAsync(string domain, FeatureProvider featureProvider, CancellationToken cancellationToken)
     {
@@ -94,7 +106,7 @@ public sealed class Api : IEventBus
         {
             throw new ArgumentNullException(nameof(domain));
         }
-        this.ValidateProviderOwnership(featureProvider);
+        this.ValidateProviderBinding(featureProvider, domain);
         this._eventExecutor.RegisterClientFeatureProvider(domain, featureProvider);
         await this._repository.SetProviderAsync(domain, featureProvider, this.GetContext(), this.AfterInitializationAsync, this.AfterErrorAsync, cancellationToken)
             .ConfigureAwait(false);
@@ -415,12 +427,27 @@ public sealed class Api : IEventBus
     }
 
     /// <summary>
-    /// Validates that the given provider is not already bound to a different API instance.
+    /// Makes sure that the given provider can be bound to this API instance under the given domain.
     /// </summary>
-    /// <param name="featureProvider">The provider to validate ownership for.</param>
-    /// <exception cref="InvalidOperationException">Thrown if the provider is already bound to a different API instance.</exception>
-    private void ValidateProviderOwnership(FeatureProvider featureProvider)
+    /// <remarks>
+    /// The domain check does not record the binding. If the check fails, no state changes.
+    /// <see cref="ProviderRepository"/> records the binding when it installs the provider, under its write
+    /// lock. That is the final decision.
+    /// </remarks>
+    /// <param name="featureProvider">The provider to check.</param>
+    /// <param name="domain">The domain the provider is being bound to, or <c>null</c> for the default provider.</param>
+    /// <exception cref="InvalidOperationException">
+    /// The provider is already bound to a different API instance, or the provider is domain-scoped and is
+    /// already bound to a different domain.
+    /// </exception>
+    /// <seealso href="https://openfeature.dev/specification/sections/flag-evaluation#condition-118">Specification 1.1.8.1</seealso>
+    private void ValidateProviderBinding(FeatureProvider featureProvider, string? domain)
     {
+        if (featureProvider.IsDomainScoped && !featureProvider.CanBindDomain(domain))
+        {
+            throw new InvalidOperationException(ProviderRepository.DomainScopedBindingError);
+        }
+
         if (!featureProvider.TryBindApiInstance(this))
         {
             throw new InvalidOperationException(
