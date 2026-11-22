@@ -26,7 +26,7 @@ To enable NativeAOT in your project, add these properties to your `.csproj` file
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework> <!-- or net9.0, net10.0 -->
+    <TargetFramework>net8.0</TargetFramework> <!-- or net9.0, net10.0, net11.0 -->
     <OutputType>Exe</OutputType>
 
     <!-- Enable NativeAOT -->
@@ -86,7 +86,7 @@ dotnet build -c Release
 dotnet publish -c Release
 
 # Run the native executable (example path for macOS ARM64)
-./bin/Release/net9.0/osx-arm64/publish/MyApp
+./bin/Release/net11.0/osx-arm64/publish/MyApp
 ```
 
 ## Performance Benefits
@@ -112,7 +112,7 @@ Run the test:
 ```bash
 cd test/OpenFeature.AotCompatibility
 dotnet publish -c Release
-./bin/Release/net9.0/[runtime]/publish/OpenFeature.AotCompatibility
+./bin/Release/net11.0/[runtime]/publish/OpenFeature.AotCompatibility
 ```
 
 ## Limitations
