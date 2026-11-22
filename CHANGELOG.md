@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.14.2](https://github.com/open-feature/dotnet-sdk/compare/v2.14.1...v2.14.2) (2026-11-21)
+
+
+### 🐛 Bug Fixes
+
+* continue event delivery when handlers change during dispatch ([#849](https://github.com/open-feature/dotnet-sdk/issues/849)) ([983c88c](https://github.com/open-feature/dotnet-sdk/commit/983c88cdc80edf79124818191e8ea0145e41e296))
+* evaluation context merge order ([#860](https://github.com/open-feature/dotnet-sdk/issues/860)) ([522d801](https://github.com/open-feature/dotnet-sdk/commit/522d801ea83699e72ce4633ba250ed6be0fcdd1b)), closes [#859](https://github.com/open-feature/dotnet-sdk/issues/859)
+* **multi-provider:** MultiProvider silently dropping child Provider events ([#848](https://github.com/open-feature/dotnet-sdk/issues/848)) ([1b372e4](https://github.com/open-feature/dotnet-sdk/commit/1b372e4f4df99df04166bed79366d0ca526be18b))
+* pass cancellation token to provider initialization for DI service ([#819](https://github.com/open-feature/dotnet-sdk/issues/819)) ([f3342e3](https://github.com/open-feature/dotnet-sdk/commit/f3342e3893ba71ec826d9a5f59c474f5484a908d))
+* provider ready events not publishing for DI service ([#818](https://github.com/open-feature/dotnet-sdk/issues/818)) ([47d6fdb](https://github.com/open-feature/dotnet-sdk/commit/47d6fdbe8130425beca8e66673c507027b7d7e2e))
+* serialize concurrent API shutdown calls ([#841](https://github.com/open-feature/dotnet-sdk/issues/841)) ([7ec21ba](https://github.com/open-feature/dotnet-sdk/commit/7ec21ba2c4b9924cfb9221cbd1719d3b46dac0fb))
+* use semantic convention error.type values in evaluation events ([#852](https://github.com/open-feature/dotnet-sdk/issues/852)) ([d1b502f](https://github.com/open-feature/dotnet-sdk/commit/d1b502f839a6a3adad48abd6039b4cb7ae185cdf))
+
+
+### 🚀 Performance
+
+* Skip the evaluation context merge on every flag evaluation when it isn't needed ([#842](https://github.com/open-feature/dotnet-sdk/issues/842)) ([810976a](https://github.com/open-feature/dotnet-sdk/commit/810976abe0541d8d2dc798772b7e4d2507176741))
+
 ## [2.14.1](https://github.com/open-feature/dotnet-sdk/compare/v2.14.0...v2.14.1) (2026-08-08)
 
 
