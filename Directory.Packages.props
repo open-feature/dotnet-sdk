@@ -59,6 +59,10 @@
     <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="10.0.0" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="11.0.0" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(OS)' == 'Unix'">
     <PackageVersion Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" />
   </ItemGroup>
