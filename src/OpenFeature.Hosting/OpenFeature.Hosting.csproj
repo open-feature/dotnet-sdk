@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <RootNamespace>OpenFeature</RootNamespace>
@@ -11,6 +11,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\OpenFeature\OpenFeature.csproj" />
+        <ProjectReference Include="..\OpenFeature.Providers.DependencyInjection\OpenFeature.Providers.DependencyInjection.csproj" />
     </ItemGroup>
 
     <ItemGroup>

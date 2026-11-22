@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace OpenFeature.Hosting;
+namespace OpenFeature.DependencyInjection;
 
 /// <summary>
 /// Describes a <see cref="OpenFeatureBuilder"/> backed by an <see cref="IServiceCollection"/>.
